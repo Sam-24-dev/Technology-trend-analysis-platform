@@ -1,6 +1,6 @@
 tecnologia,total_preguntas,respuestas_aceptadas,tasa_aceptacion_pct
-svelte,565,375,66.37
-reactjs,924,607,65.69
-vue.js,984,613,62.3
-next.js,890,511,57.42
-angular,688,365,53.05
+reactjs,4025,952,23.65
+vue.js,758,186,24.54
+angular,2403,697,29.01
+next.js,1980,360,18.18
+svelte,256,100,39.06
