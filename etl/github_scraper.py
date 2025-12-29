@@ -329,9 +329,7 @@ def main():
     if not verificar_conexion():
         print("No se pudo conectar a GitHub. Verifica tu token.")
         return
-    
-    os.makedirs("../datos", exist_ok=True)
-    
+
     df_repos = extraer_repos_2025()
     analizar_lenguajes(df_repos)
     analizar_commits_frameworks()
