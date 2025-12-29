@@ -1,76 +1,103 @@
-# Technology Trend Analysis Platform 
+# Technology Trend Analysis Platform
 
-A comprehensive Data Intelligence Dashboard designed to analyze and visualize software development trends for 2025 using real-time data from **GitHub**, **StackOverflow**, and **Reddit**.
+Plataforma de analisis de tendencias tecnologicas que extrae y visualiza datos de **GitHub**, **StackOverflow** y **Reddit** para facilitar decisiones informadas sobre tecnologias de desarrollo.
 
-##  Project Overview
+## Integrantes
 
-This platform solves the complexity of selecting technologies by providing data-driven insights on popularity, community support, and sentiment analysis.
+- **Samir Caizapasto** - GitHub ETL
+- **Andres Salinas** - StackOverflow ETL
+- **Mateo Mayorga** - Reddit ETL
 
-##  Architecture
+## Estado del Proyecto
 
-The system follows a decoupled Client-Server architecture with REST APIs:
+| Componente | Estado | Descripcion |
+|------------|--------|-------------|
+| ETL Scripts | ✅ Completado | Extraccion de datos de las 3 fuentes |
+| Datos CSV | ✅ Completado | Datasets generados en `/datos` |
+| Base de Datos | ⏳ Pendiente | MySQL para almacenamiento |
+| Backend API | ⏳ Pendiente | FastAPI REST endpoints |
+| Frontend | ⏳ Pendiente | Flutter Web Dashboard |
 
-* **ETL Layer:** Python scripts for automated data extraction (API & Scraping).
-* **Data Layer:** MySQL database for structured storage.
-* **Backend:** FastAPI (Python) serving REST endpoints.
-* **Frontend:** Flutter Web for interactive data visualization.
+## Estructura del Proyecto
 
-##  Tech Stack
+```
+Technology-trend-analysis-platform/
+├── etl/                          # Scripts de extraccion
+│   ├── github_etl.py             # Scraper GitHub (Samir)
+│   ├── stackoverflow_etl.py      # Scraper StackOverflow (Andres)
+│   ├── reddit_etl.py             # Scraper Reddit (Mateo)
+│   ├── config.py                 # Configuracion compartida
+│   └── requirements.txt          # Dependencias Python
+├── datos/                        # CSVs generados
+│   ├── github_repos_2025.csv
+│   ├── github_lenguajes.csv
+│   ├── github_commits_frameworks.csv
+│   ├── github_correlacion.csv
+│   ├── so_volumen_preguntas.csv
+│   ├── so_tasa_aceptacion.csv
+│   ├── so_tendencias_mensuales.csv
+│   ├── reddit_sentimiento_frameworks.csv
+│   ├── reddit_temas_emergentes.csv
+│   └── interseccion_github_reddit.csv
+├── backend/                      # (Pendiente) FastAPI
+├── frontend/                     # (Pendiente) Flutter Web
+└── README.md
+```
 
-| Category | Technologies |
-|----------|-------------|
-| **Languages** | Python (Backend/ETL), Dart (Frontend), SQL |
-| **Frameworks** | FastAPI, Flutter Web |
-| **Data & Analytics** | Pandas, NumPy, MySQL |
-| **Tools** | Git, GitHub |
+## Instalacion
 
-##  Key Features
-
-1. **GitHub Analytics:** Top languages by repo creation & commit activity.
-2. **StackOverflow Insights:** Technology maturity via accepted answer rates.
-3. **Community Sentiment:** Reddit analysis on backend frameworks.
-
-##  Installation & Setup
-
-### 1. Clone the repository
+### 1. Clonar repositorio
 
 ```bash
 git clone https://github.com/Sam-24-dev/Technology-trend-analysis-platform.git
 cd Technology-trend-analysis-platform
 ```
 
-### 2. Setup Backend (Python)
+### 2. Instalar dependencias
 
 ```bash
-cd backend
+cd etl
 pip install -r requirements.txt
-uvicorn main:app --reload
 ```
 
-### 3. Setup Frontend (Flutter)
+### 3. Configurar credenciales
+
+Crear archivo `.env` en la raiz del proyecto:
+
+```
+GITHUB_TOKEN=tu_token_aqui
+```
+
+### 4. Ejecutar ETL
 
 ```bash
-cd frontend
-flutter run -d chrome
+python github_etl.py
+python stackoverflow_etl.py
+python reddit_etl.py
 ```
 
-##  Project Structure
+## Preguntas de Investigacion
 
-```
-Technology-trend-analysis-platform/
-├── backend/          # FastAPI REST API
-├── frontend/         # Flutter Web Application
-├── etl/              # ETL scripts for data extraction
-├── database/         # SQL schemas and migrations
-└── README.md
-```
+### GitHub (Samir)
+1. Top 10 lenguajes con mayor creacion de repos en 2025
+2. Actividad de commits en frameworks frontend (React, Vue, Angular)
+3. Correlacion entre Stars y Contributors
 
-##  Authors
+### StackOverflow (Andres)
+1. Lenguajes con mayor volumen de preguntas en 2025
+2. Tasa de respuestas aceptadas por tecnologia
+3. Tendencias mensuales Python vs JavaScript vs TypeScript
 
-- **Samir Caizapasto** 
-- **Andrés Salinas** 
-- **Mateo Mayorga** 
+### Reddit (Mateo)
+1. Analisis de sentimiento en frameworks backend
+2. Temas emergentes en r/webdev (IA, Cloud, Web3)
+3. Interseccion de popularidad GitHub vs Reddit
 
----
+## Tech Stack
 
-
+| Categoria | Tecnologias |
+|-----------|-------------|
+| ETL | Python, Requests, Pandas, NLTK |
+| Backend | FastAPI (pendiente) |
+| Frontend | Flutter Web (pendiente) |
+| Base de Datos | MySQL (pendiente) |

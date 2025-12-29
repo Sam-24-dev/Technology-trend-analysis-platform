@@ -362,7 +362,7 @@ def main():
         
         # Para la pregunta 3, necesitamos cargar los datos de GitHub
         try:
-            repos_csv_path = os.path.join(DATOS_DIR, "repos_2025_raw.csv")
+            repos_csv_path = os.path.join(DATOS_DIR, "github_repos_2025.csv")
             df_repos = pd.read_csv(repos_csv_path)
             df_coincidencias = interseccion_tecnologias(df_repos, df_temas)
         except FileNotFoundError:

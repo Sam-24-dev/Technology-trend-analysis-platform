@@ -119,8 +119,8 @@ def extraer_repos_2025(max_repos=MAX_REPOS):
     print(f"Extraidos {len(repos_data)} repos")
     
     df = pd.DataFrame(repos_data)
-    df.to_csv("../datos/repos_2025_raw.csv", index=False, encoding="utf-8")
-    print(f"Guardado en: datos/repos_2025_raw.csv")
+    df.to_csv("../datos/github_repos_2025.csv", index=False, encoding="utf-8")
+    print(f"Guardado en: datos/github_repos_2025.csv")
     
     return df
 
@@ -150,8 +150,8 @@ def analizar_lenguajes(df_repos):
     otros = total_repos - suma_top10
     print(f"Otros lenguajes: {otros} repos ({otros/total_repos*100:.1f}%)")
     
-    df_lenguajes.to_csv("../datos/lenguajes_2025.csv", index=False, encoding="utf-8")
-    print(f"Guardado en: datos/lenguajes_2025.csv")
+    df_lenguajes.to_csv("../datos/github_lenguajes.csv", index=False, encoding="utf-8")
+    print(f"Guardado en: datos/github_lenguajes.csv")
     
     return df_lenguajes
 
@@ -222,8 +222,8 @@ def analizar_commits_frameworks():
     for i, row in df_commits.iterrows():
         print(f"  #{row['ranking']} {row['framework']}: {row['commits_2025']} commits")
     
-    df_commits.to_csv("../datos/frameworks_commits.csv", index=False, encoding="utf-8")
-    print(f"Guardado en: datos/frameworks_commits.csv")
+    df_commits.to_csv("../datos/github_commits_frameworks.csv", index=False, encoding="utf-8")
+    print(f"Guardado en: datos/github_commits_frameworks.csv")
     
     return df_commits
 
@@ -312,8 +312,8 @@ def analizar_correlacion(df_repos):
         else:
             print("  Correlacion negativa o nula")
     
-    df_correlacion.to_csv("../datos/stars_vs_contributors.csv", index=False, encoding="utf-8")
-    print(f"Guardado en: datos/stars_vs_contributors.csv")
+    df_correlacion.to_csv("../datos/github_correlacion.csv", index=False, encoding="utf-8")
+    print(f"Guardado en: datos/github_correlacion.csv")
     
     return df_correlacion
 
@@ -339,10 +339,10 @@ def main():
     print("SCRAPING COMPLETADO")
     print("=" * 50)
     print("\nArchivos generados en carpeta 'datos/':")
-    print("  1. repos_2025_raw.csv (dataset base)")
-    print("  2. lenguajes_2025.csv (Pregunta 1)")
-    print("  3. frameworks_commits.csv (Pregunta 2)")
-    print("  4. stars_vs_contributors.csv (Pregunta 3)")
+    print("  1. github_repos_2025.csv (dataset base)")
+    print("  2. github_lenguajes.csv (Pregunta 1)")
+    print("  3. github_commits_frameworks.csv (Pregunta 2)")
+    print("  4. github_correlacion.csv (Pregunta 3)")
 
 
 if __name__ == "__main__":
