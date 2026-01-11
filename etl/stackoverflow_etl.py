@@ -128,25 +128,32 @@ data_trends = []
 
 # Generar rangos de fechas para los meses de 2025 que ya han pasado
 current_year = 2025
-current_month = datetime.now().month
+# ELIMINAMOS O COMENTAMOS LA DEPENDENCIA DEL MES ACTUAL
+# current_month = datetime.now().month 
 
-# Loop por cada mes hasta el actual
-for mes_idx in range(1, 13): # 1 a 12
-    # Si estamos en mayo, no consultamos junio/dic
-    if mes_idx > current_month: 
-        break
+# Loop por cada mes del 1 al 12
+for mes_idx in range(1, 13): 
+    # COMENTAMOS EL BLOQUEO DE MESES FUTUROS
+    # if mes_idx > current_month: 
+    #    break
         
     nombre_mes = calendar.month_abbr[mes_idx]
     
     # Calcular timestamps inicio y fin del mes
     start_date = datetime(current_year, mes_idx, 1)
-    # Truco para obtener el último día del mes
     last_day = calendar.monthrange(current_year, mes_idx)[1]
     end_date = datetime(current_year, mes_idx, last_day, 23, 59, 59)
     
     ts_start = int(start_date.timestamp())
     ts_end = int(end_date.timestamp())
     
+    # Verificamos que no estemos pidiendo datos del futuro (opcional, para evitar errores de API)
+    if start_date > datetime.now():
+        print(f"   > Saltando {nombre_mes} (Futuro)...")
+        row = {'mes': nombre_mes, 'python': 0, 'javascript': 0, 'typescript': 0}
+        data_trends.append(row)
+        continue
+
     print(f"   > Consultando {nombre_mes} 2025...")
     
     row = {'mes': nombre_mes}
@@ -160,7 +167,7 @@ for mes_idx in range(1, 13): # 1 a 12
         }
         count = get_total_count(params)
         row[lang] = count
-        time.sleep(0.3) # Pausa pequeña entre lenguajes
+        time.sleep(0.3) 
         
     data_trends.append(row)
 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'home_screen.dart';
 import 'github_dashboard.dart';
-import 'stackoverflow_placeholder.dart';
+import 'stackoverflow_dashboard.dart';
 import 'reddit_placeholder.dart';
 
 class MainScreen extends StatefulWidget {
@@ -19,7 +19,7 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _screens = [
     const HomeScreen(),
     const GithubDashboard(),
-    const StackoverflowPlaceholder(),
+    const StackOverflowDashboard(),
     const RedditPlaceholder(),
   ];
 
@@ -44,9 +44,7 @@ class _MainScreenState extends State<MainScreen> {
           // Sidebar
           Container(
             width: 200,
-            decoration: const BoxDecoration(
-              color: Color(0xFF1a1a2e),
-            ),
+            decoration: const BoxDecoration(color: Color(0xFF1a1a2e)),
             child: Column(
               children: [
                 // Logo
@@ -63,7 +61,11 @@ class _MainScreenState extends State<MainScreen> {
                           ),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Icon(Icons.analytics, color: Colors.white, size: 28),
+                        child: const Icon(
+                          Icons.analytics,
+                          color: Colors.white,
+                          size: 28,
+                        ),
                       ),
                       const SizedBox(height: 10),
                       const Text(
@@ -79,18 +81,22 @@ class _MainScreenState extends State<MainScreen> {
                 ),
                 const Divider(color: Colors.white24, height: 1),
                 const SizedBox(height: 16),
-                
+
                 // Menu items con iconos oficiales
                 _buildMenuItem(0, Icons.home_rounded, 'Inicio'),
                 _buildMenuItemFA(1, FontAwesomeIcons.github, 'GitHub Data'),
-                _buildMenuItemFA(2, FontAwesomeIcons.stackOverflow, 'StackOverflow'),
+                _buildMenuItemFA(
+                  2,
+                  FontAwesomeIcons.stackOverflow,
+                  'StackOverflow',
+                ),
                 _buildMenuItemFA(3, FontAwesomeIcons.reddit, 'Reddit Data'),
-                
+
                 const Spacer(),
               ],
             ),
           ),
-          
+
           // Contenido principal
           Expanded(
             child: Container(
@@ -146,7 +152,7 @@ class _MainScreenState extends State<MainScreen> {
 
   Widget _buildMenuItem(int index, IconData icon, String label) {
     final isSelected = _selectedIndex == index;
-    
+
     return InkWell(
       onTap: () {
         setState(() {
@@ -188,7 +194,7 @@ class _MainScreenState extends State<MainScreen> {
   // Menu item con FontAwesome icons
   Widget _buildMenuItemFA(int index, IconData icon, String label) {
     final isSelected = _selectedIndex == index;
-    
+
     return InkWell(
       onTap: () {
         setState(() {
