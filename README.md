@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🚀 Tech Trends 2025
+#  Tech Trends 2025
 
 ### Plataforma de Análisis de Tendencias Tecnológicas
 
@@ -16,7 +16,7 @@
 
 ---
 
-## 📋 Descripción
+##  Descripción
 
 **Tech Trends 2025** es una plataforma de inteligencia de datos que extrae, transforma y visualiza información de las principales comunidades de desarrolladores para identificar:
 
@@ -27,7 +27,7 @@
 
 ---
 
-## 🏗️ Arquitectura
+##  Arquitectura
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -109,7 +109,7 @@ Technology-trend-analysis-platform/
 
 ---
 
-## 🚀 Instalación
+##  Instalación
 
 ### Prerrequisitos
 
@@ -205,6 +205,6 @@ Este proyecto está bajo la Licencia MIT. Ver [LICENSE](LICENSE) para más detal
 
 <div align="center">
 
-**Universidad Politécnica Salesiana** • Ingeniería en Ciencias de la Computación • 2025
+**Escuela Superior Politécnica del litoral** • Ingeniería en Computación • 2026
 
 </div>
