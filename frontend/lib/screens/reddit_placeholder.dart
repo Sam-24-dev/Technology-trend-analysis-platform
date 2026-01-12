@@ -231,21 +231,33 @@ class _RedditPlaceholderState extends State<RedditPlaceholder> {
       return const Center(child: Text('No hay datos con ambos rankings disponibles'));
     }
 
+    // Encontrar el máximo ranking para invertir la escala
+    final maxRanking = datosValidos.fold<int>(0, (max, item) {
+      final maxVal = (item.rankingGitHub ?? 0) > (item.rankingReddit ?? 0)
+          ? (item.rankingGitHub ?? 0)
+          : (item.rankingReddit ?? 0);
+      return maxVal > max ? maxVal : max;
+    });
+
     return BarChart(
       BarChartData(
         barGroups: List.generate(
           datosValidos.length,
           (index) {
+            // Invertir los rankings para que 1 sea el más alto
+            final invertedGitHub = (maxRanking + 1 - datosValidos[index].rankingGitHub!).toDouble();
+            final invertedReddit = (maxRanking + 1 - datosValidos[index].rankingReddit!).toDouble();
+            
             return BarChartGroupData(
               x: index,
               barRods: [
                 BarChartRodData(
-                  toY: datosValidos[index].rankingGitHub!.toDouble(),
+                  toY: invertedGitHub,
                   color: const Color(0xFF3B82F6),
                   width: 18,
                 ),
                 BarChartRodData(
-                  toY: datosValidos[index].rankingReddit!.toDouble(),
+                  toY: invertedReddit,
                   color: const Color(0xFFFF4500),
                   width: 18,
                 ),
@@ -272,7 +284,9 @@ class _RedditPlaceholderState extends State<RedditPlaceholder> {
             sideTitles: SideTitles(
               showTitles: true,
               getTitlesWidget: (value, meta) {
-                return Text('#${value.toInt()}', style: const TextStyle(fontSize: 10));
+                // Mostrar el ranking original invertido
+                final ranking = maxRanking + 1 - value.toInt();
+                return Text('#${ranking > 0 ? ranking : ''}', style: const TextStyle(fontSize: 10));
               },
             ),
           ),
