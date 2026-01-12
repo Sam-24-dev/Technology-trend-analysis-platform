@@ -3,7 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'home_screen.dart';
 import 'github_dashboard.dart';
 import 'stackoverflow_dashboard.dart';
-import 'reddit_placeholder.dart';
+import 'reddit_dashboard.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -20,7 +20,7 @@ class _MainScreenState extends State<MainScreen> {
     const HomeScreen(),
     const GithubDashboard(),
     const StackOverflowDashboard(),
-    const RedditPlaceholder(),
+    const RedditDashboard(),
   ];
 
   final List<String> _titles = [
@@ -88,7 +88,7 @@ class _MainScreenState extends State<MainScreen> {
                 _buildMenuItemFA(
                   2,
                   FontAwesomeIcons.stackOverflow,
-                  'StackOverflow',
+                  'StackOverflow Data',
                 ),
                 _buildMenuItemFA(3, FontAwesomeIcons.reddit, 'Reddit Data'),
 

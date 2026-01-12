@@ -71,7 +71,7 @@ class _GithubDashboardState extends State<GithubDashboard> {
             style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
           ),
           const Text(
-            'Análisis de tendencias tecnológicas 2025 - Samir Caizapasto',
+            'Análisis de tendencias tecnológicas 2025',
             style: TextStyle(fontSize: 16, color: Colors.grey),
           ),
           const SizedBox(height: 32),

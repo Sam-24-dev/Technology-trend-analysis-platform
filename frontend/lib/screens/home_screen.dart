@@ -18,7 +18,7 @@ class HomeScreen extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           const Text(
-            'Análisis Integral de Tendencias Tecnológicas',
+            'Análisis Integral de Tendencias Tecnológicas 2025',
             style: TextStyle(fontSize: 18, color: Colors.grey),
           ),
           const SizedBox(height: 40),

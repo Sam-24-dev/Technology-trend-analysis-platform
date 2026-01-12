@@ -85,7 +85,7 @@ class _StackOverflowDashboardState extends State<StackOverflowDashboard> {
           const SizedBox(height: 32),
 
           ChartCard(
-            title: 'Volumen de Preguntas Nuevas (2025)',
+            title: 'Volumen de Preguntas Nuevas 2025',
             subtitle: 'Lenguajes con mayor actividad reciente en la plataforma',
             height: 400,
             chart: BarChart(
@@ -110,7 +110,7 @@ class _StackOverflowDashboardState extends State<StackOverflowDashboard> {
                           return Padding(
                             padding: const EdgeInsets.only(top: 8.0),
                             child: Text(
-                              volumenData[value.toInt()].lenguaje,
+                              _capitalizeFramework(volumenData[value.toInt()].lenguaje),
                               style: const TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
@@ -168,32 +168,7 @@ class _StackOverflowDashboardState extends State<StackOverflowDashboard> {
                   alignment: BarChartAlignment.spaceAround,
                   maxY: 100,
                   barTouchData: BarTouchData(
-                    enabled: true,
-                    touchTooltipData: BarTouchTooltipData(
-                      getTooltipColor: (_) => Colors.blueGrey,
-                      rotateAngle: -90,
-                      getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                        String framework =
-                            aceptacionData[group.x.toInt()].tecnologia;
-                        return BarTooltipItem(
-                          '$framework\n',
-                          const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          children: [
-                            TextSpan(
-                              text:
-                                  '${rod.rodStackItems[0].toY.toStringAsFixed(1)}% Aceptadas',
-                              style: const TextStyle(
-                                color: Color(0xFF10B981),
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
+                    enabled: false, // Desactivado - el % ya se muestra a la izquierda
                   ),
                   titlesData: FlTitlesData(
                     show: true,
@@ -220,7 +195,7 @@ class _StackOverflowDashboardState extends State<StackOverflowDashboard> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    item.tecnologia,
+                                    _capitalizeFramework(item.tecnologia),
                                     style: const TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.bold,
@@ -395,5 +370,22 @@ class _StackOverflowDashboardState extends State<StackOverflowDashboard> {
         Text(text, style: const TextStyle(fontWeight: FontWeight.bold)),
       ],
     );
+  }
+
+  // Capitalizar nombres de frameworks correctamente
+  String _capitalizeFramework(String name) {
+    final Map<String, String> capitalizations = {
+      'reactjs': 'ReactJS',
+      'vue.js': 'Vue.js',
+      'angular': 'Angular',
+      'next.js': 'Next.js',
+      'svelte': 'Svelte',
+      'python': 'Python',
+      'javascript': 'JavaScript',
+      'typescript': 'TypeScript',
+      'java': 'Java',
+      'go': 'Go',
+    };
+    return capitalizations[name.toLowerCase()] ?? name;
   }
 }
