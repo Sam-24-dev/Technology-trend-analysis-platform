@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'dart:html' as html;
+import 'dart:convert';
+import 'dart:math';
+import 'package:archive/archive.dart';
 import '../services/csv_service.dart';
 import '../models/github_models.dart';
 import '../widgets/chart_card.dart';
@@ -55,6 +59,42 @@ class _GithubDashboardState extends State<GithubDashboard> {
     }
   }
 
+  void _exportDataAsZip() {
+    // CSV 1: Lenguajes
+    String csv1 = 'lenguaje,repos_count,porcentaje\n';
+    for (var lang in lenguajes) {
+      csv1 += '${lang.lenguaje},${lang.reposCount},${lang.porcentaje}\n';
+    }
+    
+    // CSV 2: Frameworks
+    String csv2 = 'framework,commits_2025\n';
+    for (var fw in frameworks) {
+      csv2 += '${fw.framework},${fw.commits2025}\n';
+    }
+    
+    // CSV 3: Correlación
+    String csv3 = 'repo_name,stars,contributors,language\n';
+    for (var item in correlacion) {
+      csv3 += '${item.repoName},${item.stars},${item.contributors},${item.language}\n';
+    }
+    
+    // Crear ZIP
+    final archive = Archive();
+    archive.addFile(ArchiveFile('1_lenguajes_top10.csv', csv1.length, utf8.encode(csv1)));
+    archive.addFile(ArchiveFile('2_commits_frameworks.csv', csv2.length, utf8.encode(csv2)));
+    archive.addFile(ArchiveFile('3_correlacion_stars_contributors.csv', csv3.length, utf8.encode(csv3)));
+    
+    final zipData = ZipEncoder().encode(archive);
+    if (zipData != null) {
+      final blob = html.Blob([zipData], 'application/zip');
+      final url = html.Url.createObjectUrlFromBlob(blob);
+      html.AnchorElement(href: url)
+        ..setAttribute('download', 'github_dashboard_data.zip')
+        ..click();
+      html.Url.revokeObjectUrl(url);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
@@ -66,15 +106,92 @@ class _GithubDashboardState extends State<GithubDashboard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Dashboard GitHub',
-            style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    Text(
+                      'Dashboard GitHub',
+                      style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      'Análisis de tendencias tecnológicas 2025',
+                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 16),
+              ElevatedButton.icon(
+                onPressed: _exportDataAsZip,
+                icon: const Icon(Icons.folder_zip, size: 18),
+                label: const Text('Exportar ZIP'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue, // Blue
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                ),
+              ),
+            ],
           ),
-          const Text(
-            'Análisis de tendencias tecnológicas 2025',
-            style: TextStyle(fontSize: 16, color: Colors.grey),
+          const SizedBox(height: 24),
+
+          // KEY INSIGHTS SECTION 
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF3F4F6), // Gris claro
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: const [
+                    Icon(Icons.insights, color: Color(0xFF374151), size: 28),
+                    SizedBox(width: 12),
+                    Text(
+                      'Key Insights',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF1F2937),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                // Insight 1: Python
+                _buildGithubInsightCard(
+                  'assets/images/python_logo.png',
+                  'Python lidera con ${lenguajes.isNotEmpty ? lenguajes.first.reposCount : 0} repos nuevos',
+                  '${lenguajes.isNotEmpty ? lenguajes.first.porcentaje.toStringAsFixed(1) : 0}% del total de repositorios analizados',
+                  const Color(0xFF3776AB), // Python blue
+                ),
+                const SizedBox(height: 12),
+                // Insight 2: Angular
+                _buildGithubInsightCard(
+                  'assets/images/angular_logo.png',
+                  _getFrameworkInsight(),
+                  'Basado en commits de 2025 en repositorios oficiales',
+                  const Color(0xFFDD0031), // Angular red
+                ),
+                const SizedBox(height: 12),
+                // Insight 3: Correlación
+                _buildGithubInsightCardIcon(
+                  Icons.show_chart,
+                  'Correlación Stars-Contributors: ${_calculateCorrelation().toStringAsFixed(2)}',
+                  'Relación entre popularidad y contribuidores activos',
+                  const Color(0xFF059669), // Green
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 24),
 
           // Gráfico 1
           ChartCard(
@@ -97,7 +214,7 @@ class _GithubDashboardState extends State<GithubDashboard> {
           // Gráfico 3
           ChartCard(
             title: 'Correlación entre Stars y Contributors',
-            subtitle: 'Análisis de 100 repositorios top de 2025',
+            subtitle: 'Coeficiente de correlación (r = ${_calculateCorrelation().toStringAsFixed(2)}) - 100 repos top de 2025',
             height: 450,
             chart: _buildScatterChart(),
           ),
@@ -398,6 +515,181 @@ class _GithubDashboardState extends State<GithubDashboard> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  // Helper widget para mostrar cada insight
+  Widget _buildInsightItem(String emoji, String text) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(emoji, style: const TextStyle(fontSize: 16)),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(fontSize: 14, color: Color(0xFF374151)),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Calcular insight de frameworks
+  String _getFrameworkInsight() {
+    if (frameworks.isEmpty) return 'Sin datos de frameworks';
+    
+    frameworks.sort((a, b) => b.commits2025.compareTo(a.commits2025));
+    final leader = frameworks.first;
+    final total = frameworks.fold<int>(0, (sum, f) => sum + f.commits2025);
+    final percentage = (leader.commits2025 / total * 100).toStringAsFixed(0);
+    
+    return '${leader.framework} lidera con $percentage% de los commits totales de frameworks frontend';
+  }
+
+  // Calcular coeficiente de correlación de Pearson
+  double _calculateCorrelation() {
+    if (correlacion.isEmpty) return 0.0;
+    
+    int n = correlacion.length;
+    double sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0, sumY2 = 0;
+    
+    for (var item in correlacion) {
+      double x = item.stars.toDouble();
+      double y = item.contributors.toDouble();
+      sumX += x;
+      sumY += y;
+      sumXY += x * y;
+      sumX2 += x * x;
+      sumY2 += y * y;
+    }
+    
+    double numerator = n * sumXY - sumX * sumY;
+    double denomX = n * sumX2 - sumX * sumX;
+    double denomY = n * sumY2 - sumY * sumY;
+    
+    if (denomX <= 0 || denomY <= 0) return 0.0;
+    
+    double denominator = sqrt(denomX * denomY);
+    return numerator / denominator;
+  }
+
+  // Widget con imagen de logo
+  Widget _buildGithubInsightCard(String imagePath, String title, String description, Color accentColor) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: accentColor.withOpacity(0.3), width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: accentColor.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.asset(
+                imagePath,
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: accentColor,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  description,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF6B7280),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Widget con icono de Material
+  Widget _buildGithubInsightCardIcon(IconData icon, String title, String description, Color accentColor) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: accentColor.withOpacity(0.3), width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: accentColor.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: accentColor,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: Colors.white, size: 26),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: accentColor,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  description,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF6B7280),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
