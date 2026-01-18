@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'dart:html' as html;
+import 'dart:convert';
+import 'package:archive/archive.dart';
 import '../models/reddit_models.dart';
 import '../services/csv_service.dart';
 import '../widgets/chart_card.dart';
@@ -62,15 +65,34 @@ class _RedditDashboardState extends State<RedditDashboard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Dashboard Reddit',
-            style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+          // Header con título y botón exportar
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Dashboard Reddit',
+                style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+              ),
+              ElevatedButton.icon(
+                onPressed: _exportDataAsZip,
+                icon: const Icon(Icons.folder_zip, size: 18),
+                label: const Text('Exportar ZIP'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFFF4500), // Reddit orange
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 8),
           const Text(
             'Análisis de sentimientos y tendencias en comunidades de tecnología 2025',
             style: TextStyle(fontSize: 16, color: Colors.grey),
           ),
+          const SizedBox(height: 32),
+          // Key Insights Section
+          _buildKeyInsightsSection(),
           const SizedBox(height: 32),
           // Gráfico 1: Sentimiento de Frameworks
           ChartCard(
@@ -448,5 +470,174 @@ class _RedditDashboardState extends State<RedditDashboard> {
     return tema
         .replaceAll('IA/Machine Learning', 'AI/ML')
         .replaceAll('IA', 'AI');
+  }
+
+  // ========== KEY INSIGHTS AND EXPORT FUNCTIONS ==========
+
+  Widget _buildKeyInsightsSection() {
+    // Calcular insight 1: Tema más mencionado
+    String temaTopico = 'AI/Machine Learning';
+    int menciones = 0;
+    if (temasData.isNotEmpty) {
+      temasData.sort((a, b) => b.menciones.compareTo(a.menciones));
+      temaTopico = temasData.first.tema;
+      menciones = temasData.first.menciones;
+    }
+
+    // Calcular insight 2: Framework con mejor sentimiento
+    String frameworkTopico = 'Express';
+    double sentimientoMax = 0;
+    if (sentimientoData.isNotEmpty) {
+      sentimientoData.sort((a, b) => b.porcentajePositivo.compareTo(a.porcentajePositivo));
+      frameworkTopico = sentimientoData.first.framework;
+      sentimientoMax = sentimientoData.first.porcentajePositivo;
+    }
+
+    // Calcular insight 3: Tendencia de intersección
+    int tecnologiasEnAmbas = interseccionData.length;
+
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF3F4F6), // Gris claro
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header
+          Row(
+            children: const [
+              Icon(Icons.insights, color: Color(0xFF374151), size: 28),
+              SizedBox(width: 12),
+              Text(
+                'Key Insights',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1F2937),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          // Insight 1: Tema más mencionado
+          _buildInsightCardIcon(
+            Icons.trending_up,
+            'Tema Emergente Dominante',
+            '$temaTopico lideran con $menciones menciones',
+            const Color(0xFFFF4500),
+          ),
+          const SizedBox(height: 12),
+          // Insight 2: Framework con mejor sentimiento
+          _buildInsightCardIcon(
+            Icons.sentiment_satisfied,
+            'Framework Mejor Valorado',
+            '$frameworkTopico con ${sentimientoMax.toStringAsFixed(1)}% sentimiento positivo',
+            const Color(0xFFFF4500),
+          ),
+          const SizedBox(height: 12),
+          // Insight 3: Cobertura multi-plataforma
+          _buildInsightCardIcon(
+            Icons.hub,
+            'Tendencias Multi-plataforma',
+            '$tecnologiasEnAmbas tecnologías populares en GitHub y Reddit',
+            const Color(0xFFFF4500),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInsightCardIcon(IconData icon, String title, String description, Color accentColor) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: accentColor.withOpacity(0.3), width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: accentColor.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: accentColor,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: Colors.white, size: 26),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: accentColor,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  description,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF6B7280),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _exportDataAsZip() {
+    // CSV 1: Sentimiento de Frameworks
+    String csv1 = 'Framework,Porcentaje Positivo,Porcentaje Negativo\n';
+    for (var item in sentimientoData) {
+      csv1 += '${item.framework},${item.porcentajePositivo},${item.porcentajeNegativo}\n';
+    }
+
+    // CSV 2: Temas Emergentes
+    String csv2 = 'Tema,Menciones\n';
+    for (var item in temasData) {
+      csv2 += '${item.tema},${item.menciones}\n';
+    }
+
+    // CSV 3: Intersección GitHub-Reddit
+    String csv3 = 'Tecnologia,Ranking GitHub,Ranking Reddit\n';
+    for (var item in interseccionData) {
+      csv3 += '${item.tecnologia},${item.rankingGitHub},${item.rankingReddit}\n';
+    }
+
+    // Crear ZIP
+    final archive = Archive();
+    archive.addFile(ArchiveFile('1_sentimiento_frameworks.csv', csv1.length, utf8.encode(csv1)));
+    archive.addFile(ArchiveFile('2_temas_emergentes.csv', csv2.length, utf8.encode(csv2)));
+    archive.addFile(ArchiveFile('3_interseccion_github_reddit.csv', csv3.length, utf8.encode(csv3)));
+
+    final zipData = ZipEncoder().encode(archive);
+    if (zipData != null) {
+      final blob = html.Blob([zipData], 'application/zip');
+      final url = html.Url.createObjectUrlFromBlob(blob);
+      html.AnchorElement(href: url)
+        ..setAttribute('download', 'reddit_dashboard_data.zip')
+        ..click();
+      html.Url.revokeObjectUrl(url);
+    }
   }
 }
