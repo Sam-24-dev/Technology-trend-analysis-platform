@@ -192,17 +192,17 @@ class _StackOverflowDashboardState extends State<StackOverflowDashboard> {
                 ),
                 const SizedBox(height: 20),
 
-                // Insight 1: Volumen (Dinámico)
+                // Insight 1: Volumen (Dinámico) - Python logo
                 if (volumenData.isNotEmpty)
-                  _buildInsightCard(
-                    Icons.local_fire_department,
+                  _buildInsightCardImage(
+                    'assets/images/python_logo.png',
                     '${_capitalizeFramework(volumenData.first.lenguaje)} domina las discusiones',
                     'Lidera con ${volumenData.first.preguntas} preguntas nuevas, marcando la pauta del desarrollo actual.',
-                    soOrange,
+                    const Color(0xFF3776AB), // Python blue
                   ),
                 const SizedBox(height: 12),
 
-                // Insight 2: Aceptación (Dinámico)
+                // Insight 2: Aceptación (Dinámico) - Svelte logo
                 if (aceptacionData.isNotEmpty)
                   Builder(
                     builder: (context) {
@@ -211,11 +211,11 @@ class _StackOverflowDashboardState extends State<StackOverflowDashboard> {
                         (curr, next) =>
                             curr.tasaPct > next.tasaPct ? curr : next,
                       );
-                      return _buildInsightCard(
-                        Icons.check_circle_outline,
+                      return _buildInsightCardImage(
+                        'assets/images/svelte-logo.png',
                         '${_capitalizeFramework(best.tecnologia)}: Soluciones más efectivas',
                         'Tasa de respuestas aceptadas del ${best.tasaPct.toStringAsFixed(1)}%, indicando una comunidad madura y colaborativa.',
-                        const Color(0xFF10B981), // Verde
+                        const Color(0xFFFF3E00), // Svelte orange
                       );
                     },
                   ),
@@ -227,7 +227,7 @@ class _StackOverflowDashboardState extends State<StackOverflowDashboard> {
                   Icons.trending_down,
                   'Impacto de IA en el volumen',
                   'Descenso general del ~80% en preguntas nuevas. La comunidad migra a asistentes de IA, reduciendo las dudas básicas.',
-                  const Color(0xFFEF4444),
+                  const Color(0xFFDC2626), // Red
                 ),
               ],
             ),
@@ -546,6 +546,65 @@ class _StackOverflowDashboardState extends State<StackOverflowDashboard> {
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: Colors.white, size: 26),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: accentColor,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  description,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF6B7280),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Widget con imagen de logo
+  Widget _buildInsightCardImage(String imagePath, String title, String description, Color accentColor) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: accentColor.withOpacity(0.3), width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: accentColor.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.asset(imagePath, fit: BoxFit.contain),
+            ),
           ),
           const SizedBox(width: 16),
           Expanded(

@@ -4,21 +4,22 @@
 
 ### Plataforma de Análisis de Tendencias Tecnológicas
 
-[![Flutter](https://img.shields.io/badge/Flutter-3.0+-02569B?logo=flutter)](https://flutter.dev)
+[![Flutter](https://img.shields.io/badge/Flutter-3.38.6-02569B?logo=flutter)](https://flutter.dev)
+[![Dart](https://img.shields.io/badge/Dart-3.10.7-0175C2?logo=dart)](https://dart.dev)
 [![Python](https://img.shields.io/badge/Python-3.9+-3776AB?logo=python)](https://python.org)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 *Análisis de datos de GitHub, StackOverflow y Reddit para identificar tendencias tecnológicas emergentes*
 
-[Ver Demo](#demo) • [Instalación](#instalación) • [Documentación](#estructura-del-proyecto)
+[Demo](#-demo) • [Instalación](#-instalación) • [Estructura](#-estructura-del-proyecto)
 
 </div>
 
 ---
 
-##  Descripción
+## 📋 Descripción
 
-**Tech Trends 2025** es una plataforma de inteligencia de datos que extrae, transforma y visualiza información de las principales comunidades de desarrolladores para identificar:
+**Tech Trends 2025** es una plataforma de inteligencia de datos que extrae, transforma y visualiza información de las principales comunidades de desarrolladores:
 
 - 🔥 Lenguajes de programación en crecimiento
 - 📊 Frameworks con mayor actividad
@@ -27,7 +28,7 @@
 
 ---
 
-##  Arquitectura
+## 🏗️ Arquitectura
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -41,10 +42,10 @@
 │         │                 │                 │                  │
 │         ▼                 ▼                 ▼                  │
 │  ┌─────────────────────────────────────────────────────────┐   │
-│  │                    ETL Pipeline                          │   │
+│  │                    ETL Pipeline (Python)                 │   │
 │  │   • Extracción de datos via APIs                        │   │
 │  │   • Transformación y limpieza                           │   │
-│  │   • Análisis de sentimiento (NLP)                       │   │
+│  │   • Análisis de sentimiento (NLTK)                      │   │
 │  └───────────────────────┬─────────────────────────────────┘   │
 │                          │                                      │
 │                          ▼                                      │
@@ -55,8 +56,8 @@
 │                          ▼                                      │
 │  ┌─────────────────────────────────────────────────────────┐   │
 │  │              Flutter Web Dashboard                       │   │
-│  │   • Visualizaciones interactivas                        │   │
-│  │   • Gráficos con fl_chart                               │   │
+│  │   • Visualizaciones interactivas (fl_chart)             │   │
+│  │   • Key Insights + Exportar ZIP                         │   │
 │  │   • Diseño responsive                                   │   │
 │  └─────────────────────────────────────────────────────────┘   │
 │                                                                 │
@@ -70,52 +71,84 @@
 ```
 Technology-trend-analysis-platform/
 │
-├── 📂 etl/                          # Pipeline de extracción de datos
+├── 📂 backend/                       # Backend - Pipeline ETL (Python)
 │   ├── config.py                    # Configuración y tokens de API
 │   ├── github_etl.py                # Extracción de repositorios GitHub
-│   ├── stackoverflow_etl.py         # Extracción de preguntas SO
+│   ├── stackoverflow_etl.py         # Extracción de preguntas StackOverflow
 │   ├── reddit_etl.py                # Extracción y análisis de Reddit
 │   └── requirements.txt             # Dependencias Python
 │
 ├── 📂 datos/                         # Datos procesados (CSV)
-│   ├── github_lenguajes.csv         # Top 10 lenguajes
-│   ├── github_commits_frameworks.csv # Commits por framework
-│   ├── github_correlacion.csv       # Stars vs Contributors
-│   ├── so_volumen_preguntas.csv     # Volumen preguntas SO
-│   ├── so_tasa_aceptacion.csv       # Tasa aceptación SO
-│   ├── so_tendencias_mensuales.csv  # Tendencias mensuales
-│   ├── reddit_sentimiento_*.csv     # Análisis de sentimiento
-│   └── interseccion_*.csv           # Datos cruzados
+│   ├── github_lenguajes.csv
+│   ├── github_commits_frameworks.csv
+│   ├── github_correlacion.csv
+│   ├── so_volumen_preguntas.csv
+│   ├── so_tasa_aceptacion.csv
+│   ├── so_tendencias_mensuales.csv
+│   ├── reddit_sentimiento_frameworks.csv
+│   ├── reddit_temas_emergentes.csv
+│   └── interseccion_github_reddit.csv
 │
-├── 📂 frontend/                      # Dashboard Flutter Web
+├── 📂 frontend/                      # Frontend - Dashboard (Flutter Web)
 │   ├── lib/
-│   │   ├── main.dart                # Entry point
-│   │   ├── screens/                 # Pantallas del dashboard
+│   │   ├── main.dart
+│   │   ├── screens/
 │   │   │   ├── home_screen.dart
 │   │   │   ├── github_dashboard.dart
 │   │   │   ├── stackoverflow_dashboard.dart
 │   │   │   └── reddit_dashboard.dart
-│   │   ├── models/                  # Modelos de datos
-│   │   ├── services/                # Servicios (CSV loader)
-│   │   └── widgets/                 # Componentes reutilizables
-│   ├── assets/data/                 # CSVs para el dashboard
-│   └── pubspec.yaml                 # Dependencias Flutter
+│   │   ├── models/
+│   │   ├── services/
+│   │   └── widgets/
+│   ├── assets/
+│   │   ├── data/                    # CSVs para visualización
+│   │   └── images/                  # Logos oficiales
+│   └── pubspec.yaml
 │
-├── .env                              # Variables de entorno (no commitear)
-├── .gitignore                        # Archivos ignorados
-├── LICENSE                           # Licencia MIT
-└── README.md                         # Este archivo
+├── .env                              # Variables de entorno
+├── .gitignore
+├── LICENSE
+└── README.md
 ```
 
 ---
 
-##  Instalación
+## 🛠️ Versiones de Herramientas
+
+### Backend (ETL - Python)
+
+| Librería | Versión |
+|----------|---------|
+| Python | 3.9+ |
+| requests | 2.31.0 |
+| pandas | 2.1.0 |
+| python-dotenv | 1.0.0 |
+| nltk | 3.8.1 |
+
+### Frontend (Dashboard - Flutter)
+
+| Herramienta/Librería | Versión |
+|----------------------|---------|
+| Flutter SDK | 3.38.6 |
+| Dart SDK | 3.10.7 |
+| fl_chart | ^0.69.0 |
+| csv | ^6.0.0 |
+| google_fonts | ^6.2.1 |
+| font_awesome_flutter | ^10.7.0 |
+| archive | ^3.4.10 |
+| cupertino_icons | ^1.0.8 |
+| http | ^1.2.0 |
+
+---
+
+## 🚀 Instalación
 
 ### Prerrequisitos
 
-- **Python 3.9+** para el ETL
-- **Flutter 3.0+** para el dashboard
-- **Git** para clonar el repositorio
+- **Python 3.9+** 
+- **Flutter 3.38+** 
+- **Git**
+- **Google Chrome** (para Flutter Web)
 
 ### 1️⃣ Clonar el Repositorio
 
@@ -124,73 +157,92 @@ git clone https://github.com/Sam-24-dev/Technology-trend-analysis-platform.git
 cd Technology-trend-analysis-platform
 ```
 
-### 2️⃣ Configurar el ETL (Python)
+---
+
+## 🔧 Probar el Backend (ETL)
 
 ```bash
-cd etl
+# 1. Navegar a la carpeta backend
+cd backend
+
+# 2. Instalar dependencias
 pip install -r requirements.txt
+
+# 3. (Opcional) Ejecutar scripts de extracción
+python github_etl.py
+python stackoverflow_etl.py
+python reddit_etl.py
 ```
 
-Crear archivo `.env` en la raíz con los tokens:
+> **Nota:** Los datos ya están pre-procesados en la carpeta `datos/`. Solo ejecutar ETL si se necesitan datos nuevos.
+
+### Configurar Token (solo para ETL)
+
+Crear archivo `.env` en la raíz:
 ```env
 GITHUB_TOKEN=tu_github_token
 ```
 
-### 3️⃣ Ejecutar el Dashboard (Flutter)
+---
+
+## 🖥️ Probar el Frontend (Dashboard)
 
 ```bash
+# 1. Navegar a la carpeta frontend
 cd frontend
+
+# 2. Instalar dependencias
 flutter pub get
+
+# 3. Ejecutar en Chrome
 flutter run -d chrome
 ```
 
-> **⚠️ Nota Windows:** Si Flutter no se reconoce, ejecutar primero:
-> ```powershell
-> $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-> ```
+### ⚠️ Nota para Windows
+
+Si Flutter no se reconoce en PowerShell, ejecutar primero:
+```powershell
+$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+```
+
+### Funcionalidades del Dashboard
+
+| Dashboard | Funcionalidades |
+|-----------|-----------------|
+| **Home** | Key Insights globales, KPIs, navegación |
+| **GitHub** | 3 gráficos + Key Insights + Exportar ZIP |
+| **StackOverflow** | 3 gráficos + Key Insights + Exportar ZIP |
+| **Reddit** | 3 gráficos + Key Insights + Exportar ZIP |
+
+### Exportar Datos
+
+Cada dashboard tiene un botón **"Exportar ZIP"** que descarga los datos en formato CSV comprimido.
 
 ---
 
 ## 📊 Visualizaciones
 
 ### GitHub Dashboard
-| Gráfico | Descripción |
-|---------|-------------|
-| Lenguajes Top 10 | Barras horizontales con repositorios nuevos en 2025 |
-| Commits por Framework | Donut chart (Angular vs React vs Vue) |
-| Stars vs Contributors | Scatter plot con regresión lineal |
+- **Lenguajes Top 10:** Barras horizontales (repositorios nuevos 2025)
+- **Commits por Framework:** Donut chart (Angular vs React vs Vue)
+- **Correlación Stars-Contributors:** Scatter plot con coeficiente r
 
 ### StackOverflow Dashboard
-| Gráfico | Descripción |
-|---------|-------------|
-| Volumen de Preguntas | Barras verticales por lenguaje |
-| Tasa de Aceptación | Barras apiladas (verde/rojo) |
-| Tendencias 2025 | Líneas (Python vs JS vs TS) |
+- **Volumen de Preguntas:** Barras verticales por lenguaje
+- **Tasa de Aceptación:** Barras apiladas (verde/rojo)
+- **Tendencias 2025:** Líneas (Python vs JS vs TS)
 
 ### Reddit Dashboard
-| Gráfico | Descripción |
-|---------|-------------|
-| Sentimiento | Barras divergentes positivo/negativo |
-| Temas Emergentes | Barras verticales con menciones |
-| Intersección | Comparativo GitHub vs Reddit rankings |
-
----
-
-## 🛠️ Tecnologías
-
-| Componente | Tecnología |
-|------------|------------|
-| **ETL** | Python, Requests, NLTK, Pandas |
-| **Frontend** | Flutter Web, fl_chart, font_awesome |
-| **Datos** | CSV, JSON (APIs) |
-| **Control de versiones** | Git, GitHub |
+- **Sentimiento Frameworks:** Barras divergentes (+/-)
+- **Temas Emergentes:** Barras con menciones
+- **Intersección GitHub-Reddit:** Rankings comparativos
 
 ---
 
 ## 👥 Equipo
 
 | Integrante | Rol | Responsabilidad |
-|------------|-----|-----------------|
+|------------|-----|--------------------|
 | **Samir Caizapasto** | Lead Developer | GitHub ETL + Dashboard + Arquitectura |
 | **Andrés Salinas** | Developer | StackOverflow ETL + Dashboard |
 | **Mateo Mayorga** | Developer | Reddit ETL + Dashboard + NLP |
@@ -205,6 +257,6 @@ Este proyecto está bajo la Licencia MIT. Ver [LICENSE](LICENSE) para más detal
 
 <div align="center">
 
-**Escuela Superior Politécnica del litoral** • Ingeniería en Computación • 2026
+**Escuela Superior Politécnica del Litoral** • Ingeniería en Computación • 2026
 
 </div>

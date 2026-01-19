@@ -522,28 +522,28 @@ class _RedditDashboardState extends State<RedditDashboard> {
             ],
           ),
           const SizedBox(height: 20),
-          // Insight 1: Tema más mencionado
-          _buildInsightCardIcon(
-            Icons.trending_up,
+          // Insight 1: Tema más mencionado - ChatGPT logo (AI/ML tema)
+          _buildInsightCardImage(
+            'assets/images/chatgpt-logo.png',
             'Tema Emergente Dominante',
             '$temaTopico lideran con $menciones menciones',
-            const Color(0xFFFF4500),
+            const Color(0xFF1A1A1A), // ChatGPT black
           ),
           const SizedBox(height: 12),
-          // Insight 2: Framework con mejor sentimiento
-          _buildInsightCardIcon(
-            Icons.sentiment_satisfied,
+          // Insight 2: Framework con mejor sentimiento - Django logo
+          _buildInsightCardImage(
+            'assets/images/django-logo.png',
             'Framework Mejor Valorado',
             '$frameworkTopico con ${sentimientoMax.toStringAsFixed(1)}% sentimiento positivo',
-            const Color(0xFFFF4500),
+            const Color(0xFF092E20), // Django green
           ),
           const SizedBox(height: 12),
-          // Insight 3: Cobertura multi-plataforma
+          // Insight 3: Cobertura multi-plataforma - Mantener icono
           _buildInsightCardIcon(
             Icons.hub,
             'Tendencias Multi-plataforma',
             '$tecnologiasEnAmbas tecnologías populares en GitHub y Reddit',
-            const Color(0xFFFF4500),
+            const Color(0xFF7C3AED), // Purple
           ),
         ],
       ),
@@ -575,6 +575,64 @@ class _RedditDashboardState extends State<RedditDashboard> {
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: Colors.white, size: 26),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: accentColor,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  description,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF6B7280),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Widget con imagen de logo
+  Widget _buildInsightCardImage(String imagePath, String title, String description, Color accentColor) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: accentColor.withOpacity(0.3), width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: accentColor.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.asset(imagePath, fit: BoxFit.contain),
+            ),
           ),
           const SizedBox(width: 16),
           Expanded(
