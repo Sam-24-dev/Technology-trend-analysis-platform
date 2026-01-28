@@ -6,9 +6,10 @@ import sys
 from datetime import datetime, timedelta
 import calendar
 
-# CONFIGURACIÓN DE RUTAS 
+# Añadir directorio actual al path para importar módulos locales
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
+# Configuración: Intenta cargar credenciales, usa valores por defecto si falla
 try:
     import config
 except ImportError:
@@ -17,19 +18,20 @@ except ImportError:
         SO_API_URL = "https://api.stackexchange.com/2.3/search/advanced"
         SO_API_KEY = None
 
-# Configuración API
 API_URL = config.SO_API_URL
-DATE_START_2025 = 1735689600 # 1 Enero 2025
+DATE_START_2025 = 1735689600  # Timestamp para 1 de Enero 2025
 
-# Carpetas
+# Garantizar que el directorio de salida existe
 OUTPUT_DIR = "datos"
 if not os.path.exists(OUTPUT_DIR):
     os.makedirs(OUTPUT_DIR)
 
 def get_total_count(params):
-    """ Función auxiliar para obtener solo el conteo total usando filter='total' """
-    # El filtro 'total' es nativo de la API y devuelve solo el número total de items
-    params['filter'] = 'total' 
+    """
+    Consulta la API devolviendo solo el número total de resultados.
+    Usa el filtro 'total' para ahorrar ancho de banda y cuota de API.
+    """
+    params['filter'] = 'total'
     if config.SO_API_KEY:
         params['key'] = config.SO_API_KEY
     
@@ -44,13 +46,10 @@ def get_total_count(params):
         print(f"Error de conexión: {e}")
         return 0
 
-print(" INICIANDO ETL STACKOVERFLOW (DATOS 100% REALES) ")
+print(" INICIANDO ETL STACKOVERFLOW ")
 print(f"Fecha: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-print("NOTA: Este proceso puede tardar 1-2 minutos debido a las múltiples consultas mensuales.\n")
 
-
-# 1. Volumen de preguntas 2025
-
+# --- 1. Volumen de Preguntas (Total Anual) ---
 print("[1/3] Obteniendo volumen TOTAL de preguntas (2025)...")
 languages = ['python', 'javascript', 'typescript', 'java', 'go']
 data_volumen = []
@@ -68,23 +67,22 @@ for lang in languages:
         'lenguaje': lang, 
         'preguntas_nuevas_2025': total
     })
-    time.sleep(0.5) # Respetar límites
+    time.sleep(0.5) # Pausa para respetar el Rate Limit de la API
 
 df_volumen = pd.DataFrame(data_volumen)
 df_volumen.to_csv(f"{OUTPUT_DIR}/so_volumen_preguntas.csv", index=False)
 print(f"   ✓ Datos guardados en {OUTPUT_DIR}/so_volumen_preguntas.csv")
 
 
-# 2.  Tasa de Respuestas Aceptadas
-
-print("\n[2/3] Calculando métricas de madurez (Tasa de Aceptación Real)...")
+# --- 2. Tasa de Respuestas Aceptadas (Métrica de Calidad) ---
+print("\n[2/3] Calculando métricas de madurez...")
 frameworks = ['reactjs', 'vue.js', 'angular', 'next.js', 'svelte']
 data_madurez = []
 
 for fw in frameworks:
-    print(f"   > Analizando [{fw}] (Total vs Aceptadas)...")
+    print(f"   > Analizando [{fw}]...")
     
-    # 1. Total de preguntas del framework en 2025
+    # Consulta 1: Total de preguntas
     params_total = {
         'site': 'stackoverflow',
         'tagged': fw,
@@ -93,17 +91,17 @@ for fw in frameworks:
     total_questions = get_total_count(params_total)
     time.sleep(0.3)
 
-    # 2. Total de preguntas CON respuesta aceptada
+    # Consulta 2: Preguntas con respuesta aceptada (accepted=True)
     params_accepted = {
         'site': 'stackoverflow',
         'tagged': fw,
         'fromdate': DATE_START_2025,
-        'accepted': True # Filtro mágico de la API
+        'accepted': True 
     }
     accepted_questions = get_total_count(params_accepted)
     time.sleep(0.3)
 
-    # Cálculo
+    # Cálculo del porcentaje
     rate = 0
     if total_questions > 0:
         rate = round((accepted_questions / total_questions) * 100, 2)
@@ -120,26 +118,17 @@ df_madurez.to_csv(f"{OUTPUT_DIR}/so_tasa_aceptacion.csv", index=False)
 print(f"   ✓ Datos guardados.")
 
 
-# 3. Tendencias Mensuales 
-
-print("\n[3/3] Generando histórico mensual REAL (consultando mes a mes)...")
+# --- 3. Tendencias Mensuales (Histórico) ---
+print("\n[3/3] Generando histórico mensual...")
 target_langs = ['python', 'javascript', 'typescript']
 data_trends = []
-
-# Generar rangos de fechas para los meses de 2025 que ya han pasado
 current_year = 2025
-# ELIMINAMOS O COMENTAMOS LA DEPENDENCIA DEL MES ACTUAL
-# current_month = datetime.now().month 
 
-# Loop por cada mes del 1 al 12
+# Iterar mes a mes (1 al 12)
 for mes_idx in range(1, 13): 
-    # COMENTAMOS EL BLOQUEO DE MESES FUTUROS
-    # if mes_idx > current_month: 
-    #    break
-        
     nombre_mes = calendar.month_abbr[mes_idx]
     
-    # Calcular timestamps inicio y fin del mes
+    # Calcular rango de fechas (timestamps) para el mes específico
     start_date = datetime(current_year, mes_idx, 1)
     last_day = calendar.monthrange(current_year, mes_idx)[1]
     end_date = datetime(current_year, mes_idx, last_day, 23, 59, 59)
@@ -147,7 +136,7 @@ for mes_idx in range(1, 13):
     ts_start = int(start_date.timestamp())
     ts_end = int(end_date.timestamp())
     
-    # Verificamos que no estemos pidiendo datos del futuro (opcional, para evitar errores de API)
+    # Evitar consultas a meses futuros
     if start_date > datetime.now():
         print(f"   > Saltando {nombre_mes} (Futuro)...")
         row = {'mes': nombre_mes, 'python': 0, 'javascript': 0, 'typescript': 0}
@@ -155,7 +144,6 @@ for mes_idx in range(1, 13):
         continue
 
     print(f"   > Consultando {nombre_mes} 2025...")
-    
     row = {'mes': nombre_mes}
     
     for lang in target_langs:
@@ -174,4 +162,4 @@ for mes_idx in range(1, 13):
 df_trends = pd.DataFrame(data_trends)
 df_trends.to_csv(f"{OUTPUT_DIR}/so_tendencias_mensuales.csv", index=False)
 
-print("\nPROCESO COMPLETADO EXITOSAMENTE ")
+print("\nPROCESO COMPLETADO EXITOSAMENTE")
