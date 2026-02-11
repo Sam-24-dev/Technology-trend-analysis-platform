@@ -22,14 +22,11 @@ def sincronizar():
         archivos_copiados += 1
         print(f"  Copiado: {csv_file.name}")
 
-    print(f"\nSincronizacion completada: {archivos_copiados} archivos copiados")
+    print(f"Sincronizacion completada: {archivos_copiados} archivos copiados")
     print(f"  Origen:  {origen}")
     print(f"  Destino: {destino}")
 
 
 if __name__ == "__main__":
-    print("=" * 50)
-    print("SINCRONIZACION DE DATOS")
-    print("datos/ -> frontend/assets/data/")
-    print("=" * 50)
+    print("Sincronizacion de datos: datos/ -> frontend/assets/data/")
     sincronizar()

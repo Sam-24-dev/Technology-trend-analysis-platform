@@ -1,102 +1,86 @@
-# Architecture — Technology Trend Analysis Platform
+# Architecture -- Technology Trend Analysis Platform
 
 ## System Overview
 
-Multi-source data platform that extracts, transforms, and visualizes technology trend data from three developer communities: GitHub, StackOverflow, and Reddit.
+Plataforma multi-fuente que extrae, transforma y visualiza datos de tendencias tecnologicas
+desde tres comunidades de desarrolladores: GitHub, StackOverflow y Reddit.
 
 ## Data Flow
 
 ```
-                    ┌──────────────┐
-                    │  .env        │
-                    │  (API Keys)  │
-                    └──────┬───────┘
-                           │
-          ┌────────────────┼────────────────┐
-          ▼                ▼                ▼
-   ┌─────────────┐ ┌─────────────┐ ┌─────────────┐
-   │  GitHub API  │ │StackOverflow│ │ Reddit JSON  │
-   │  (REST)     │ │  API (REST) │ │  (Public)    │
-   └──────┬──────┘ └──────┬──────┘ └──────┬──────┘
-          │                │                │
-          ▼                ▼                ▼
-   ┌─────────────┐ ┌─────────────┐ ┌─────────────┐
-   │ github_etl  │ │ so_etl      │ │ reddit_etl  │
-   │  .py        │ │  .py        │ │  .py        │
-   └──────┬──────┘ └──────┬──────┘ └──────┬──────┘
-          │                │                │
-          └────────────────┼────────────────┘
-                           ▼
-                  ┌─────────────────┐
-                  │   datos/ (CSV)  │
-                  │ Single Source   │
-                  │   of Truth      │
-                  └────────┬────────┘
-                           │
-                    sync_assets.py
-                           │
-                           ▼
-                  ┌─────────────────┐
-                  │ frontend/assets │
-                  │   /data/ (CSV)  │
-                  └────────┬────────┘
-                           │
-                           ▼
-                  ┌─────────────────┐
-                  │  Flutter Web    │
-                  │  Dashboard      │
-                  │  (fl_chart)     │
-                  └─────────────────┘
+                    .env (API Keys)
+                         |
+          +--------------+--------------+
+          v              v              v
+   GitHub API    StackOverflow API   Reddit JSON
+     (REST)         (REST)           (Publica)
+          |              |              |
+          v              v              v
+   github_etl.py  so_etl.py      reddit_etl.py
+          |              |              |
+          +--------------+--------------+
+                         v
+                   datos/ (CSV)
+                 Fuente de Verdad
+                         |
+                  sync_assets.py
+                         |
+                         v
+              frontend/assets/data/
+                         |
+                         v
+               Flutter Web Dashboard
+                    (fl_chart)
 ```
 
 ## Data Schema
 
-### GitHub Datasets
+### GitHub
 
-| File | Columns | Description |
-|------|---------|-------------|
-| `github_repos_2025.csv` | repo_name, language, stars, forks, created_at, description | Top 1000 repos created in 2025 |
-| `github_lenguajes.csv` | lenguaje, repos_count, porcentaje | Top 10 languages by repo count |
-| `github_commits_frameworks.csv` | framework, repo, commits_2025, ranking | Frontend framework commit activity |
-| `github_correlacion.csv` | repo_name, stars, contributors, language | Stars vs Contributors correlation |
+| Archivo | Columnas | Descripcion |
+|---------|----------|-------------|
+| github_repos_2025.csv | repo_name, language, stars, forks, created_at, description | Top 1000 repos creados en 2025 |
+| github_lenguajes.csv | lenguaje, repos_count, porcentaje | Top 10 lenguajes por cantidad de repos |
+| github_commits_frameworks.csv | framework, repo, commits_2025, ranking | Actividad de commits en frameworks frontend |
+| github_correlacion.csv | repo_name, stars, contributors, language | Correlacion Stars vs Contributors |
 
-### StackOverflow Datasets
+### StackOverflow
 
-| File | Columns | Description |
-|------|---------|-------------|
-| `so_volumen_preguntas.csv` | lenguaje, preguntas_nuevas_2025 | Question volume by language |
-| `so_tasa_aceptacion.csv` | tecnologia, total_preguntas, respuestas_aceptadas, tasa_aceptacion_pct | Accepted answer rate by framework |
-| `so_tendencias_mensuales.csv` | mes, python, javascript, typescript | Monthly question trends |
+| Archivo | Columnas | Descripcion |
+|---------|----------|-------------|
+| so_volumen_preguntas.csv | lenguaje, preguntas_nuevas_2025 | Volumen de preguntas por lenguaje |
+| so_tasa_aceptacion.csv | tecnologia, total_preguntas, respuestas_aceptadas, tasa_aceptacion_pct | Tasa de respuestas aceptadas por framework |
+| so_tendencias_mensuales.csv | mes, python, javascript, typescript | Tendencias mensuales de preguntas |
 
-### Reddit Datasets
+### Reddit
 
-| File | Columns | Description |
-|------|---------|-------------|
-| `reddit_sentimiento_frameworks.csv` | framework, total_menciones, positivos, neutros, negativos, % positivo, % neutro, % negativo | Sentiment analysis for backend frameworks |
-| `reddit_temas_emergentes.csv` | tema, menciones | Emerging topics in r/webdev |
-| `interseccion_github_reddit.csv` | tecnologia, tipo, ranking_github, ranking_reddit, diferencia | Cross-platform technology ranking comparison |
+| Archivo | Columnas | Descripcion |
+|---------|----------|-------------|
+| reddit_sentimiento_frameworks.csv | framework, total_menciones, positivos, neutros, negativos, % positivo, % neutro, % negativo | Analisis de sentimiento para frameworks backend |
+| reddit_temas_emergentes.csv | tema, menciones | Temas emergentes en r/webdev |
+| interseccion_github_reddit.csv | tecnologia, tipo, ranking_github, ranking_reddit, diferencia | Comparacion de rankings entre plataformas |
 
 ## Frontend Architecture
 
 ```
 Flutter Web Dashboard
-├── HomeScreen        → KPIs globales, insights
-├── GithubDashboard   → 3 graficos (barras, donut, scatter)
-├── SODashboard       → 3 graficos (barras, stacked, lineas)
-└── RedditDashboard   → 3 graficos (divergentes, barras, rankings)
+  HomeScreen          - KPIs globales, insights
+  GithubDashboard     - 3 graficos (barras, donut, scatter)
+  SODashboard         - 3 graficos (barras, stacked, lineas)
+  RedditDashboard     - 3 graficos (divergentes, barras, rankings)
 
 Cada dashboard incluye:
   - Carga de CSV via CsvService
   - Graficos interactivos (fl_chart)
-  - Key Insights section
+  - Key Insights
   - Exportar ZIP
 ```
 
 ## Deployment
 
-### Local Development
+### Local
 ```bash
-# Backend ETL
+# Backend
 make install
 make etl
 
@@ -106,15 +90,14 @@ flutter pub get
 flutter run -d chrome
 ```
 
-### Production (GitHub Pages)
+### GitHub Pages
 ```bash
 cd frontend
 flutter build web --base-href "/Technology-trend-analysis-platform/"
-# Deploy build/web/ to gh-pages branch
 ```
 
-### Automated Updates (GitHub Actions)
-- Cron: Every Monday at 06:00 UTC
-- Runs full ETL pipeline
-- Syncs CSVs to frontend assets
-- Rebuilds and deploys Flutter Web
+### Automatizacion (GitHub Actions)
+- Cron: cada lunes a las 06:00 UTC
+- Ejecuta el pipeline ETL completo
+- Sincroniza CSVs al frontend
+- Rebuild y deploy de Flutter Web

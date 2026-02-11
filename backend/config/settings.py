@@ -8,7 +8,7 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-# Rutas del proyecto
+# Rutas del proyecto (cross-platform con pathlib)
 PROYECTO_ROOT = Path(__file__).resolve().parent.parent.parent
 BACKEND_DIR = PROYECTO_ROOT / "backend"
 DATOS_DIR = PROYECTO_ROOT / "datos"
