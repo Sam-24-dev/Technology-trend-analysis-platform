@@ -35,6 +35,6 @@ FRAMEWORK_REPOS = {
     "Angular": "angular/angular"
 }
 
-# --- CONFIGURACIÓN STACKOVERFLOW (Andrés) ---
+# STACKOVERFLOW
 SO_API_KEY = os.getenv("STACKOVERFLOW_KEY")
 SO_API_URL = "https://api.stackexchange.com/2.3/search/advanced"

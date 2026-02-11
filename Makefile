@@ -1,16 +1,19 @@
-.PHONY: help install etl test sync clean
+.PHONY: help install etl test sync clean all
 
 help:
 	@echo "Tech Trends 2025 - Comandos"
 	@echo ""
-	@echo "  make install   Instalar dependencias Python"
-	@echo "  make etl       Ejecutar pipeline ETL completo"
-	@echo "  make test      Ejecutar tests con pytest"
+	@echo "  make install   Instalar dependencias"
+	@echo "  make etl       Ejecutar pipeline ETL"
+	@echo "  make test      Ejecutar tests"
 	@echo "  make sync      Sincronizar CSVs al frontend"
-	@echo "  make clean     Limpiar archivos temporales"
+	@echo "  make all       Pipeline completo (install + etl + sync)"
+	@echo "  make clean     Limpiar temporales"
 
 install:
 	pip install -r backend/requirements.txt
+
+all: install etl sync
 
 etl:
 	python backend/github_etl.py
