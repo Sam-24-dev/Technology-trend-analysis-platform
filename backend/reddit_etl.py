@@ -1,11 +1,12 @@
 """
-Reddit Scraper - Avance 1
-Extrae datos del subreddit r/webdev para análisis de tendencias tecnológicas 2025
+Reddit ETL - Technology Trend Analysis Platform
 
-Autor: Mateo Mayorga
-Proyecto: Technology Trend Analysis Platform
+Extracts data from subreddit r/webdev to analyze technology trends:
+backend framework sentiment, emerging topics, and cross-platform
+comparison with GitHub data.
+
+Author: Mateo Mayorga
 """
-import os
 import pandas as pd
 from datetime import datetime
 import requests
@@ -13,13 +14,21 @@ import nltk
 from nltk.sentiment import SentimentIntensityAnalyzer
 import warnings
 import time
+import logging
+
+from config.settings import (
+    DATOS_DIR, ARCHIVOS_SALIDA, REDDIT_SUBREDDIT, REDDIT_LIMIT,
+    REDDIT_HEADERS, LOG_FORMAT, LOG_DATE_FORMAT, LOGS_DIR
+)
+from exceptions import ETLExtractionError, ETLValidationError
+from validador import validar_dataframe
 
 warnings.filterwarnings("ignore")
 
-# Ruta de la carpeta datos
-DATOS_DIR = os.path.join(os.path.dirname(__file__), "..", "datos")
+# Logger para este modulo
+logger = logging.getLogger("reddit_etl")
 
-# Descargar recursos necesarios de NLTK
+# Descargar recursos NLTK si no estan
 try:
     nltk.data.find('sentiment/vader_lexicon')
 except LookupError:
@@ -31,49 +40,71 @@ except LookupError:
     nltk.download('stopwords')
 
 
-def obtener_posts_reddit(subreddit_name="webdev", limit=500):
-    """Obtiene posts del subreddit usando la API pública JSON de Reddit"""
-    print(f"Obteniendo posts de r/{subreddit_name} (sin autenticación)...")
-    
+def configurar_logging():
+    """Sets up logging to console and daily log file."""
+    logger.setLevel(logging.INFO)
+
+    if logger.handlers:
+        return
+
+    console = logging.StreamHandler()
+    console.setLevel(logging.INFO)
+    console.setFormatter(logging.Formatter(LOG_FORMAT, LOG_DATE_FORMAT))
+    logger.addHandler(console)
+
+    fecha = datetime.now().strftime("%Y-%m-%d")
+    archivo = LOGS_DIR / f"etl_{fecha}.log"
+    file_handler = logging.FileHandler(archivo, encoding="utf-8")
+    file_handler.setLevel(logging.INFO)
+    file_handler.setFormatter(logging.Formatter(LOG_FORMAT, LOG_DATE_FORMAT))
+    logger.addHandler(file_handler)
+
+
+def obtener_posts_reddit(subreddit_name=REDDIT_SUBREDDIT, limit=REDDIT_LIMIT):
+    """Fetches posts from a subreddit using Reddit's public JSON API.
+
+    Raises:
+        ETLExtractionError: If no posts could be fetched.
+    """
+    logger.info(f"Obteniendo posts de r/{subreddit_name}...")
+
     posts_data = []
     url = f"https://www.reddit.com/r/{subreddit_name}/hot.json"
-    
-    # Headers para que Reddit nos reconozca como cliente legítimo
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-    }
-    
+
     after = None
     posts_obtenidos = 0
-    
+
     try:
         while posts_obtenidos < limit:
             params = {
-                "limit": 100,  # Reddit devuelve máximo 100 por página
+                "limit": 100,
                 "after": after
             }
-            
-            print(f"  Descargando posts {posts_obtenidos + 1}-{min(posts_obtenidos + 100, limit)}...")
-            
-            response = requests.get(url, headers=headers, params=params, timeout=10)
-            
-            if response.status_code != 200:
-                print(f"  Error: {response.status_code}")
+
+            logger.info(f"  Descargando posts {posts_obtenidos + 1}-{min(posts_obtenidos + 100, limit)}...")
+
+            try:
+                response = requests.get(url, headers=REDDIT_HEADERS, params=params, timeout=10)
+            except requests.exceptions.RequestException as e:
+                logger.error(f"  Error de red: {e}")
                 break
-            
+
+            if response.status_code != 200:
+                logger.error(f"  Error: {response.status_code}")
+                break
+
             data = response.json()
             children = data.get("data", {}).get("children", [])
-            
+
             if not children:
                 break
-            
+
             for post in children:
                 if posts_obtenidos >= limit:
                     break
-                
+
                 post_data = post.get("data", {})
-                
-                # Solo procesar posts de texto (self posts)
+
                 if post_data.get("is_self"):
                     posts_data.append({
                         "post_id": post_data.get("id"),
@@ -85,36 +116,43 @@ def obtener_posts_reddit(subreddit_name="webdev", limit=500):
                         "autor": post_data.get("author", "Eliminado")
                     })
                     posts_obtenidos += 1
-            
-            # Obtener el 'after' para la siguiente página
+
             after = data.get("data", {}).get("after")
-            
+
             if not after:
                 break
-            
-            # Esperar un poco para no sobrecargar el servidor
+
             time.sleep(2)
-        
-        print(f"Obtenidos {len(posts_data)} posts exitosamente")
-        
+
+        logger.info(f"Obtenidos {len(posts_data)} posts")
+
     except Exception as e:
-        print(f"Error obteniendo posts: {e}")
-    
+        logger.error(f"Error obteniendo posts: {e}")
+
+    if not posts_data:
+        raise ETLExtractionError(f"No se pudo extraer posts de r/{subreddit_name}")
+
     return pd.DataFrame(posts_data)
 
 
-def extraer_posts_reddit(subreddit_name="webdev", limit=500):
-    """Extrae posts del subreddit especificado usando API pública JSON"""
+def extraer_posts_reddit(subreddit_name=REDDIT_SUBREDDIT, limit=REDDIT_LIMIT):
+    """Wrapper for obtener_posts_reddit for backward compatibility."""
     return obtener_posts_reddit(subreddit_name, limit)
 
 
 def analizar_sentimiento_frameworks(df_posts):
-    """Pregunta 1: Analiza sentimiento sobre frameworks backend"""
-    print("\nPREGUNTA 1: Analizando sentimiento de frameworks backend...")
-    
+    """Analyzes sentiment for backend frameworks mentioned in posts.
+
+    Raises:
+        ETLValidationError: If the input DataFrame is empty.
+    """
+    logger.info("PREGUNTA 1: Analizando sentimiento de frameworks backend...")
+
+    if df_posts.empty:
+        raise ETLValidationError("DataFrame de posts vacio, no se puede analizar sentimiento")
+
     sia = SentimentIntensityAnalyzer()
-    
-    # Frameworks backend a analizar
+
     frameworks_backend = {
         "Django": ["django", "python web"],
         "FastAPI": ["fastapi"],
@@ -122,42 +160,38 @@ def analizar_sentimiento_frameworks(df_posts):
         "Spring": ["spring", "springboot", "java"],
         "Laravel": ["laravel", "php"]
     }
-    
+
     sentimientos_framework = {}
-    
-    # Procesar todos los posts y comentarios
+
     todos_textos = []
-    
     for idx, post in df_posts.iterrows():
         todos_textos.append({
             "texto": f"{post['titulo']} {post['contenido']}",
             "tipo": "post"
         })
-    
-    print("Analizando sentimientos...")
-    
+
+    logger.info("Analizando sentimientos...")
+
     for framework, keywords in frameworks_backend.items():
         sentimientos = {"positivo": 0, "neutro": 0, "negativo": 0}
         total_menciones = 0
-        
+
         for item in todos_textos:
             texto = item["texto"].lower()
-            
-            # Verificar si alguna palabra clave del framework esta en el texto
+
             if any(keyword in texto for keyword in keywords):
                 total_menciones += 1
-                
-                # Analizar sentimiento
+
                 scores = sia.polarity_scores(item["texto"])
                 compound = scores['compound']
-                
+
                 if compound >= 0.05:
                     sentimientos["positivo"] += 1
                 elif compound <= -0.05:
                     sentimientos["negativo"] += 1
                 else:
                     sentimientos["neutro"] += 1
-        
+
         if total_menciones > 0:
             sentimientos_framework[framework] = {
                 "total_menciones": total_menciones,
@@ -168,8 +202,7 @@ def analizar_sentimiento_frameworks(df_posts):
                 "porcentaje_neutro": round((sentimientos["neutro"] / total_menciones) * 100, 2),
                 "porcentaje_negativo": round((sentimientos["negativo"] / total_menciones) * 100, 2)
             }
-    
-    # Crear DataFrame y ordenar por porcentaje positivo
+
     df_sentimientos = pd.DataFrame([
         {
             "framework": framework,
@@ -183,23 +216,29 @@ def analizar_sentimiento_frameworks(df_posts):
         }
         for framework, data in sentimientos_framework.items()
     ]).sort_values("% positivo", ascending=False).reset_index(drop=True)
-    
-    print("\nTop Frameworks Backend por Sentimiento Positivo:")
-    print("-" * 80)
+
+    logger.info("Top Frameworks Backend por Sentimiento Positivo:")
     for i, row in df_sentimientos.iterrows():
-        print(f"  {i+1}. {row['framework']}: {row['% positivo']}% positivos ({row['total_menciones']} menciones)")
-    
-    csv_path = os.path.join(DATOS_DIR, "reddit_sentimiento_frameworks.csv")
-    df_sentimientos.to_csv(csv_path, index=False, encoding="utf-8")
-    print(f"Guardado en: {csv_path}")
-    
+        logger.info(f"  {i+1}. {row['framework']}: {row['% positivo']}% positivos ({row['total_menciones']} menciones)")
+
+    validar_dataframe(df_sentimientos, "reddit_sentimiento")
+    df_sentimientos.to_csv(ARCHIVOS_SALIDA["reddit_sentimiento"], index=False, encoding="utf-8")
+    logger.info(f"Guardado en: {ARCHIVOS_SALIDA['reddit_sentimiento']}")
+
     return df_sentimientos
 
 
 def detectar_temas_emergentes(df_posts):
-    """Pregunta 2: Detecta temas emergentes mencionados en r/webdev"""
-    print("\nPREGUNTA 2: Detectando temas emergentes...")
-    
+    """Detects emerging topics mentioned in r/webdev posts.
+
+    Raises:
+        ETLValidationError: If the input DataFrame is empty.
+    """
+    logger.info("PREGUNTA 2: Detectando temas emergentes...")
+
+    if df_posts.empty:
+        raise ETLValidationError("DataFrame de posts vacio, no se puede detectar temas")
+
     temas_clave = {
         "IA/Machine Learning": ["ai", "artificial intelligence", "machine learning", "ml", "chatgpt", "llm", "neural", "gpt", "openai"],
         "Cloud": ["cloud", "aws", "azure", "gcp", "google cloud", "kubernetes", "docker", "containerization"],
@@ -212,66 +251,65 @@ def detectar_temas_emergentes(df_posts):
         "TypeScript": ["typescript", "typescript"],
         "Python": ["python", "django", "fastapi", "flask"]
     }
-    
+
     menciones_temas = {tema: 0 for tema in temas_clave.keys()}
-    
-    # Contar menciones en todos los posts
+
     for idx, post in df_posts.iterrows():
         texto = f"{post['titulo']} {post['contenido']}".lower()
-        
+
         for tema, keywords in temas_clave.items():
             for keyword in keywords:
                 if keyword in texto:
                     menciones_temas[tema] += 1
-                    break  # Contar solo una vez por tema por post
-    
-    # Crear DataFrame y ordenar
+                    break
+
     df_temas = pd.DataFrame([
         {"tema": tema, "menciones": menciones_temas[tema]}
         for tema in menciones_temas.keys()
         if menciones_temas[tema] > 0
     ]).sort_values("menciones", ascending=False).reset_index(drop=True)
-    
-    print("\nTemas Emergentes en r/webdev:")
-    print("-" * 50)
+
+    logger.info("Temas Emergentes en r/webdev:")
     for i, row in df_temas.iterrows():
-        print(f"  {i+1}. {row['tema']}: {row['menciones']} menciones")
-    
-    csv_path = os.path.join(DATOS_DIR, "reddit_temas_emergentes.csv")
-    df_temas.to_csv(csv_path, index=False, encoding="utf-8")
-    print(f"Guardado en: {csv_path}")
-    
+        logger.info(f"  {i+1}. {row['tema']}: {row['menciones']} menciones")
+
+    validar_dataframe(df_temas, "reddit_temas")
+    df_temas.to_csv(ARCHIVOS_SALIDA["reddit_temas"], index=False, encoding="utf-8")
+    logger.info(f"Guardado en: {ARCHIVOS_SALIDA['reddit_temas']}")
+
     return df_temas
 
 
 def interseccion_tecnologias(df_repos, df_temas):
-    """Pregunta 3: Interseccion entre tecnologias populares en GitHub vs Reddit"""
-    print("\nPREGUNTA 3: Analizando interseccion GitHub vs Reddit...")
-    
-    # Obtener top 5 lenguajes de GitHub
+    """Compares technology rankings between GitHub and Reddit.
+
+    Raises:
+        ETLValidationError: If either input DataFrame is empty.
+    """
+    logger.info("PREGUNTA 3: Analizando interseccion GitHub vs Reddit...")
+
+    if df_repos.empty or df_temas.empty:
+        raise ETLValidationError("DataFrames vacios, no se puede analizar interseccion")
+
     github_langs = df_repos["language"].value_counts().head(5).reset_index()
     github_langs.columns = ["tecnologia", "frecuencia"]
     github_langs["ranking_github"] = range(1, len(github_langs) + 1)
     github_langs["tipo"] = "Lenguaje"
-    
-    # Frameworks frontend de GitHub (desde frameworks_commits.csv)
+
     frameworks_frontend = pd.DataFrame({
         "tecnologia": ["Angular", "React", "Vue 3"],
-        "ranking_github": [1, 2, 3],  # Basado en commits_2025
+        "ranking_github": [1, 2, 3],
         "tipo": "Framework Frontend"
     })
-    
-    # Combinar lenguajes + frameworks
-    github_data = pd.concat([github_langs[["tecnologia", "ranking_github", "tipo"]], 
-                             frameworks_frontend], 
+
+    github_data = pd.concat([github_langs[["tecnologia", "ranking_github", "tipo"]],
+                             frameworks_frontend],
                             ignore_index=True)
-    
-    # Temas de Reddit (top 10)
+
     reddit_temas = df_temas.head(10).copy()
     reddit_temas["ranking_reddit"] = range(1, len(reddit_temas) + 1)
     reddit_temas = reddit_temas.rename(columns={"tema": "tecnologia"})
-    
-    # Mapeo de normalización para búsqueda
+
     mapeo_normalizacion = {
         "python": ["python"],
         "javascript": ["javascript", "js", "web"],
@@ -284,26 +322,24 @@ def interseccion_tecnologias(df_repos, df_temas):
         "java": ["java", "spring"],
         "c#": ["c#", "csharp", "dotnet", "asp.net"]
     }
-    
+
     def normalizar_nombre(nombre):
-        """Normaliza el nombre para comparación"""
+        """Normalizes technology names for comparison."""
         nombre_lower = nombre.lower()
         for clave, valores in mapeo_normalizacion.items():
             if nombre_lower == clave or any(v in nombre_lower for v in valores):
                 return clave
         return nombre_lower
-    
-    # Buscar coincidencias
+
     coincidencias = []
-    
+
     for idx_gh, row_gh in github_data.iterrows():
         gh_norm = normalizar_nombre(row_gh["tecnologia"])
         encontrado = False
-        
+
         for idx_rd, row_rd in reddit_temas.iterrows():
             rd_norm = normalizar_nombre(row_rd["tecnologia"])
-            
-            # Comparar nombres normalizados
+
             if gh_norm == rd_norm or gh_norm in rd_norm or rd_norm in gh_norm:
                 coincidencias.append({
                     "tecnologia": row_gh["tecnologia"],
@@ -314,8 +350,7 @@ def interseccion_tecnologias(df_repos, df_temas):
                 })
                 encontrado = True
                 break
-        
-        # Si no se encontró coincidencia en Reddit, registrar como No encontrado
+
         if not encontrado:
             coincidencias.append({
                 "tecnologia": row_gh["tecnologia"],
@@ -324,60 +359,73 @@ def interseccion_tecnologias(df_repos, df_temas):
                 "ranking_reddit": "No encontrado",
                 "diferencia": "-"
             })
-    
+
     df_coincidencias = pd.DataFrame(coincidencias).reset_index(drop=True)
-    
-    print("\nTecnologias comparadas entre GitHub y Reddit:")
-    print("-" * 80)
+
+    logger.info("Tecnologias comparadas entre GitHub y Reddit:")
     for i, row in df_coincidencias.iterrows():
         if row["ranking_reddit"] != "No encontrado":
-            print(f"  {row['tecnologia']:20} ({row['tipo']:20}): GitHub #{row['ranking_github']} - Reddit #{row['ranking_reddit']} (dif: {row['diferencia']})")
+            logger.info(f"  {row['tecnologia']:20} ({row['tipo']:20}): GitHub #{row['ranking_github']} - Reddit #{row['ranking_reddit']} (dif: {row['diferencia']})")
         else:
-            print(f"  {row['tecnologia']:20} ({row['tipo']:20}): GitHub #{row['ranking_github']} - No menciona en Reddit")
-    
-    csv_path = os.path.join(DATOS_DIR, "interseccion_github_reddit.csv")
-    df_coincidencias.to_csv(csv_path, index=False, encoding="utf-8")
-    print(f"\nGuardado en: {csv_path}")
-    
+            logger.info(f"  {row['tecnologia']:20} ({row['tipo']:20}): GitHub #{row['ranking_github']} - No menciona en Reddit")
+
+    validar_dataframe(df_coincidencias, "interseccion")
+    df_coincidencias.to_csv(ARCHIVOS_SALIDA["interseccion"], index=False, encoding="utf-8")
+    logger.info(f"Guardado en: {ARCHIVOS_SALIDA['interseccion']}")
+
     return df_coincidencias
 
 
 def main():
-    """Funcion principal para ejecutar el scraper de Reddit"""
-    print("=" * 60)
-    print("REDDIT SCRAPER - AVANCE 1")
-    print("Autor: Mateo Mayorga")
-    print("=" * 60)
-    
-    # Crear carpeta datos si no existe (relativa al directorio raíz del proyecto)
-    os.makedirs(DATOS_DIR, exist_ok=True)
-    print(f"\nDirectorio de datos: {DATOS_DIR}")
-    
-    # Obtener posts sin necesidad de credenciales
-    df_posts = extraer_posts_reddit("webdev", limit=500)
-    
-    if not df_posts.empty:
-        df_sentimientos = analizar_sentimiento_frameworks(df_posts)
+    """Main function that runs the complete Reddit ETL pipeline.
+    Each step is independent so one failure does not stop the others.
+    """
+    configurar_logging()
+
+    logger.info("Reddit ETL - Technology Trend Analysis Platform")
+    logger.info(f"Directorio de datos: {DATOS_DIR}")
+
+    # Extraccion de posts
+    try:
+        df_posts = extraer_posts_reddit()
+    except ETLExtractionError as e:
+        logger.error(f"Extraccion de posts fallida: {e}")
+        return
+    except Exception as e:
+        logger.error(f"Error inesperado en extraccion: {e}")
+        return
+
+    # Analisis de sentimiento
+    df_temas = None
+    try:
+        analizar_sentimiento_frameworks(df_posts)
+    except (ETLValidationError, ETLExtractionError) as e:
+        logger.error(f"Analisis de sentimiento fallido: {e}")
+    except Exception as e:
+        logger.error(f"Error inesperado en sentimiento: {e}")
+
+    # Deteccion de temas
+    try:
         df_temas = detectar_temas_emergentes(df_posts)
-        
-        # Para la pregunta 3, necesitamos cargar los datos de GitHub
+    except (ETLValidationError, ETLExtractionError) as e:
+        logger.error(f"Deteccion de temas fallida: {e}")
+    except Exception as e:
+        logger.error(f"Error inesperado en temas: {e}")
+
+    # Interseccion GitHub vs Reddit
+    if df_temas is not None:
         try:
-            repos_csv_path = os.path.join(DATOS_DIR, "github_repos_2025.csv")
-            df_repos = pd.read_csv(repos_csv_path)
-            df_coincidencias = interseccion_tecnologias(df_repos, df_temas)
+            df_repos = pd.read_csv(ARCHIVOS_SALIDA["github_repos"])
+            interseccion_tecnologias(df_repos, df_temas)
         except FileNotFoundError:
-            print(f"\nADVERTENCIA: No se encontro {repos_csv_path}")
-            print("Asegúrate de ejecutar primero el scraper de GitHub (github_scraper.py)")
-        
-        print("\n" + "=" * 60)
-        print("SCRAPING DE REDDIT COMPLETADO")
-        print("=" * 60)
-        print("\nArchivos generados en carpeta 'datos/':")
-        print("  1. reddit_sentimiento_frameworks.csv (Pregunta 1)")
-        print("  2. reddit_temas_emergentes.csv (Pregunta 2)")
-        print("  3. interseccion_github_reddit.csv (Pregunta 3)")
-    else:
-        print("No se pudieron extraer posts de Reddit")
+            logger.warning(f"No se encontro {ARCHIVOS_SALIDA['github_repos']}")
+            logger.warning("Ejecuta primero github_etl.py")
+        except (ETLValidationError, ETLExtractionError) as e:
+            logger.error(f"Analisis de interseccion fallido: {e}")
+        except Exception as e:
+            logger.error(f"Error inesperado en interseccion: {e}")
+
+    logger.info("ETL Reddit completado")
 
 
 if __name__ == "__main__":

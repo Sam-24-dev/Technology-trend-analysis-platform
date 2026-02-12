@@ -1,165 +1,255 @@
+"""
+StackOverflow ETL - Technology Trend Analysis Platform
+
+Extracts question data from the StackOverflow API to analyze
+technology trends: question volume, accepted answer rates,
+and monthly trends by language.
+
+Author: Andres
+"""
 import requests
 import pandas as pd
 import time
-import os
-import sys
-from datetime import datetime, timedelta
+import logging
+from datetime import datetime
 import calendar
 
-# Añadir directorio actual al path para importar módulos locales
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from config.settings import (
+    SO_API_URL, SO_API_KEY, ARCHIVOS_SALIDA, DATOS_DIR,
+    LOG_FORMAT, LOG_DATE_FORMAT, LOGS_DIR,
+    FECHA_INICIO, FECHA_INICIO_TIMESTAMP
+)
+from exceptions import ETLExtractionError, ETLValidationError
+from validador import validar_dataframe
 
-# Configuración: Intenta cargar credenciales, usa valores por defecto si falla
-try:
-    import config
-except ImportError:
-    print("Usando configuración por defecto (sin config.py)")
-    class config:
-        SO_API_URL = "https://api.stackexchange.com/2.3/search/advanced"
-        SO_API_KEY = None
+# Logger para este modulo
+logger = logging.getLogger("stackoverflow_etl")
 
-API_URL = config.SO_API_URL
-DATE_START_2025 = 1735689600  # Timestamp para 1 de Enero 2025
 
-# Garantizar que el directorio de salida existe
-OUTPUT_DIR = "datos"
-if not os.path.exists(OUTPUT_DIR):
-    os.makedirs(OUTPUT_DIR)
+def configurar_logging():
+    """Sets up logging to console and daily log file."""
+    logger.setLevel(logging.INFO)
+
+    if logger.handlers:
+        return
+
+    console = logging.StreamHandler()
+    console.setLevel(logging.INFO)
+    console.setFormatter(logging.Formatter(LOG_FORMAT, LOG_DATE_FORMAT))
+    logger.addHandler(console)
+
+    fecha = datetime.now().strftime("%Y-%m-%d")
+    archivo = LOGS_DIR / f"etl_{fecha}.log"
+    file_handler = logging.FileHandler(archivo, encoding="utf-8")
+    file_handler.setLevel(logging.INFO)
+    file_handler.setFormatter(logging.Formatter(LOG_FORMAT, LOG_DATE_FORMAT))
+    logger.addHandler(file_handler)
+
 
 def get_total_count(params):
-    """
-    Consulta la API devolviendo solo el número total de resultados.
-    Usa el filtro 'total' para ahorrar ancho de banda y cuota de API.
+    """Queries the API returning only the total result count.
+
+    Raises:
+        ETLExtractionError: If the API call fails.
     """
     params['filter'] = 'total'
-    if config.SO_API_KEY:
-        params['key'] = config.SO_API_KEY
-    
+    if SO_API_KEY:
+        params['key'] = SO_API_KEY
+
     try:
-        response = requests.get(API_URL, params=params)
+        response = requests.get(SO_API_URL, params=params, timeout=10)
         if response.status_code == 200:
             return response.json().get('total', 0)
         else:
-            print(f"Error API {response.status_code}: {response.text}")
-            return 0
-    except Exception as e:
-        print(f"Error de conexión: {e}")
-        return 0
-
-print(" INICIANDO ETL STACKOVERFLOW ")
-print(f"Fecha: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-
-# --- 1. Volumen de Preguntas (Total Anual) ---
-print("[1/3] Obteniendo volumen TOTAL de preguntas (2025)...")
-languages = ['python', 'javascript', 'typescript', 'java', 'go']
-data_volumen = []
-
-for lang in languages:
-    print(f"   > Consultando StackOverflow para: [{lang}]...")
-    params = {
-        'site': 'stackoverflow',
-        'tagged': lang,
-        'fromdate': DATE_START_2025
-    }
-    total = get_total_count(params)
-    
-    data_volumen.append({
-        'lenguaje': lang, 
-        'preguntas_nuevas_2025': total
-    })
-    time.sleep(0.5) # Pausa para respetar el Rate Limit de la API
-
-df_volumen = pd.DataFrame(data_volumen)
-df_volumen.to_csv(f"{OUTPUT_DIR}/so_volumen_preguntas.csv", index=False)
-print(f"   ✓ Datos guardados en {OUTPUT_DIR}/so_volumen_preguntas.csv")
+            logger.error(f"Error API {response.status_code}: {response.text}")
+            raise ETLExtractionError(f"StackOverflow API retorno {response.status_code}")
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Error de conexion: {e}")
+        raise ETLExtractionError(f"Error de red: {e}")
 
 
-# --- 2. Tasa de Respuestas Aceptadas (Métrica de Calidad) ---
-print("\n[2/3] Calculando métricas de madurez...")
-frameworks = ['reactjs', 'vue.js', 'angular', 'next.js', 'svelte']
-data_madurez = []
+def extraer_volumen_preguntas():
+    """Extracts yearly question volume per language from StackOverflow."""
+    logger.info("[1/3] Obteniendo volumen TOTAL de preguntas...")
+    languages = ['python', 'javascript', 'typescript', 'java', 'go']
+    data_volumen = []
+    errores = 0
 
-for fw in frameworks:
-    print(f"   > Analizando [{fw}]...")
-    
-    # Consulta 1: Total de preguntas
-    params_total = {
-        'site': 'stackoverflow',
-        'tagged': fw,
-        'fromdate': DATE_START_2025
-    }
-    total_questions = get_total_count(params_total)
-    time.sleep(0.3)
-
-    # Consulta 2: Preguntas con respuesta aceptada (accepted=True)
-    params_accepted = {
-        'site': 'stackoverflow',
-        'tagged': fw,
-        'fromdate': DATE_START_2025,
-        'accepted': True 
-    }
-    accepted_questions = get_total_count(params_accepted)
-    time.sleep(0.3)
-
-    # Cálculo del porcentaje
-    rate = 0
-    if total_questions > 0:
-        rate = round((accepted_questions / total_questions) * 100, 2)
-
-    data_madurez.append({
-        'tecnologia': fw,
-        'total_preguntas': total_questions,
-        'respuestas_aceptadas': accepted_questions,
-        'tasa_aceptacion_pct': rate
-    })
-
-df_madurez = pd.DataFrame(data_madurez)
-df_madurez.to_csv(f"{OUTPUT_DIR}/so_tasa_aceptacion.csv", index=False)
-print(f"   ✓ Datos guardados.")
-
-
-# --- 3. Tendencias Mensuales (Histórico) ---
-print("\n[3/3] Generando histórico mensual...")
-target_langs = ['python', 'javascript', 'typescript']
-data_trends = []
-current_year = 2025
-
-# Iterar mes a mes (1 al 12)
-for mes_idx in range(1, 13): 
-    nombre_mes = calendar.month_abbr[mes_idx]
-    
-    # Calcular rango de fechas (timestamps) para el mes específico
-    start_date = datetime(current_year, mes_idx, 1)
-    last_day = calendar.monthrange(current_year, mes_idx)[1]
-    end_date = datetime(current_year, mes_idx, last_day, 23, 59, 59)
-    
-    ts_start = int(start_date.timestamp())
-    ts_end = int(end_date.timestamp())
-    
-    # Evitar consultas a meses futuros
-    if start_date > datetime.now():
-        print(f"   > Saltando {nombre_mes} (Futuro)...")
-        row = {'mes': nombre_mes, 'python': 0, 'javascript': 0, 'typescript': 0}
-        data_trends.append(row)
-        continue
-
-    print(f"   > Consultando {nombre_mes} 2025...")
-    row = {'mes': nombre_mes}
-    
-    for lang in target_langs:
+    for lang in languages:
+        logger.info(f"   Consultando StackOverflow para: [{lang}]...")
         params = {
             'site': 'stackoverflow',
             'tagged': lang,
-            'fromdate': ts_start,
-            'todate': ts_end
+            'fromdate': FECHA_INICIO_TIMESTAMP
         }
-        count = get_total_count(params)
-        row[lang] = count
-        time.sleep(0.3) 
-        
-    data_trends.append(row)
 
-df_trends = pd.DataFrame(data_trends)
-df_trends.to_csv(f"{OUTPUT_DIR}/so_tendencias_mensuales.csv", index=False)
+        try:
+            total = get_total_count(params)
+        except ETLExtractionError as e:
+            logger.warning(f"   No se pudo obtener datos para {lang}: {e}")
+            total = 0
+            errores += 1
 
-print("\nPROCESO COMPLETADO EXITOSAMENTE")
+        data_volumen.append({
+            'lenguaje': lang,
+            'preguntas_nuevas_2025': total
+        })
+        time.sleep(0.5)
+
+    if errores == len(languages):
+        raise ETLExtractionError("No se pudo consultar ningun lenguaje en StackOverflow")
+
+    df_volumen = pd.DataFrame(data_volumen)
+    validar_dataframe(df_volumen, "so_volumen")
+    df_volumen.to_csv(ARCHIVOS_SALIDA["so_volumen"], index=False)
+    logger.info(f"Datos guardados en {ARCHIVOS_SALIDA['so_volumen']}")
+
+    return df_volumen
+
+
+def calcular_tasa_aceptacion():
+    """Calculates accepted answer rates per framework as a maturity metric."""
+    logger.info("[2/3] Calculando metricas de madurez...")
+    frameworks = ['reactjs', 'vue.js', 'angular', 'next.js', 'svelte']
+    data_madurez = []
+    errores = 0
+
+    for fw in frameworks:
+        logger.info(f"   Analizando [{fw}]...")
+
+        try:
+            params_total = {
+                'site': 'stackoverflow',
+                'tagged': fw,
+                'fromdate': FECHA_INICIO_TIMESTAMP
+            }
+            total_questions = get_total_count(params_total)
+            time.sleep(0.3)
+
+            params_accepted = {
+                'site': 'stackoverflow',
+                'tagged': fw,
+                'fromdate': FECHA_INICIO_TIMESTAMP,
+                'accepted': True
+            }
+            accepted_questions = get_total_count(params_accepted)
+            time.sleep(0.3)
+        except ETLExtractionError as e:
+            logger.warning(f"   No se pudo obtener datos para {fw}: {e}")
+            total_questions = 0
+            accepted_questions = 0
+            errores += 1
+
+        rate = 0
+        if total_questions > 0:
+            rate = round((accepted_questions / total_questions) * 100, 2)
+
+        data_madurez.append({
+            'tecnologia': fw,
+            'total_preguntas': total_questions,
+            'respuestas_aceptadas': accepted_questions,
+            'tasa_aceptacion_pct': rate
+        })
+
+    if errores == len(frameworks):
+        raise ETLExtractionError("No se pudo consultar ningun framework en StackOverflow")
+
+    df_madurez = pd.DataFrame(data_madurez)
+    validar_dataframe(df_madurez, "so_aceptacion")
+    df_madurez.to_csv(ARCHIVOS_SALIDA["so_aceptacion"], index=False)
+    logger.info(f"Datos guardados en {ARCHIVOS_SALIDA['so_aceptacion']}")
+
+    return df_madurez
+
+
+def generar_tendencias_mensuales():
+    """Generates monthly question trends for top languages."""
+    logger.info("[3/3] Generando historico mensual...")
+    target_langs = ['python', 'javascript', 'typescript']
+    data_trends = []
+
+    # Calcular los ultimos 12 meses desde FECHA_INICIO
+    inicio_year = FECHA_INICIO.year
+    inicio_month = FECHA_INICIO.month
+
+    for i in range(12):
+        mes_idx = (inicio_month + i - 1) % 12 + 1
+        year = inicio_year + (inicio_month + i - 1) // 12
+        nombre_mes = calendar.month_abbr[mes_idx]
+
+        start_date = datetime(year, mes_idx, 1)
+        last_day = calendar.monthrange(year, mes_idx)[1]
+        end_date = datetime(year, mes_idx, last_day, 23, 59, 59)
+
+        ts_start = int(start_date.timestamp())
+        ts_end = int(end_date.timestamp())
+
+        if start_date > datetime.now():
+            logger.info(f"   Saltando {nombre_mes} {year} (futuro)...")
+            row = {'mes': f"{nombre_mes} {year}", 'python': 0, 'javascript': 0, 'typescript': 0}
+            data_trends.append(row)
+            continue
+
+        logger.info(f"   Consultando {nombre_mes} {year}...")
+        row = {'mes': f"{nombre_mes} {year}"}
+
+        for lang in target_langs:
+            params = {
+                'site': 'stackoverflow',
+                'tagged': lang,
+                'fromdate': ts_start,
+                'todate': ts_end
+            }
+            try:
+                count = get_total_count(params)
+            except ETLExtractionError as e:
+                logger.warning(f"   Error en {nombre_mes}/{lang}: {e}")
+                count = 0
+            row[lang] = count
+            time.sleep(0.3)
+
+        data_trends.append(row)
+
+    df_trends = pd.DataFrame(data_trends)
+    validar_dataframe(df_trends, "so_tendencias")
+    df_trends.to_csv(ARCHIVOS_SALIDA["so_tendencias"], index=False)
+    logger.info(f"Datos guardados en {ARCHIVOS_SALIDA['so_tendencias']}")
+
+    return df_trends
+
+
+def main():
+    """Main function that runs the complete StackOverflow ETL pipeline.
+    Each step is independent so one failure does not stop the others.
+    """
+    configurar_logging()
+
+    logger.info("StackOverflow ETL - Technology Trend Analysis Platform")
+    logger.info(f"Fecha: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+
+    try:
+        extraer_volumen_preguntas()
+    except ETLExtractionError as e:
+        logger.error(f"Extraccion de volumen fallida: {e}")
+    except Exception as e:
+        logger.error(f"Error inesperado en volumen: {e}")
+
+    try:
+        calcular_tasa_aceptacion()
+    except ETLExtractionError as e:
+        logger.error(f"Calculo de tasa fallido: {e}")
+    except Exception as e:
+        logger.error(f"Error inesperado en tasa: {e}")
+
+    try:
+        generar_tendencias_mensuales()
+    except ETLExtractionError as e:
+        logger.error(f"Tendencias mensuales fallidas: {e}")
+    except Exception as e:
+        logger.error(f"Error inesperado en tendencias: {e}")
+
+    logger.info("ETL StackOverflow completado")
+
+
+if __name__ == "__main__":
+    main()

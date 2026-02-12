@@ -44,7 +44,7 @@ class _GithubDashboardState extends State<GithubDashboard> {
   Future<void> _loadData() async {
     try {
       final lenguajesData = await CsvService.loadCsvAsMap('assets/data/github_lenguajes.csv');
-      lenguajes = lenguajesData.map((e) => LenguajeModel.fromMap(e)).toList();
+      lenguajes = lenguajesData.map((e) => LenguajeModel.fromMap(e)).take(5).toList();
 
       final frameworksData = await CsvService.loadCsvAsMap('assets/data/github_commits_frameworks.csv');
       frameworks = frameworksData.map((e) => FrameworkCommitModel.fromMap(e)).toList();
@@ -195,8 +195,8 @@ class _GithubDashboardState extends State<GithubDashboard> {
 
           // Gráfico 1
           ChartCard(
-            title: 'Lenguajes con más repositorios nuevos en 2025',
-            subtitle: 'Top 10 lenguajes por creación de repositorios',
+            title: '5 Lenguajes con más repositorios nuevos en 2025',
+            subtitle: 'Top 5 lenguajes por creación de repositorios',
             height: 420,
             chart: _buildHorizontalBarChart(),
           ),

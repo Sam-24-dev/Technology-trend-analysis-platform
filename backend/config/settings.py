@@ -6,6 +6,7 @@ for cross-platform compatibility (Windows/Linux/Mac).
 """
 import os
 from pathlib import Path
+from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
 # Rutas del proyecto (cross-platform con pathlib)
@@ -69,3 +70,13 @@ ARCHIVOS_SALIDA = {
 # Logging
 LOG_FORMAT = "[%(asctime)s] [%(levelname)s] %(name)s - %(message)s"
 LOG_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+
+# Rango de fechas dinamico (ultimos 12 meses)
+FECHA_FIN = datetime.now()
+FECHA_INICIO = FECHA_FIN - timedelta(days=365)
+
+FECHA_INICIO_STR = FECHA_INICIO.strftime("%Y-%m-%d")
+FECHA_FIN_STR = FECHA_FIN.strftime("%Y-%m-%d")
+FECHA_INICIO_ISO = FECHA_INICIO.strftime("%Y-%m-%dT00:00:00Z")
+FECHA_INICIO_TIMESTAMP = int(FECHA_INICIO.timestamp())
+
