@@ -7,6 +7,7 @@
 ![Flutter](https://img.shields.io/badge/Flutter-3.38-02569B?style=for-the-badge&logo=flutter&logoColor=white)
 ![Status](https://img.shields.io/badge/Status-Completed-success?style=for-the-badge)
 ![Tests](https://img.shields.io/badge/Tests-40_Passed-brightgreen?style=for-the-badge&logo=pytest&logoColor=white)
+![CI](https://github.com/Sam-24-dev/Technology-trend-analysis-platform/actions/workflows/ci.yml/badge.svg)
 
 <br>
 

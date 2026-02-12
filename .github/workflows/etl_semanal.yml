@@ -1,0 +1,74 @@
+name: Weekly ETL + Deploy
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'  # Every Monday at 06:00 UTC
+  workflow_dispatch:       # Allow manual trigger
+
+permissions:
+  contents: write
+  pages: write
+
+jobs:
+  etl-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # --- ETL Pipeline ---
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: |
+          pip install --upgrade pip
+          pip install requests pandas python-dotenv nltk pytest
+
+      - name: Download NLTK data
+        run: |
+          python -c "import nltk; nltk.download('vader_lexicon'); nltk.download('stopwords')"
+
+      - name: Create .env file
+        run: |
+          echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" > .env
+
+      - name: Run ETL pipeline
+        run: |
+          cd backend && python github_etl.py
+          cd backend && python stackoverflow_etl.py
+          cd backend && python reddit_etl.py
+          cd backend && python trend_score.py
+
+      - name: Sync CSVs to frontend
+        run: python backend/sync_assets.py
+
+      - name: Commit updated data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add datos/ frontend/assets/data/
+          git diff --staged --quiet || git commit -m "data: weekly ETL update $(date +%Y-%m-%d)"
+          git push
+
+      # --- Flutter Web Deploy ---
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+
+      - name: Build Flutter Web
+        run: |
+          cd frontend
+          flutter pub get
+          flutter build web --base-href "/Technology-trend-analysis-platform/"
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: frontend/build/web
