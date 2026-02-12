@@ -10,7 +10,7 @@ Formula:
                   (peso_so × so_score) +
                   (peso_reddit × reddit_score)
 
-Author: Technology Trend Analysis Platform Team
+Author: Samir Caizapasto
 """
 import pandas as pd
 import numpy as np

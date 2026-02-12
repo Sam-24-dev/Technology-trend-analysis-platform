@@ -7,19 +7,17 @@ and CSV output in a consistent way.
 
 Usage:
     class GitHubETL(BaseETL):
-        def extraer(self):
-            # fetch data from GitHub API
-            return raw_data
-
-        def transformar(self, datos_crudos):
-            # process raw data
-            return processed_df
+        def definir_pasos(self):
+            return [
+                ("Extraccion de repos", self.extraer_repos),
+                ("Analisis de lenguajes", self.analizar_lenguajes),
+            ]
 """
 import logging
 from datetime import datetime
 from abc import ABC, abstractmethod
 
-from config.settings import LOG_FORMAT, LOG_DATE_FORMAT, LOGS_DIR, DATOS_DIR
+from config.settings import LOG_FORMAT, LOG_DATE_FORMAT, LOGS_DIR, ARCHIVOS_SALIDA
 from exceptions import ETLExtractionError, ETLValidationError
 from validador import validar_dataframe
 
@@ -27,8 +25,9 @@ from validador import validar_dataframe
 class BaseETL(ABC):
     """Base class for all ETL extractors.
 
-    Provides common functionality: logging, validation, and CSV output.
-    Subclasses must implement extraer() and transformar().
+    Subclasses must implement definir_pasos() returning a list
+    of (name, function) tuples. Each step runs independently
+    so one failure doesn't stop the others.
     """
 
     def __init__(self, nombre_fuente):
@@ -39,7 +38,6 @@ class BaseETL(ABC):
         """
         self.nombre = nombre_fuente
         self.logger = logging.getLogger(nombre_fuente)
-        self.resultados = {}
 
     def configurar_logging(self):
         """Sets up logging to console and daily log file."""
@@ -60,91 +58,68 @@ class BaseETL(ABC):
         file_handler.setFormatter(logging.Formatter(LOG_FORMAT, LOG_DATE_FORMAT))
         self.logger.addHandler(file_handler)
 
-    @abstractmethod
-    def extraer(self):
-        """Extracts raw data from the source.
+    def guardar_csv(self, df, nombre_archivo):
+        """Validates and saves a DataFrame to CSV.
 
-        Must be implemented by subclasses.
-
-        Returns:
-            Raw data (dict, list, or DataFrame).
+        Args:
+            df: DataFrame to save.
+            nombre_archivo: Key from ARCHIVOS_SALIDA (e.g. 'github_repos').
 
         Raises:
-            ETLExtractionError: If extraction fails.
+            ETLValidationError: If the DataFrame is empty.
         """
-        raise NotImplementedError
+        ruta = ARCHIVOS_SALIDA.get(nombre_archivo)
+        if ruta is None:
+            self.logger.warning(f"No hay ruta de salida para '{nombre_archivo}'")
+            return
+
+        validar_dataframe(df, nombre_archivo)
+        df.to_csv(ruta, index=False, encoding="utf-8")
+        self.logger.info(f"Guardado en: {ruta}")
 
     @abstractmethod
-    def transformar(self, datos_crudos):
-        """Transforms raw data into processed DataFrames.
+    def definir_pasos(self):
+        """Defines the ETL steps to execute.
 
         Must be implemented by subclasses.
 
-        Args:
-            datos_crudos: Raw data from extraer().
-
         Returns:
-            dict: Mapping of output names to DataFrames.
-                  e.g. {"github_repos": df_repos, "github_lenguajes": df_langs}
+            list: List of tuples (step_name, step_function).
+                  Each function is called with no arguments.
+                  Use self to share data between steps.
+
+        Example:
+            return [
+                ("Extraccion", self.extraer_repos),
+                ("Lenguajes", self.analizar_lenguajes),
+            ]
         """
         raise NotImplementedError
 
-    def cargar(self, datos_procesados, archivos_salida):
-        """Saves processed DataFrames to CSV files.
-
-        Validates each DataFrame before saving. Logs warnings
-        for any validation issues but does not stop execution.
-
-        Args:
-            datos_procesados: dict mapping names to DataFrames.
-            archivos_salida: dict mapping names to file paths.
-        """
-        for nombre, df in datos_procesados.items():
-            ruta = archivos_salida.get(nombre)
-            if ruta is None:
-                self.logger.warning(f"No hay ruta de salida para '{nombre}', saltando...")
-                continue
-
-            try:
-                validar_dataframe(df, nombre)
-                df.to_csv(ruta, index=False, encoding="utf-8")
-                self.logger.info(f"Guardado en: {ruta}")
-            except ETLValidationError as e:
-                self.logger.error(f"Validacion fallida para '{nombre}': {e}")
-            except Exception as e:
-                self.logger.error(f"Error guardando '{nombre}': {e}")
-
     def ejecutar(self):
-        """Runs the complete ETL pipeline: Extract -> Transform -> Load.
+        """Runs the complete ETL pipeline.
 
-        Each phase is wrapped in try/except so failures are logged
-        but don't crash the entire pipeline.
-
-        Returns:
-            dict: The processed data, or empty dict on failure.
+        Calls configurar_logging(), then runs each step from
+        definir_pasos() independently with try/except.
+        If a step raises ETLExtractionError with critical=True,
+        the pipeline stops.
         """
         self.configurar_logging()
         self.logger.info(f"{self.nombre.upper()} ETL - Technology Trend Analysis Platform")
 
-        # Extraer
-        try:
-            datos_crudos = self.extraer()
-        except ETLExtractionError as e:
-            self.logger.error(f"Extraccion fallida: {e}")
-            return {}
-        except Exception as e:
-            self.logger.error(f"Error inesperado en extraccion: {e}")
-            return {}
+        pasos = self.definir_pasos()
 
-        # Transformar
-        try:
-            self.resultados = self.transformar(datos_crudos)
-        except (ETLValidationError, ETLExtractionError) as e:
-            self.logger.error(f"Transformacion fallida: {e}")
-            return {}
-        except Exception as e:
-            self.logger.error(f"Error inesperado en transformacion: {e}")
-            return {}
+        for nombre_paso, funcion in pasos:
+            try:
+                funcion()
+            except ETLExtractionError as e:
+                self.logger.error(f"{nombre_paso} fallido: {e}")
+                if getattr(e, 'critical', False):
+                    self.logger.error("Error critico, deteniendo pipeline")
+                    return
+            except ETLValidationError as e:
+                self.logger.error(f"{nombre_paso} - validacion fallida: {e}")
+            except Exception as e:
+                self.logger.error(f"{nombre_paso} - error inesperado: {e}")
 
         self.logger.info(f"ETL {self.nombre} completado")
-        return self.resultados
