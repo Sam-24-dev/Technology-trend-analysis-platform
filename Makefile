@@ -19,6 +19,7 @@ etl:
 	python backend/github_etl.py
 	python backend/stackoverflow_etl.py
 	python backend/reddit_etl.py
+	python backend/trend_score.py
 
 test:
 	python -m pytest tests/ -v
