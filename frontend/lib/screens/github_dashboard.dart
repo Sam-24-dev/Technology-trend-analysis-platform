@@ -41,9 +41,14 @@ class _GithubDashboardState extends State<GithubDashboard> {
     _loadData();
   }
 
+  String? errorMessage;
+
   Future<void> _loadData() async {
     try {
       final lenguajesData = await CsvService.loadCsvAsMap('assets/data/github_lenguajes.csv');
+      if (lenguajesData.isEmpty) {
+        throw Exception("CSV lenguajes está vacío o no se encontró");
+      }
       lenguajes = lenguajesData.map((e) => LenguajeModel.fromMap(e)).take(5).toList();
 
       final frameworksData = await CsvService.loadCsvAsMap('assets/data/github_commits_frameworks.csv');
@@ -53,9 +58,12 @@ class _GithubDashboardState extends State<GithubDashboard> {
       correlacion = correlacionData.map((e) => CorrelacionModel.fromMap(e)).toList();
 
       setState(() => isLoading = false);
-    } catch (e) {
+    } catch (e, stackTrace) {
       print('Error cargando datos: $e');
-      setState(() => isLoading = false);
+      setState(() {
+        isLoading = false;
+        errorMessage = 'Error: $e\n$stackTrace';
+      });
     }
   }
 
@@ -100,6 +108,19 @@ class _GithubDashboardState extends State<GithubDashboard> {
     if (isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
+
+    if (errorMessage != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: SelectableText(
+            errorMessage!,
+            style: const TextStyle(color: Colors.red, fontSize: 16),
+          ),
+        ),
+      );
+    }
+
 
     return Padding(
       padding: const EdgeInsets.all(24),
