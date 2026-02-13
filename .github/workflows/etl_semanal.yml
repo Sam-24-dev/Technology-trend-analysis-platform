@@ -1,20 +1,83 @@
-name: Deploy Flutter Web
+name: ETL Semanal + Deploy
 
 on:
+  schedule:
+    - cron: '0 8 * * 1'       # Cada lunes a las 08:00 UTC (03:00 Ecuador)
   push:
     branches: [main]
-  workflow_dispatch:
+  workflow_dispatch:            # Boton manual en Actions
 
 permissions:
   contents: write
 
 jobs:
-  build-and-deploy:
+  # ──────────────────────────────────────────────
+  # Job 1: Ejecutar ETLs y sincronizar datos
+  # ──────────────────────────────────────────────
+  etl:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r backend/requirements.txt
+
+      - name: Download NLTK data
+        run: |
+          python -c "import nltk; nltk.download('vader_lexicon'); nltk.download('stopwords')"
+
+      - name: Run GitHub ETL
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+        run: python backend/github_etl.py
+        continue-on-error: true
+
+      - name: Run StackOverflow ETL
+        env:
+          STACKOVERFLOW_KEY: ${{ secrets.STACKOVERFLOW_KEY }}
+        run: python backend/stackoverflow_etl.py
+        continue-on-error: true
+
+      - name: Run Reddit ETL
+        run: python backend/reddit_etl.py
+        continue-on-error: true
+
+      - name: Run Trend Score
+        run: python backend/trend_score.py
+        continue-on-error: true
+
+      - name: Sync CSVs to frontend assets
+        run: python backend/sync_assets.py
+
+      - name: Commit updated data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add datos/ frontend/assets/data/
+          git diff --staged --quiet || git commit -m "data: actualizar CSVs [skip ci]"
+          git push
+
+  # ──────────────────────────────────────────────
+  # Job 2: Build Flutter Web y deploy a GitHub Pages
+  # ──────────────────────────────────────────────
+  deploy:
+    needs: etl
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code (with latest data)
+        uses: actions/checkout@v4
+        with:
+          ref: main
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
