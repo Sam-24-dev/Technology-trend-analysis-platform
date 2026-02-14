@@ -153,20 +153,43 @@ class CsvService {
   static Future<List<Map<String, dynamic>>> loadCsvAsMap(String assetPath) async {
     final pathsToTry = _buildCandidatePaths(assetPath);
 
-    // 1) Intentar con AssetBundle SOLO para claves de assets válidas
-    for (final path in pathsToTry.where((p) => !p.startsWith('assets/assets/'))) {
-      try {
-        final rawData = await rootBundle.loadString(path);
-        final parsed = _parseCsvToMap(rawData);
-        if (parsed.isNotEmpty) {
-          return parsed;
+    // Extraer sufijo CSV (github_lenguajes.csv, etc.) cuando aplica.
+    final normalized = assetPath.replaceAll('\\', '/').replaceFirst(RegExp(r'^/+'), '');
+    String? suffix;
+    if (normalized.startsWith('assets/data/')) {
+      suffix = normalized.substring('assets/data/'.length);
+    } else if (normalized.startsWith('data/')) {
+      suffix = normalized.substring('data/'.length);
+    }
+
+    // 1) Prioridad máxima: URL absoluta real de GitHub Pages.
+    if (suffix != null && suffix.isNotEmpty) {
+      final absoluteCandidates = <Uri>[
+        Uri.parse('$_repoBaseUrl/assets/assets/data/$suffix'),
+        Uri.parse('$_repoBaseUrl/assets/data/$suffix'),
+      ];
+
+      for (final uri in absoluteCandidates) {
+        try {
+          final bustUri = uri.replace(
+            queryParameters: {
+              ...uri.queryParameters,
+              'v': DateTime.now().millisecondsSinceEpoch.toString(),
+            },
+          );
+
+          final rawData = await html.HttpRequest.getString(bustUri.toString());
+          final parsed = _parseCsvToMap(rawData);
+          if (parsed.isNotEmpty) {
+            return parsed;
+          }
+        } catch (e) {
+          print('Fallo URL absoluta en $uri: $e');
         }
-      } catch (e) {
-        print('Fallo AssetBundle en $path: $e');
       }
     }
 
-    // 2) Fallback web via XHR/fetch del navegador (con cache-busting)
+    // 2) Fallback web relativo (misma origin).
     for (final path in pathsToTry) {
       try {
         final baseUri = Uri.base.resolve(path);
@@ -187,30 +210,16 @@ class CsvService {
       }
     }
 
-    // 3) Fallback absoluto (evita problemas de base URI/service worker)
-    final normalized = assetPath.replaceAll('\\', '/').replaceFirst(RegExp(r'^/+'), '');
-    String? suffix;
-    if (normalized.startsWith('assets/data/')) {
-      suffix = normalized.substring('assets/data/'.length);
-    } else if (normalized.startsWith('data/')) {
-      suffix = normalized.substring('data/'.length);
-    }
-
-    if (suffix != null && suffix.isNotEmpty) {
+    // 3) Último recurso: AssetBundle para ejecución local.
+    for (final path in pathsToTry.where((p) => !p.startsWith('assets/assets/'))) {
       try {
-        final directUri = Uri.parse('$_repoBaseUrl/assets/assets/data/$suffix').replace(
-          queryParameters: {
-            'v': DateTime.now().millisecondsSinceEpoch.toString(),
-          },
-        );
-
-        final rawData = await html.HttpRequest.getString(directUri.toString());
+        final rawData = await rootBundle.loadString(path);
         final parsed = _parseCsvToMap(rawData);
         if (parsed.isNotEmpty) {
           return parsed;
         }
       } catch (e) {
-        print('Fallo fallback absoluto para $assetPath: $e');
+        print('Fallo AssetBundle en $path: $e');
       }
     }
 
