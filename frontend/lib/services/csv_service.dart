@@ -100,32 +100,25 @@ class CsvService {
 
   static List<String> _buildCandidatePaths(String assetPath) {
     final normalized = assetPath.replaceAll('\\', '/').replaceFirst(RegExp(r'^/+'), '');
-
     final candidates = <String>[];
+
     void add(String p) {
-      if (p.isNotEmpty && !candidates.contains(p)) {
-        candidates.add(p);
+      final clean = p.replaceAll('\\', '/').replaceFirst(RegExp(r'^/+'), '');
+      if (clean.isNotEmpty && !candidates.contains(clean)) {
+        candidates.add(clean);
       }
     }
 
+    // Clave de asset para rootBundle (como aparece en AssetManifest)
     add(normalized);
 
     if (normalized.startsWith('assets/data/')) {
       final suffix = normalized.substring('assets/data/'.length);
+      // URL web real en Flutter web: /assets/<asset-key>
       add('assets/assets/data/$suffix');
-      add('data/$suffix');
-      add('/Technology-trend-analysis-platform/assets/data/$suffix');
-      add('/Technology-trend-analysis-platform/assets/assets/data/$suffix');
-    } else if (normalized.startsWith('data/')) {
-      final suffix = normalized.substring('data/'.length);
+      // Fallback por si cambian build settings
       add('assets/data/$suffix');
-      add('assets/assets/data/$suffix');
-      add('/Technology-trend-analysis-platform/assets/data/$suffix');
-      add('/Technology-trend-analysis-platform/assets/assets/data/$suffix');
-    } else {
-      add('assets/$normalized');
-      add('/Technology-trend-analysis-platform/$normalized');
-      add('/Technology-trend-analysis-platform/assets/$normalized');
+      add('data/$suffix');
     }
 
     return candidates;
@@ -160,8 +153,8 @@ class CsvService {
   static Future<List<Map<String, dynamic>>> loadCsvAsMap(String assetPath) async {
     final pathsToTry = _buildCandidatePaths(assetPath);
 
-    // 1) Intentar con AssetBundle (Flutter assets)
-    for (final path in pathsToTry) {
+    // 1) Intentar con AssetBundle SOLO para claves de assets válidas
+    for (final path in pathsToTry.where((p) => !p.startsWith('assets/assets/'))) {
       try {
         final rawData = await rootBundle.loadString(path);
         final parsed = _parseCsvToMap(rawData);
