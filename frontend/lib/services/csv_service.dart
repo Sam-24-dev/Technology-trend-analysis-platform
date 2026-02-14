@@ -189,28 +189,7 @@ class CsvService {
       }
     }
 
-    // 2) Fallback web relativo (misma origin).
-    for (final path in pathsToTry) {
-      try {
-        final baseUri = Uri.base.resolve(path);
-        final bustUri = baseUri.replace(
-          queryParameters: {
-            ...baseUri.queryParameters,
-            'v': DateTime.now().millisecondsSinceEpoch.toString(),
-          },
-        );
-
-        final rawData = await html.HttpRequest.getString(bustUri.toString());
-        final parsed = _parseCsvToMap(rawData);
-        if (parsed.isNotEmpty) {
-          return parsed;
-        }
-      } catch (e) {
-        print('Fallo HTTP en $path: $e');
-      }
-    }
-
-    // 3) Último recurso: AssetBundle para ejecución local.
+    // 2) Último recurso: AssetBundle para ejecución local.
     for (final path in pathsToTry.where((p) => !p.startsWith('assets/assets/'))) {
       try {
         final rawData = await rootBundle.loadString(path);
@@ -223,7 +202,7 @@ class CsvService {
       }
     }
 
-    // 4) Reportar error final
+    // 3) Reportar error final
     for (final path in pathsToTry) {
       print('Ruta intentada sin exito: $path');
     }
