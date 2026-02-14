@@ -1,10 +1,65 @@
+import 'dart:html' as html;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:csv/csv.dart';
-import 'package:http/http.dart' as http;
 
 class CsvService {
   static const String _repoBaseUrl =
       'https://sam-24-dev.github.io/Technology-trend-analysis-platform';
+
+  static List<String> _splitCsvLine(String line) {
+    final fields = <String>[];
+    final buffer = StringBuffer();
+    bool inQuotes = false;
+
+    for (int i = 0; i < line.length; i++) {
+      final ch = line[i];
+
+      if (ch == '"') {
+        // Escaped quote
+        if (inQuotes && i + 1 < line.length && line[i + 1] == '"') {
+          buffer.write('"');
+          i++;
+        } else {
+          inQuotes = !inQuotes;
+        }
+      } else if (ch == ',' && !inQuotes) {
+        fields.add(buffer.toString());
+        buffer.clear();
+      } else {
+        buffer.write(ch);
+      }
+    }
+
+    fields.add(buffer.toString());
+    return fields;
+  }
+
+  static List<Map<String, dynamic>> _parseCsvFallback(String rawData) {
+    final normalized = rawData.replaceAll('\r\n', '\n').replaceAll('\r', '\n').trim();
+    if (normalized.isEmpty) {
+      return [];
+    }
+
+    final lines = normalized.split('\n').where((l) => l.trim().isNotEmpty).toList();
+    if (lines.length < 2) {
+      return [];
+    }
+
+    final headers = _splitCsvLine(lines.first)
+        .map((h) => h.replaceFirst('\ufeff', '').trim())
+        .toList();
+
+    final out = <Map<String, dynamic>>[];
+    for (final line in lines.skip(1)) {
+      final values = _splitCsvLine(line);
+      final row = <String, dynamic>{};
+      for (int i = 0; i < headers.length; i++) {
+        row[headers[i]] = i < values.length ? values[i] : '';
+      }
+      out.add(row);
+    }
+    return out;
+  }
 
   static List<Map<String, dynamic>> _parseCsvToMap(String rawData) {
     if (rawData.trim().isEmpty) {
@@ -17,24 +72,30 @@ class CsvService {
       return [];
     }
 
-    final csvData = const CsvToListConverter().convert(rawData);
-    if (csvData.isEmpty) {
-      return [];
-    }
-
-    final headers = csvData[0].map((e) => e.toString()).toList();
-    if (csvData.length == 1) {
-      return [];
-    }
-
-    final dataRows = csvData.sublist(1);
-    return dataRows.map((row) {
-      final map = <String, dynamic>{};
-      for (int i = 0; i < headers.length && i < row.length; i++) {
-        map[headers[i]] = row[i];
+    try {
+      final csvData = const CsvToListConverter().convert(rawData);
+      if (csvData.isEmpty) {
+        return [];
       }
-      return map;
-    }).toList();
+
+      final headers = csvData[0]
+          .map((e) => e.toString().replaceFirst('\ufeff', '').trim())
+          .toList();
+      if (csvData.length == 1) {
+        return [];
+      }
+
+      final dataRows = csvData.sublist(1);
+      return dataRows.map((row) {
+        final map = <String, dynamic>{};
+        for (int i = 0; i < headers.length && i < row.length; i++) {
+          map[headers[i]] = row[i];
+        }
+        return map;
+      }).toList();
+    } catch (_) {
+      return _parseCsvFallback(rawData);
+    }
   }
 
   static List<String> _buildCandidatePaths(String assetPath) {
@@ -112,7 +173,7 @@ class CsvService {
       }
     }
 
-    // 2) Fallback HTTP para GitHub Pages/CDN (con cache-busting)
+    // 2) Fallback web via XHR/fetch del navegador (con cache-busting)
     for (final path in pathsToTry) {
       try {
         final baseUri = Uri.base.resolve(path);
@@ -123,13 +184,8 @@ class CsvService {
           },
         );
 
-        final response = await http.get(bustUri);
-        if (response.statusCode != 200) {
-          print('HTTP ${response.statusCode} en $bustUri');
-          continue;
-        }
-
-        final parsed = _parseCsvToMap(response.body);
+        final rawData = await html.HttpRequest.getString(bustUri.toString());
+        final parsed = _parseCsvToMap(rawData);
         if (parsed.isNotEmpty) {
           return parsed;
         }
@@ -155,14 +211,10 @@ class CsvService {
           },
         );
 
-        final response = await http.get(directUri);
-        if (response.statusCode == 200) {
-          final parsed = _parseCsvToMap(response.body);
-          if (parsed.isNotEmpty) {
-            return parsed;
-          }
-        } else {
-          print('HTTP ${response.statusCode} en fallback absoluto: $directUri');
+        final rawData = await html.HttpRequest.getString(directUri.toString());
+        final parsed = _parseCsvToMap(rawData);
+        if (parsed.isNotEmpty) {
+          return parsed;
         }
       } catch (e) {
         print('Fallo fallback absoluto para $assetPath: $e');
