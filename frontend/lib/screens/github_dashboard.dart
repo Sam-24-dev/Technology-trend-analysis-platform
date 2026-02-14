@@ -45,17 +45,30 @@ class _GithubDashboardState extends State<GithubDashboard> {
 
   Future<void> _loadData() async {
     try {
-      final lenguajesData = await CsvService.loadCsvAsMap('assets/data/github_lenguajes.csv');
-      if (lenguajesData.isEmpty) {
-        throw Exception("CSV lenguajes está vacío o no se encontró");
+      try {
+        final lenguajesData = await CsvService.loadCsvAsMap('assets/data/github_lenguajes.csv');
+        lenguajes = lenguajesData.map((e) => LenguajeModel.fromMap(e)).take(5).toList();
+      } catch (e) {
+        print('Error cargando github_lenguajes.csv: $e');
       }
-      lenguajes = lenguajesData.map((e) => LenguajeModel.fromMap(e)).take(5).toList();
 
-      final frameworksData = await CsvService.loadCsvAsMap('assets/data/github_commits_frameworks.csv');
-      frameworks = frameworksData.map((e) => FrameworkCommitModel.fromMap(e)).toList();
+      try {
+        final frameworksData = await CsvService.loadCsvAsMap('assets/data/github_commits_frameworks.csv');
+        frameworks = frameworksData.map((e) => FrameworkCommitModel.fromMap(e)).toList();
+      } catch (e) {
+        print('Error cargando github_commits_frameworks.csv: $e');
+      }
 
-      final correlacionData = await CsvService.loadCsvAsMap('assets/data/github_correlacion.csv');
-      correlacion = correlacionData.map((e) => CorrelacionModel.fromMap(e)).toList();
+      try {
+        final correlacionData = await CsvService.loadCsvAsMap('assets/data/github_correlacion.csv');
+        correlacion = correlacionData.map((e) => CorrelacionModel.fromMap(e)).toList();
+      } catch (e) {
+        print('Error cargando github_correlacion.csv: $e');
+      }
+
+      if (lenguajes.isEmpty && frameworks.isEmpty && correlacion.isEmpty) {
+        errorMessage = 'No se pudieron cargar los CSV de GitHub desde los assets del deploy.';
+      }
 
       setState(() => isLoading = false);
     } catch (e, stackTrace) {
