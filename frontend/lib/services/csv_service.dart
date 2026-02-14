@@ -3,6 +3,9 @@ import 'package:csv/csv.dart';
 import 'package:http/http.dart' as http;
 
 class CsvService {
+  static const String _repoBaseUrl =
+      'https://sam-24-dev.github.io/Technology-trend-analysis-platform';
+
   static List<Map<String, dynamic>> _parseCsvToMap(String rawData) {
     if (rawData.trim().isEmpty) {
       return [];
@@ -135,7 +138,38 @@ class CsvService {
       }
     }
 
-    // 3) Reportar error final
+    // 3) Fallback absoluto (evita problemas de base URI/service worker)
+    final normalized = assetPath.replaceAll('\\', '/').replaceFirst(RegExp(r'^/+'), '');
+    String? suffix;
+    if (normalized.startsWith('assets/data/')) {
+      suffix = normalized.substring('assets/data/'.length);
+    } else if (normalized.startsWith('data/')) {
+      suffix = normalized.substring('data/'.length);
+    }
+
+    if (suffix != null && suffix.isNotEmpty) {
+      try {
+        final directUri = Uri.parse('$_repoBaseUrl/assets/assets/data/$suffix').replace(
+          queryParameters: {
+            'v': DateTime.now().millisecondsSinceEpoch.toString(),
+          },
+        );
+
+        final response = await http.get(directUri);
+        if (response.statusCode == 200) {
+          final parsed = _parseCsvToMap(response.body);
+          if (parsed.isNotEmpty) {
+            return parsed;
+          }
+        } else {
+          print('HTTP ${response.statusCode} en fallback absoluto: $directUri');
+        }
+      } catch (e) {
+        print('Fallo fallback absoluto para $assetPath: $e');
+      }
+    }
+
+    // 4) Reportar error final
     for (final path in pathsToTry) {
       print('Ruta intentada sin exito: $path');
     }
