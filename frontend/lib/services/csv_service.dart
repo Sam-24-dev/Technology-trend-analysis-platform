@@ -1,29 +1,23 @@
+import 'package:csv/csv.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:csv/csv.dart';
 import 'package:http/http.dart' as http;
 
-/// Servicio central de carga de CSVs.
+/// Central CSV loading service.
 ///
-/// Estrategia de carga (en orden):
-///   1. HTTP GET a rutas relativas web
-///      (assets/assets/data/ y assets/data/).
-///   2. rootBundle (funciona en ejecución local / flutter run).
-///
-/// Se usa `package:http` en lugar de `dart:html HttpRequest` porque es el
-/// mecanismo estándar de Flutter y funciona correctamente tanto en web como
-/// en plataformas nativas.
+/// Loading strategy (in order):
+/// 1. Web HTTP GET using relative paths:
+///    - assets/assets/data/<file>
+///    - assets/data/<file>
+/// 2. Local fallback via rootBundle.
 class CsvService {
-  // ── URL base del deploy en GitHub Pages ──
-  // ── Parseo de CSV ────────────────────────────────────────────────
-
-  /// Parser manual robusto para una línea CSV (maneja comillas escapadas).
+  /// Robust CSV line parser (supports escaped quotes).
   static List<String> _splitCsvLine(String line) {
     final fields = <String>[];
     final buf = StringBuffer();
-    bool inQuotes = false;
+    var inQuotes = false;
 
-    for (int i = 0; i < line.length; i++) {
+    for (var i = 0; i < line.length; i++) {
       final ch = line[i];
       if (ch == '"') {
         if (inQuotes && i + 1 < line.length && line[i + 1] == '"') {
@@ -39,11 +33,12 @@ class CsvService {
         buf.write(ch);
       }
     }
+
     fields.add(buf.toString());
     return fields;
   }
 
-  /// Parsea CSV crudo a lista de mapas usando parser manual.
+  /// Manual CSV parser to Map rows.
   static List<Map<String, dynamic>> _parseCsvManual(String raw) {
     final normalized = raw
         .replaceAll('\r\n', '\n')
@@ -66,18 +61,17 @@ class CsvService {
         () {
           final vals = _splitCsvLine(line);
           return {
-            for (int i = 0; i < headers.length; i++)
+            for (var i = 0; i < headers.length; i++)
               headers[i]: i < vals.length ? vals[i] : '',
           };
         }(),
     ];
   }
 
-  /// Intenta parsear con `CsvToListConverter`; si falla usa parser manual.
+  /// CSV parser with converter first, manual fallback.
   static List<Map<String, dynamic>> _parseCsvToMap(String rawData) {
     if (rawData.trim().isEmpty) return [];
 
-    // Rechazar respuestas HTML (p.ej. páginas 404 de GH Pages).
     final probe = rawData.trimLeft();
     if (probe.startsWith('<!') || probe.startsWith('<html')) return [];
 
@@ -92,7 +86,7 @@ class CsvService {
       return [
         for (final row in csvData.sublist(1))
           {
-            for (int i = 0; i < headers.length && i < row.length; i++)
+            for (var i = 0; i < headers.length && i < row.length; i++)
               headers[i]: row[i],
           },
       ];
@@ -101,37 +95,61 @@ class CsvService {
     }
   }
 
-  // ── Carga HTTP ───────────────────────────────────────────────────
-
-  /// Descarga texto desde [url] y lo parsea como CSV.
-  /// Retorna `null` si no se puede obtener datos válidos.
-  static Future<List<Map<String, dynamic>>?> _tryHttp(String url) async {
-    try {
-      final response = await http
-          .get(Uri.parse(url))
-          .timeout(const Duration(seconds: 10));
-
-      if (response.statusCode == 200 && response.body.isNotEmpty) {
-        final parsed = _parseCsvToMap(response.body);
-        if (parsed.isNotEmpty) {
-          print('[CsvService] OK via HTTP → $url  (${parsed.length} filas)');
-          return parsed;
-        }
-      }
-    } catch (e) {
-      print('[CsvService] HTTP fallo en $url → $e');
-      throw e; // Rethrow para colectar el error
-    }
-    return null;
+  /// Adds a query param to avoid stale/304 cached responses.
+  static Uri _withCacheBuster(Uri uri) {
+    final query = Map<String, String>.from(uri.queryParameters);
+    query['_cb'] = DateTime.now().millisecondsSinceEpoch.toString();
+    return uri.replace(queryParameters: query);
   }
 
-  // ── API pública ─────────────────────────────────────────────────
+  /// Fetches a CSV URL and parses it.
+  static Future<List<Map<String, dynamic>>?> _tryHttp(String url) async {
+    try {
+      final baseUri = Uri.parse(url);
+      var response = await http
+          .get(baseUri)
+          .timeout(const Duration(seconds: 10));
+      var effectiveUri = baseUri;
 
-  /// Carga un CSV y devuelve las filas como `List<List<dynamic>>`.
+      // Some environments return 304 with empty body for cached assets.
+      if (response.statusCode == 304 || response.body.isEmpty) {
+        effectiveUri = _withCacheBuster(baseUri);
+        response = await http
+            .get(effectiveUri)
+            .timeout(const Duration(seconds: 10));
+      }
+
+      if (response.statusCode != 200) {
+        throw Exception('HTTP ${response.statusCode} en $effectiveUri');
+      }
+
+      if (response.body.isEmpty) {
+        throw Exception('HTTP 200 sin contenido en $effectiveUri');
+      }
+
+      final parsed = _parseCsvToMap(response.body);
+      if (parsed.isEmpty) {
+        throw Exception(
+          'Respuesta no valida (HTML/CSV vacio) en $effectiveUri',
+        );
+      }
+
+      print(
+        '[CsvService] OK via HTTP -> $effectiveUri (${parsed.length} filas)',
+      );
+      return parsed;
+    } catch (e) {
+      print('[CsvService] HTTP fallo en $url -> $e');
+      rethrow;
+    }
+  }
+
+  /// Loads CSV rows as List<List<dynamic>>.
   static Future<List<List<dynamic>>> loadCsv(String assetPath) async {
     try {
       final maps = await loadCsvAsMap(assetPath);
       if (maps.isEmpty) return [];
+
       final headers = maps.first.keys.toList();
       return [
         for (final row in maps) [for (final h in headers) row[h] ?? ''],
@@ -142,18 +160,15 @@ class CsvService {
     }
   }
 
-  /// Carga un CSV y devuelve las filas como `List<Map<String, dynamic>>`.
+  /// Loads CSV rows as List<Map<String, dynamic>>.
   static Future<List<Map<String, dynamic>>> loadCsvAsMap(
     String assetPath,
   ) async {
-    // Extraer solo el nombre del archivo (p.ej. "github_lenguajes.csv").
     final fileName = assetPath.replaceAll('\\', '/').split('/').last;
+    final errors = <String>[];
 
-    // ── 1) HTTP a rutas relativas web ──
-    List<String> errors = [];
+    // 1) Web HTTP relative paths.
     if (kIsWeb) {
-      // El <base href> del index.html resuelve estas rutas bajo el subpath
-      // del deploy (por ejemplo, GitHub Pages).
       final urls = ['assets/assets/data/$fileName', 'assets/data/$fileName'];
 
       for (final url in urls) {
@@ -166,9 +181,8 @@ class CsvService {
       }
     }
 
-    // ── 2) rootBundle (ejecución local / flutter run) ──
-    final bundlePaths = ['assets/data/$fileName', assetPath];
-    // Eliminar duplicados manteniendo orden.
+    // 2) Local rootBundle fallback.
+    final bundlePaths = <String>['assets/data/$fileName', assetPath];
     final seen = <String>{};
     final uniquePaths = bundlePaths.where((p) => seen.add(p)).toList();
 
@@ -178,17 +192,16 @@ class CsvService {
         final parsed = _parseCsvToMap(raw);
         if (parsed.isNotEmpty) {
           print(
-            '[CsvService] OK via AssetBundle → $path  (${parsed.length} filas)',
+            '[CsvService] OK via AssetBundle -> $path (${parsed.length} filas)',
           );
           return parsed;
         }
       } catch (e) {
         errors.add('AssetBundle $path: $e');
-        print('[CsvService] AssetBundle fallo en $path → $e');
+        print('[CsvService] AssetBundle fallo en $path -> $e');
       }
     }
 
-    // ── 3) No se pudo cargar ──
     final errorMsg =
         'No se pudo cargar $fileName.\nErrores:\n${errors.join('\n')}';
     print('[CsvService] FALLO total para: $assetPath ($fileName)');
