@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 /// Servicio central de carga de CSVs.
 ///
 /// Estrategia de carga (en orden):
-///   1. HTTP GET a las URLs absolutas conocidas de GitHub Pages
+///   1. HTTP GET a rutas relativas web
 ///      (assets/assets/data/ y assets/data/).
 ///   2. rootBundle (funciona en ejecución local / flutter run).
 ///
@@ -15,9 +15,6 @@ import 'package:http/http.dart' as http;
 /// en plataformas nativas.
 class CsvService {
   // ── URL base del deploy en GitHub Pages ──
-  static const String _ghPagesBase =
-      'https://sam-24-dev.github.io/Technology-trend-analysis-platform';
-
   // ── Parseo de CSV ────────────────────────────────────────────────
 
   /// Parser manual robusto para una línea CSV (maneja comillas escapadas).
@@ -48,17 +45,21 @@ class CsvService {
 
   /// Parsea CSV crudo a lista de mapas usando parser manual.
   static List<Map<String, dynamic>> _parseCsvManual(String raw) {
-    final normalized =
-        raw.replaceAll('\r\n', '\n').replaceAll('\r', '\n').trim();
+    final normalized = raw
+        .replaceAll('\r\n', '\n')
+        .replaceAll('\r', '\n')
+        .trim();
     if (normalized.isEmpty) return [];
 
-    final lines =
-        normalized.split('\n').where((l) => l.trim().isNotEmpty).toList();
+    final lines = normalized
+        .split('\n')
+        .where((l) => l.trim().isNotEmpty)
+        .toList();
     if (lines.length < 2) return [];
 
-    final headers = _splitCsvLine(lines.first)
-        .map((h) => h.replaceFirst('\ufeff', '').trim())
-        .toList();
+    final headers = _splitCsvLine(
+      lines.first,
+    ).map((h) => h.replaceFirst('\ufeff', '').trim()).toList();
 
     return [
       for (final line in lines.skip(1))
@@ -119,6 +120,7 @@ class CsvService {
       }
     } catch (e) {
       print('[CsvService] HTTP fallo en $url → $e');
+      throw e; // Rethrow para colectar el error
     }
     return null;
   }
@@ -142,30 +144,30 @@ class CsvService {
 
   /// Carga un CSV y devuelve las filas como `List<Map<String, dynamic>>`.
   static Future<List<Map<String, dynamic>>> loadCsvAsMap(
-      String assetPath) async {
+    String assetPath,
+  ) async {
     // Extraer solo el nombre del archivo (p.ej. "github_lenguajes.csv").
     final fileName = assetPath.replaceAll('\\', '/').split('/').last;
 
-    // ── 1) HTTP a URLs absolutas de GitHub Pages ──
+    // ── 1) HTTP a rutas relativas web ──
+    List<String> errors = [];
     if (kIsWeb) {
-      // Orden: la ruta assets/assets/data/ es la correcta para Flutter Web
-      // desplegado en GH Pages (doble "assets" por el build de Flutter).
-      final urls = [
-        '$_ghPagesBase/assets/assets/data/$fileName',
-        '$_ghPagesBase/assets/data/$fileName',
-      ];
+      // El <base href> del index.html resuelve estas rutas bajo el subpath
+      // del deploy (por ejemplo, GitHub Pages).
+      final urls = ['assets/assets/data/$fileName', 'assets/data/$fileName'];
 
       for (final url in urls) {
-        final result = await _tryHttp(url);
-        if (result != null) return result;
+        try {
+          final result = await _tryHttp(url);
+          if (result != null) return result;
+        } catch (e) {
+          errors.add('HTTP $url: $e');
+        }
       }
     }
 
     // ── 2) rootBundle (ejecución local / flutter run) ──
-    final bundlePaths = [
-      'assets/data/$fileName',
-      assetPath,
-    ];
+    final bundlePaths = ['assets/data/$fileName', assetPath];
     // Eliminar duplicados manteniendo orden.
     final seen = <String>{};
     final uniquePaths = bundlePaths.where((p) => seen.add(p)).toList();
@@ -175,16 +177,21 @@ class CsvService {
         final raw = await rootBundle.loadString(path);
         final parsed = _parseCsvToMap(raw);
         if (parsed.isNotEmpty) {
-          print('[CsvService] OK via AssetBundle → $path  (${parsed.length} filas)');
+          print(
+            '[CsvService] OK via AssetBundle → $path  (${parsed.length} filas)',
+          );
           return parsed;
         }
       } catch (e) {
+        errors.add('AssetBundle $path: $e');
         print('[CsvService] AssetBundle fallo en $path → $e');
       }
     }
 
     // ── 3) No se pudo cargar ──
+    final errorMsg =
+        'No se pudo cargar $fileName.\nErrores:\n${errors.join('\n')}';
     print('[CsvService] FALLO total para: $assetPath ($fileName)');
-    throw Exception('No se pudo cargar $fileName desde ninguna fuente.');
+    throw Exception(errorMsg);
   }
 }

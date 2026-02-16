@@ -17,6 +17,7 @@ dependencies:
   http: ^1.2.0
   font_awesome_flutter: ^10.7.0
   archive: ^3.4.10
+  universal_html: ^2.3.0
 
 dev_dependencies:
   flutter_test:

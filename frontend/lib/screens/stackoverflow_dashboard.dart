@@ -1,4 +1,4 @@
-import 'dart:html' as html; // Para descarga web
+import 'package:universal_html/html.dart' as html; // Para descarga web
 import 'dart:convert'; // Para utf8 encode
 import 'package:archive/archive.dart'; // Para crear el ZIP
 import 'package:fl_chart/fl_chart.dart';
@@ -20,6 +20,7 @@ class _StackOverflowDashboardState extends State<StackOverflowDashboard> {
   List<TendenciaMensualModel> tendenciasData = [];
 
   bool isLoading = true;
+  String? errorMessage;
 
   final Color soOrange = const Color(0xFFF48024);
   final Color colorPython = const Color(0xFF3776AB);
@@ -61,7 +62,10 @@ class _StackOverflowDashboardState extends State<StackOverflowDashboard> {
       setState(() => isLoading = false);
     } catch (e) {
       debugPrint("Error cargando datos: $e");
-      setState(() => isLoading = false);
+      setState(() {
+        isLoading = false;
+        errorMessage = 'Error cargando datos: $e';
+      });
     }
   }
 
@@ -117,6 +121,17 @@ class _StackOverflowDashboardState extends State<StackOverflowDashboard> {
   @override
   Widget build(BuildContext context) {
     if (isLoading) return const Center(child: CircularProgressIndicator());
+    if (errorMessage != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: SelectableText(
+            errorMessage!,
+            style: const TextStyle(color: Colors.red, fontSize: 16),
+          ),
+        ),
+      );
+    }
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),

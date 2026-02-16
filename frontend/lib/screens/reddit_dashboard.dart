@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'dart:html' as html;
+import 'package:universal_html/html.dart' as html;
 import 'dart:convert';
 import 'package:archive/archive.dart';
 import '../models/reddit_models.dart';
@@ -19,6 +19,7 @@ class _RedditDashboardState extends State<RedditDashboard> {
   List<TemasEmergentesModel> temasData = [];
   List<InterseccionModel> interseccionData = [];
   bool isLoading = true;
+  String? errorMessage;
 
   @override
   void initState() {
@@ -50,6 +51,7 @@ class _RedditDashboardState extends State<RedditDashboard> {
       print('Error cargando datos: $e');
       setState(() {
         isLoading = false;
+        errorMessage = 'Error cargando datos: $e';
       });
     }
   }
@@ -58,6 +60,18 @@ class _RedditDashboardState extends State<RedditDashboard> {
   Widget build(BuildContext context) {
     if (isLoading) {
       return const Center(child: CircularProgressIndicator());
+    }
+
+    if (errorMessage != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: SelectableText(
+            errorMessage!,
+            style: const TextStyle(color: Colors.red, fontSize: 16),
+          ),
+        ),
+      );
     }
 
     return Padding(

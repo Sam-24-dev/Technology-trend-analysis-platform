@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'dart:html' as html;
+import 'package:universal_html/html.dart' as html;
 import 'dart:convert';
 import 'dart:math';
 import 'package:archive/archive.dart';
@@ -67,7 +67,7 @@ class _GithubDashboardState extends State<GithubDashboard> {
       }
 
       if (lenguajes.isEmpty && frameworks.isEmpty && correlacion.isEmpty) {
-        errorMessage = 'No se pudieron cargar los CSV de GitHub desde los assets del deploy.';
+        throw Exception('No se cargaron datos. Verifique logs.');
       }
 
       setState(() => isLoading = false);
