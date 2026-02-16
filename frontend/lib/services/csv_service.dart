@@ -1,213 +1,190 @@
-import 'dart:html' as html;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:csv/csv.dart';
+import 'package:http/http.dart' as http;
 
+/// Servicio central de carga de CSVs.
+///
+/// Estrategia de carga (en orden):
+///   1. HTTP GET a las URLs absolutas conocidas de GitHub Pages
+///      (assets/assets/data/ y assets/data/).
+///   2. rootBundle (funciona en ejecución local / flutter run).
+///
+/// Se usa `package:http` en lugar de `dart:html HttpRequest` porque es el
+/// mecanismo estándar de Flutter y funciona correctamente tanto en web como
+/// en plataformas nativas.
 class CsvService {
-  static const String _repoBaseUrl =
+  // ── URL base del deploy en GitHub Pages ──
+  static const String _ghPagesBase =
       'https://sam-24-dev.github.io/Technology-trend-analysis-platform';
 
+  // ── Parseo de CSV ────────────────────────────────────────────────
+
+  /// Parser manual robusto para una línea CSV (maneja comillas escapadas).
   static List<String> _splitCsvLine(String line) {
     final fields = <String>[];
-    final buffer = StringBuffer();
+    final buf = StringBuffer();
     bool inQuotes = false;
 
     for (int i = 0; i < line.length; i++) {
       final ch = line[i];
-
       if (ch == '"') {
-        // Escaped quote
         if (inQuotes && i + 1 < line.length && line[i + 1] == '"') {
-          buffer.write('"');
+          buf.write('"');
           i++;
         } else {
           inQuotes = !inQuotes;
         }
       } else if (ch == ',' && !inQuotes) {
-        fields.add(buffer.toString());
-        buffer.clear();
+        fields.add(buf.toString());
+        buf.clear();
       } else {
-        buffer.write(ch);
+        buf.write(ch);
       }
     }
-
-    fields.add(buffer.toString());
+    fields.add(buf.toString());
     return fields;
   }
 
-  static List<Map<String, dynamic>> _parseCsvFallback(String rawData) {
-    final normalized = rawData.replaceAll('\r\n', '\n').replaceAll('\r', '\n').trim();
-    if (normalized.isEmpty) {
-      return [];
-    }
+  /// Parsea CSV crudo a lista de mapas usando parser manual.
+  static List<Map<String, dynamic>> _parseCsvManual(String raw) {
+    final normalized =
+        raw.replaceAll('\r\n', '\n').replaceAll('\r', '\n').trim();
+    if (normalized.isEmpty) return [];
 
-    final lines = normalized.split('\n').where((l) => l.trim().isNotEmpty).toList();
-    if (lines.length < 2) {
-      return [];
-    }
+    final lines =
+        normalized.split('\n').where((l) => l.trim().isNotEmpty).toList();
+    if (lines.length < 2) return [];
 
     final headers = _splitCsvLine(lines.first)
         .map((h) => h.replaceFirst('\ufeff', '').trim())
         .toList();
 
-    final out = <Map<String, dynamic>>[];
-    for (final line in lines.skip(1)) {
-      final values = _splitCsvLine(line);
-      final row = <String, dynamic>{};
-      for (int i = 0; i < headers.length; i++) {
-        row[headers[i]] = i < values.length ? values[i] : '';
-      }
-      out.add(row);
-    }
-    return out;
+    return [
+      for (final line in lines.skip(1))
+        () {
+          final vals = _splitCsvLine(line);
+          return {
+            for (int i = 0; i < headers.length; i++)
+              headers[i]: i < vals.length ? vals[i] : '',
+          };
+        }(),
+    ];
   }
 
+  /// Intenta parsear con `CsvToListConverter`; si falla usa parser manual.
   static List<Map<String, dynamic>> _parseCsvToMap(String rawData) {
-    if (rawData.trim().isEmpty) {
-      return [];
-    }
+    if (rawData.trim().isEmpty) return [];
 
-    // Evita parsear HTML de error/fallback como si fuera CSV.
+    // Rechazar respuestas HTML (p.ej. páginas 404 de GH Pages).
     final probe = rawData.trimLeft();
-    if (probe.startsWith('<!DOCTYPE html') || probe.startsWith('<html')) {
-      return [];
-    }
+    if (probe.startsWith('<!') || probe.startsWith('<html')) return [];
 
     try {
       final csvData = const CsvToListConverter().convert(rawData);
-      if (csvData.isEmpty) {
-        return [];
-      }
+      if (csvData.length < 2) return [];
 
       final headers = csvData[0]
           .map((e) => e.toString().replaceFirst('\ufeff', '').trim())
           .toList();
-      if (csvData.length == 1) {
-        return [];
-      }
 
-      final dataRows = csvData.sublist(1);
-      return dataRows.map((row) {
-        final map = <String, dynamic>{};
-        for (int i = 0; i < headers.length && i < row.length; i++) {
-          map[headers[i]] = row[i];
-        }
-        return map;
-      }).toList();
+      return [
+        for (final row in csvData.sublist(1))
+          {
+            for (int i = 0; i < headers.length && i < row.length; i++)
+              headers[i]: row[i],
+          },
+      ];
     } catch (_) {
-      return _parseCsvFallback(rawData);
+      return _parseCsvManual(rawData);
     }
   }
 
-  static List<String> _buildCandidatePaths(String assetPath) {
-    final normalized = assetPath.replaceAll('\\', '/').replaceFirst(RegExp(r'^/+'), '');
-    final candidates = <String>[];
+  // ── Carga HTTP ───────────────────────────────────────────────────
 
-    void add(String p) {
-      final clean = p.replaceAll('\\', '/').replaceFirst(RegExp(r'^/+'), '');
-      if (clean.isNotEmpty && !candidates.contains(clean)) {
-        candidates.add(clean);
+  /// Descarga texto desde [url] y lo parsea como CSV.
+  /// Retorna `null` si no se puede obtener datos válidos.
+  static Future<List<Map<String, dynamic>>?> _tryHttp(String url) async {
+    try {
+      final response = await http
+          .get(Uri.parse(url))
+          .timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200 && response.body.isNotEmpty) {
+        final parsed = _parseCsvToMap(response.body);
+        if (parsed.isNotEmpty) {
+          print('[CsvService] OK via HTTP → $url  (${parsed.length} filas)');
+          return parsed;
+        }
       }
+    } catch (e) {
+      print('[CsvService] HTTP fallo en $url → $e');
     }
-
-    // Clave de asset para rootBundle (como aparece en AssetManifest)
-    add(normalized);
-
-    if (normalized.startsWith('assets/data/')) {
-      final suffix = normalized.substring('assets/data/'.length);
-      // URL web real en Flutter web: /assets/<asset-key>
-      add('assets/assets/data/$suffix');
-      // Fallback por si cambian build settings
-      add('assets/data/$suffix');
-      add('data/$suffix');
-    }
-
-    return candidates;
+    return null;
   }
 
+  // ── API pública ─────────────────────────────────────────────────
+
+  /// Carga un CSV y devuelve las filas como `List<List<dynamic>>`.
   static Future<List<List<dynamic>>> loadCsv(String assetPath) async {
     try {
-      final rowsAsMap = await loadCsvAsMap(assetPath);
-      if (rowsAsMap.isEmpty) {
-        return [];
-      }
-
-      final headers = rowsAsMap.first.keys.toList();
-      final csvData = <List<dynamic>>[];
-      csvData.add(headers);
-      for (final row in rowsAsMap) {
-        csvData.add(headers.map((h) => row[h] ?? '').toList());
-      }
-      
-      // Ignorar la primera fila (headers)
-      if (csvData.isNotEmpty) {
-        return csvData.sublist(1);
-      }
-      
-      return [];
+      final maps = await loadCsvAsMap(assetPath);
+      if (maps.isEmpty) return [];
+      final headers = maps.first.keys.toList();
+      return [
+        for (final row in maps) [for (final h in headers) row[h] ?? ''],
+      ];
     } catch (e) {
-      print('Error cargando CSV: $e');
+      print('[CsvService] loadCsv error: $e');
       return [];
     }
   }
-  
-  static Future<List<Map<String, dynamic>>> loadCsvAsMap(String assetPath) async {
-    final pathsToTry = _buildCandidatePaths(assetPath);
 
-    // Extraer sufijo CSV (github_lenguajes.csv, etc.) cuando aplica.
-    final normalized = assetPath.replaceAll('\\', '/').replaceFirst(RegExp(r'^/+'), '');
-    String? suffix;
-    if (normalized.startsWith('assets/data/')) {
-      suffix = normalized.substring('assets/data/'.length);
-    } else if (normalized.startsWith('data/')) {
-      suffix = normalized.substring('data/'.length);
-    }
+  /// Carga un CSV y devuelve las filas como `List<Map<String, dynamic>>`.
+  static Future<List<Map<String, dynamic>>> loadCsvAsMap(
+      String assetPath) async {
+    // Extraer solo el nombre del archivo (p.ej. "github_lenguajes.csv").
+    final fileName = assetPath.replaceAll('\\', '/').split('/').last;
 
-    // 1) Prioridad máxima: URL absoluta real de GitHub Pages.
-    if (suffix != null && suffix.isNotEmpty) {
-      final absoluteCandidates = <Uri>[
-        Uri.parse('$_repoBaseUrl/assets/assets/data/$suffix'),
-        Uri.parse('$_repoBaseUrl/assets/data/$suffix'),
+    // ── 1) HTTP a URLs absolutas de GitHub Pages ──
+    if (kIsWeb) {
+      // Orden: la ruta assets/assets/data/ es la correcta para Flutter Web
+      // desplegado en GH Pages (doble "assets" por el build de Flutter).
+      final urls = [
+        '$_ghPagesBase/assets/assets/data/$fileName',
+        '$_ghPagesBase/assets/data/$fileName',
       ];
 
-      for (final uri in absoluteCandidates) {
-        try {
-          final bustUri = uri.replace(
-            queryParameters: {
-              ...uri.queryParameters,
-              'v': DateTime.now().millisecondsSinceEpoch.toString(),
-            },
-          );
-
-          final rawData = await html.HttpRequest.getString(bustUri.toString());
-          final parsed = _parseCsvToMap(rawData);
-          if (parsed.isNotEmpty) {
-            return parsed;
-          }
-        } catch (e) {
-          print('Fallo URL absoluta en $uri: $e');
-        }
+      for (final url in urls) {
+        final result = await _tryHttp(url);
+        if (result != null) return result;
       }
     }
 
-    // 2) Último recurso: AssetBundle para ejecución local.
-    for (final path in pathsToTry.where((p) => !p.startsWith('assets/assets/'))) {
+    // ── 2) rootBundle (ejecución local / flutter run) ──
+    final bundlePaths = [
+      'assets/data/$fileName',
+      assetPath,
+    ];
+    // Eliminar duplicados manteniendo orden.
+    final seen = <String>{};
+    final uniquePaths = bundlePaths.where((p) => seen.add(p)).toList();
+
+    for (final path in uniquePaths) {
       try {
-        final rawData = await rootBundle.loadString(path);
-        final parsed = _parseCsvToMap(rawData);
+        final raw = await rootBundle.loadString(path);
+        final parsed = _parseCsvToMap(raw);
         if (parsed.isNotEmpty) {
+          print('[CsvService] OK via AssetBundle → $path  (${parsed.length} filas)');
           return parsed;
         }
       } catch (e) {
-        print('Fallo AssetBundle en $path: $e');
+        print('[CsvService] AssetBundle fallo en $path → $e');
       }
     }
 
-    // 3) Reportar error final
-    for (final path in pathsToTry) {
-      print('Ruta intentada sin exito: $path');
-    }
-    
-    // Si llegamos aquí, ninguno funcionó
-    throw Exception('No se pudo cargar el CSV en ninguna de las rutas probadas: $pathsToTry');
+    // ── 3) No se pudo cargar ──
+    print('[CsvService] FALLO total para: $assetPath ($fileName)');
+    throw Exception('No se pudo cargar $fileName desde ninguna fuente.');
   }
 }
