@@ -123,9 +123,7 @@ class RedditETL(BaseETL):
             self.logger.error(f"Error obteniendo posts: {e}")
 
         if not posts_data:
-            error = ETLExtractionError(f"No se pudo extraer posts de r/{subreddit_name}")
-            error.critical = True
-            raise error
+            raise ETLExtractionError(f"No se pudo extraer posts de r/{subreddit_name}", critical=True)
 
         self.df_posts = pd.DataFrame(posts_data)
 

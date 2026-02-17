@@ -259,30 +259,36 @@ def main():
     logger.info("Trend Score Generator - Technology Trend Analysis Platform")
     logger.info(f"Fecha: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
-    df_trend = calcular_trend_score()
+    try:
+        df_trend = calcular_trend_score()
 
-    if df_trend.empty:
-        logger.error("No se pudo generar Trend Score")
-        return
+        if df_trend.empty:
+            logger.error("No se pudo generar Trend Score (sin datos de ninguna fuente)")
+            return
 
-    # Guardar resultado
-    columnas_salida = [
-        "ranking", "tecnologia", "github_score",
-        "so_score", "reddit_score", "trend_score", "fuentes"
-    ]
-    df_salida = df_trend[columnas_salida]
+        # Guardar resultado
+        columnas_salida = [
+            "ranking", "tecnologia", "github_score",
+            "so_score", "reddit_score", "trend_score", "fuentes"
+        ]
+        df_salida = df_trend[columnas_salida]
 
-    validar_dataframe(df_salida, "trend_score")
-    df_salida.to_csv(ARCHIVOS_SALIDA["trend_score"], index=False, encoding="utf-8")
-    logger.info(f"Trend Score guardado en: {ARCHIVOS_SALIDA['trend_score']}")
+        validar_dataframe(df_salida, "trend_score")
+        df_salida.to_csv(ARCHIVOS_SALIDA["trend_score"], index=False, encoding="utf-8")
+        logger.info(f"Trend Score guardado en: {ARCHIVOS_SALIDA['trend_score']}")
 
-    # Resumen
-    top3 = df_salida.head(3)
-    logger.info(f"\nTop 3 tecnologias trending:")
-    for _, row in top3.iterrows():
-        logger.info(f"  #{int(row['ranking'])}. {row['tecnologia']} (Score: {row['trend_score']})")
+        # Resumen
+        top3 = df_salida.head(3)
+        logger.info(f"\nTop 3 tecnologias trending:")
+        for _, row in top3.iterrows():
+            logger.info(f"  #{int(row['ranking'])}. {row['tecnologia']} (Score: {row['trend_score']})")
 
-    logger.info("Trend Score completado")
+        logger.info("Trend Score completado")
+
+    except Exception as e:
+        logger.error(f"Error fatal en Trend Score: {e}")
+        import sys
+        sys.exit(1)
 
 
 if __name__ == "__main__":

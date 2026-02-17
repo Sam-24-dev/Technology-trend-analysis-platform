@@ -27,10 +27,9 @@ load_dotenv(env_path)
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 GITHUB_API_BASE = "https://api.github.com"
 
-GITHUB_HEADERS = {
-    "Authorization": f"token {GITHUB_TOKEN}" if GITHUB_TOKEN else "",
-    "Accept": "application/vnd.github.v3+json"
-}
+GITHUB_HEADERS = {"Accept": "application/vnd.github.v3+json"}
+if GITHUB_TOKEN:
+    GITHUB_HEADERS["Authorization"] = f"token {GITHUB_TOKEN}"
 
 MAX_REPOS = 1000
 PER_PAGE = 100
@@ -49,7 +48,7 @@ SO_API_URL = "https://api.stackexchange.com/2.3/search/advanced"
 REDDIT_SUBREDDIT = "webdev"
 REDDIT_LIMIT = 500
 REDDIT_HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+    "User-Agent": "TechTrendsETL/1.0 (github.com/Sam-24-dev/Technology-trend-analysis-platform)"
 }
 
 # Archivos de salida

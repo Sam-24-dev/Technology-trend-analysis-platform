@@ -9,7 +9,10 @@ extraction failures (API issues) and validation failures
 
 class ETLExtractionError(Exception):
     """Raised when data extraction from an API fails."""
-    pass
+
+    def __init__(self, message, critical=False):
+        super().__init__(message)
+        self.critical = critical
 
 
 class ETLValidationError(Exception):

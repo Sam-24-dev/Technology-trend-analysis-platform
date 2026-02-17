@@ -14,6 +14,7 @@ Usage:
             ]
 """
 import logging
+import sys
 from datetime import datetime
 from abc import ABC, abstractmethod
 
@@ -102,12 +103,13 @@ class BaseETL(ABC):
         Calls configurar_logging(), then runs each step from
         definir_pasos() independently with try/except.
         If a step raises ETLExtractionError with critical=True,
-        the pipeline stops.
+        the pipeline stops and exits with code 1.
         """
         self.configurar_logging()
         self.logger.info(f"{self.nombre.upper()} ETL - Technology Trend Analysis Platform")
 
         pasos = self.definir_pasos()
+        errores_criticos = 0
 
         for nombre_paso, funcion in pasos:
             try:
@@ -116,10 +118,15 @@ class BaseETL(ABC):
                 self.logger.error(f"{nombre_paso} fallido: {e}")
                 if getattr(e, 'critical', False):
                     self.logger.error("Error critico, deteniendo pipeline")
-                    return
+                    errores_criticos += 1
+                    break
             except ETLValidationError as e:
                 self.logger.error(f"{nombre_paso} - validacion fallida: {e}")
             except Exception as e:
                 self.logger.error(f"{nombre_paso} - error inesperado: {e}")
+
+        if errores_criticos > 0:
+            self.logger.error(f"ETL {self.nombre} finalizado con errores criticos")
+            sys.exit(1)
 
         self.logger.info(f"ETL {self.nombre} completado")

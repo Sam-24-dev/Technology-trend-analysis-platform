@@ -44,22 +44,24 @@ class GitHubETL(BaseETL):
         self.logger.info("Verificando conexion con GitHub API...")
 
         try:
-            response = requests.get(f"{GITHUB_API_BASE}/user", headers=GITHUB_HEADERS, timeout=10)
+            response = requests.get(f"{GITHUB_API_BASE}/rate_limit", headers=GITHUB_HEADERS, timeout=10)
         except requests.exceptions.RequestException as e:
-            error = ETLExtractionError(f"Error de red: {e}")
-            error.critical = True
-            raise error
+            raise ETLExtractionError(f"Error de red: {e}", critical=True)
 
         if response.status_code == 200:
-            user = response.json()
-            self.logger.info(f"Conectado como: {user.get('login', 'Usuario')}")
-            remaining = response.headers.get('X-RateLimit-Remaining', 'N/A')
-            limit = response.headers.get('X-RateLimit-Limit', 'N/A')
-            self.logger.info(f"Rate Limit: {remaining}/{limit} requests disponibles")
+            data = response.json()
+            core = data.get('resources', {}).get('core', {})
+            remaining = core.get('remaining', 'N/A')
+            limit = core.get('limit', 'N/A')
+            search = data.get('resources', {}).get('search', {})
+            self.logger.info(f"Rate Limit Core: {remaining}/{limit} requests disponibles")
+            self.logger.info(f"Rate Limit Search: {search.get('remaining', '?')}/{search.get('limit', '?')}")
+            if GITHUB_HEADERS.get('Authorization'):
+                self.logger.info("Autenticado con token personal")
+            else:
+                self.logger.warning("Sin token — rate limit reducido (60 req/h)")
         else:
-            error = ETLExtractionError(f"Error de conexion: {response.status_code}")
-            error.critical = True
-            raise error
+            raise ETLExtractionError(f"Error de conexion: {response.status_code}", critical=True)
 
     def esperar_rate_limit(self, response):
         """Handles GitHub API rate limiting by waiting until reset."""
@@ -153,9 +155,7 @@ class GitHubETL(BaseETL):
                 break
 
         if not repos_data:
-            error = ETLExtractionError("No se pudo extraer ningun repositorio de GitHub")
-            error.critical = True
-            raise error
+            raise ETLExtractionError("No se pudo extraer ningun repositorio de GitHub", critical=True)
 
         self.logger.info(f"Extraidos {len(repos_data)} repos")
 
@@ -220,8 +220,11 @@ class GitHubETL(BaseETL):
 
                 if response.status_code != 200:
                     if response.status_code == 403:
-                        self.esperar_rate_limit(response)
-                        continue
+                        if self.esperar_rate_limit(response):
+                            continue
+                        else:
+                            self.logger.error(f"  Rate limit sin header de reset para {framework}, saltando")
+                            break
                     self.logger.error(f"  Error obteniendo commits: {response.status_code}")
                     break
 

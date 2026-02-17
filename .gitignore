@@ -16,6 +16,8 @@ build/
 .pub-cache/
 pubspec.lock
 *.iml
+.tmp-gh/
+frontend/web/data/
 
 # IDEs
 .idea/
