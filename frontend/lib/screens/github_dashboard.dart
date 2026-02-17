@@ -173,7 +173,7 @@ class _GithubDashboardState extends State<GithubDashboard> {
           ),
           const SizedBox(height: 8),
           const Text(
-            'v1.1 (Cache Fix) - Análisis de tendencias tecnológicas 2025',
+            'Análisis de tendencias tecnológicas 2025',
             style: TextStyle(fontSize: 16, color: Colors.grey),
           ),
           const SizedBox(height: 24),
