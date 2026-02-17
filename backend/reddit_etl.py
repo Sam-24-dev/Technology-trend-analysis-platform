@@ -123,7 +123,20 @@ class RedditETL(BaseETL):
             self.logger.error(f"Error obteniendo posts: {e}")
 
         if not posts_data:
-            raise ETLExtractionError(f"No se pudo extraer posts de r/{subreddit_name}", critical=True)
+            # Intentar cargar datos anteriores si existen
+            ruta_anterior = ARCHIVOS_SALIDA.get("reddit_sentimiento")
+            if ruta_anterior and ruta_anterior.exists():
+                self.logger.warning(f"No se pudo extraer posts de r/{subreddit_name} — usando datos anteriores")
+                raise ETLExtractionError(
+                    f"Reddit API no disponible (posible bloqueo de IP). "
+                    f"Los CSVs anteriores se mantienen.",
+                    critical=False
+                )
+            else:
+                raise ETLExtractionError(
+                    f"No se pudo extraer posts de r/{subreddit_name} y no hay datos previos",
+                    critical=True
+                )
 
         self.df_posts = pd.DataFrame(posts_data)
 
