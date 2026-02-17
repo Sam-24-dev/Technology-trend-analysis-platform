@@ -9,13 +9,12 @@ Author: Samir Caizapasto
 """
 import requests
 import pandas as pd
-from datetime import datetime
 import time
 import re
 
 from config.settings import (
     GITHUB_API_BASE, GITHUB_HEADERS, MAX_REPOS, PER_PAGE,
-    FRAMEWORK_REPOS, ARCHIVOS_SALIDA,
+    FRAMEWORK_REPOS,
     FECHA_INICIO_STR, FECHA_FIN_STR, FECHA_INICIO_ISO
 )
 from exceptions import ETLExtractionError, ETLValidationError
@@ -46,7 +45,7 @@ class GitHubETL(BaseETL):
         try:
             response = requests.get(f"{GITHUB_API_BASE}/rate_limit", headers=GITHUB_HEADERS, timeout=10)
         except requests.exceptions.RequestException as e:
-            raise ETLExtractionError(f"Error de red: {e}", critical=True)
+            raise ETLExtractionError(f"Error de red: {e}", critical=True) from e
 
         if response.status_code == 200:
             data = response.json()
@@ -254,7 +253,7 @@ class GitHubETL(BaseETL):
         df_commits["ranking"] = range(1, len(df_commits) + 1)
 
         self.logger.info("Ranking de Frameworks Frontend por Commits:")
-        for i, row in df_commits.iterrows():
+        for _, row in df_commits.iterrows():
             self.logger.info(f"  #{row['ranking']} {row['framework']}: {row['commits_2025']} commits")
 
         self.guardar_csv(df_commits, "github_commits")
@@ -270,7 +269,7 @@ class GitHubETL(BaseETL):
         total = min(100, len(self.df_repos))
 
         count = 0
-        for idx, row in self.df_repos.head(total).iterrows():
+        for _, row in self.df_repos.head(total).iterrows():
             count += 1
             repo_name = row["repo_name"]
             self.logger.info(f"  [{count}/{total}] {repo_name}...")
@@ -295,7 +294,7 @@ class GitHubETL(BaseETL):
                         if self.esperar_rate_limit(response):
                             continue
                         else:
-                            self.logger.warning(f" Rate limit, esperando 60s...")
+                            self.logger.warning(" Rate limit, esperando 60s...")
                             time.sleep(60)
                     else:
                         self.logger.error(f" Error: {response.status_code}")
@@ -321,7 +320,7 @@ class GitHubETL(BaseETL):
                 })
                 self.logger.info(f"    {contributors} contributors")
             else:
-                self.logger.warning(f"    No se pudo obtener contributors")
+                self.logger.warning("    No se pudo obtener contributors")
                 correlacion_data.append({
                     "repo_name": repo_name,
                     "stars": row["stars"],

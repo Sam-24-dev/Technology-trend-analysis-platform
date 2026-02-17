@@ -53,6 +53,9 @@ jobs:
         continue-on-error: true
 
       - name: Run Reddit ETL
+        env:
+          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
+          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
         run: python backend/reddit_etl.py
         continue-on-error: true
 

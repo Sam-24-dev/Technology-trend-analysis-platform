@@ -17,7 +17,8 @@ import time
 
 from config.settings import (
     ARCHIVOS_SALIDA, REDDIT_SUBREDDIT, REDDIT_LIMIT,
-    REDDIT_HEADERS
+    REDDIT_HEADERS, REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET,
+    REDDIT_USER_AGENT
 )
 from exceptions import ETLExtractionError, ETLValidationError
 from base_etl import BaseETL
@@ -43,10 +44,66 @@ class RedditETL(BaseETL):
         super().__init__("reddit")
         self.df_posts = None
         self.df_temas = None
+        self.access_token = None
+        self.api_base = "https://www.reddit.com"  # fallback: public API
+        self.headers = dict(REDDIT_HEADERS)
+
+    def _obtener_token_oauth(self):
+        """Obtains an OAuth2 bearer token from Reddit using client credentials.
+
+        If REDDIT_CLIENT_ID and REDDIT_CLIENT_SECRET are set, switches
+        to the authenticated oauth.reddit.com endpoint which works from
+        datacenter IPs (GitHub Actions).
+        """
+        if not REDDIT_CLIENT_ID or not REDDIT_CLIENT_SECRET:
+            self.logger.warning(
+                "Sin credenciales OAuth de Reddit — usando API publica "
+                "(puede fallar desde IPs de datacenter)"
+            )
+            return
+
+        self.logger.info("Obteniendo token OAuth de Reddit...")
+        try:
+            auth = requests.auth.HTTPBasicAuth(
+                REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET
+            )
+            data = {
+                "grant_type": "client_credentials",
+            }
+            resp = requests.post(
+                "https://www.reddit.com/api/v1/access_token",
+                auth=auth,
+                data=data,
+                headers={"User-Agent": REDDIT_USER_AGENT},
+                timeout=10,
+            )
+            if resp.status_code == 200:
+                token_data = resp.json()
+                self.access_token = token_data.get("access_token")
+                if self.access_token:
+                    self.api_base = "https://oauth.reddit.com"
+                    self.headers = {
+                        "Authorization": f"Bearer {self.access_token}",
+                        "User-Agent": REDDIT_USER_AGENT,
+                    }
+                    self.logger.info(
+                        "OAuth autenticado — usando oauth.reddit.com"
+                    )
+                else:
+                    self.logger.warning(
+                        "Token vacio en respuesta OAuth: %s", token_data
+                    )
+            else:
+                self.logger.warning(
+                    "OAuth fallo (%d) — usando API publica", resp.status_code
+                )
+        except requests.exceptions.RequestException as e:
+            self.logger.warning("Error en OAuth: %s — usando API publica", e)
 
     def definir_pasos(self):
         """Defines the Reddit ETL steps."""
         return [
+            ("Autenticacion OAuth", self._obtener_token_oauth),
             ("Extraccion de posts", self.extraer_posts),
             ("Sentimiento de frameworks", self.analizar_sentimiento_frameworks),
             ("Temas emergentes", self.detectar_temas_emergentes),
@@ -62,7 +119,7 @@ class RedditETL(BaseETL):
         self.logger.info(f"Obteniendo posts de r/{subreddit_name}...")
 
         posts_data = []
-        url = f"https://www.reddit.com/r/{subreddit_name}/hot.json"
+        url = f"{self.api_base}/r/{subreddit_name}/hot.json"
 
         after = None
         posts_obtenidos = 0
@@ -77,7 +134,7 @@ class RedditETL(BaseETL):
                 self.logger.info(f"  Descargando posts {posts_obtenidos + 1}-{min(posts_obtenidos + 100, limit)}...")
 
                 try:
-                    response = requests.get(url, headers=REDDIT_HEADERS, params=params, timeout=10)
+                    response = requests.get(url, headers=self.headers, params=params, timeout=10)
                 except requests.exceptions.RequestException as e:
                     self.logger.error(f"  Error de red: {e}")
                     break
@@ -119,7 +176,7 @@ class RedditETL(BaseETL):
 
             self.logger.info(f"Obtenidos {len(posts_data)} posts")
 
-        except Exception as e:
+        except requests.exceptions.RequestException as e:
             self.logger.error(f"Error obteniendo posts: {e}")
 
         if not posts_data:
@@ -128,8 +185,8 @@ class RedditETL(BaseETL):
             if ruta_anterior and ruta_anterior.exists():
                 self.logger.warning(f"No se pudo extraer posts de r/{subreddit_name} — usando datos anteriores")
                 raise ETLExtractionError(
-                    f"Reddit API no disponible (posible bloqueo de IP). "
-                    f"Los CSVs anteriores se mantienen.",
+                    "Reddit API no disponible (posible bloqueo de IP). "
+                    "Los CSVs anteriores se mantienen.",
                     critical=False
                 )
             else:
@@ -160,7 +217,7 @@ class RedditETL(BaseETL):
         sentimientos_framework = {}
 
         todos_textos = []
-        for idx, post in self.df_posts.iterrows():
+        for _, post in self.df_posts.iterrows():
             todos_textos.append({
                 "texto": f"{post['titulo']} {post['contenido']}",
                 "tipo": "post"
@@ -241,7 +298,7 @@ class RedditETL(BaseETL):
 
         menciones_temas = {tema: 0 for tema in temas_clave.keys()}
 
-        for idx, post in self.df_posts.iterrows():
+        for _, post in self.df_posts.iterrows():
             texto = f"{post['titulo']} {post['contenido']}".lower()
 
             for tema, keywords in temas_clave.items():
@@ -318,11 +375,11 @@ class RedditETL(BaseETL):
 
         coincidencias = []
 
-        for idx_gh, row_gh in github_data.iterrows():
+        for _, row_gh in github_data.iterrows():
             gh_norm = normalizar_nombre(row_gh["tecnologia"])
             encontrado = False
 
-            for idx_rd, row_rd in reddit_temas.iterrows():
+            for _, row_rd in reddit_temas.iterrows():
                 rd_norm = normalizar_nombre(row_rd["tecnologia"])
 
                 if gh_norm == rd_norm or gh_norm in rd_norm or rd_norm in gh_norm:
@@ -348,7 +405,7 @@ class RedditETL(BaseETL):
         df_coincidencias = pd.DataFrame(coincidencias).reset_index(drop=True)
 
         self.logger.info("Tecnologias comparadas entre GitHub y Reddit:")
-        for i, row in df_coincidencias.iterrows():
+        for _, row in df_coincidencias.iterrows():
             if row["ranking_reddit"] != "No encontrado":
                 self.logger.info(f"  {row['tecnologia']:20} ({row['tipo']:20}): GitHub #{row['ranking_github']} - Reddit #{row['ranking_reddit']} (dif: {row['diferencia']})")
             else:

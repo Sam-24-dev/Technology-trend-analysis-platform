@@ -8,7 +8,7 @@ Tests cover:
 """
 import pytest
 import pandas as pd
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch  # noqa: F401
 from reddit_etl import RedditETL
 
 
@@ -47,13 +47,14 @@ def sample_posts_df():
 class TestDefinirPasos:
     """Tests for definir_pasos."""
 
-    def test_returns_four_steps(self, etl):
+    def test_returns_five_steps(self, etl):
         pasos = etl.definir_pasos()
-        assert len(pasos) == 4
+        assert len(pasos) == 5
 
     def test_step_names(self, etl):
         pasos = etl.definir_pasos()
         nombres = [n for n, _ in pasos]
+        assert "Autenticacion OAuth" in nombres
         assert "Sentimiento de frameworks" in nombres
         assert "Temas emergentes" in nombres
 

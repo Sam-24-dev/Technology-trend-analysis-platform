@@ -266,8 +266,6 @@ class _GithubDashboardState extends State<GithubDashboard> {
   // Gráfico 1: Barras HORIZONTALES
   // Eje Y = Lenguajes, Eje X = 0-400, Python arriba (mayor valor)
   Widget _buildHorizontalBarChart() {
-    final int count = lenguajes.length;
-    
     return LayoutBuilder(
       builder: (context, constraints) {
         return Row(
@@ -555,23 +553,6 @@ class _GithubDashboardState extends State<GithubDashboard> {
           ],
         ),
       ),
-    );
-  }
-
-  // Helper widget para mostrar cada insight
-  Widget _buildInsightItem(String emoji, String text) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(emoji, style: const TextStyle(fontSize: 16)),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            text,
-            style: const TextStyle(fontSize: 14, color: Color(0xFF374151)),
-          ),
-        ),
-      ],
     );
   }
 

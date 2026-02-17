@@ -14,7 +14,7 @@ from datetime import datetime
 import calendar
 
 from config.settings import (
-    SO_API_URL, SO_API_KEY, ARCHIVOS_SALIDA,
+    SO_API_URL, SO_API_KEY,
     FECHA_INICIO, FECHA_INICIO_TIMESTAMP
 )
 from exceptions import ETLExtractionError
@@ -54,7 +54,7 @@ class StackOverflowETL(BaseETL):
                 raise ETLExtractionError(f"StackOverflow API retorno {response.status_code}")
         except requests.exceptions.RequestException as e:
             self.logger.error(f"Error de conexion: {e}")
-            raise ETLExtractionError(f"Error de red: {e}")
+            raise ETLExtractionError(f"Error de red: {e}") from e
 
     def extraer_volumen_preguntas(self):
         """Extracts yearly question volume per language from StackOverflow."""

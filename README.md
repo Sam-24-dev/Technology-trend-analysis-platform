@@ -53,7 +53,7 @@ End-to-end data engineering platform that extracts, transforms, and visualizes t
        │               │                   │
        ▼               ▼                   ▼
 ┌─────────────────────────────────────────────────────┐
-│                 datos/ (10 CSVs)                     │
+│                 datos/ (11 CSVs)                     │
 │    Validated by validador.py before each save        │
 └──────────────────────┬──────────────────────────────┘
                        │
@@ -74,7 +74,7 @@ End-to-end data engineering platform that extracts, transforms, and visualizes t
 | Layer | Component | Output |
 |-------|-----------|--------|
 | **Extraction** | 3 API connectors | Raw data from GitHub, SO, Reddit |
-| **Transformation** | BaseETL + 3 children | 10 processed CSVs |
+| **Transformation** | BaseETL + 3 children | 11 processed CSVs |
 | **Scoring** | trend_score.py | Unified technology ranking |
 | **Validation** | validador.py | Column checks + null detection |
 | **Presentation** | Flutter Web | 4 interactive dashboards |
@@ -88,7 +88,7 @@ End-to-end data engineering platform that extracts, transforms, and visualizes t
 | **Repositories analyzed** | 1,000 |
 | **StackOverflow questions** | 5 languages + 5 frameworks |
 | **Reddit posts** | 500+ from r/webdev |
-| **Output CSVs** | 10 validated datasets |
+| **Output CSVs** | 11 validated datasets |
 | **Trend Score** | Top technology ranking |
 | **Tests** | 40 passing (pytest) |
 | **Code coverage** | All ETL modules tested |
@@ -116,7 +116,7 @@ Each dashboard includes **Key Insights** cards and an **Export ZIP** button.
 | **Architecture** | BaseETL (OOP), custom exceptions, data validation |
 | **Testing** | pytest, unittest.mock (40 tests, API mocking) |
 | **Frontend** | Flutter Web, Dart, fl_chart, google_fonts |
-| **Data Storage** | CSV (10 files, pathlib paths) |
+| **Data Storage** | CSV (11 files, pathlib paths) |
 | **Automation** | Makefile, sync_assets.py |
 | **Deployment** | GitHub Pages |
 
@@ -150,7 +150,9 @@ make all
 Create a `.env` file in the project root:
 ```env
 GITHUB_TOKEN=your_github_personal_access_token
-STACKOVERFLOW_KEY=your_so_api_key  # optional
+STACKOVERFLOW_KEY=your_so_api_key          # optional
+REDDIT_CLIENT_ID=your_reddit_client_id     # optional (OAuth)
+REDDIT_CLIENT_SECRET=your_reddit_secret    # optional (OAuth)
 ```
 
 ### Run Frontend
@@ -182,7 +184,7 @@ Technology-trend-analysis-platform/
 │   ├── exceptions.py                # ETLExtractionError, ETLValidationError
 │   ├── sync_assets.py               # Copy CSVs to frontend
 │   └── requirements.txt
-├── datos/                            # Processed CSVs (10 files)
+├── datos/                            # Processed CSVs (11 files)
 ├── docs/
 │   └── architecture.md
 ├── frontend/                         # Flutter Web Dashboard
@@ -207,6 +209,7 @@ Technology-trend-analysis-platform/
 ├── .gitignore
 ├── LICENSE
 ├── Makefile                          # make install/etl/test/sync/all
+├── pyproject.toml                    # Pylint + pytest config
 └── README.md
 ```
 

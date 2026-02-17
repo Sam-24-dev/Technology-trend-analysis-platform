@@ -17,4 +17,3 @@ class ETLExtractionError(Exception):
 
 class ETLValidationError(Exception):
     """Raised when extracted data fails validation checks."""
-    pass

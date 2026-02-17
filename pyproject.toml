@@ -1,0 +1,18 @@
+[tool.pylint.master]
+# backend/ is the Python source root — scripts run from there.
+# Tell Pylint so it can resolve "from config.settings import ..."
+init-hook = 'import sys, pathlib; sys.path.insert(0, str(pathlib.Path.cwd() / "backend"))'
+source-roots = ["backend"]
+
+[tool.pylint."messages control"]
+disable = [
+    "W1203",  # logging-fstring-interpolation (acceptable for weekly ETL)
+    "W0621",  # redefined-from-outer-scope (standard pytest fixture pattern)
+]
+
+[tool.pylint.format]
+max-line-length = 120
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["backend"]

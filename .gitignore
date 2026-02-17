@@ -21,7 +21,8 @@ frontend/web/data/
 
 # IDEs
 .idea/
-.vscode/
+.vscode/*
+!.vscode/settings.json
 *.swp
 *.swo
 
@@ -43,3 +44,6 @@ logs/
 # Database
 *.db
 *.sqlite3
+
+# Temporary files
+etl_log_full.txt

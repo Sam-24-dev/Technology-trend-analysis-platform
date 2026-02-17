@@ -44,11 +44,17 @@ FRAMEWORK_REPOS = {
 SO_API_KEY = os.getenv("STACKOVERFLOW_KEY")
 SO_API_URL = "https://api.stackexchange.com/2.3/search/advanced"
 
-# Reddit (API publica, sin autenticacion)
+# Reddit API (OAuth para evitar bloqueo de IP en CI)
+REDDIT_CLIENT_ID = os.getenv("REDDIT_CLIENT_ID")
+REDDIT_CLIENT_SECRET = os.getenv("REDDIT_CLIENT_SECRET")
 REDDIT_SUBREDDIT = "webdev"
 REDDIT_LIMIT = 500
+REDDIT_USER_AGENT = (
+    "TechTrendsETL/1.0 "
+    "(github.com/Sam-24-dev/Technology-trend-analysis-platform)"
+)
 REDDIT_HEADERS = {
-    "User-Agent": "TechTrendsETL/1.0 (github.com/Sam-24-dev/Technology-trend-analysis-platform)"
+    "User-Agent": REDDIT_USER_AGENT
 }
 
 # Archivos de salida

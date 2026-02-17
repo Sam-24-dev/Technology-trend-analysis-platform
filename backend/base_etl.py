@@ -71,12 +71,12 @@ class BaseETL(ABC):
         """
         ruta = ARCHIVOS_SALIDA.get(nombre_archivo)
         if ruta is None:
-            self.logger.warning(f"No hay ruta de salida para '{nombre_archivo}'")
+            self.logger.warning("No hay ruta de salida para '%s'", nombre_archivo)
             return
 
         validar_dataframe(df, nombre_archivo)
         df.to_csv(ruta, index=False, encoding="utf-8")
-        self.logger.info(f"Guardado en: {ruta}")
+        self.logger.info("Guardado en: %s", ruta)
 
     @abstractmethod
     def definir_pasos(self):
@@ -106,7 +106,7 @@ class BaseETL(ABC):
         the pipeline stops and exits with code 1.
         """
         self.configurar_logging()
-        self.logger.info(f"{self.nombre.upper()} ETL - Technology Trend Analysis Platform")
+        self.logger.info("%s ETL - Technology Trend Analysis Platform", self.nombre.upper())
 
         pasos = self.definir_pasos()
         errores_criticos = 0
@@ -115,18 +115,18 @@ class BaseETL(ABC):
             try:
                 funcion()
             except ETLExtractionError as e:
-                self.logger.error(f"{nombre_paso} fallido: {e}")
+                self.logger.error("%s fallido: %s", nombre_paso, e)
                 if getattr(e, 'critical', False):
                     self.logger.error("Error critico, deteniendo pipeline")
                     errores_criticos += 1
                     break
             except ETLValidationError as e:
-                self.logger.error(f"{nombre_paso} - validacion fallida: {e}")
-            except Exception as e:
-                self.logger.error(f"{nombre_paso} - error inesperado: {e}")
+                self.logger.error("%s - validacion fallida: %s", nombre_paso, e)
+            except Exception as e:  # pylint: disable=broad-exception-caught
+                self.logger.error("%s - error inesperado: %s", nombre_paso, e)
 
         if errores_criticos > 0:
-            self.logger.error(f"ETL {self.nombre} finalizado con errores criticos")
+            self.logger.error("ETL %s finalizado con errores criticos", self.nombre)
             sys.exit(1)
 
-        self.logger.info(f"ETL {self.nombre} completado")
+        self.logger.info("ETL %s completado", self.nombre)

@@ -12,8 +12,8 @@ desde tres comunidades de desarrolladores: GitHub, StackOverflow y Reddit.
                          |
           +--------------+--------------+
           v              v              v
-   GitHub API    StackOverflow API   Reddit JSON
-     (REST)         (REST)           (Publica)
+   GitHub API    StackOverflow API   Reddit API
+     (REST)         (REST)          (OAuth/JSON)
           |              |              |
           v              v              v
    github_etl.py  so_etl.py      reddit_etl.py
@@ -60,6 +60,12 @@ desde tres comunidades de desarrolladores: GitHub, StackOverflow y Reddit.
 | reddit_temas_emergentes.csv | tema, menciones | Temas emergentes en r/webdev |
 | interseccion_github_reddit.csv | tecnologia, tipo, ranking_github, ranking_reddit, diferencia | Comparacion de rankings entre plataformas |
 
+### Trend Score
+
+| Archivo | Columnas | Descripcion |
+|---------|----------|-------------|
+| trend_score.csv | ranking, tecnologia, github_score, so_score, reddit_score, trend_score, fuentes | Indice compuesto ponderado (GitHub 40% + SO 35% + Reddit 25%) |
+
 ## Frontend Architecture
 
 ```
@@ -97,7 +103,7 @@ flutter build web --base-href "/Technology-trend-analysis-platform/"
 ```
 
 ### Automatizacion (GitHub Actions)
-- Cron: cada lunes a las 06:00 UTC
+- Cron: cada lunes a las 08:00 UTC (03:00 Ecuador)
 - Ejecuta el pipeline ETL completo
 - Sincroniza CSVs al frontend
 - Rebuild y deploy de Flutter Web
