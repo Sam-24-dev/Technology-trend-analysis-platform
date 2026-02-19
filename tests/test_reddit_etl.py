@@ -145,3 +145,47 @@ class TestTemasEmergentes:
         etl.df_posts = pd.DataFrame()
         with pytest.raises(Exception):
             etl.detectar_temas_emergentes()
+
+
+class TestKeywordPrecision:
+    """Tests for keyword matching precision in Reddit ETL."""
+
+    def test_javascript_does_not_match_java_keyword(self, etl, tmp_path):
+        """Ensure 'javascript' does not trigger Java/Spring false positives."""
+        etl.df_posts = pd.DataFrame({
+            "post_id": ["p1"],
+            "titulo": ["JavaScript ecosystem news and Django notes"],
+            "contenido": ["This post is about javascript tooling and django usage"],
+            "upvotes": [10],
+            "comentarios": [2],
+            "created_at": ["2025-06-01"],
+            "autor": ["user_js"]
+        })
+
+        with patch("base_etl.ARCHIVOS_SALIDA", {"reddit_sentimiento": tmp_path / "test.csv"}):
+            etl.analizar_sentimiento_frameworks()
+
+        df = pd.read_csv(tmp_path / "test.csv")
+        if "Spring" in df["framework"].tolist():
+            spring_row = df[df["framework"] == "Spring"]
+            assert spring_row["total_menciones"].values[0] == 0
+
+    def test_api_word_alone_does_not_count_as_microservices(self, etl, tmp_path):
+        """Ensure generic 'api' alone does not count as Microservicios."""
+        etl.df_posts = pd.DataFrame({
+            "post_id": ["p2"],
+            "titulo": ["Public API release for cloud users"],
+            "contenido": ["We launched a new api today on azure cloud"],
+            "upvotes": [8],
+            "comentarios": [1],
+            "created_at": ["2025-06-01"],
+            "autor": ["user_api"]
+        })
+
+        with patch("base_etl.ARCHIVOS_SALIDA", {"reddit_temas": tmp_path / "test.csv"}):
+            etl.detectar_temas_emergentes()
+
+        df = pd.read_csv(tmp_path / "test.csv")
+        if "Microservicios" in df["tema"].tolist():
+            micro_row = df[df["tema"] == "Microservicios"]
+            assert micro_row["menciones"].values[0] == 0

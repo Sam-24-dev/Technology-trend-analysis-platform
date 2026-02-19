@@ -61,6 +61,7 @@ REDDIT_HEADERS = {
 ARCHIVOS_SALIDA = {
     "github_repos": DATOS_DIR / "github_repos_2025.csv",
     "github_lenguajes": DATOS_DIR / "github_lenguajes.csv",
+    "github_ai_insights": DATOS_DIR / "github_ai_repos_insights.csv",
     "github_commits": DATOS_DIR / "github_commits_frameworks.csv",
     "github_correlacion": DATOS_DIR / "github_correlacion.csv",
     "so_volumen": DATOS_DIR / "so_volumen_preguntas.csv",

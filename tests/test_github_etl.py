@@ -39,7 +39,7 @@ class TestGitHubETLDefinirPasos:
     def test_definir_pasos_returns_list(self, etl):
         pasos = etl.definir_pasos()
         assert isinstance(pasos, list)
-        assert len(pasos) == 5
+        assert len(pasos) == 6
 
     def test_definir_pasos_has_correct_names(self, etl):
         pasos = etl.definir_pasos()
@@ -47,6 +47,7 @@ class TestGitHubETLDefinirPasos:
         assert "Verificar conexion" in nombres
         assert "Extraccion de repos" in nombres
         assert "Analisis de lenguajes" in nombres
+        assert "Insights repos IA" in nombres
 
 
 class TestAnalizarLenguajes:
@@ -92,6 +93,48 @@ class TestAnalizarLenguajes:
         with pytest.raises(Exception):
             etl.analizar_lenguajes()
 
+    def test_lenguajes_filtra_no_clasificables(self, etl, tmp_path):
+        """Verify 'Sin especificar' and AI labels are excluded from language ranking."""
+        etl.df_repos = pd.DataFrame({
+            "repo_name": ["a/repo1", "a/repo2", "a/repo3", "a/repo4"],
+            "language": ["Python", "Sin especificar", "LLMs/AI", "AI/ML"],
+            "stars": [10, 20, 30, 40],
+            "forks": [1, 2, 3, 4],
+            "created_at": ["2025-01-01", "2025-01-01", "2025-01-01", "2025-01-01"],
+            "description": ["x", "x", "x", "x"],
+        })
+
+        with patch("base_etl.ARCHIVOS_SALIDA", {"github_lenguajes": tmp_path / "test.csv"}):
+            etl.analizar_lenguajes()
+
+        df = pd.read_csv(tmp_path / "test.csv")
+        assert "Python" in df["lenguaje"].tolist()
+        assert "Sin especificar" not in df["lenguaje"].tolist()
+        assert "LLMs/AI" not in df["lenguaje"].tolist()
+        assert "AI/ML" not in df["lenguaje"].tolist()
+
+
+class TestInsightsIA:
+    """Tests for AI/LLM insights generation."""
+
+    def test_genera_insights_ai_csv(self, etl, tmp_path):
+        etl.df_repos = pd.DataFrame({
+            "repo_name": ["openai/gpt-sdk", "example/webapp"],
+            "language": ["Sin especificar", "Python"],
+            "stars": [1000, 100],
+            "forks": [50, 10],
+            "created_at": ["2025-02-15T00:00:00Z", "2025-02-01T00:00:00Z"],
+            "description": ["SDK for gpt and llm apps", "regular backend service"],
+        })
+
+        with patch("base_etl.ARCHIVOS_SALIDA", {"github_ai_insights": tmp_path / "ai.csv"}):
+            etl.generar_insights_repos_ai()
+
+        df = pd.read_csv(tmp_path / "ai.csv")
+        assert "repos_ai_detectados" in df.columns
+        assert int(df.iloc[0]["repos_ai_detectados"]) >= 1
+        assert float(df.iloc[0]["porcentaje_ai"]) > 0
+
 
 class TestExtraerRepos:
     """Tests for extraer_repos with mocked API."""
@@ -122,7 +165,7 @@ class TestExtraerRepos:
         assert len(etl.df_repos) == 1
         assert etl.df_repos.iloc[0]["repo_name"] == "test/repo1"
 
-    def test_extraer_repos_handles_empty_response(self, etl, tmp_path):
+    def test_extraer_repos_handles_empty_response(self, etl):
         """Test that empty API response raises ETLExtractionError."""
         mock_response = MagicMock()
         mock_response.status_code = 200

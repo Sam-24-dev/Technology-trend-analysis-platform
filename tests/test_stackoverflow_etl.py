@@ -57,6 +57,20 @@ class TestGetTotalCount:
             with pytest.raises(Exception):
                 etl.get_total_count({"site": "stackoverflow", "tagged": "python"})
 
+    def test_does_not_mutate_input_params(self, etl):
+        """Verify get_total_count does not mutate caller params."""
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {"total": 10}
+
+        params = {"site": "stackoverflow", "tagged": "python"}
+        original = dict(params)
+
+        with patch("stackoverflow_etl.requests.get", return_value=mock_response):
+            etl.get_total_count(params)
+
+        assert params == original
+
 
 class TestTasaAceptacion:
     """Tests for calcular_tasa_aceptacion."""
@@ -66,7 +80,7 @@ class TestTasaAceptacion:
         call_count = [0]
         totals = [100, 75, 200, 150, 300, 200, 50, 30, 80, 40]
 
-        def mock_get_total(params):
+        def mock_get_total(*_args, **_kwargs):
             idx = call_count[0]
             call_count[0] += 1
             return totals[idx] if idx < len(totals) else 0
