@@ -41,12 +41,13 @@ class StackOverflowETL(BaseETL):
         Raises:
             ETLExtractionError: If the API call fails.
         """
-        params['filter'] = 'total'
+        request_params = dict(params)
+        request_params['filter'] = 'total'
         if SO_API_KEY:
-            params['key'] = SO_API_KEY
+            request_params['key'] = SO_API_KEY
 
         try:
-            response = requests.get(SO_API_URL, params=params, timeout=10)
+            response = requests.get(SO_API_URL, params=request_params, timeout=10)
             if response.status_code == 200:
                 return response.json().get('total', 0)
             else:
@@ -153,6 +154,7 @@ class StackOverflowETL(BaseETL):
             mes_idx = (inicio_month + i - 1) % 12 + 1
             year = inicio_year + (inicio_month + i - 1) // 12
             nombre_mes = calendar.month_abbr[mes_idx]
+            mes_label = f"{year}-{mes_idx:02d}"
 
             start_date = datetime(year, mes_idx, 1)
             last_day = calendar.monthrange(year, mes_idx)[1]
@@ -163,12 +165,12 @@ class StackOverflowETL(BaseETL):
 
             if start_date > datetime.now():
                 self.logger.info(f"   Saltando {nombre_mes} {year} (futuro)...")
-                row = {'mes': f"{nombre_mes} {year}", 'python': 0, 'javascript': 0, 'typescript': 0}
+                row = {'mes': mes_label, 'python': 0, 'javascript': 0, 'typescript': 0}
                 data_trends.append(row)
                 continue
 
             self.logger.info(f"   Consultando {nombre_mes} {year}...")
-            row = {'mes': f"{nombre_mes} {year}"}
+            row = {'mes': mes_label}
 
             for lang in target_langs:
                 params = {

@@ -32,6 +32,16 @@ PESOS = {
     "reddit": 0.25
 }
 
+ETIQUETAS_NO_LENGUAJE = {
+    "sin especificar",
+    "llms/ai",
+    "ai/ml",
+    "ai",
+    "llm",
+    "genai",
+    "artificial intelligence",
+}
+
 
 def configurar_logging():
     """Sets up logging to console and daily log file."""
@@ -124,6 +134,13 @@ def cargar_github():
     """
     try:
         df_repos = pd.read_csv(ARCHIVOS_SALIDA["github_repos"])
+        df_repos["language"] = df_repos["language"].fillna("Sin especificar").astype(str).str.strip()
+        df_repos = df_repos[~df_repos["language"].str.lower().isin(ETIQUETAS_NO_LENGUAJE)]
+
+        if df_repos.empty:
+            logger.warning("GitHub: sin lenguajes clasificables tras aplicar filtros")
+            return pd.DataFrame(columns=["tecnologia", "github_score"])
+
         langs = df_repos["language"].value_counts().head(15).reset_index()
         langs.columns = ["tecnologia", "repos_count"]
         langs["tecnologia"] = langs["tecnologia"].apply(normalizar_nombre)

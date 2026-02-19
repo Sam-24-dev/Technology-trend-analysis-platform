@@ -16,6 +16,15 @@ logger = logging.getLogger("validador")
 COLUMNAS_ESPERADAS = {
     "github_repos": ["repo_name", "language", "stars", "forks", "created_at"],
     "github_lenguajes": ["lenguaje", "repos_count", "porcentaje"],
+    "github_ai_insights": [
+        "total_repos_analizados",
+        "repos_ai_detectados",
+        "porcentaje_ai",
+        "mes_pico_ai",
+        "repos_mes_pico_ai",
+        "top_keywords_ai",
+        "top_repos_ai",
+    ],
     "github_commits": ["framework", "repo", "commits_2025", "ranking"],
     "github_correlacion": ["repo_name", "stars", "contributors", "language"],
     "so_volumen": ["lenguaje", "preguntas_nuevas_2025"],
@@ -30,6 +39,7 @@ COLUMNAS_ESPERADAS = {
 COLUMNAS_CRITICAS = {
     "github_repos": ["repo_name", "language", "stars"],
     "github_lenguajes": ["lenguaje", "repos_count"],
+    "github_ai_insights": ["total_repos_analizados", "repos_ai_detectados", "porcentaje_ai"],
     "github_commits": ["framework", "commits_2025"],
     "github_correlacion": ["repo_name", "stars"],
     "so_volumen": ["lenguaje"],

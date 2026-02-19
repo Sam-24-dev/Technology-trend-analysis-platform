@@ -7,12 +7,12 @@ Tests cover:
 - Normalization logic
 - Handling missing sources
 """
-import pytest
 import pandas as pd
 from unittest.mock import patch
 from trend_score import (
     normalizar_nombre,
     normalizar_scores,
+    cargar_github,
     calcular_trend_score,
     PESOS
 )
@@ -170,3 +170,22 @@ class TestCalcularTrendScore:
             result = calcular_trend_score()
 
         assert result.empty
+
+
+class TestCargarGitHub:
+    """Tests for GitHub data loading and filtering in trend score."""
+
+    def test_filtra_etiquetas_no_lenguaje(self):
+        sample = pd.DataFrame({
+            "language": ["Python", "Sin especificar", "LLMs/AI", "AI/ML"],
+            "repo_name": ["a", "b", "c", "d"],
+        })
+
+        with patch("trend_score.pd.read_csv", return_value=sample):
+            result = cargar_github()
+
+        assert not result.empty
+        assert "Python" in result["tecnologia"].tolist()
+        assert "Sin Especificar" not in result["tecnologia"].tolist()
+        assert "Llms/Ai" not in result["tecnologia"].tolist()
+        assert "Ai/Ml" not in result["tecnologia"].tolist()

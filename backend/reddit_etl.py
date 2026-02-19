@@ -14,6 +14,7 @@ import nltk
 from nltk.sentiment import SentimentIntensityAnalyzer
 import warnings
 import time
+import re
 
 from config.settings import (
     ARCHIVOS_SALIDA, REDDIT_SUBREDDIT, REDDIT_LIMIT,
@@ -47,6 +48,19 @@ class RedditETL(BaseETL):
         self.access_token = None
         self.api_base = "https://www.reddit.com"  # fallback: public API
         self.headers = dict(REDDIT_HEADERS)
+
+    @staticmethod
+    def _coincide_keyword(texto, keyword):
+        """Checks keyword presence using boundary-safe regex matching."""
+        kw = keyword.strip().lower()
+        if not kw:
+            return False
+
+        if re.fullmatch(r"[a-z0-9_]+", kw):
+            patron = rf"(?<![a-z0-9_]){re.escape(kw)}(?![a-z0-9_])"
+        else:
+            patron = rf"(?<!\w){re.escape(kw)}(?!\w)"
+        return re.search(patron, texto, flags=re.IGNORECASE) is not None
 
     def _obtener_token_oauth(self):
         """Obtains an OAuth2 bearer token from Reddit using client credentials.
@@ -210,7 +224,7 @@ class RedditETL(BaseETL):
             "Django": ["django", "python web"],
             "FastAPI": ["fastapi"],
             "Express": ["express", "node.js", "nodejs"],
-            "Spring": ["spring", "springboot", "java"],
+            "Spring": ["spring", "springboot", "spring boot", "java spring"],
             "Laravel": ["laravel", "php"]
         }
 
@@ -232,7 +246,7 @@ class RedditETL(BaseETL):
             for item in todos_textos:
                 texto = item["texto"].lower()
 
-                if any(keyword in texto for keyword in keywords):
+                if any(self._coincide_keyword(texto, keyword) for keyword in keywords):
                     total_menciones += 1
 
                     scores = sia.polarity_scores(item["texto"])
@@ -288,11 +302,11 @@ class RedditETL(BaseETL):
             "Cloud": ["cloud", "aws", "azure", "gcp", "google cloud", "kubernetes", "docker", "containerization"],
             "Web3/Blockchain": ["web3", "blockchain", "cryptocurrency", "crypto", "ethereum", "bitcoin", "nft", "smart contract"],
             "DevOps": ["devops", "ci/cd", "github actions", "gitlab", "jenkins", "deployment", "infrastructure"],
-            "Microservicios": ["microservices", "microservice", "api", "rest api", "graphql"],
+            "Microservicios": ["microservices", "microservice", "rest api", "graphql"],
             "Testing": ["testing", "unit test", "integration test", "e2e", "jest", "pytest"],
             "Performance": ["performance", "optimization", "caching", "cdn", "latency", "speed"],
-            "Seguridad": ["security", "security", "encryption", "authentication", "oauth", "jwt"],
-            "TypeScript": ["typescript", "typescript"],
+            "Seguridad": ["security", "encryption", "authentication", "oauth", "jwt"],
+            "TypeScript": ["typescript"],
             "Python": ["python", "django", "fastapi", "flask"]
         }
 
@@ -303,7 +317,7 @@ class RedditETL(BaseETL):
 
             for tema, keywords in temas_clave.items():
                 for keyword in keywords:
-                    if keyword in texto:
+                    if self._coincide_keyword(texto, keyword):
                         menciones_temas[tema] += 1
                         break
 
