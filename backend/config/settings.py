@@ -77,6 +77,14 @@ ARCHIVOS_SALIDA = {
 LOG_FORMAT = "[%(asctime)s] [%(levelname)s] %(name)s - %(message)s"
 LOG_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
+# Resiliencia de red (compartido entre ETLs)
+REQUEST_TIMEOUT_SECONDS = 10
+HTTP_MAX_RETRIES = 3
+HTTP_RETRY_BACKOFF_SECONDS = 2
+REQUEST_PAGE_DELAY_SECONDS = 2.0
+REQUEST_MEDIUM_DELAY_SECONDS = 0.5
+REQUEST_SHORT_DELAY_SECONDS = 0.3
+
 # Rango de fechas dinamico (ultimos 12 meses)
 FECHA_FIN = datetime.now()
 FECHA_INICIO = FECHA_FIN - timedelta(days=365)

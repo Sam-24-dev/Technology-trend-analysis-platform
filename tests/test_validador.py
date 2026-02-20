@@ -53,3 +53,28 @@ def test_validar_dataframe_warns_nulls_in_critical(caplog):
 
     assert result is True
     assert "tiene" in caplog.text and "nulos" in caplog.text
+
+
+def test_validar_dataframe_strict_raises_on_missing_required_columns():
+    df = pd.DataFrame(
+        {
+            "framework": ["Django"],
+            "positivos": [10],
+        }
+    )
+
+    with pytest.raises(ETLValidationError):
+        validar_dataframe(df, "reddit_sentimiento", strict=True)
+
+
+def test_validar_dataframe_strict_raises_on_invalid_type():
+    df = pd.DataFrame(
+        {
+            "lenguaje": ["Python", "TypeScript"],
+            "repos_count": ["x", "y"],
+            "porcentaje": [55.0, 45.0],
+        }
+    )
+
+    with pytest.raises(ETLValidationError):
+        validar_dataframe(df, "github_lenguajes", strict=True, validate_types=True)

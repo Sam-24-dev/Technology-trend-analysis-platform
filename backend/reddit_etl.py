@@ -19,23 +19,15 @@ import re
 from config.settings import (
     ARCHIVOS_SALIDA, REDDIT_SUBREDDIT, REDDIT_LIMIT,
     REDDIT_HEADERS, REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET,
-    REDDIT_USER_AGENT
+    REDDIT_USER_AGENT,
+    REQUEST_TIMEOUT_SECONDS, HTTP_RETRY_BACKOFF_SECONDS,
+    REQUEST_PAGE_DELAY_SECONDS
 )
 from exceptions import ETLExtractionError, ETLValidationError
 from base_etl import BaseETL
+from tech_normalization import normalize_for_match
 
 warnings.filterwarnings("ignore")
-
-# Descargar recursos NLTK si no estan
-try:
-    nltk.data.find('sentiment/vader_lexicon')
-except LookupError:
-    nltk.download('vader_lexicon')
-
-try:
-    nltk.data.find('corpora/stopwords')
-except LookupError:
-    nltk.download('stopwords')
 
 
 class RedditETL(BaseETL):
@@ -89,7 +81,7 @@ class RedditETL(BaseETL):
                 auth=auth,
                 data=data,
                 headers={"User-Agent": REDDIT_USER_AGENT},
-                timeout=10,
+                timeout=REQUEST_TIMEOUT_SECONDS,
             )
             if resp.status_code == 200:
                 token_data = resp.json()
@@ -117,12 +109,49 @@ class RedditETL(BaseETL):
     def definir_pasos(self):
         """Defines the Reddit ETL steps."""
         return [
+            ("Preparar recursos NLTK", self._ensure_nltk_resources),
             ("Autenticacion OAuth", self._obtener_token_oauth),
             ("Extraccion de posts", self.extraer_posts),
             ("Sentimiento de frameworks", self.analizar_sentimiento_frameworks),
             ("Temas emergentes", self.detectar_temas_emergentes),
             ("Interseccion GitHub-Reddit", self.interseccion_tecnologias),
         ]
+
+    def validar_configuracion(self):
+        """Validates Reddit credentials consistency before running.
+
+        - If both are missing: allowed (degraded public API mode).
+        - If only one is present: invalid configuration (critical).
+        """
+        if bool(REDDIT_CLIENT_ID) ^ bool(REDDIT_CLIENT_SECRET):
+            raise ETLExtractionError(
+                "Configuracion incompleta: REDDIT_CLIENT_ID y REDDIT_CLIENT_SECRET "
+                "deben estar ambos definidos o ambos vacios.",
+                critical=True,
+            )
+
+        if not REDDIT_CLIENT_ID and not REDDIT_CLIENT_SECRET:
+            self.logger.warning(
+                "Credenciales OAuth de Reddit no configuradas. "
+                "Se ejecutara en modo degradado (API publica)."
+            )
+
+    def _ensure_nltk_resources(self):
+        """Ensures required NLTK resources are available at runtime.
+
+        Avoids side effects during module import.
+        """
+        try:
+            nltk.data.find('sentiment/vader_lexicon')
+        except LookupError:
+            self.logger.info("Descargando recurso NLTK: vader_lexicon")
+            nltk.download('vader_lexicon', quiet=True)
+
+        try:
+            nltk.data.find('corpora/stopwords')
+        except LookupError:
+            self.logger.info("Descargando recurso NLTK: stopwords")
+            nltk.download('stopwords', quiet=True)
 
     def extraer_posts(self, subreddit_name=REDDIT_SUBREDDIT, limit=REDDIT_LIMIT):
         """Fetches posts from a subreddit using Reddit's public JSON API.
@@ -148,9 +177,15 @@ class RedditETL(BaseETL):
                 self.logger.info(f"  Descargando posts {posts_obtenidos + 1}-{min(posts_obtenidos + 100, limit)}...")
 
                 try:
-                    response = requests.get(url, headers=self.headers, params=params, timeout=10)
+                    response = requests.get(
+                        url,
+                        headers=self.headers,
+                        params=params,
+                        timeout=REQUEST_TIMEOUT_SECONDS,
+                    )
                 except requests.exceptions.RequestException as e:
                     self.logger.error(f"  Error de red: {e}")
+                    time.sleep(HTTP_RETRY_BACKOFF_SECONDS)
                     break
 
                 if response.status_code != 200:
@@ -186,7 +221,7 @@ class RedditETL(BaseETL):
                 if not after:
                     break
 
-                time.sleep(2)
+                time.sleep(REQUEST_PAGE_DELAY_SECONDS)
 
             self.logger.info(f"Obtenidos {len(posts_data)} posts")
 
@@ -366,35 +401,14 @@ class RedditETL(BaseETL):
         reddit_temas["ranking_reddit"] = range(1, len(reddit_temas) + 1)
         reddit_temas = reddit_temas.rename(columns={"tema": "tecnologia"})
 
-        mapeo_normalizacion = {
-            "python": ["python"],
-            "javascript": ["javascript", "js", "web"],
-            "typescript": ["typescript", "ts"],
-            "go": ["golang", "go"],
-            "rust": ["rust"],
-            "react": ["react"],
-            "angular": ["angular"],
-            "vue 3": ["vue"],
-            "java": ["java", "spring"],
-            "c#": ["c#", "csharp", "dotnet", "asp.net"]
-        }
-
-        def normalizar_nombre(nombre):
-            """Normalizes technology names for comparison."""
-            nombre_lower = nombre.lower()
-            for clave, valores in mapeo_normalizacion.items():
-                if nombre_lower == clave or any(v in nombre_lower for v in valores):
-                    return clave
-            return nombre_lower
-
         coincidencias = []
 
         for _, row_gh in github_data.iterrows():
-            gh_norm = normalizar_nombre(row_gh["tecnologia"])
+            gh_norm = normalize_for_match(row_gh["tecnologia"])
             encontrado = False
 
             for _, row_rd in reddit_temas.iterrows():
-                rd_norm = normalizar_nombre(row_rd["tecnologia"])
+                rd_norm = normalize_for_match(row_rd["tecnologia"])
 
                 if gh_norm == rd_norm or gh_norm in rd_norm or rd_norm in gh_norm:
                     coincidencias.append({

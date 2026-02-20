@@ -15,7 +15,9 @@ import calendar
 
 from config.settings import (
     SO_API_URL, SO_API_KEY,
-    FECHA_INICIO, FECHA_INICIO_TIMESTAMP
+    FECHA_INICIO, FECHA_INICIO_TIMESTAMP,
+    REQUEST_TIMEOUT_SECONDS, HTTP_MAX_RETRIES, HTTP_RETRY_BACKOFF_SECONDS,
+    REQUEST_MEDIUM_DELAY_SECONDS, REQUEST_SHORT_DELAY_SECONDS
 )
 from exceptions import ETLExtractionError
 from base_etl import BaseETL
@@ -35,6 +37,14 @@ class StackOverflowETL(BaseETL):
             ("Tendencias mensuales", self.generar_tendencias_mensuales),
         ]
 
+    def validar_configuracion(self):
+        """Warns when StackOverflow key is missing (reduced quota mode)."""
+        if not SO_API_KEY:
+            self.logger.warning(
+                "STACKOVERFLOW_KEY no configurado. Se ejecutara en modo degradado "
+                "con cuota anonima y posible rate-limit."
+            )
+
     def get_total_count(self, params):
         """Queries the API returning only the total result count.
 
@@ -46,16 +56,24 @@ class StackOverflowETL(BaseETL):
         if SO_API_KEY:
             request_params['key'] = SO_API_KEY
 
-        try:
-            response = requests.get(SO_API_URL, params=request_params, timeout=10)
-            if response.status_code == 200:
-                return response.json().get('total', 0)
-            else:
+        for intento in range(HTTP_MAX_RETRIES):
+            try:
+                response = requests.get(
+                    SO_API_URL,
+                    params=request_params,
+                    timeout=REQUEST_TIMEOUT_SECONDS,
+                )
+                if response.status_code == 200:
+                    return response.json().get('total', 0)
+
                 self.logger.error(f"Error API {response.status_code}: {response.text}")
-                raise ETLExtractionError(f"StackOverflow API retorno {response.status_code}")
-        except requests.exceptions.RequestException as e:
-            self.logger.error(f"Error de conexion: {e}")
-            raise ETLExtractionError(f"Error de red: {e}") from e
+            except requests.exceptions.RequestException as e:
+                self.logger.error(f"Error de conexion: {e}")
+
+            if intento < HTTP_MAX_RETRIES - 1:
+                time.sleep(HTTP_RETRY_BACKOFF_SECONDS * (intento + 1))
+
+        raise ETLExtractionError("StackOverflow API no disponible tras reintentos")
 
     def extraer_volumen_preguntas(self):
         """Extracts yearly question volume per language from StackOverflow."""
@@ -83,7 +101,7 @@ class StackOverflowETL(BaseETL):
                 'lenguaje': lang,
                 'preguntas_nuevas_2025': total
             })
-            time.sleep(0.5)
+            time.sleep(REQUEST_MEDIUM_DELAY_SECONDS)
 
         if errores == len(languages):
             raise ETLExtractionError("No se pudo consultar ningun lenguaje en StackOverflow")
@@ -108,7 +126,7 @@ class StackOverflowETL(BaseETL):
                     'fromdate': FECHA_INICIO_TIMESTAMP
                 }
                 total_questions = self.get_total_count(params_total)
-                time.sleep(0.3)
+                time.sleep(REQUEST_SHORT_DELAY_SECONDS)
 
                 params_accepted = {
                     'site': 'stackoverflow',
@@ -117,7 +135,7 @@ class StackOverflowETL(BaseETL):
                     'accepted': True
                 }
                 accepted_questions = self.get_total_count(params_accepted)
-                time.sleep(0.3)
+                time.sleep(REQUEST_SHORT_DELAY_SECONDS)
             except ETLExtractionError as e:
                 self.logger.warning(f"   No se pudo obtener datos para {fw}: {e}")
                 total_questions = 0
@@ -185,7 +203,7 @@ class StackOverflowETL(BaseETL):
                     self.logger.warning(f"   Error en {nombre_mes}/{lang}: {e}")
                     count = 0
                 row[lang] = count
-                time.sleep(0.3)
+                time.sleep(REQUEST_SHORT_DELAY_SECONDS)
 
             data_trends.append(row)
 

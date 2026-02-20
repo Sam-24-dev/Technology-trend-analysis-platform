@@ -87,3 +87,37 @@ def test_guardar_csv_no_route_does_not_raise(monkeypatch):
     df = pd.DataFrame({"a": [1]})
 
     etl.guardar_csv(df, "inexistente")
+
+
+def test_ejecutar_invoca_validar_configuracion(monkeypatch):
+    called = {"config": False}
+
+    class DummyWithConfig(DummyETL):
+        def validar_configuracion(self):
+            called["config"] = True
+
+    etl = DummyWithConfig([])
+    monkeypatch.setattr(etl, "configurar_logging", lambda: None)
+
+    etl.ejecutar()
+
+    assert called["config"] is True
+
+
+def test_guardar_csv_actualiza_resumen_de_ejecucion(tmp_path, monkeypatch):
+    destino = tmp_path / "out.csv"
+    monkeypatch.setattr(base_etl, "ARCHIVOS_SALIDA", {"github_lenguajes": destino})
+
+    etl = DummyETL([])
+    df = pd.DataFrame(
+        {
+            "lenguaje": ["Python", "Go"],
+            "repos_count": [10, 5],
+            "porcentaje": [66.6, 33.4],
+        }
+    )
+
+    etl.guardar_csv(df, "github_lenguajes")
+
+    assert etl._run_summary["rows_written"] == 2
+    assert len(etl._run_summary["files_written"]) == 1

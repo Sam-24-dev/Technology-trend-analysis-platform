@@ -14,15 +14,16 @@ Author: Samir Caizapasto
 """
 import pandas as pd
 import logging
-import sys
 from datetime import datetime
 
 from config.settings import (
-    ARCHIVOS_SALIDA, LOG_FORMAT, LOG_DATE_FORMAT, LOGS_DIR
+    ARCHIVOS_SALIDA,
 )
 from validador import validar_dataframe
+from base_etl import BaseETL
+from exceptions import ETLExtractionError
+from tech_normalization import normalize_technology_name
 
-# Logger para este modulo
 logger = logging.getLogger("trend_score")
 
 # Pesos para cada fuente de datos
@@ -43,26 +44,6 @@ ETIQUETAS_NO_LENGUAJE = {
 }
 
 
-def configurar_logging():
-    """Sets up logging to console and daily log file."""
-    logger.setLevel(logging.INFO)
-
-    if logger.handlers:
-        return
-
-    console = logging.StreamHandler()
-    console.setLevel(logging.INFO)
-    console.setFormatter(logging.Formatter(LOG_FORMAT, LOG_DATE_FORMAT))
-    logger.addHandler(console)
-
-    fecha = datetime.now().strftime("%Y-%m-%d")
-    archivo = LOGS_DIR / f"etl_{fecha}.log"
-    file_handler = logging.FileHandler(archivo, encoding="utf-8")
-    file_handler.setLevel(logging.INFO)
-    file_handler.setFormatter(logging.Formatter(LOG_FORMAT, LOG_DATE_FORMAT))
-    logger.addHandler(file_handler)
-
-
 def normalizar_nombre(nombre):
     """Normalizes technology names for cross-source comparison.
 
@@ -72,43 +53,7 @@ def normalizar_nombre(nombre):
     Returns:
         Normalized lowercase name.
     """
-    mapeo = {
-        "python": "Python",
-        "javascript": "JavaScript",
-        "typescript": "TypeScript",
-        "java": "Java",
-        "go": "Go",
-        "rust": "Rust",
-        "c#": "C#",
-        "c++": "C++",
-        "ruby": "Ruby",
-        "php": "PHP",
-        "swift": "Swift",
-        "kotlin": "Kotlin",
-        "reactjs": "React",
-        "react": "React",
-        "vue.js": "Vue.js",
-        "vue 3": "Vue.js",
-        "angular": "Angular",
-        "next.js": "Next.js",
-        "svelte": "Svelte",
-        "django": "Django",
-        "fastapi": "FastAPI",
-        "express": "Express",
-        "spring": "Spring",
-        "laravel": "Laravel",
-        "ia/machine learning": "AI/ML",
-        "cloud": "Cloud",
-        "devops": "DevOps",
-        "microservicios": "Microservices",
-        "testing": "Testing",
-        "performance": "Performance",
-        "seguridad": "Security",
-        "web3/blockchain": "Web3",
-    }
-
-    nombre_lower = nombre.strip().lower()
-    return mapeo.get(nombre_lower, nombre.strip().title())
+    return normalize_technology_name(nombre)
 
 
 def normalizar_scores(serie):
@@ -272,43 +217,58 @@ def calcular_trend_score():
 
 def main():
     """Main function that generates the Trend Score CSV."""
-    configurar_logging()
+    etl = TrendScoreETL()
+    etl.ejecutar()
 
-    logger.info("Trend Score Generator - Technology Trend Analysis Platform")
-    logger.info("Fecha: %s", datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 
-    try:
-        df_trend = calcular_trend_score()
+class TrendScoreETL(BaseETL):
+    """Adaptador ETL para Trend Score con el contrato de BaseETL.
 
-        if df_trend.empty:
-            logger.error("No se pudo generar Trend Score (sin datos de ninguna fuente)")
-            return
+    Mantiene el comportamiento existente sin sobreingeniería: un único paso
+    que calcula, valida y guarda el CSV de trend score.
+    """
 
-        # Guardar resultado
-        columnas_salida = [
-            "ranking", "tecnologia", "github_score",
-            "so_score", "reddit_score", "trend_score", "fuentes"
-        ]
-        df_salida = df_trend[columnas_salida]
+    def __init__(self):
+        super().__init__("trend_score")
 
-        validar_dataframe(df_salida, "trend_score")
-        df_salida.to_csv(ARCHIVOS_SALIDA["trend_score"], index=False, encoding="utf-8")
-        logger.info("Trend Score guardado en: %s", ARCHIVOS_SALIDA['trend_score'])
+    def definir_pasos(self):
+        return [("Calcular Trend Score", self._calcular_y_guardar)]
 
-        # Resumen
-        top3 = df_salida.head(3)
-        logger.info("\nTop 3 tecnologias trending:")
-        for _, row in top3.iterrows():
-            logger.info(
-                "  #%d. %s (Score: %s)",
-                int(row['ranking']), row['tecnologia'], row['trend_score']
-            )
+    def _calcular_y_guardar(self):
+        self.logger.info("Trend Score Generator - Technology Trend Analysis Platform")
+        self.logger.info("Fecha: %s", datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 
-        logger.info("Trend Score completado")
+        try:
+            df_trend = calcular_trend_score()
+            if df_trend.empty:
+                raise ETLExtractionError(
+                    "No se pudo generar Trend Score (sin datos de ninguna fuente)",
+                    critical=True,
+                )
 
-    except Exception as e:  # pylint: disable=broad-exception-caught
-        logger.error("Error fatal en Trend Score: %s", e)
-        sys.exit(1)
+            columnas_salida = [
+                "ranking", "tecnologia", "github_score",
+                "so_score", "reddit_score", "trend_score", "fuentes"
+            ]
+            df_salida = df_trend[columnas_salida]
+
+            # Se mantiene validación explícita por contrato + guardado uniforme
+            validar_dataframe(df_salida, "trend_score")
+            self.guardar_csv(df_salida, "trend_score")
+
+            top3 = df_salida.head(3)
+            self.logger.info("\nTop 3 tecnologias trending:")
+            for _, row in top3.iterrows():
+                self.logger.info(
+                    "  #%d. %s (Score: %s)",
+                    int(row['ranking']), row['tecnologia'], row['trend_score']
+                )
+
+            self.logger.info("Trend Score completado")
+        except ETLExtractionError:
+            raise
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            raise ETLExtractionError(f"Error fatal en Trend Score: {e}", critical=True) from e
 
 
 if __name__ == "__main__":

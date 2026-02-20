@@ -1,21 +1,27 @@
-name: CI - Tests
+name: Dependency Security Audit
 
 on:
   push:
     branches: [main, refactor/standard-structure]
-    paths-ignore:
-      - 'datos/**'
-      - 'frontend/assets/data/**'
+    paths:
+      - 'backend/requirements.txt'
+      - '.github/workflows/dependency_security.yml'
   pull_request:
     branches: [main]
+    paths:
+      - 'backend/requirements.txt'
+      - '.github/workflows/dependency_security.yml'
+  schedule:
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  test:
+  audit:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
 
     steps:
       - name: Checkout code
@@ -28,14 +34,12 @@ jobs:
           cache: 'pip'
           cache-dependency-path: 'backend/requirements.txt'
 
-      - name: Install dependencies
+      - name: Install dependencies and audit tool
         run: |
           pip install --upgrade pip
           pip install -r backend/requirements.txt
+          pip install pip-audit
 
-      - name: Download NLTK data
+      - name: Run vulnerability audit
         run: |
-          python -c "import nltk; nltk.download('vader_lexicon'); nltk.download('stopwords')"
-
-      - name: Run tests
-        run: python -m pytest tests/ -v
+          pip-audit -r backend/requirements.txt

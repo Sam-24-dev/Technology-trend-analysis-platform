@@ -1,4 +1,4 @@
-.PHONY: help install etl test sync clean all
+.PHONY: help install etl test sync security clean all
 
 help:
 	@echo "Tech Trends 2025 - Comandos"
@@ -6,6 +6,7 @@ help:
 	@echo "  make install   Instalar dependencias"
 	@echo "  make etl       Ejecutar pipeline ETL"
 	@echo "  make test      Ejecutar tests"
+	@echo "  make security  Auditar vulnerabilidades de dependencias"
 	@echo "  make sync      Sincronizar CSVs al frontend"
 	@echo "  make all       Pipeline completo (install + etl + sync)"
 	@echo "  make clean     Limpiar temporales"
@@ -24,13 +25,14 @@ etl:
 test:
 	python -m pytest tests/ -v
 
+security:
+	pip install --upgrade pip pip-audit
+	pip-audit -r backend/requirements.txt
+
 sync:
 	python backend/sync_assets.py
 
 clean:
 	@echo "Limpiando..."
-	@if exist __pycache__ rmdir /s /q __pycache__
-	@if exist .pytest_cache rmdir /s /q .pytest_cache
-	@if exist backend\__pycache__ rmdir /s /q backend\__pycache__
-	@if exist tests\__pycache__ rmdir /s /q tests\__pycache__
+	@python -c "from pathlib import Path; import shutil; paths=[Path('__pycache__'), Path('.pytest_cache'), Path('backend/__pycache__'), Path('tests/__pycache__')]; [shutil.rmtree(p, ignore_errors=True) for p in paths]"
 	@echo "Listo."
