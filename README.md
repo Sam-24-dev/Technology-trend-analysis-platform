@@ -6,7 +6,7 @@
 ![Python](https://img.shields.io/badge/Python-3.9+-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![Flutter](https://img.shields.io/badge/Flutter-3.38-02569B?style=for-the-badge&logo=flutter&logoColor=white)
 ![Status](https://img.shields.io/badge/Status-Completed-success?style=for-the-badge)
-![Tests](https://img.shields.io/badge/Tests-40_Passed-brightgreen?style=for-the-badge&logo=pytest&logoColor=white)
+![Tests](https://img.shields.io/badge/Tests-72_Passed-brightgreen?style=for-the-badge&logo=pytest&logoColor=white)
 ![CI](https://github.com/Sam-24-dev/Technology-trend-analysis-platform/actions/workflows/ci.yml/badge.svg)
 
 <br>
@@ -76,7 +76,7 @@ End-to-end data engineering platform that extracts, transforms, and visualizes t
 | **Extraction** | 3 API connectors | Raw data from GitHub, SO, Reddit |
 | **Transformation** | BaseETL + 3 children | 11 processed CSVs |
 | **Scoring** | trend_score.py | Unified technology ranking |
-| **Validation** | validador.py | Column checks + null detection |
+| **Validation** | validador.py + csv_contract.py | Column checks + strict schema/types validation |
 | **Presentation** | Flutter Web | 4 interactive dashboards |
 
 ---
@@ -90,7 +90,7 @@ End-to-end data engineering platform that extracts, transforms, and visualizes t
 | **Reddit posts** | 500+ from r/webdev |
 | **Output CSVs** | 11 validated datasets |
 | **Trend Score** | Top technology ranking |
-| **Tests** | 40 passing (pytest) |
+| **Tests** | 72 passing (pytest) |
 | **Code coverage** | All ETL modules tested |
 
 ---
@@ -114,10 +114,11 @@ Each dashboard includes **Key Insights** cards and an **Export ZIP** button.
 |-------|--------------|
 | **ETL Pipeline** | Python 3.9+, pandas, requests, NLTK |
 | **Architecture** | BaseETL (OOP), custom exceptions, data validation |
-| **Testing** | pytest, unittest.mock (40 tests, API mocking) |
+| **Testing** | pytest, unittest.mock (72 tests, API mocking) |
 | **Frontend** | Flutter Web, Dart, fl_chart, google_fonts |
 | **Data Storage** | CSV (11 files, pathlib paths) |
-| **Automation** | Makefile, sync_assets.py |
+| **Automation** | Makefile, sync_assets.py, GitHub Actions |
+| **Security** | pip-audit, dependency security workflow |
 | **Deployment** | GitHub Pages |
 
 ---
@@ -199,7 +200,7 @@ Technology-trend-analysis-platform/
 │   │   └── images/                   # Technology logos
 │   └── pubspec.yaml
 ├── logs/                             # Daily ETL logs
-├── tests/                            # pytest suite (40 tests)
+├── tests/                            # pytest suite (72 tests)
 │   ├── conftest.py
 │   ├── test_github_etl.py
 │   ├── test_stackoverflow_etl.py

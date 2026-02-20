@@ -1,4 +1,4 @@
-.PHONY: help install etl test sync clean all
+.PHONY: help install etl test sync security clean all
 
 help:
 	@echo "Tech Trends 2025 - Comandos"
@@ -6,6 +6,7 @@ help:
 	@echo "  make install   Instalar dependencias"
 	@echo "  make etl       Ejecutar pipeline ETL"
 	@echo "  make test      Ejecutar tests"
+	@echo "  make security  Auditar vulnerabilidades de dependencias"
 	@echo "  make sync      Sincronizar CSVs al frontend"
 	@echo "  make all       Pipeline completo (install + etl + sync)"
 	@echo "  make clean     Limpiar temporales"
@@ -23,6 +24,10 @@ etl:
 
 test:
 	python -m pytest tests/ -v
+
+security:
+	pip install --upgrade pip pip-audit
+	pip-audit -r backend/requirements.txt
 
 sync:
 	python backend/sync_assets.py

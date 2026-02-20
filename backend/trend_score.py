@@ -17,13 +17,13 @@ import logging
 from datetime import datetime
 
 from config.settings import (
-    ARCHIVOS_SALIDA, LOG_FORMAT, LOG_DATE_FORMAT, LOGS_DIR
+    ARCHIVOS_SALIDA,
 )
 from validador import validar_dataframe
 from base_etl import BaseETL
 from exceptions import ETLExtractionError
+from tech_normalization import normalize_technology_name
 
-# Logger para este modulo
 logger = logging.getLogger("trend_score")
 
 # Pesos para cada fuente de datos
@@ -44,26 +44,6 @@ ETIQUETAS_NO_LENGUAJE = {
 }
 
 
-def configurar_logging():
-    """Sets up logging to console and daily log file."""
-    logger.setLevel(logging.INFO)
-
-    if logger.handlers:
-        return
-
-    console = logging.StreamHandler()
-    console.setLevel(logging.INFO)
-    console.setFormatter(logging.Formatter(LOG_FORMAT, LOG_DATE_FORMAT))
-    logger.addHandler(console)
-
-    fecha = datetime.now().strftime("%Y-%m-%d")
-    archivo = LOGS_DIR / f"etl_{fecha}.log"
-    file_handler = logging.FileHandler(archivo, encoding="utf-8")
-    file_handler.setLevel(logging.INFO)
-    file_handler.setFormatter(logging.Formatter(LOG_FORMAT, LOG_DATE_FORMAT))
-    logger.addHandler(file_handler)
-
-
 def normalizar_nombre(nombre):
     """Normalizes technology names for cross-source comparison.
 
@@ -73,43 +53,7 @@ def normalizar_nombre(nombre):
     Returns:
         Normalized lowercase name.
     """
-    mapeo = {
-        "python": "Python",
-        "javascript": "JavaScript",
-        "typescript": "TypeScript",
-        "java": "Java",
-        "go": "Go",
-        "rust": "Rust",
-        "c#": "C#",
-        "c++": "C++",
-        "ruby": "Ruby",
-        "php": "PHP",
-        "swift": "Swift",
-        "kotlin": "Kotlin",
-        "reactjs": "React",
-        "react": "React",
-        "vue.js": "Vue.js",
-        "vue 3": "Vue.js",
-        "angular": "Angular",
-        "next.js": "Next.js",
-        "svelte": "Svelte",
-        "django": "Django",
-        "fastapi": "FastAPI",
-        "express": "Express",
-        "spring": "Spring",
-        "laravel": "Laravel",
-        "ia/machine learning": "AI/ML",
-        "cloud": "Cloud",
-        "devops": "DevOps",
-        "microservicios": "Microservices",
-        "testing": "Testing",
-        "performance": "Performance",
-        "seguridad": "Security",
-        "web3/blockchain": "Web3",
-    }
-
-    nombre_lower = nombre.strip().lower()
-    return mapeo.get(nombre_lower, nombre.strip().title())
+    return normalize_technology_name(nombre)
 
 
 def normalizar_scores(serie):

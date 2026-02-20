@@ -31,3 +31,13 @@ def test_contract_version_is_defined():
     version = get_contract_version()
     assert isinstance(version, str)
     assert version.strip()
+
+
+def test_contract_includes_column_types_for_core_outputs():
+    targets = ["github_lenguajes", "so_volumen", "so_aceptacion", "reddit_temas", "trend_score"]
+    for key in targets:
+        schema = CSV_SCHEMA_CONTRACT[key]
+        type_map = schema.get("column_types", {})
+        assert type_map, f"{key} no define column_types"
+        for required_col in schema["required_columns"]:
+            assert required_col in type_map, f"{key} no define tipo para {required_col}"

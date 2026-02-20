@@ -10,6 +10,7 @@ import pytest
 import pandas as pd
 from unittest.mock import patch  # noqa: F401
 from reddit_etl import RedditETL
+from exceptions import ETLExtractionError
 
 
 @pytest.fixture
@@ -49,14 +50,28 @@ class TestDefinirPasos:
 
     def test_returns_five_steps(self, etl):
         pasos = etl.definir_pasos()
-        assert len(pasos) == 5
+        assert len(pasos) == 6
 
     def test_step_names(self, etl):
         pasos = etl.definir_pasos()
         nombres = [n for n, _ in pasos]
+        assert "Preparar recursos NLTK" in nombres
         assert "Autenticacion OAuth" in nombres
         assert "Sentimiento de frameworks" in nombres
         assert "Temas emergentes" in nombres
+
+
+class TestConfiguracionReddit:
+    """Tests for early configuration validation in Reddit ETL."""
+
+    def test_validar_configuracion_falla_si_credenciales_incompletas(self, etl):
+        with patch("reddit_etl.REDDIT_CLIENT_ID", "id_solo"), patch("reddit_etl.REDDIT_CLIENT_SECRET", None):
+            with pytest.raises(ETLExtractionError):
+                etl.validar_configuracion()
+
+    def test_validar_configuracion_permite_modo_publico(self, etl):
+        with patch("reddit_etl.REDDIT_CLIENT_ID", None), patch("reddit_etl.REDDIT_CLIENT_SECRET", None):
+            etl.validar_configuracion()
 
 
 class TestSentimientoFrameworks:

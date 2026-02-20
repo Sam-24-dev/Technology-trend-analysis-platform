@@ -15,7 +15,9 @@ import re
 from config.settings import (
     GITHUB_API_BASE, GITHUB_HEADERS, MAX_REPOS, PER_PAGE,
     FRAMEWORK_REPOS,
-    FECHA_INICIO_STR, FECHA_FIN_STR, FECHA_INICIO_ISO
+    FECHA_INICIO_STR, FECHA_FIN_STR, FECHA_INICIO_ISO,
+    REQUEST_TIMEOUT_SECONDS, HTTP_MAX_RETRIES, HTTP_RETRY_BACKOFF_SECONDS,
+    REQUEST_PAGE_DELAY_SECONDS, REQUEST_MEDIUM_DELAY_SECONDS, REQUEST_SHORT_DELAY_SECONDS
 )
 from exceptions import ETLExtractionError, ETLValidationError
 from base_etl import BaseETL
@@ -55,6 +57,14 @@ class GitHubETL(BaseETL):
             ("Correlacion stars-contributors", self.analizar_correlacion),
         ]
 
+    def validar_configuracion(self):
+        """Warns when running without GitHub token (degraded quota mode)."""
+        if not GITHUB_HEADERS.get("Authorization"):
+            self.logger.warning(
+                "GITHUB_TOKEN no configurado. Se ejecutara en modo degradado "
+                "(limite de 60 requests/h)."
+            )
+
     def _normalizar_lenguaje(self, valor):
         """Normalizes language values from GitHub API."""
         if valor is None:
@@ -85,7 +95,11 @@ class GitHubETL(BaseETL):
         self.logger.info("Verificando conexion con GitHub API...")
 
         try:
-            response = requests.get(f"{GITHUB_API_BASE}/rate_limit", headers=GITHUB_HEADERS, timeout=10)
+            response = requests.get(
+                f"{GITHUB_API_BASE}/rate_limit",
+                headers=GITHUB_HEADERS,
+                timeout=REQUEST_TIMEOUT_SECONDS,
+            )
         except requests.exceptions.RequestException as e:
             raise ETLExtractionError(f"Error de red: {e}", critical=True) from e
 
@@ -127,7 +141,7 @@ class GitHubETL(BaseETL):
         repos_data = []
         page = 1
         total_pages = max(1, (max_repos + PER_PAGE - 1) // PER_PAGE)
-        max_retries = 3
+        max_retries = HTTP_MAX_RETRIES
         max_fallos_consecutivos = 5
         fallos_consecutivos = 0
 
@@ -149,7 +163,7 @@ class GitHubETL(BaseETL):
                         f"{GITHUB_API_BASE}/search/repositories",
                         headers=GITHUB_HEADERS,
                         params=params,
-                        timeout=10
+                        timeout=REQUEST_TIMEOUT_SECONDS
                     )
                 except requests.exceptions.RequestException as e:
                     self.logger.error(f"Error de red en pagina {page}: {e}")
@@ -162,7 +176,7 @@ class GitHubETL(BaseETL):
                         continue
                     else:
                         self.logger.warning(f"  Error 403, reintentando ({retry+1}/{max_retries})...")
-                        time.sleep(10)
+                        time.sleep(HTTP_RETRY_BACKOFF_SECONDS * (retry + 1))
                 else:
                     self.logger.error(f"Error en pagina {page}: {response.status_code}")
                     break
@@ -199,7 +213,7 @@ class GitHubETL(BaseETL):
                 })
 
             page += 1
-            time.sleep(2)
+            time.sleep(REQUEST_PAGE_DELAY_SECONDS)
 
         if not repos_data:
             raise ETLExtractionError("No se pudo extraer ningun repositorio de GitHub", critical=True)
@@ -331,7 +345,7 @@ class GitHubETL(BaseETL):
                         f"{GITHUB_API_BASE}/repos/{repo_path}/commits",
                         headers=GITHUB_HEADERS,
                         params=params,
-                        timeout=10
+                        timeout=REQUEST_TIMEOUT_SECONDS
                     )
                 except requests.exceptions.RequestException as e:
                     self.logger.error(f"  Error de red para {framework}: {e}")
@@ -353,7 +367,7 @@ class GitHubETL(BaseETL):
 
                 total_commits += len(commits)
                 page += 1
-                time.sleep(0.5)
+                time.sleep(REQUEST_MEDIUM_DELAY_SECONDS)
 
                 if page > 50:
                     break
@@ -394,7 +408,7 @@ class GitHubETL(BaseETL):
             repo_name = row["repo_name"]
             self.logger.info(f"  [{count}/{total}] {repo_name}...")
 
-            max_retries = 3
+            max_retries = HTTP_MAX_RETRIES
             success = False
             response = None
 
@@ -404,7 +418,7 @@ class GitHubETL(BaseETL):
                         f"{GITHUB_API_BASE}/repos/{repo_name}/contributors",
                         headers=GITHUB_HEADERS,
                         params={"per_page": 1, "anon": "true"},
-                        timeout=10
+                        timeout=REQUEST_TIMEOUT_SECONDS
                     )
 
                     if response.status_code == 200:
@@ -414,14 +428,14 @@ class GitHubETL(BaseETL):
                         if self.esperar_rate_limit(response):
                             continue
                         else:
-                            self.logger.warning(" Rate limit, esperando 60s...")
-                            time.sleep(60)
+                            self.logger.warning(" Rate limit, esperando backoff...")
+                            time.sleep(HTTP_RETRY_BACKOFF_SECONDS * (attempt + 1))
                     else:
                         self.logger.error(f" Error: {response.status_code}")
                         break
                 except requests.exceptions.RequestException as e:
                     self.logger.warning(f" Error de red, reintento {attempt + 1}/{max_retries}: {e}")
-                    time.sleep(5)
+                    time.sleep(HTTP_RETRY_BACKOFF_SECONDS * (attempt + 1))
 
             if success and response:
                 contributors = len(response.json())
@@ -448,7 +462,7 @@ class GitHubETL(BaseETL):
                     "language": row["language"]
                 })
 
-            time.sleep(0.3)
+            time.sleep(REQUEST_SHORT_DELAY_SECONDS)
 
         df_correlacion = pd.DataFrame(correlacion_data)
 

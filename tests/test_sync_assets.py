@@ -62,3 +62,20 @@ def test_sincronizar_overwrites_existing_csv(tmp_path, monkeypatch):
     sync_assets.sincronizar()
 
     assert (destino_dir / "dup.csv").read_text(encoding="utf-8") == "v\n2\n"
+
+
+def test_sincronizar_returns_summary(tmp_path, monkeypatch):
+    project_root = tmp_path
+    backend_dir = project_root / "backend"
+    datos_dir = project_root / "datos"
+
+    backend_dir.mkdir(parents=True)
+    datos_dir.mkdir(parents=True)
+    (datos_dir / "one.csv").write_text("a\n1\n", encoding="utf-8")
+
+    monkeypatch.setattr(sync_assets, "__file__", str(backend_dir / "sync_assets.py"))
+
+    summary = sync_assets.sincronizar()
+
+    assert summary["files_copied"] == 1
+    assert summary["errors"] == 0
