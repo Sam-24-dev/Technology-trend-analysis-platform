@@ -29,8 +29,5 @@ sync:
 
 clean:
 	@echo "Limpiando..."
-	@if exist __pycache__ rmdir /s /q __pycache__
-	@if exist .pytest_cache rmdir /s /q .pytest_cache
-	@if exist backend\__pycache__ rmdir /s /q backend\__pycache__
-	@if exist tests\__pycache__ rmdir /s /q tests\__pycache__
+	@python -c "from pathlib import Path; import shutil; paths=[Path('__pycache__'), Path('.pytest_cache'), Path('backend/__pycache__'), Path('tests/__pycache__')]; [shutil.rmtree(p, ignore_errors=True) for p in paths]"
 	@echo "Listo."

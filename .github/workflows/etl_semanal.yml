@@ -1,10 +1,8 @@
-name: ETL Semanal + Deploy
+name: ETL Weekly Data Refresh
 
 on:
   schedule:
     - cron: '0 8 * * 1'       # Cada lunes a las 08:00 UTC (03:00 Ecuador)
-  push:
-    branches: [main]
   workflow_dispatch:            # Boton manual en Actions
 
 permissions:
@@ -16,11 +14,9 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # ──────────────────────────────────────────────
-  # Job 1: Ejecutar ETLs y sincronizar datos
-  # ──────────────────────────────────────────────
   etl:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
 
     steps:
       - name: Checkout code
@@ -30,6 +26,8 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: 'backend/requirements.txt'
 
       - name: Install dependencies
         run: |
@@ -41,70 +39,69 @@ jobs:
           python -c "import nltk; nltk.download('vader_lexicon'); nltk.download('stopwords')"
 
       - name: Run GitHub ETL
+        id: github_etl
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
         run: python backend/github_etl.py
-        continue-on-error: true
 
       - name: Run StackOverflow ETL
+        id: so_etl
         env:
           STACKOVERFLOW_KEY: ${{ secrets.STACKOVERFLOW_KEY }}
         run: python backend/stackoverflow_etl.py
-        continue-on-error: true
 
       - name: Run Reddit ETL
+        id: reddit_etl
         env:
           REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
           REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
-        run: python backend/reddit_etl.py
-        continue-on-error: true
+        shell: bash
+        run: |
+          set +e
+          python backend/reddit_etl.py
+          code=$?
+          if [ $code -ne 0 ]; then
+            echo "status=failed" >> "$GITHUB_OUTPUT"
+            echo "Reddit ETL falló (no crítico), se continúa con datos previos si existen." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          echo "status=ok" >> "$GITHUB_OUTPUT"
 
       - name: Run Trend Score
+        id: trend_score
         run: python backend/trend_score.py
-        continue-on-error: true
 
       - name: Sync CSVs to frontend assets
         run: python backend/sync_assets.py
 
+      - name: Validate CSV contract headers
+        id: validate_contract
+        run: python backend/validate_csv_contract.py
+
       - name: Commit updated data
+        id: commit_data
+        shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add datos/ frontend/assets/data/
-          git diff --staged --quiet || git commit -m "data: actualizar CSVs [skip ci]"
-          git pull --rebase origin main || true
-          git push
+          if git diff --staged --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Sin cambios de datos para commit." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git commit -m "data: actualizar CSVs"
+          git pull --rebase origin main
+          git push origin HEAD:main
+          echo "changed=true" >> "$GITHUB_OUTPUT"
 
-  # ──────────────────────────────────────────────
-  # Job 2: Build Flutter Web y deploy a GitHub Pages
-  # ──────────────────────────────────────────────
-  deploy:
-    needs: etl
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code (with latest data)
-        uses: actions/checkout@v4
-        with:
-          ref: main
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-
-      - name: Install dependencies
+      - name: ETL Summary
+        if: always()
         run: |
-          cd frontend
-          flutter pub get
-
-      - name: Build Flutter Web
-        run: |
-          cd frontend
-          flutter build web --base-href "/Technology-trend-analysis-platform/"
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: frontend/build/web
+          echo "## Resumen ETL" >> $GITHUB_STEP_SUMMARY
+          echo "- GitHub ETL: ${{ steps.github_etl.outcome }}" >> $GITHUB_STEP_SUMMARY
+          echo "- StackOverflow ETL: ${{ steps.so_etl.outcome }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Reddit ETL: ${{ steps.reddit_etl.outputs.status || 'ok' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Trend Score: ${{ steps.trend_score.outcome }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Contrato CSV: ${{ steps.validate_contract.outcome }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Commit de datos: ${{ steps.commit_data.outputs.changed || 'false' }}" >> $GITHUB_STEP_SUMMARY
