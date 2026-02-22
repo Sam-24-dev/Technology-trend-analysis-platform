@@ -64,13 +64,13 @@ def validar_dataframe(df, nombre_archivo, strict=False, validate_types=False):
     Raises:
         ETLValidationError: If the DataFrame is empty.
     """
-    # 1. Verificar que no esta vacio
+    # 1. Verify DataFrame is not empty
     if df.empty:
         raise ETLValidationError(f"DataFrame '{nombre_archivo}' esta vacio, no se puede guardar")
 
     logger.info("Validando '%s': %d filas, %d columnas", nombre_archivo, len(df), len(df.columns))
 
-    # 2. Verificar columnas esperadas
+    # 2. Verify expected columns
     esperadas = get_required_columns(nombre_archivo)
     if esperadas:
         faltantes = [col for col in esperadas if col not in df.columns]
@@ -81,7 +81,7 @@ def validar_dataframe(df, nombre_archivo, strict=False, validate_types=False):
                     f"'{nombre_archivo}' no cumple schema requerido, faltan columnas: {faltantes}"
                 )
 
-    # 3. Verificar nulos en columnas criticas
+    # 3. Verify nulls in critical columns
     criticas = get_critical_columns(nombre_archivo)
     for col in criticas:
         if col not in df.columns:
@@ -103,7 +103,7 @@ def validar_dataframe(df, nombre_archivo, strict=False, validate_types=False):
                     f"'{nombre_archivo}' no cumple schema critico: columna '{col}' con nulos"
                 )
 
-    # 4. Verificar tipos mínimos (opcional)
+    # 4. Verify minimal types (optional)
     if validate_types:
         type_map = get_column_types(nombre_archivo)
         for col, expected_type in type_map.items():

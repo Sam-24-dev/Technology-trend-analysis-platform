@@ -1,85 +1,137 @@
-# Contrato de datos CSV (Backend ↔ Frontend)
+# Contrato de Datos (Backend <-> Frontend)
 
-Este documento formaliza el contrato de columnas entre el pipeline ETL (`backend/`) y el dashboard Flutter (`frontend/`).
+Este documento define los contratos de datos activos del proyecto:
+
+1. **Contrato CSV** para salidas tabulares consumidas hoy por el frontend.
+2. **Contrato de producto de datos** para metadata de ejecucion
+   (`run manifest` + `dataset manifest`).
 
 ## Fuente de verdad
 
-El contrato ejecutable vive en:
-
+### Contrato CSV
 - `backend/config/csv_contract.py`
+- Version actual: `CONTRACT_VERSION = 2026.04`
 
-Versión actual del contrato:
+### Contrato de producto de datos
+- `backend/config/data_product_contract.py`
+- Version actual: `DATA_PRODUCT_CONTRACT_VERSION = 1.0.0`
 
-- `CONTRACT_VERSION = 2026.03`
+---
 
-El validador consume ese contrato para verificar columnas requeridas y columnas críticas.
+## 1) Contrato CSV (estado actual)
 
-Además, el pipeline ETL semanal ejecuta validación de headers con:
+El contrato CSV define por archivo logico:
 
-- `python backend/validate_csv_contract.py`
+1. `required_columns`
+2. `critical_columns`
+3. `column_types`
+4. `optional_columns` (cuando aplica)
 
-Si faltan columnas requeridas o no se cumplen tipos mínimos, el workflow falla antes de publicar cambios de datos.
+Validacion de contrato CSV:
 
-Modo opcional no estricto (solo advertencias):
+```bash
+python backend/validate_csv_contract.py
+```
 
-- `python backend/validate_csv_contract.py --no-strict`
+Modo no estricto (solo advertencias):
 
-## Reglas del contrato
+```bash
+python backend/validate_csv_contract.py --no-strict
+```
 
-1. **required_columns**: deben existir para considerar que el CSV cumple contrato.
-2. **critical_columns**: no deberían contener nulos; en modo estricto, fallan la validación.
-3. **column_types**: define tipos mínimos esperados por columna (`string`, `integer`, `number`, `datetime`, `string_or_integer`).
-4. **optional_columns**: columnas permitidas (compatibilidad y métricas adicionales), pero no obligatorias.
+---
 
-## Tipos mínimos por archivo (resumen)
+## 2) Contrato de producto de datos (manifest)
 
-- `github_repos.csv`
-  - `repo_name:string`, `language:string`, `stars:integer`, `forks:integer`, `created_at:datetime`
-- `github_lenguajes.csv`
-  - `lenguaje:string`, `repos_count:integer`, `porcentaje:number`
-- `github_ai_repos_insights.csv`
-  - `total_repos_analizados:integer`, `repos_ai_detectados:integer`, `porcentaje_ai:number`, `mes_pico_ai:string`, `repos_mes_pico_ai:integer`, `top_keywords_ai:string`, `top_repos_ai:string`
-- `github_commits_frameworks.csv`
-  - `framework:string`, `repo:string`, `commits_2025:integer`, `ranking:integer`
-- `github_correlacion.csv`
-  - `repo_name:string`, `stars:integer`, `contributors:integer`, `language:string`
-- `so_volumen_preguntas.csv`
-  - `lenguaje:string`, `preguntas_nuevas_2025:integer`
-- `so_tasa_aceptacion.csv`
-  - `tecnologia:string`, `total_preguntas:integer`, `respuestas_aceptadas:integer`, `tasa_aceptacion_pct:number`
-- `so_tendencias_mensuales.csv`
-  - `mes:string`, `python:integer`, `javascript:integer`, `typescript:integer`
-- `reddit_sentimiento_frameworks.csv`
-  - `framework:string`, `total_menciones:integer`, `positivos:integer`, `neutros:integer`, `negativos:integer`
-  - opcionales: `% positivo:number`, `% neutro:number`, `% negativo:number`
-- `reddit_temas_emergentes.csv`
-  - `tema:string`, `menciones:integer`
-- `interseccion_github_reddit.csv`
-  - `tecnologia:string`, `tipo:string`, `ranking_github:integer`, `ranking_reddit:string_or_integer`
-- `trend_score.csv`
-  - `ranking:integer`, `tecnologia:string`, `github_score:number`, `so_score:number`, `reddit_score:number`, `trend_score:number`, `fuentes:integer`
+Este contrato modela metadata de ejecucion y metadata de datasets para
+estandarizar publicacion, trazabilidad y validacion.
 
-## Archivos clave consumidos por frontend
+### 2.1 Run manifest (required fields)
 
-- `github_lenguajes.csv`
-  - requeridas: `lenguaje`, `repos_count`, `porcentaje`
-- `so_volumen_preguntas.csv`
-  - requeridas: `lenguaje`, `preguntas_nuevas_2025`
-- `so_tasa_aceptacion.csv`
-  - requeridas: `tecnologia`, `total_preguntas`, `respuestas_aceptadas`, `tasa_aceptacion_pct`
-- `reddit_temas_emergentes.csv`
-  - requeridas: `tema`, `menciones`
-- `trend_score.csv`
-  - requeridas: `ranking`, `tecnologia`, `github_score`, `so_score`, `reddit_score`, `trend_score`, `fuentes`
+- `run_id`
+- `generated_at_utc`
+- `git_sha`
+- `branch`
+- `source_window_start_utc`
+- `source_window_end_utc`
+- `quality_gate_status` (`pass`, `pass_with_warnings`, `fail`)
+- `datasets` (lista de dataset manifests)
 
-## Compatibilidad de `reddit_sentimiento_frameworks.csv`
+### 2.2 Dataset manifest (required fields)
 
-El backend mantiene como requeridas:
+- `dataset_logical_name`
+- `version_semver`
+- `generated_at_utc`
+- `source_run_id`
+- `schema_hash` (sha256 hexadecimal, 64 chars)
+- `row_count`
+- `quality_status` (`pass`, `warning`, `fail`)
+- `latest_path`
+- `history_path`
 
-- `framework`, `total_menciones`, `positivos`, `neutros`, `negativos`
+### 2.3 Reglas minimas del contrato de producto
 
-Y como opcionales para visualización:
+1. `generated_at_utc` y ventanas de fuente deben ser ISO-8601 con zona.
+2. `version_semver` debe cumplir SemVer.
+3. `row_count` debe ser integer >= 0.
+4. `source_run_id` de cada dataset debe coincidir con `run_id`.
+5. `history_path` puede ser `null` cuando `quality_status = fail`.
 
-- `% positivo`, `% neutro`, `% negativo`
+---
 
-Esto evita acoplamiento implícito y deja explícita la coexistencia de métricas absolutas y porcentuales.
+## 3) Validacion programatica del manifest
+
+Ejemplo de uso desde Python:
+
+```python
+from config.data_product_contract import validate_run_manifest
+
+ok, errors = validate_run_manifest(run_manifest)
+if not ok:
+    raise ValueError(errors)
+```
+
+Funciones clave disponibles:
+
+- `validate_run_manifest(...)`
+- `validate_dataset_manifest(...)`
+- `build_run_manifest(...)`
+- `build_dataset_manifest(...)`
+- `is_valid_semver(...)`
+- `is_valid_iso_utc(...)`
+
+---
+
+## 4) Compatibilidad y evolucion
+
+Durante la refactorizacion:
+
+1. El contrato CSV se mantiene para no romper consumo actual.
+2. El contrato de producto de datos agrega trazabilidad y control operativo.
+3. Ambos contratos conviven; uno no reemplaza al otro en esta etapa.
+
+## 5) Estrategia de escritura (dual write)
+
+La escritura de salidas se controla por configuracion:
+
+- `DATA_WRITE_LEGACY_CSV`
+- `DATA_WRITE_LATEST_CSV`
+- `DATA_WRITE_HISTORY_CSV`
+
+Comportamiento recomendado por defecto:
+
+1. Legacy activado para no romper consumo existente.
+2. Latest desactivado hasta habilitar sincronizacion progresiva.
+3. History desactivado hasta activar snapshots por fecha.
+
+Las rutas objetivo son:
+
+- Legacy: `datos/*.csv`
+- Latest: `datos/latest/*.csv`
+- History: `datos/history/<dataset>/year=YYYY/month=MM/day=DD/*.csv`
+
+Cuando se agreguen nuevas salidas o validaciones:
+
+1. Actualizar contrato correspondiente.
+2. Agregar/ajustar tests.
+3. Mantener este documento sincronizado.

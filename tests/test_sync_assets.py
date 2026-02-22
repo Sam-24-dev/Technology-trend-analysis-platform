@@ -79,3 +79,26 @@ def test_sincronizar_returns_summary(tmp_path, monkeypatch):
 
     assert summary["files_copied"] == 1
     assert summary["errors"] == 0
+
+
+def test_sincronizar_prefers_latest_directory_when_available(tmp_path, monkeypatch):
+    project_root = tmp_path
+    backend_dir = project_root / "backend"
+    datos_dir = project_root / "datos"
+    latest_dir = datos_dir / "latest"
+    destino_dir = project_root / "frontend" / "assets" / "data"
+
+    backend_dir.mkdir(parents=True)
+    datos_dir.mkdir(parents=True)
+    latest_dir.mkdir(parents=True)
+
+    (datos_dir / "same.csv").write_text("v\nlegacy\n", encoding="utf-8")
+    (latest_dir / "same.csv").write_text("v\nlatest\n", encoding="utf-8")
+
+    monkeypatch.setattr(sync_assets, "__file__", str(backend_dir / "sync_assets.py"))
+
+    summary = sync_assets.sincronizar()
+
+    assert summary["files_copied"] == 1
+    assert (destino_dir / "same.csv").read_text(encoding="utf-8") == "v\nlatest\n"
+    assert summary["source"].endswith(str(Path("datos") / "latest"))

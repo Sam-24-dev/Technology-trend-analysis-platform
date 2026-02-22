@@ -1,6 +1,6 @@
-"""Utilidades compartidas para normalizar nombres de tecnologías.
+"""Shared utilities to normalize technology names.
 
-Centraliza mapeos usados por ETLs para evitar drift entre módulos.
+Centralizes mappings used by ETLs to avoid cross-module drift.
 """
 
 from __future__ import annotations
@@ -57,7 +57,7 @@ MATCH_ALIASES = {
 
 
 def normalize_technology_name(name: str) -> str:
-    """Normaliza nombre a etiqueta legible consistente."""
+    """Normalizes a name into a consistent display label."""
     text = str(name or "").strip()
     if not text:
         return ""
@@ -65,7 +65,7 @@ def normalize_technology_name(name: str) -> str:
 
 
 def normalize_for_match(name: str) -> str:
-    """Normaliza nombre para comparación flexible cross-source."""
+    """Normalizes a name for flexible cross-source matching."""
     raw = str(name or "").strip().lower()
     if not raw:
         return ""

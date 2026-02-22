@@ -9,6 +9,17 @@ import shutil
 from pathlib import Path
 
 
+def _resolver_origen_csv(proyecto_root):
+    """Resolves CSV source path, prioritizing latest with legacy fallback."""
+    origen_latest = proyecto_root / "datos" / "latest"
+    origen_legacy = proyecto_root / "datos"
+
+    if origen_latest.exists() and any(origen_latest.glob("*.csv")):
+        return origen_latest
+
+    return origen_legacy
+
+
 def sincronizar():
     """Copies all CSV files from datos/ to frontend/assets/data/."""
     logger = logging.getLogger("sync_assets")
@@ -16,7 +27,7 @@ def sincronizar():
         logging.basicConfig(level=logging.INFO, format="[%(asctime)s] [%(levelname)s] %(name)s - %(message)s")
 
     proyecto_root = Path(__file__).resolve().parent.parent
-    origen = proyecto_root / "datos"
+    origen = _resolver_origen_csv(proyecto_root)
     destino = proyecto_root / "frontend" / "assets" / "data"
 
     destino.mkdir(parents=True, exist_ok=True)

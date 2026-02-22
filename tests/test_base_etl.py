@@ -15,6 +15,12 @@ class DummyETL(BaseETL):
         return self._steps
 
 
+def _configure_write_flags(monkeypatch, *, legacy=True, latest=False, history=False):
+    monkeypatch.setattr(base_etl, "WRITE_LEGACY_CSV", legacy)
+    monkeypatch.setattr(base_etl, "WRITE_LATEST_CSV", latest)
+    monkeypatch.setattr(base_etl, "WRITE_HISTORY_CSV", history)
+
+
 def test_ejecutar_continues_after_non_critical_extraction_error(monkeypatch):
     called = {"step2": False}
 
@@ -65,6 +71,7 @@ def test_ejecutar_continues_after_validation_error(monkeypatch):
 def test_guardar_csv_writes_file_when_route_exists(tmp_path, monkeypatch):
     destino = tmp_path / "out.csv"
     monkeypatch.setattr(base_etl, "ARCHIVOS_SALIDA", {"github_lenguajes": destino})
+    _configure_write_flags(monkeypatch, legacy=True, latest=False, history=False)
 
     etl = DummyETL([])
     df = pd.DataFrame(
@@ -107,6 +114,7 @@ def test_ejecutar_invoca_validar_configuracion(monkeypatch):
 def test_guardar_csv_actualiza_resumen_de_ejecucion(tmp_path, monkeypatch):
     destino = tmp_path / "out.csv"
     monkeypatch.setattr(base_etl, "ARCHIVOS_SALIDA", {"github_lenguajes": destino})
+    _configure_write_flags(monkeypatch, legacy=True, latest=False, history=False)
 
     etl = DummyETL([])
     df = pd.DataFrame(
@@ -120,4 +128,66 @@ def test_guardar_csv_actualiza_resumen_de_ejecucion(tmp_path, monkeypatch):
     etl.guardar_csv(df, "github_lenguajes")
 
     assert etl._run_summary["rows_written"] == 2
+    assert len(etl._run_summary["files_written"]) == 1
+
+
+def test_guardar_csv_writes_legacy_and_latest_when_enabled(tmp_path, monkeypatch):
+    legacy_destino = tmp_path / "legacy" / "out.csv"
+    latest_destino = tmp_path / "latest" / "out.csv"
+
+    monkeypatch.setattr(base_etl, "ARCHIVOS_SALIDA", {"github_lenguajes": legacy_destino})
+    _configure_write_flags(monkeypatch, legacy=True, latest=True, history=False)
+    monkeypatch.setattr(base_etl, "get_latest_output_path", lambda _nombre: latest_destino)
+
+    etl = DummyETL([])
+    df = pd.DataFrame(
+        {
+            "lenguaje": ["Python", "Go"],
+            "repos_count": [10, 5],
+            "porcentaje": [66.6, 33.4],
+        }
+    )
+
+    etl.guardar_csv(df, "github_lenguajes")
+
+    assert legacy_destino.exists()
+    assert latest_destino.exists()
+    assert etl._run_summary["rows_written"] == 2
+    assert len(etl._run_summary["files_written"]) == 2
+
+
+def test_guardar_csv_writes_history_only_when_enabled(tmp_path, monkeypatch):
+    legacy_destino = tmp_path / "legacy" / "out.csv"
+    history_destino = (
+        tmp_path
+        / "history"
+        / "github_lenguajes"
+        / "year=2026"
+        / "month=03"
+        / "day=01"
+        / "out.csv"
+    )
+
+    monkeypatch.setattr(base_etl, "ARCHIVOS_SALIDA", {"github_lenguajes": legacy_destino})
+    _configure_write_flags(monkeypatch, legacy=False, latest=False, history=True)
+    monkeypatch.setattr(
+        base_etl,
+        "get_history_output_path",
+        lambda _nombre, fecha=None: history_destino,
+    )
+
+    etl = DummyETL([])
+    df = pd.DataFrame(
+        {
+            "lenguaje": ["Python"],
+            "repos_count": [1],
+            "porcentaje": [100.0],
+        }
+    )
+
+    etl.guardar_csv(df, "github_lenguajes")
+
+    assert not legacy_destino.exists()
+    assert history_destino.exists()
+    assert etl._run_summary["rows_written"] == 1
     assert len(etl._run_summary["files_written"]) == 1

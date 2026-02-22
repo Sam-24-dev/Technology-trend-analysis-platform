@@ -1,37 +1,37 @@
-﻿# ROADMAP V2 FINAL - Technology Trend Analysis Platform
+# ROADMAP V2 FINAL - Technology Trend Analysis Platform
 
-## 1) Summary
+## 1) Resumen
 
-This is the final, decision-complete plan for V2.
-Goal: migrate from V1 CSV-only pipeline to a serverless data stack V2 without breaking current frontend behavior.
+Este es el plan final, **decision-complete**, para la V2.
+Objetivo: migrar desde el pipeline V1 (CSV-only) a un serverless data stack V2 sin romper el comportamiento actual del frontend.
 
-Primary outcomes:
-1. Data Product Contract V2 with run and dataset metadata.
-2. Dual write (latest + history) with controlled transition.
-3. Quality gate with severity levels.
-4. Trend Score V1 vs V2 numeric equivalence tests.
-5. Parallel CI pipeline with artifacts and conditional publish.
-6. Frontend bridge with JSON history while keeping CSV compatibility.
+Resultados principales:
+1. Data Product Contract V2 con metadata de run y de dataset.
+2. Dual write (latest + history) con transicion controlada.
+3. Quality gate con niveles de severidad.
+4. Pruebas de equivalencia numerica V1 vs V2 para Trend Score.
+5. Pipeline CI paralelo con artifacts y publicacion condicional.
+6. Frontend bridge con JSON historico manteniendo compatibilidad CSV.
 
-## 2) Scope
+## 2) Alcance
 
-In scope now (V2 core): F2-F7
+En alcance ahora (core V2): F2-F7
 - Contract V2
 - Dual write
 - Pandera quality gate
 - DuckDB trend score engine
-- GitHub Actions parallel jobs with artifacts
+- GitHub Actions con jobs paralelos y artifacts
 - Frontend bridge
-- Cutover governance
+- Gobernanza de cutover
 
-Out of scope now:
-- Advanced forecasting productionization
-- Advanced topic modeling productionization
-- External BI platform integration
+Fuera de alcance ahora:
+- Productivizacion avanzada de forecasting
+- Productivizacion avanzada de topic modeling
+- Integracion con plataformas BI externas
 
-These move to V2.1 or post-V2.
+Eso pasa a V2.1 o post-V2.
 
-## 3) Current baseline (verified)
+## 3) Baseline actual (verificado)
 
 Backend:
 - ETLs: GitHub, StackOverflow, Reddit
@@ -40,28 +40,28 @@ Backend:
 - CSV contract validator: `backend/validate_csv_contract.py`
 
 Frontend:
-- Flutter dashboards read CSV from `frontend/assets/data/`
+- Dashboards Flutter leen CSV desde `frontend/assets/data/`
 - Loader: `frontend/lib/services/csv_service.dart`
 
 CI/CD:
-- Weekly ETL workflow exists and works
-- Current flow is mostly sequential for ETL processing
+- Workflow ETL semanal existe y funciona
+- Flujo actual mayormente secuencial para procesamiento ETL
 
-## 4) Branch strategy and governance
+## 4) Estrategia de ramas y gobernanza
 
-Branches:
-- Backend work branch: `feat/backend`
-- Frontend work branch: `feat/frontend`
+Ramas:
+- Rama de trabajo backend: `feat/backend`
+- Rama de trabajo frontend: `feat/frontend`
 
-Default merge policy:
-- `squash merge` unless explicit reason to preserve detailed commit graph.
+Politica de merge por defecto:
+- `squash merge`, salvo razon explicita para preservar el grafo detallado de commits.
 
-Sync policy before each backend PR:
+Politica de sincronizacion antes de cada PR de backend:
 1. `git fetch --all --prune`
 2. `git switch main && git pull --ff-only origin main`
 3. `git switch feat/backend && git merge --ff-only main`
 
-If exact-commit alignment is required and FF does not apply:
+Si se requiere alineacion exacta de commit y no aplica fast-forward:
 - `git reset --hard main`
 - `git push --force-with-lease`
 
@@ -76,7 +76,7 @@ If exact-commit alignment is required and FF does not apply:
 - `source_window_start_utc`
 - `source_window_end_utc`
 - `quality_gate_status` (`pass`, `pass_with_warnings`, `fail`)
-- `datasets` (array of dataset manifests)
+- `datasets` (array de dataset manifests)
 
 ### 5.2 Dataset-level metadata (required)
 
@@ -90,13 +90,13 @@ If exact-commit alignment is required and FF does not apply:
 - `latest_path`
 - `history_path`
 
-### 5.3 SemVer rules for datasets
+### 5.3 Reglas SemVer para datasets
 
-- MAJOR: breaking schema change (remove/rename required column, incompatible type change)
-- MINOR: backward-compatible additions (optional columns, non-breaking checks)
-- PATCH: internal fixes with no schema contract break
+- MAJOR: cambio breaking de schema (eliminar/renombrar columna requerida, cambio de tipo incompatible)
+- MINOR: adiciones backward-compatible (columnas opcionales, checks no-breaking)
+- PATCH: correcciones internas sin romper el contrato de schema
 
-## 6) Storage layout (fixed now)
+## 6) Layout de almacenamiento (fijado desde ahora)
 
 Latest outputs:
 - `datos/latest/*.csv`
@@ -110,11 +110,11 @@ Metadata outputs:
 - `datos/metadata/run_manifest.json`
 - `datos/metadata/runs/<run_id>.json`
 
-Examples:
+Ejemplos:
 - `datos/history/trend_score/year=2026/month=02/day=22/part-0000.parquet`
 - `datos/history/so_volumen/year=2026/month=02/day=22/part-0000.parquet`
 
-## 7) V1 -> V2 compatibility matrix (core)
+## 7) Matriz de compatibilidad V1 -> V2 (core)
 
 - `datos/trend_score.csv` -> `datos/latest/trend_score.csv` + `datos/history/trend_score/...`
 - `datos/so_volumen_preguntas.csv` -> `datos/latest/so_volumen_preguntas.csv` + `datos/history/so_volumen/...`
@@ -122,293 +122,293 @@ Examples:
 - `datos/reddit_temas_emergentes.csv` -> `datos/latest/reddit_temas_emergentes.csv` + `datos/history/reddit_temas/...`
 - `datos/github_lenguajes.csv` -> `datos/latest/github_lenguajes.csv` + `datos/history/github_lenguajes/...`
 
-Frontend cutover rule:
-- CSV stays until bridge JSON passes 4 consecutive weekly runs without critical failures.
+Regla de cutover frontend:
+- CSV se mantiene hasta que el bridge JSON pase 4 corridas semanales consecutivas sin fallos `critical`.
 
-## 8) Quality model (Pandera + severity)
+## 8) Modelo de calidad (Pandera + severity)
 
-Severity and actions:
-- `critical`: fail pipeline, no publish
-- `warning`: publish with warning flag
-- `info`: publish, observability only
+Severidad y acciones:
+- `critical`: falla pipeline, no publica
+- `warning`: publica con warning flag
+- `info`: publica, solo observabilidad
 
-Minimum required rules:
-1. Required columns present (critical)
-2. Critical types valid (critical)
-3. Critical columns no nulls (critical)
-4. `trend_score >= 0` (critical)
-5. Ranking uniqueness (critical)
-6. Core dataset row_count > 0 (warning)
-7. Freshness threshold exceeded (warning)
-8. Distribution drift soft breach (warning)
-9. Optional fields missing (info)
-10. Minor cardinality variation (info)
+Reglas minimas obligatorias:
+1. Required columns presentes (`critical`)
+2. Critical types validos (`critical`)
+3. No nulos en critical columns (`critical`)
+4. `trend_score >= 0` (`critical`)
+5. Unicidad de ranking (`critical`)
+6. `row_count > 0` en datasets core (`warning`)
+7. Freshness fuera de umbral (`warning`)
+8. Distribution drift suave (`warning`)
+9. Optional fields faltantes (`info`)
+10. Variacion menor de cardinalidad (`info`)
 
-## 9) Trend score equivalence V1 vs V2
+## 9) Equivalencia de Trend Score V1 vs V2
 
-Acceptance thresholds:
-- Absolute score difference per shared technology: `<= 0.01`
+Umbrales de aceptacion:
+- Diferencia absoluta por tecnologia compartida: `<= 0.01`
 - Top-10 overlap: `>= 90%`
-- Ranking delta: `<= 1` for at least 90% of shared technologies
-- Tie handling allowed when score delta is `<= 0.01`
+- Delta de ranking: `<= 1` para al menos 90% de tecnologias compartidas
+- Empates permitidos cuando delta de score `<= 0.01`
 
-## 10) Source failure degradation policy
+## 10) Politica de degradacion ante fallo de fuentes
 
-- 3/3 sources available: publish, normal weights
-- 2/3 sources available: renormalize available weights, publish with warning
-- 1/3 source available: do not publish new latest, mark fail
-- 0/3 available: fail run
+- 3/3 fuentes disponibles: publica, weights normales
+- 2/3 fuentes disponibles: renormaliza weights disponibles, publica con warning
+- 1/3 fuente disponible: no publica nuevo latest, marca fail
+- 0/3 fuentes disponibles: fail run
 
-## 11) CI/CD V2 architecture (artifacts)
+## 11) Arquitectura CI/CD V2 (artifacts)
 
-Main workflow: `.github/workflows/etl_semanal.yml`
+Workflow principal: `.github/workflows/etl_semanal.yml`
 
 Jobs:
 1. `job_github`
 2. `job_stackoverflow`
 3. `job_reddit`
-4. `job_aggregate` (downloads artifacts, computes trend, runs quality gate, writes manifest)
-5. `job_publish` (conditional on quality gate)
+4. `job_aggregate` (descarga artifacts, calcula trend, corre quality gate, escribe manifest)
+5. `job_publish` (condicional por quality gate)
 
-Publish condition:
-- only if quality status is `pass` or `pass_with_warnings`
+Condicion de publicacion:
+- solo si quality status es `pass` o `pass_with_warnings`
 
-## 12) Runtime and cost budgets (GitHub Actions)
+## 12) Presupuesto runtime y costo (GitHub Actions)
 
-Per-run limits:
-- Source job timeout: 20 min each
-- Aggregate timeout: 15 min
-- Publish timeout: 10 min
-- Total run budget: 60 min
+Limites por run:
+- Timeout por source job: 20 min cada uno
+- Timeout aggregate: 15 min
+- Timeout publish: 10 min
+- Presupuesto total por run: 60 min
 
-Artifact budget:
-- Warning at 75 MB total
-- Critical at 100 MB total
+Presupuesto de artifacts:
+- Warning en 75 MB total
+- Critical en 100 MB total
 
-Alerting thresholds:
+Umbrales de alerta:
 - Warning: runtime > 45 min
 - Critical: runtime > 60 min
 
-## 13) Reproducibility
+## 13) Reproducibilidad
 
-- Python lock file for deterministic installs
-- Flutter lock file committed
-- Deterministic seed for transforms where applicable
-- Baseline fixtures for V1 equivalence tests
-- Historical replay by `run_id` supported through manifest metadata
+- Python lock file para instalaciones deterministicas
+- Flutter lock file commiteado
+- Seed deterministica para transformaciones donde aplique
+- Baseline fixtures V1 para pruebas de equivalencia
+- Replay historico por `run_id` soportado via manifest metadata
 
-## 14) Retention and lifecycle
+## 14) Retencion y ciclo de vida
 
-Core aggregated datasets:
-- Daily: 180 days
-- Monthly compacted: 5 years
+Datasets core agregados:
+- Diario: 180 dias
+- Mensual compactado: 5 anios
 
-Heavy raw-like datasets:
-- Daily: 90 days
-- Monthly compacted: 24 months
+Datasets pesados tipo raw:
+- Diario: 90 dias
+- Mensual compactado: 24 meses
 
-Compaction:
-- Monthly parquet compaction
-- Integrity validation after compaction (row_count, schema_hash, checksums)
+Compactacion:
+- Compactacion parquet mensual
+- Validacion de integridad post-compactacion (`row_count`, `schema_hash`, checksums)
 
-## 15) Security and compliance in CI
+## 15) Security and compliance en CI
 
-- Least-privilege workflow permissions
-- `contents: write` only where publish is needed
-- Secrets required:
+- Workflow permissions con minimo privilegio
+- `contents: write` solo donde la publicacion lo requiera
+- Secrets requeridos:
   - `GH_PAT`
   - `STACKOVERFLOW_KEY`
   - `REDDIT_CLIENT_ID`
   - `REDDIT_CLIENT_SECRET`
-- Secret masking required
-- No sensitive payloads in logs/artifacts
-- Preflight secret checks before extraction
+- Secret masking obligatorio
+- No exponer payloads sensibles en logs/artifacts
+- Preflight checks de secretos antes de extraer datos
 
-## 16) PR plan (F2-F7, PR-ready)
+## 16) Plan de PRs (F2-F7, PR-ready)
 
 ### PR-01 (F2) - Contract V2 foundation
-Goal:
-- Introduce V2 contract and manifest model.
+Objetivo:
+- Introducir contrato V2 y modelo de manifest.
 
-Files:
-- `backend/config/data_product_contract_v2.py` (new)
+Archivos:
+- `backend/config/data_product_contract.py` (new)
 - `backend/config/csv_contract.py`
 - `docs/data_contract.md`
 
 Checks:
-- contract tests pass
-- schema validation tests pass
+- contract tests en verde
+- schema validation tests en verde
 
 Merge criteria:
-- no regressions in current tests
+- sin regresiones en la suite actual
 
 Rollback:
 - revert PR
 
 ### PR-02 (F3) - Dual write infrastructure
-Goal:
-- Add latest/history writing path while preserving existing CSV behavior.
+Objetivo:
+- Agregar latest/history write path preservando el comportamiento CSV existente.
 
-Files:
+Archivos:
 - `backend/base_etl.py`
 - `backend/config/settings.py`
 - `backend/sync_assets.py`
-- tests for write behavior
+- tests de write behavior
 
 Checks:
-- write tests pass
-- current ETL tests pass
+- write tests en verde
+- ETL tests actuales en verde
 
 Rollback:
-- disable history writes via config flag
+- desactivar history writes con config flag
 
 ### PR-03 (F5) - Quality gate warn-only
-Goal:
-- Add Pandera validation with severity routing.
+Objetivo:
+- Agregar validacion Pandera con enrutamiento por severidad.
 
-Files:
+Archivos:
 - `backend/validador.py`
 - `backend/validate_csv_contract.py`
 - `backend/quality/pandera_schemas.py` (new)
-- tests for severity handling
+- tests de manejo de severidad
 
 Checks:
-- quality tests pass
-- warning path does not block publish
+- quality tests en verde
+- warning path no bloquea publish
 
 Rollback:
-- bypass Pandera stage
+- bypass de etapa Pandera
 
 ### PR-04 (F4) - DuckDB trend engine + equivalence tests
-Goal:
-- Move trend calculation to DuckDB while proving equivalence.
+Objetivo:
+- Mover calculo de trend a DuckDB demostrando equivalencia.
 
-Files:
+Archivos:
 - `backend/trend_score.py`
 - `backend/trend_score_v2_duckdb.py` (new)
 - `tests/test_trend_equivalence_v1_v2.py` (new)
 
 Checks:
-- equivalence thresholds satisfied
+- equivalence thresholds cumplidos
 
 Rollback:
-- switch to previous trend engine path
+- volver a ruta de trend engine anterior
 
 ### PR-05 (F6) - Parallel workflow with artifacts
-Goal:
-- Split source jobs and aggregate with artifacts.
+Objetivo:
+- Separar source jobs y agregar aggregate por artifacts.
 
-Files:
+Archivos:
 - `.github/workflows/etl_semanal.yml`
 
 Checks:
-- manual workflow run succeeds
-- artifact handoff valid
+- manual workflow run exitoso
+- artifact handoff valido
 
 Rollback:
-- restore sequential workflow version
+- restaurar version secuencial del workflow
 
 ### PR-06 (F7) - Frontend bridge assets
-Goal:
-- Produce JSON history bridge assets while keeping CSV.
+Objetivo:
+- Producir bridge JSON historico manteniendo CSV.
 
-Files:
+Archivos:
 - `backend/export_history_json.py` (new)
 - `backend/sync_assets.py`
-- generated files under `frontend/assets/data/`
+- archivos generados en `frontend/assets/data/`
 
 Checks:
-- bridge files generated
-- frontend can load existing CSV unchanged
+- bridge files generados
+- frontend sigue cargando CSV sin cambios
 
 Rollback:
-- disable bridge export
+- desactivar bridge export
 
 ### PR-07 (F7) - Frontend partial cutover
-Goal:
-- Consume bridge JSON via feature flag.
+Objetivo:
+- Consumir bridge JSON por feature flag.
 
-Files:
+Archivos:
 - `frontend/lib/services/csv_service.dart`
 - `frontend/lib/config/feature_flags.dart` (new)
-- minimal temporal view wiring
+- wiring minimo de vista temporal
 
 Checks:
-- smoke load for CSV and JSON paths
-- no regressions in existing dashboards
+- smoke load para path CSV y JSON
+- sin regresiones en dashboards actuales
 
 Rollback:
 - feature flag off
 
-## 17) DoD by phase (F2-F7)
+## 17) DoD por fase (F2-F7)
 
 F2:
-- Deliverables: V2 contract + manifest schema
+- Deliverables: contrato V2 + manifest schema
 - Tests: contract schema tests
-- Acceptance: manifest valid in sample run
-- Rollback: PR revert
+- Acceptance: manifest valido en sample run
+- Rollback: revert PR
 
 F3:
 - Deliverables: dual write latest/history
 - Tests: write path + idempotency tests
-- Acceptance: expected files created in fixed layout
-- Rollback: disable history flag
+- Acceptance: archivos esperados creados en el layout fijo
+- Rollback: desactivar history flag
 
 F4:
 - Deliverables: DuckDB trend engine
 - Tests: equivalence suite
-- Acceptance: all thresholds pass
-- Rollback: switch back to V1 engine
+- Acceptance: todos los umbrales en verde
+- Rollback: volver a V1 engine
 
 F5:
 - Deliverables: severity quality gate
-- Tests: critical/warning/info routing
-- Acceptance: critical blocks publish, warning allows publish-with-flag
-- Rollback: bypass new gate
+- Tests: enrutamiento `critical`/`warning`/`info`
+- Acceptance: critical bloquea publish, warning permite publish-with-flag
+- Rollback: bypass de gate nuevo
 
 F6:
-- Deliverables: parallel CI with artifacts
+- Deliverables: CI paralelo con artifacts
 - Tests: workflow dry run + artifact contract
-- Acceptance: successful end-to-end run
-- Rollback: sequential workflow restore
+- Acceptance: corrida end-to-end exitosa
+- Rollback: restaurar workflow secuencial
 
 F7:
-- Deliverables: bridge JSON + frontend flag cutover
+- Deliverables: bridge JSON + cutover parcial frontend
 - Tests: frontend smoke path
-- Acceptance: 4 weekly runs stable before CSV retirement decision
-- Rollback: flag off and CSV-only fallback
+- Acceptance: 4 corridas semanales estables antes de retiro de CSV
+- Rollback: flag off y fallback CSV-only
 
-## 18) Test scenarios (mandatory)
+## 18) Escenarios de prueba (obligatorios)
 
-1. Manifest schema: valid and invalid samples
-2. SemVer bump correctness on representative changes
-3. Deterministic schema_hash stability
-4. Dual write idempotent behavior by run_id
-5. Quality gate severity actions
-6. V1 vs V2 trend equivalence thresholds
-7. Degradation matrix (3/3, 2/3, 1/3, 0/3 sources)
-8. Artifact corruption or missing artifact handling
-9. Frontend bridge fallback behavior
-10. Rollback verification per PR
+1. Manifest schema: muestras validas e invalidas
+2. Correctitud de SemVer bump en cambios representativos
+3. Estabilidad deterministica de `schema_hash`
+4. Idempotencia de dual write por `run_id`
+5. Acciones del quality gate por severidad
+6. Umbrales de equivalencia trend V1 vs V2
+7. Matriz de degradacion (3/3, 2/3, 1/3, 0/3 fuentes)
+8. Manejo de artifact corrupto o faltante
+9. Comportamiento de fallback del frontend bridge
+10. Verificacion de rollback por PR
 
-## 19) Release and tags
+## 19) Releases y tags
 
-Recommended release checkpoints:
+Checkpoints recomendados:
 - `v2.0.0-rc1`: F2 + F3
 - `v2.0.0-rc2`: F5 + F4
 - `v2.0.0-rc3`: F6
-- `v2.0.0`: F7 stable and cutover-ready
+- `v2.0.0`: F7 estable y cutover-ready
 - `v2.1.0`: advanced analytics
 
-Cutover complete criteria:
-- 4 consecutive weekly runs without critical quality failures
-- SLO targets met
-- trend equivalence stable
-- frontend bridge stable under flag-on
+Criterios de cutover completo:
+- 4 corridas semanales consecutivas sin fallos `critical`
+- SLOs cumplidos
+- equivalencia trend estable
+- frontend bridge estable con flag on
 
 ## 20) Decision timeline tags
 
-- Adopt now:
+- Adoptar ahora:
   - Contract V2
   - Dual write
   - Pandera severity
@@ -416,14 +416,14 @@ Cutover complete criteria:
   - CI artifacts
   - Frontend bridge
 
-- Adopt in V2.1:
-  - forecasting and advanced NLP
+- Adoptar en V2.1:
+  - forecasting y NLP avanzado
 
 - Post-V2:
-  - external BI and non-GitHub long-term storage
+  - BI externo y almacenamiento long-term fuera de GitHub
 
-## 21) Final assumptions
+## 21) Supuestos finales
 
-1. Serverless architecture remains mandatory.
-2. This document is the execution source of truth for backend V2 in `feat/backend`.
-3. No open decision should be left to implementers outside this plan.
+1. La arquitectura serverless se mantiene como restriccion principal.
+2. Este documento es la fuente de verdad de ejecucion para backend V2 en `feat/backend`.
+3. No se dejan decisiones abiertas fuera de este plan.

@@ -26,7 +26,7 @@ from tech_normalization import normalize_technology_name
 
 logger = logging.getLogger("trend_score")
 
-# Pesos para cada fuente de datos
+# Weights per data source
 PESOS = {
     "github": 0.40,
     "stackoverflow": 0.35,
@@ -154,12 +154,12 @@ def calcular_trend_score():
     logger.info("Calculando Trend Score compuesto...")
     logger.info("Pesos: GitHub=%s, SO=%s, Reddit=%s", PESOS['github'], PESOS['stackoverflow'], PESOS['reddit'])
 
-    # Cargar datos de cada fuente
+    # Load data from each source
     df_github = cargar_github()
     df_so = cargar_stackoverflow()
     df_reddit = cargar_reddit()
 
-    # Combinar todas las tecnologias (outer join)
+    # Combine all technologies (outer join)
     df_combined = pd.DataFrame({"tecnologia": []})
 
     if not df_github.empty:
@@ -173,32 +173,32 @@ def calcular_trend_score():
         logger.error("No hay datos de ninguna fuente para calcular Trend Score")
         return pd.DataFrame()
 
-    # Rellenar NaN con 0 (tecnologia no encontrada en esa fuente)
+    # Fill NaN with 0 (technology not present in that source)
     for col in ["github_score", "so_score", "reddit_score"]:
         if col not in df_combined.columns:
             df_combined[col] = 0.0
         else:
             df_combined[col] = df_combined[col].fillna(0.0)
 
-    # Calcular score compuesto
+    # Calculate composite score
     df_combined["trend_score"] = (
         PESOS["github"] * df_combined["github_score"] +
         PESOS["stackoverflow"] * df_combined["so_score"] +
         PESOS["reddit"] * df_combined["reddit_score"]
     ).round(2)
 
-    # Ordenar por trend_score y agregar ranking
+    # Sort by trend_score and add ranking
     df_combined = df_combined.sort_values("trend_score", ascending=False).reset_index(drop=True)
     df_combined["ranking"] = range(1, len(df_combined) + 1)
 
-    # Contar en cuantas fuentes aparece cada tecnologia
+    # Count how many sources each technology appears in
     df_combined["fuentes"] = (
         (df_combined["github_score"] > 0).astype(int) +
         (df_combined["so_score"] > 0).astype(int) +
         (df_combined["reddit_score"] > 0).astype(int)
     )
 
-    # Log del ranking
+    # Ranking log
     logger.info("\nTrend Score - Top Tecnologias (%d total):", len(df_combined))
     logger.info("%3s %-20s %8s %8s %8s %8s %8s", "#", "Tecnologia", "GitHub", "SO", "Reddit", "Score", "Fuentes")
     logger.info("-" * 75)
@@ -222,10 +222,10 @@ def main():
 
 
 class TrendScoreETL(BaseETL):
-    """Adaptador ETL para Trend Score con el contrato de BaseETL.
+    """ETL adapter for Trend Score using the BaseETL contract.
 
-    Mantiene el comportamiento existente sin sobreingeniería: un único paso
-    que calcula, valida y guarda el CSV de trend score.
+    Keeps the existing behavior without over-engineering: a single step
+    that computes, validates, and persists the trend score CSV.
     """
 
     def __init__(self):
@@ -252,7 +252,7 @@ class TrendScoreETL(BaseETL):
             ]
             df_salida = df_trend[columnas_salida]
 
-            # Se mantiene validación explícita por contrato + guardado uniforme
+            # Keep explicit contract validation and uniform write path
             validar_dataframe(df_salida, "trend_score")
             self.guardar_csv(df_salida, "trend_score")
 

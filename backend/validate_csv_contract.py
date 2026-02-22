@@ -1,7 +1,7 @@
-"""Valida headers CSV contra el contrato backend/frontend.
+"""Validates CSV headers against the shared backend/frontend contract.
 
-Se utiliza en CI/ETL para detectar cambios incompatibles de esquema
-antes de publicar datos al frontend.
+Used in CI/ETL to detect incompatible schema changes
+before publishing data to the frontend.
 """
 
 import sys
@@ -20,10 +20,10 @@ logger = logging.getLogger("validate_csv_contract")
 
 
 def validate_contract(strict=True):
-    """Valida archivos CSV existentes contra columnas requeridas del contrato.
+    """Validates existing CSV files against required contract columns.
 
-    Retorna:
-        tuple(bool, list[str]): (ok_global, mensajes)
+    Returns:
+        tuple(bool, list[str]): (overall_ok, messages)
     """
     mode = "strict" if strict else "warn-only"
     messages = [f"Validando contrato CSV v{get_contract_version()} (modo={mode})..."]
