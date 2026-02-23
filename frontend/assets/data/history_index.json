@@ -1,0 +1,19 @@
+{
+  "generated_at_utc": "2026-02-23T02:33:58Z",
+  "dataset_count": 1,
+  "datasets": [
+    {
+      "dataset": "trend_score",
+      "latest_path": "datos/latest/trend_score.csv",
+      "latest_row_count": 23,
+      "history_snapshot_count": 1,
+      "snapshots": [
+        {
+          "date": "2026-02-23",
+          "path": "datos/history/trend_score/year=2026/month=02/day=23/trend_score.csv",
+          "row_count": 23
+        }
+      ]
+    }
+  ]
+}
