@@ -1,47 +1,57 @@
-# Política mínima de dependencias y seguridad
+﻿# Politica de Dependencias y Seguridad
 
-Esta política reduce riesgo técnico y mejora reproducibilidad para el backend.
+Esta politica define criterios minimos para mantener estabilidad y seguridad en backend.
 
 ## Objetivos
 
-- Mantener rangos de versiones controlados en `backend/requirements.txt`.
-- Detectar vulnerabilidades conocidas de forma continua.
-- Definir una cadencia mínima de actualización.
+- controlar versiones en `backend/requirements.txt`.
+- detectar vulnerabilidades conocidas de forma continua.
+- mantener reproducibilidad en CI y local.
 
-## Reglas de versionado
+## Reglas de Versionado
 
-1. Evitar rangos abiertos en major (`<3.0` para todo) cuando no sea necesario.
-2. Usar límites superiores por compatibilidad real del proyecto.
-3. Mantener `pytest` en major estable (`>=8,<9`).
+1. usar rangos compatibles con limite superior.
+2. evitar upgrades de major sin validacion de regresion.
+3. mantener dependencias de test en major estable (`pytest >=8,<9`).
 
-## Auditoría de seguridad
+## Dependencias Core Actuales
 
-- Local:
-  - `make security`
-- CI:
-  - Workflow: `Dependency Security Audit`
-  - Se ejecuta en:
-    - cambios de `backend/requirements.txt`
-    - `pull_request` hacia `main`
-    - semanalmente (lunes)
-    - manualmente (`workflow_dispatch`)
+- `pandas`
+- `requests`
+- `nltk`
+- `pandera`
+- `duckdb`
+- `python-dotenv`
 
-Si se detectan CVEs, el job falla y se debe corregir antes de mergear a `main`.
+## Auditoria de Seguridad
 
-## Política mínima de actualización
+Workflow: `.github/workflows/dependency_security.yml`
 
-- **Mensual**: revisar updates menores/patch de librerías.
-- **Trimestral**: revisar nuevos majors y plan de adopción.
-- **Inmediato**: parchear CVEs con severidad alta/crítica.
+Se ejecuta en:
+- push a `main` y `feat/backend` con cambios en `backend/requirements.txt`.
+- pull request a `main` con cambios en dependencias.
+- schedule semanal: lunes `09:00 UTC`.
+- manual (`workflow_dispatch`).
 
-## Flujo recomendado
+Herramienta:
+- `pip-audit`
 
-1. Crear rama de actualización.
-2. Ajustar `backend/requirements.txt` con cambios mínimos.
-3. Ejecutar:
-   - `python -m pytest tests/ -q`
-   - `make security`
-4. Abrir PR con resumen:
-   - librerías cambiadas
-   - motivo (bugfix/CVE/compatibilidad)
-   - evidencia de tests y auditoría.
+Si hay vulnerabilidades, el job falla y no se recomienda merge a `main`.
+
+## Flujo Recomendado de Actualizacion
+
+1. crear rama de trabajo.
+2. cambiar dependencias minimas necesarias.
+3. ejecutar:
+   - `python -m pytest -q`
+   - pipeline de seguridad.
+4. documentar en PR:
+   - librerias cambiadas
+   - motivo
+   - evidencia de tests
+
+## Cadencia Recomendada
+
+- mensual: patch/minor review.
+- trimestral: analisis de majors.
+- inmediato: CVEs de severidad alta/critica.

@@ -1,6 +1,7 @@
 import pandas as pd
 import pytest
 
+import validador
 from exceptions import ETLValidationError
 from validador import validar_dataframe
 
@@ -78,3 +79,71 @@ def test_validar_dataframe_strict_raises_on_invalid_type():
 
     with pytest.raises(ETLValidationError):
         validar_dataframe(df, "github_lenguajes", strict=True, validate_types=True)
+
+
+def test_validar_dataframe_pandera_warning_warn_only_returns_report(monkeypatch):
+    df = pd.DataFrame(
+        {
+            "repo_name": ["org/repo1", "org/repo2"],
+            "stars": [100, 90],
+            "contributors": [10, 8],
+            "language": ["Python", "Go"],
+        }
+    )
+
+    monkeypatch.setattr(
+        validador,
+        "run_pandera_quality_checks",
+        lambda _df, _name: [
+            {
+                "dataset": "github_correlacion",
+                "severity": "warning",
+                "rule": "mock_warning_rule",
+                "message": "mock warning",
+            }
+        ],
+    )
+
+    report = validar_dataframe(
+        df,
+        "github_correlacion",
+        enable_pandera=True,
+        pandera_warn_only=True,
+        return_quality_report=True,
+    )
+
+    assert report["critical"] == 0
+    assert report["warning"] == 1
+    assert report["info"] == 0
+
+
+def test_validar_dataframe_pandera_critical_strict_raises(monkeypatch):
+    df = pd.DataFrame(
+        {
+            "repo_name": ["org/repo1", "org/repo2"],
+            "stars": [100, 90],
+            "contributors": [10, 8],
+            "language": ["Python", "Go"],
+        }
+    )
+
+    monkeypatch.setattr(
+        validador,
+        "run_pandera_quality_checks",
+        lambda _df, _name: [
+            {
+                "dataset": "github_correlacion",
+                "severity": "critical",
+                "rule": "mock_critical_rule",
+                "message": "mock critical",
+            }
+        ],
+    )
+
+    with pytest.raises(ETLValidationError):
+        validar_dataframe(
+            df,
+            "github_correlacion",
+            enable_pandera=True,
+            pandera_warn_only=False,
+        )

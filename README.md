@@ -1,258 +1,153 @@
-# Tech Trends 2025
+﻿# Technology Trend Analysis Platform
 
-<div align="center">
+End-to-end data pipeline and dashboard for technology trends across GitHub, StackOverflow, and Reddit.
 
-![Data Engineer](https://img.shields.io/badge/Role-Data_Engineer-orange?style=for-the-badge&logo=apache-spark&logoColor=white)
-![Python](https://img.shields.io/badge/Python-3.9+-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![Flutter](https://img.shields.io/badge/Flutter-3.38-02569B?style=for-the-badge&logo=flutter&logoColor=white)
-![Status](https://img.shields.io/badge/Status-Completed-success?style=for-the-badge)
-![Tests](https://img.shields.io/badge/Tests-72_Passed-brightgreen?style=for-the-badge&logo=pytest&logoColor=white)
-![CI](https://github.com/Sam-24-dev/Technology-trend-analysis-platform/actions/workflows/ci.yml/badge.svg)
+## Current Status
 
-<br>
+- Backend refactor implementation is complete for F2-F7.
+- Test suite is green (`133 passed`).
+- Operational cutover is still pending: 4 weekly ETL runs without critical failures.
 
-<a href="https://sam-24-dev.github.io/Technology-trend-analysis-platform/">
-  <img src="https://img.shields.io/badge/View_Live_Demo-Dashboard-2EA44F?style=for-the-badge&logo=google-chrome&logoColor=white" />
-</a>
+## What Is Implemented
 
-</div>
+- Multi-source ETL pipeline (GitHub, StackOverflow, Reddit).
+- Dual write strategy:
+  - `datos/*.csv` (legacy)
+  - `datos/latest/*.csv` (latest)
+  - `datos/history/<dataset>/year=YYYY/month=MM/day=DD/*.csv` (history snapshots)
+- Trend Score engine selector:
+  - `legacy` (pandas)
+  - `duckdb` (SQL engine with equivalence tests)
+- Severity-based quality gate (`critical`, `warning`, `info`) with Pandera support.
+- Data product contract for run and dataset manifests.
+- Frontend bridge JSON assets:
+  - `history_index.json`
+  - `trend_score_history.json`
+- Frontend feature flag for partial cutover to bridge JSON.
 
----
+## Repository Layout
 
-## Project Overview
+```text
+backend/
+  base_etl.py
+  trend_score.py
+  trend_score_duckdb.py
+  sync_assets.py
+  export_history_json.py
+  validate_csv_contract.py
+  validador.py
+  config/
+    settings.py
+    csv_contract.py
+    data_product_contract.py
+    schema_contract_utils.py
+  quality/
+    pandera_schemas.py
+    degradation_policy.py
 
-End-to-end data engineering platform that extracts, transforms, and visualizes technology trends from the three largest developer communities: GitHub, StackOverflow, and Reddit.
+datos/
+  *.csv
+  latest/*.csv
+  history/<dataset>/year=YYYY/month=MM/day=DD/*.csv
+  metadata/
 
-| Challenge | Solution | Impact |
-|-----------|----------|--------|
-| Fragmented trend data | Multi-source ETL pipeline | Unified technology ranking |
-| No cross-platform comparison | Composite Trend Score index | Weighted ranking across 3 sources |
-| Manual analysis | Automated pipeline with OOP | Repeatable, testable, maintainable |
-| Raw data, no insights | Interactive Flutter dashboard | Real-time trend visualization |
+frontend/
+  lib/
+  assets/data/
 
-> **Core Value:** This platform demonstrates a production-grade data pipeline that ingests from 3 APIs, applies NLP sentiment analysis, and produces a composite ranking — the kind of system that powers real technology intelligence products.
-
----
-
-## Pipeline Architecture
-
-```
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│   GitHub    │     │StackOverflow│     │   Reddit    │
-│     API     │     │     API     │     │   JSON API  │
-└──────┬──────┘     └──────┬──────┘     └──────┬──────┘
-       │                   │                   │
-       ▼                   ▼                   ▼
-┌─────────────────────────────────────────────────────┐
-│              BaseETL (Abstract Class)                │
-│   configurar_logging() · guardar_csv() · ejecutar() │
-├─────────────┬─────────────────┬─────────────────────┤
-│ GitHubETL   │ StackOverflowETL│     RedditETL       │
-│ 4 analyses  │   3 analyses    │   3 analyses + NLP  │
-└──────┬──────┘────────┬────────┘──────────┬──────────┘
-       │               │                   │
-       ▼               ▼                   ▼
-┌─────────────────────────────────────────────────────┐
-│                 datos/ (11 CSVs)                     │
-│    Validated by validador.py before each save        │
-└──────────────────────┬──────────────────────────────┘
-                       │
-                       ▼
-┌─────────────────────────────────────────────────────┐
-│              Trend Score Engine                      │
-│  GitHub 40% + StackOverflow 35% + Reddit 25%        │
-│  Min-max normalization · Outer join · Ranking        │
-└──────────────────────┬──────────────────────────────┘
-                       │
-                       ▼
-┌─────────────────────────────────────────────────────┐
-│            Flutter Web Dashboard                     │
-│  4 views · fl_chart · Export ZIP · Responsive        │
-└─────────────────────────────────────────────────────┘
+docs/
+tests/
+.github/workflows/
 ```
 
-| Layer | Component | Output |
-|-------|-----------|--------|
-| **Extraction** | 3 API connectors | Raw data from GitHub, SO, Reddit |
-| **Transformation** | BaseETL + 3 children | 11 processed CSVs |
-| **Scoring** | trend_score.py | Unified technology ranking |
-| **Validation** | validador.py + csv_contract.py | Column checks + strict schema/types validation |
-| **Presentation** | Flutter Web | 4 interactive dashboards |
+## Runtime Workflows
 
----
+### 1) ETL Weekly Data Refresh (`etl_semanal.yml`)
 
-## Key Metrics & Results
+Trigger:
+- Schedule: every Monday at `08:00 UTC`.
+- Manual: `workflow_dispatch`.
 
-| Metric | Value |
-|--------|-------|
-| **Repositories analyzed** | 1,000 |
-| **StackOverflow questions** | 5 languages + 5 frameworks |
-| **Reddit posts** | 500+ from r/webdev |
-| **Output CSVs** | 11 validated datasets |
-| **Trend Score** | Top technology ranking |
-| **Tests** | 72 passing (pytest) |
-| **Code coverage** | All ETL modules tested |
+Flow:
+1. Run source jobs in parallel: GitHub, StackOverflow, Reddit.
+2. Upload source artifacts.
+3. Aggregate job downloads artifacts, runs Trend Score, syncs frontend assets, validates data contract.
+4. Publish job commits refreshed data if aggregate is successful.
 
----
+Important behavior:
+- Reddit source is non-blocking in source stage (degraded mode is allowed).
+- Aggregate stage enforces required outputs for frontend and trend artifacts.
 
-## Dashboard Features
+### 2) CI - Tests (`ci.yml`)
 
-| Page | Visualizations |
-|------|----------------|
-| **Home** | Executive KPIs, global insights, navigation |
-| **GitHub** | Top 10 languages · Framework commits · Stars vs Contributors correlation |
-| **StackOverflow** | Question volume · Acceptance rates · Monthly trends (Python/JS/TS) |
-| **Reddit** | Framework sentiment · Emerging topics · GitHub-Reddit intersection |
+Trigger:
+- Push and pull request checks for Python tests.
 
-Each dashboard includes **Key Insights** cards and an **Export ZIP** button.
+### 3) Dependency Security Audit (`dependency_security.yml`)
 
----
+Trigger:
+- Dependency file changes and weekly schedule (Monday at `09:00 UTC`).
+- Manual execution supported.
 
-## Tech Stack
+### 4) Frontend Deploy (`deploy_frontend.yml`)
 
-| Layer | Technologies |
-|-------|--------------|
-| **ETL Pipeline** | Python 3.9+, pandas, requests, NLTK |
-| **Architecture** | BaseETL (OOP), custom exceptions, data validation |
-| **Testing** | pytest, unittest.mock (72 tests, API mocking) |
-| **Frontend** | Flutter Web, Dart, fl_chart, google_fonts |
-| **Data Storage** | CSV (11 files, pathlib paths) |
-| **Automation** | Makefile, sync_assets.py, GitHub Actions |
-| **Security** | pip-audit, dependency security workflow |
-| **Deployment** | GitHub Pages |
+Trigger:
+- Push to `main` affecting frontend/data paths.
+- Successful completion of ETL workflow.
+- Manual execution.
 
----
+## Environment Variables
 
-## Quick Start
+Create `.env` in repo root:
 
-```bash
-# Clone repository
-git clone https://github.com/Sam-24-dev/Technology-trend-analysis-platform.git
-cd Technology-trend-analysis-platform
-
-# Install dependencies
-make install
-
-# Run full pipeline (ETL + Trend Score)
-make etl
-
-# Run tests
-make test
-
-# Sync CSVs to frontend
-make sync
-
-# Or run everything at once
-make all
-```
-
-### Environment Setup
-
-Create a `.env` file in the project root:
 ```env
-GITHUB_TOKEN=your_github_personal_access_token
-STACKOVERFLOW_KEY=your_so_api_key          # optional
-REDDIT_CLIENT_ID=your_reddit_client_id     # optional (OAuth)
-REDDIT_CLIENT_SECRET=your_reddit_secret    # optional (OAuth)
+GITHUB_TOKEN=your_token
+STACKOVERFLOW_KEY=your_key
+REDDIT_CLIENT_ID=your_client_id
+REDDIT_CLIENT_SECRET=your_client_secret
+
+DATA_WRITE_LEGACY_CSV=1
+DATA_WRITE_LATEST_CSV=0
+DATA_WRITE_HISTORY_CSV=0
+EXPORT_HISTORY_BRIDGE_JSON=1
+TREND_SCORE_ENGINE=legacy
 ```
 
-### Run Frontend
+Notes:
+- Local defaults keep legacy behavior.
+- CI workflow sets dual write and DuckDB explicitly for weekly runs.
+
+## Local Commands
 
 ```bash
+# backend
+pip install -r backend/requirements.txt
+python -m pytest -q
+
+# run ETLs
+python backend/github_etl.py
+python backend/stackoverflow_etl.py
+python backend/reddit_etl.py
+python backend/trend_score.py
+
+# sync assets + bridge
+python backend/sync_assets.py
+
+# frontend
 cd frontend
 flutter pub get
 flutter run -d chrome
 ```
 
-> **Note:** Pre-processed data is included in `datos/`. Only run ETL if you need fresh data.
+## Release Readiness
 
----
+Release and cutover policy is defined in:
+- `docs/ROADMAP_V2_IMPLEMENTATION_PLAN.md` (sections 19 and 20)
 
-## Project Structure
+In short:
+- Implementation is done.
+- Production cutover requires operational stability gates.
 
-```
-Technology-trend-analysis-platform/
-├── backend/                          # ETL Pipeline (Python)
-│   ├── config/
-│   │   ├── __init__.py
-│   │   └── settings.py              # Centralized config (pathlib, dates)
-│   ├── base_etl.py                  # Abstract ETL base class (OOP)
-│   ├── github_etl.py                # GitHubETL: 4 analysis steps
-│   ├── stackoverflow_etl.py         # StackOverflowETL: 3 analysis steps
-│   ├── reddit_etl.py                # RedditETL: 3 analysis steps + NLP
-│   ├── trend_score.py               # Composite index (3 sources)
-│   ├── validador.py                 # DataFrame validation before save
-│   ├── exceptions.py                # ETLExtractionError, ETLValidationError
-│   ├── sync_assets.py               # Copy CSVs to frontend
-│   └── requirements.txt
-├── datos/                            # Processed CSVs (11 files)
-├── docs/
-│   └── architecture.md
-├── frontend/                         # Flutter Web Dashboard
-│   ├── lib/
-│   │   ├── main.dart
-│   │   ├── screens/                  # 5 screens (home, github, so, reddit)
-│   │   ├── models/                   # Data models per source
-│   │   ├── services/                 # CSV parsing service
-│   │   └── widgets/                  # Reusable chart card
-│   ├── assets/
-│   │   ├── data/                     # CSVs for visualization
-│   │   └── images/                   # Technology logos
-│   └── pubspec.yaml
-├── logs/                             # Daily ETL logs
-├── tests/                            # pytest suite (72 tests)
-│   ├── conftest.py
-│   ├── test_github_etl.py
-│   ├── test_stackoverflow_etl.py
-│   ├── test_reddit_etl.py
-│   └── test_trend_score.py
-├── .env.example
-├── .gitignore
-├── LICENSE
-├── Makefile                          # make install/etl/test/sync/all
-├── pyproject.toml                    # Pylint + pytest config
-└── README.md
-```
+## License
 
----
-
-## Scalability & Roadmap
-
-- **Orchestration:** Pipeline structure is compatible with Apache Airflow for scheduled runs
-- **Database:** Migration path to PostgreSQL/BigQuery for data warehousing
-- **Containerization:** Ready for Docker deployment
-- **CI/CD:** GitHub Actions for automated testing and deployment
-- **API Layer:** FastAPI integration for programmatic data access
-
----
-
-## Team
-
-| Member | Role | Responsibility |
-|--------|------|----------------|
-| **Samir Caizapasto** | Lead Developer | GitHub ETL + Dashboard + Architecture |
-| **Andrés Salinas** | Developer | StackOverflow ETL + Dashboard |
-| **Mateo Mayorga** | Developer | Reddit ETL + Dashboard + NLP |
-
----
-
-<div align="center">
-
-### Author
-
-**Samir Caizapasto**
-*Junior Data Engineer & Analyst*
-
-[![](https://img.shields.io/badge/LinkedIn-Connect-0077B5?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/samir-caizapasto/)
-[![](https://img.shields.io/badge/Portfolio-Visit-00d4ff?style=for-the-badge&logo=vercel)](https://portafolio-samir-tau.vercel.app/)
-[![](https://img.shields.io/badge/GitHub-Follow-181717?style=for-the-badge&logo=github)](https://github.com/Sam-24-dev)
-
-</div>
-
----
-
-<div align="center">
-
-⭐ If this project demonstrates useful data engineering practices, please give it a star.
-
-</div>
+MIT

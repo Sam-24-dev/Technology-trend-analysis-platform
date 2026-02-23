@@ -2,7 +2,7 @@ name: Dependency Security Audit
 
 on:
   push:
-    branches: [main, refactor/standard-structure]
+    branches: [main, feat/backend]
     paths:
       - 'backend/requirements.txt'
       - '.github/workflows/dependency_security.yml'

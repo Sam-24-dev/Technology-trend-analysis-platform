@@ -44,8 +44,8 @@ Frontend:
 - Loader: `frontend/lib/services/csv_service.dart`
 
 CI/CD:
-- Workflow ETL semanal existe y funciona
-- Flujo actual mayormente secuencial para procesamiento ETL
+- Workflow ETL semanal paralelo por fuente + aggregate + publish
+- Verificaciones de artifacts y outputs frontend activas en CI
 
 ## 4) Estrategia de ramas y gobernanza
 
@@ -96,23 +96,25 @@ Si se requiere alineacion exacta de commit y no aplica fast-forward:
 - MINOR: adiciones backward-compatible (columnas opcionales, checks no-breaking)
 - PATCH: correcciones internas sin romper el contrato de schema
 
-## 6) Layout de almacenamiento (fijado desde ahora)
+## 6) Layout de almacenamiento (estado implementado)
 
 Latest outputs:
 - `datos/latest/*.csv`
-- `datos/latest/history_index.json`
-- `datos/latest/trend_score_history.json`
 
 History outputs:
-- `datos/history/<dataset_logical_name>/year=YYYY/month=MM/day=DD/part-0000.parquet`
+- `datos/history/<dataset_logical_name>/year=YYYY/month=MM/day=DD/*.csv`
 
 Metadata outputs:
 - `datos/metadata/run_manifest.json`
 - `datos/metadata/runs/<run_id>.json`
 
+Frontend bridge outputs:
+- `frontend/assets/data/history_index.json`
+- `frontend/assets/data/trend_score_history.json`
+
 Ejemplos:
-- `datos/history/trend_score/year=2026/month=02/day=22/part-0000.parquet`
-- `datos/history/so_volumen/year=2026/month=02/day=22/part-0000.parquet`
+- `datos/history/trend_score/year=2026/month=02/day=22/trend_score.csv`
+- `datos/history/so_volumen/year=2026/month=02/day=22/so_volumen_preguntas.csv`
 
 ## 7) Matriz de compatibilidad V1 -> V2 (core)
 
@@ -285,7 +287,7 @@ Objetivo:
 
 Archivos:
 - `backend/trend_score.py`
-- `backend/trend_score_v2_duckdb.py` (new)
+- `backend/trend_score_duckdb.py` (new)
 - `tests/test_trend_equivalence_v1_v2.py` (new)
 
 Checks:
@@ -347,51 +349,106 @@ F2:
 - Tests: contract schema tests
 - Acceptance: manifest valido en sample run
 - Rollback: revert PR
+- Estado: DONE
+- Evidencia:
+  - `pytest -q tests/test_data_product_contract.py tests/test_csv_contract.py` -> 15 passed
+  - sample run manifest validado con `validate_run_manifest` -> `manifest_valid=True`, `errors=0`
 
 F3:
 - Deliverables: dual write latest/history
 - Tests: write path + idempotency tests
 - Acceptance: archivos esperados creados en el layout fijo
 - Rollback: desactivar history flag
+- Estado: DONE
+- Evidencia:
+  - `pytest -q tests/test_base_etl.py tests/test_sync_assets.py` -> 16 passed
+  - prueba de idempotencia de escritura en script aislado -> `legacy_exists=True`, `latest_exists=True`, `history_exists=True`, `history_file_count=1`
+  - validacion de acceptance en run real -> `acceptance_paths_ok=True` para `datos/`, `datos/latest/`, `datos/history/...`
+  - validacion de rollback por flag -> `rollback_history_mtime_unchanged=True` con `DATA_WRITE_HISTORY_CSV=0`
 
 F4:
 - Deliverables: DuckDB trend engine
 - Tests: equivalence suite
 - Acceptance: todos los umbrales en verde
 - Rollback: volver a V1 engine
+- Estado: DONE
+- Evidencia:
+  - `pytest -q tests/test_trend_score.py tests/test_trend_equivalence_v1_v2.py` -> 20 passed
+  - validacion de umbrales de equivalencia -> `max_abs_diff=0.0000`, `top10_overlap=1.00`, `pct_rank_delta_le_1=1.00`
+  - verificacion de rollback por engine -> `duckdb_exit=0`, `legacy_exit=0` con `TREND_SCORE_ENGINE=duckdb|legacy`
 
 F5:
 - Deliverables: severity quality gate
 - Tests: enrutamiento `critical`/`warning`/`info`
 - Acceptance: critical bloquea publish, warning permite publish-with-flag
 - Rollback: bypass de gate nuevo
+- Estado: DONE
+- Evidencia:
+  - `pytest -q tests/test_validador.py tests/test_validate_csv_contract.py` -> 12 passed
+  - tests especificos de severidad (`warning` no bloquea y `critical` bloquea en strict) -> 4 passed
+  - `python backend/validate_csv_contract.py --no-strict` -> `status=success` con warning routeado
+  - `python backend/validate_csv_contract.py --pandera-strict` -> `status=success` con warnings no bloqueantes en dataset actual
+  - `python backend/validate_csv_contract.py --no-strict --skip-pandera` -> `status=success` (bypass operativo)
 
 F6:
 - Deliverables: CI paralelo con artifacts
 - Tests: workflow dry run + artifact contract
 - Acceptance: corrida end-to-end exitosa
 - Rollback: restaurar workflow secuencial
+- Estado: DONE
+- Evidencia:
+  - workflow actualizado con jobs paralelos (`job_github`, `job_stackoverflow`, `job_reddit`) y agregador con `needs`
+  - contrato de artifacts validado en `tests/test_workflow_etl_contract.py` -> 4 passed
+  - suite F6/F7 backend (`pytest -q tests/test_workflow_etl_contract.py tests/test_sync_assets.py tests/test_export_history_json.py`) -> 13 passed
+  - dry run local del flujo aggregate (`python backend/sync_assets.py` + `python backend/export_history_json.py`) -> `status=success` en ambos comandos
+  - gate de rollback preservado: se puede volver al workflow secuencial restaurando `.github/workflows/etl_semanal.yml`
 
 F7:
 - Deliverables: bridge JSON + cutover parcial frontend
 - Tests: frontend smoke path
 - Acceptance: 4 corridas semanales estables antes de retiro de CSV
 - Rollback: flag off y fallback CSV-only
+- Estado: DONE (implementacion) / OPERATIVO EN CURSO (estabilidad semanal)
+- Evidencia:
+  - bridge JSON export activo con `backend/export_history_json.py` y `backend/sync_assets.py`
+  - assets bridge generados en `frontend/assets/data/history_index.json` y `frontend/assets/data/trend_score_history.json`
+  - cutover parcial implementado por feature flag en `frontend/lib/config/feature_flags.dart`
+  - consumo bridge con fallback CSV implementado en `frontend/lib/services/csv_service.dart`
+  - wiring de UI temporal aplicado en `frontend/lib/screens/home_screen.dart`
+  - smoke build frontend (`flutter build web --debug`) -> success
+  - criterio de 4 corridas semanales se valida en ejecucion real de workflow tras push (no bloquea la implementacion del PR)
 
 ## 18) Escenarios de prueba (obligatorios)
 
-1. Manifest schema: muestras validas e invalidas
-2. Correctitud de SemVer bump en cambios representativos
-3. Estabilidad deterministica de `schema_hash`
-4. Idempotencia de dual write por `run_id`
-5. Acciones del quality gate por severidad
-6. Umbrales de equivalencia trend V1 vs V2
-7. Matriz de degradacion (3/3, 2/3, 1/3, 0/3 fuentes)
-8. Manejo de artifact corrupto o faltante
-9. Comportamiento de fallback del frontend bridge
-10. Verificacion de rollback por PR
+Estado general: `DONE`
+
+- [x] 1) Manifest schema: muestras validas e invalidas
+  - Evidencia: `tests/test_data_product_contract.py`
+- [x] 2) Correctitud de SemVer bump en cambios representativos
+  - Evidencia: `tests/test_schema_contract_utils.py` (matriz representativa de cambios -> bump esperado)
+- [x] 3) Estabilidad deterministica de `schema_hash`
+  - Evidencia: `tests/test_schema_contract_utils.py` (`compute_schema_hash` deterministico y sensible a cambios semanticos)
+- [x] 4) Idempotencia de dual write por `run_id`
+  - Evidencia: `tests/test_base_etl.py`, `tests/test_sync_assets.py`
+- [x] 5) Acciones del quality gate por severidad
+  - Evidencia: `tests/test_validador.py`, `tests/test_validate_csv_contract.py`
+- [x] 6) Umbrales de equivalencia trend V1 vs V2
+  - Evidencia: `tests/test_trend_equivalence_v1_v2.py`
+- [x] 7) Matriz de degradacion (3/3, 2/3, 1/3, 0/3 fuentes)
+  - Evidencia: `tests/test_degradation_policy.py`
+- [x] 8) Manejo de artifact corrupto o faltante
+  - Evidencia: `tests/test_workflow_etl_contract.py`, `tests/test_export_history_json.py`
+- [x] 9) Comportamiento de fallback del frontend bridge
+  - Evidencia: `tests/test_frontend_bridge_contract.py`, `tests/test_export_history_json.py`
+- [x] 10) Verificacion de rollback por PR
+  - Evidencia: `tests/test_trend_score.py`, `tests/test_sync_assets.py`, `tests/test_workflow_etl_contract.py`
+
+Resultado de verificacion:
+- `pytest -q` -> `133 passed`
 
 ## 19) Releases y tags
+
+Estado: `READY FOR EXECUTION` (sin bloqueo tecnico; pendiente gate operativo semanal)
 
 Checkpoints recomendados:
 - `v2.0.0-rc1`: F2 + F3
@@ -406,7 +463,22 @@ Criterios de cutover completo:
 - equivalencia trend estable
 - frontend bridge estable con flag on
 
+Estado actual de criterios:
+- suite tecnica en verde (`pytest -q` -> `133 passed`)
+- equivalencia trend validada (F4 en verde)
+- bridge frontend implementado con fallback y feature flag
+- pendiente operativo: 4 corridas semanales reales + verificacion SLO
+
+Procedimiento de ejecucion de tags (cuando se autorice):
+1. Validar rama `feat/backend` actualizada con `main`.
+2. Ejecutar tests y smoke checks.
+3. Crear tag anotado del checkpoint objetivo.
+4. Publicar tag remoto.
+5. Registrar notas de release.
+
 ## 20) Decision timeline tags
+
+Estado: `DECISIONES CERRADAS`
 
 - Adoptar ahora:
   - Contract V2
@@ -415,12 +487,19 @@ Criterios de cutover completo:
   - DuckDB equivalence
   - CI artifacts
   - Frontend bridge
+  - estado: implementado en `feat/backend`
 
 - Adoptar en V2.1:
   - forecasting y NLP avanzado
+  - estado: pendiente (no bloquea release V2.0.0)
 
 - Post-V2:
   - BI externo y almacenamiento long-term fuera de GitHub
+  - estado: backlog estrategico
+
+Regla de control de alcance:
+- toda mejora nueva no critica entra a V2.1 o Post-V2
+- solo fixes de estabilidad/regresion entran antes de `v2.0.0`
 
 ## 21) Supuestos finales
 

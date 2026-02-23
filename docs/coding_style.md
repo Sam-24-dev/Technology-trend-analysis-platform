@@ -1,24 +1,62 @@
-# Estandar de estilo del repositorio
+﻿# Estandar de Estilo del Repositorio
 
-Este documento define las reglas de estilo activas para mantener consistencia en backend y documentacion.
+Este documento define reglas para mantener consistencia tecnica y colaboracion.
 
-## Reglas globales
+## 1) Idioma por Area
 
-- `README.md` en ingles.
-- Archivos dentro de `docs/` en espanol (terminos tecnicos pueden quedar en ingles).
-- Sin emojis en codigo backend.
-- Evitar comentarios excesivos; comentar solo cuando agrega contexto tecnico real.
+- `README.md`: ingles.
+- `docs/`: espanol (terminos tecnicos pueden quedar en ingles).
+- `backend/`:
+  - comentarios y docstrings en ingles.
+  - nombres ETL de negocio existentes pueden mantenerse en espanol.
+  - modulos tecnicos y utilidades compartidas en ingles.
 
-## Reglas backend
+## 2) Naming y Estructura
 
-- Modulos y componentes tecnicos en ingles.
-- ETLs y logica de negocio existente pueden mantener nombres de funciones/metodos en espanol.
-- Comentarios y docstrings: siempre en ingles en todo `backend/`.
-- Mantener nomenclatura profesional y estable (sin nombres temporales tipo `v2`, `fase2`, etc.).
+- usar nombres profesionales y estables.
+- evitar nombres temporales en codigo (`fase`, `pr-xx`, `tmp`, etc).
+- mantener coherencia con el estilo del modulo antes de renombrar APIs.
+- evitar sobre-comentarios; comentar solo cuando agrega contexto real.
+- no usar emojis en codigo backend.
 
-## Criterio para nuevos PR
+## 3) Reglas de Implementacion
 
-- No mezclar idioma dentro de comentarios/docstrings de un mismo modulo.
-- No cambiar nombres publicos sin necesidad funcional.
-- Priorizar cambios incrementales y compatibles con el comportamiento actual.
-- Ejecutar tests antes de merge.
+- cambios incrementales y compatibles con comportamiento actual.
+- no romper contratos publicos sin requerimiento funcional explicito.
+- separar logica de negocio y utilidades tecnicas.
+- toda capa nueva debe incluir tests.
+
+## 4) Flujo de Ramas
+
+- `main`: rama estable.
+- `feat/backend`: cambios backend.
+- `feat/frontend`: cambios frontend.
+
+Antes de PR:
+1. actualizar rama con `main`.
+2. correr tests relevantes.
+3. verificar build/smoke cuando aplique.
+
+## 5) Commits
+
+- mensajes en ingles, claros y breves.
+- evitar titulos con terminologia interna del plan (`f2`, `pr03`, etc).
+- un commit debe agrupar cambios coherentes.
+
+## 6) Validacion Minima antes de Push
+
+- `pytest -q`
+- smoke ETL si se toca pipeline.
+- smoke frontend si se toca integracion de assets.
+- confirmar que cambios no relacionados no se incluyan por error.
+
+## 7) Politica de Artefactos Generados
+
+- no commitear salidas runtime (`datos/latest`, `datos/history`, `datos/metadata`) salvo decision explicita.
+- commitear codigo, tests y documentacion.
+
+## 8) Definicion de Listo
+
+- tests en verde.
+- sin regresiones de contrato de datos.
+- comportamiento de rollback definido para cambios de riesgo.
