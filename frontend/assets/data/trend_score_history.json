@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-02-23T02:33:58Z",
+  "generated_at_utc": "2026-02-23T08:58:55Z",
   "snapshot_count": 1,
   "snapshots": [
     {
@@ -17,7 +17,7 @@
         {
           "ranking": 2,
           "tecnologia": "TypeScript",
-          "trend_score": 35.75,
+          "trend_score": 35.74,
           "fuentes": 3
         },
         {
@@ -29,13 +29,13 @@
         {
           "ranking": 4,
           "tecnologia": "JavaScript",
-          "trend_score": 22.96,
+          "trend_score": 22.94,
           "fuentes": 2
         },
         {
           "ranking": 5,
           "tecnologia": "Java",
-          "trend_score": 14.34,
+          "trend_score": 14.32,
           "fuentes": 2
         },
         {
@@ -89,7 +89,7 @@
         {
           "date": "2026-02-23",
           "ranking": 2,
-          "trend_score": 35.75,
+          "trend_score": 35.74,
           "fuentes": 3
         }
       ]
@@ -111,7 +111,7 @@
         {
           "date": "2026-02-23",
           "ranking": 4,
-          "trend_score": 22.96,
+          "trend_score": 22.94,
           "fuentes": 2
         }
       ]
@@ -122,7 +122,7 @@
         {
           "date": "2026-02-23",
           "ranking": 5,
-          "trend_score": 14.34,
+          "trend_score": 14.32,
           "fuentes": 2
         }
       ]
