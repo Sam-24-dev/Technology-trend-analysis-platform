@@ -1,9 +1,9 @@
 ranking,tecnologia,github_score,so_score,reddit_score,trend_score,fuentes
 1,Python,100.0,100.0,5.79,76.45,3
-2,TypeScript,73.33,17.65,0.96,35.75,3
+2,TypeScript,73.33,17.63,0.96,35.74,3
 3,AI/ML,0.0,0.0,100.0,25.0,1
-4,JavaScript,20.32,42.37,0.0,22.96,2
-5,Java,1.27,39.52,0.0,14.34,2
+4,JavaScript,20.32,42.31,0.0,22.94,2
+5,Java,1.27,39.46,0.0,14.32,2
 6,Go,15.87,0.0,0.0,6.35,1
 7,Microservices,0.0,0.0,19.61,4.9,1
 8,Rust,10.48,0.0,0.0,4.19,1
