@@ -38,6 +38,10 @@ Herramienta:
 
 Si hay vulnerabilidades, el job falla y no se recomienda merge a `main`.
 
+Excepcion temporal vigente:
+- `CVE-2025-14009` (`nltk 3.9.2`) esta ignorado en CI porque no existe version parche publicada.
+- La excepcion debe revisarse semanalmente y removerse apenas exista fix oficial de `nltk`.
+
 ## Flujo Recomendado de Actualizacion
 
 1. crear rama de trabajo.
