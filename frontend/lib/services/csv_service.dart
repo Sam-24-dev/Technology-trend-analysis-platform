@@ -1,9 +1,11 @@
-import 'dart:convert' show utf8;
+import 'dart:convert' show jsonDecode, utf8;
 
 import 'package:csv/csv.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:http/http.dart' as http;
+
+import '../config/feature_flags.dart';
 
 /// Servicio central de carga de CSVs.
 ///
@@ -47,17 +49,21 @@ class CsvService {
 
   /// Parser manual de CSV a lista de mapas.
   static List<Map<String, dynamic>> _parseCsvManual(String raw) {
-    final normalized =
-        raw.replaceAll('\r\n', '\n').replaceAll('\r', '\n').trim();
+    final normalized = raw
+        .replaceAll('\r\n', '\n')
+        .replaceAll('\r', '\n')
+        .trim();
     if (normalized.isEmpty) return [];
 
-    final lines =
-        normalized.split('\n').where((l) => l.trim().isNotEmpty).toList();
+    final lines = normalized
+        .split('\n')
+        .where((l) => l.trim().isNotEmpty)
+        .toList();
     if (lines.length < 2) return [];
 
-    final headers = _splitCsvLine(lines.first)
-        .map((h) => h.replaceFirst('\ufeff', '').trim())
-        .toList();
+    final headers = _splitCsvLine(
+      lines.first,
+    ).map((h) => h.replaceFirst('\ufeff', '').trim()).toList();
 
     return [
       for (final line in lines.skip(1))
@@ -89,15 +95,19 @@ class CsvService {
 
     // Log de diagnóstico: primeros 150 chars y longitud
     final preview = rawData.length > 150 ? rawData.substring(0, 150) : rawData;
-    print('[CsvService] _parseCsvToMap: ${rawData.length} chars, '
-        'first 20 code units: ${rawData.codeUnits.take(20).toList()}');
+    print(
+      '[CsvService] _parseCsvToMap: ${rawData.length} chars, '
+      'first 20 code units: ${rawData.codeUnits.take(20).toList()}',
+    );
     print('[CsvService] _parseCsvToMap preview: $preview');
 
     // ── PRIMARY: Parser manual (funciona en todas las plataformas) ──
     final manual = _parseCsvManual(rawData);
     if (manual.isNotEmpty) {
-      print('[CsvService] _parseCsvToMap: manual parser OK '
-          '(${manual.length} filas, headers: ${manual.first.keys.toList()})');
+      print(
+        '[CsvService] _parseCsvToMap: manual parser OK '
+        '(${manual.length} filas, headers: ${manual.first.keys.toList()})',
+      );
       return manual;
     }
     print('[CsvService] _parseCsvToMap: manual parser devolvió vacío');
@@ -105,8 +115,10 @@ class CsvService {
     // ── FALLBACK: CsvToListConverter ──
     try {
       final csvData = const CsvToListConverter().convert(rawData);
-      print('[CsvService] _parseCsvToMap: CsvToListConverter '
-          'rows=${csvData.length}');
+      print(
+        '[CsvService] _parseCsvToMap: CsvToListConverter '
+        'rows=${csvData.length}',
+      );
       if (csvData.length < 2) return [];
 
       final headers = csvData[0]
@@ -132,11 +144,12 @@ class CsvService {
   static Future<List<Map<String, dynamic>>?> _tryHttp(String url) async {
     try {
       final uri = Uri.parse(url);
-      final response =
-          await http.get(uri).timeout(const Duration(seconds: 15));
+      final response = await http.get(uri).timeout(const Duration(seconds: 15));
 
-      print('[CsvService] HTTP ${response.statusCode} ← $url '
-          '(${response.bodyBytes.length} bytes)');
+      print(
+        '[CsvService] HTTP ${response.statusCode} ← $url '
+        '(${response.bodyBytes.length} bytes)',
+      );
 
       if (response.statusCode != 200) {
         throw Exception('HTTP ${response.statusCode} en $url');
@@ -194,10 +207,7 @@ class CsvService {
 
     // ── 1) HTTP con rutas relativas (web) ──
     if (kIsWeb) {
-      final urls = [
-        'assets/assets/data/$fileName',
-        'assets/data/$fileName',
-      ];
+      final urls = ['assets/assets/data/$fileName', 'assets/data/$fileName'];
       for (final url in urls) {
         try {
           final result = await _tryHttp(url);
@@ -218,13 +228,17 @@ class CsvService {
         final raw = await rootBundle.loadString(path);
         final parsed = _parseCsvToMap(raw);
         if (parsed.isNotEmpty) {
-          print('[CsvService] OK via AssetBundle → $path '
-              '(${parsed.length} filas)');
+          print(
+            '[CsvService] OK via AssetBundle → $path '
+            '(${parsed.length} filas)',
+          );
           return parsed;
         }
         // Si parsed está vacío, registrar como error (antes se perdía)
-        errors.add('AssetBundle $path: parseo devolvió vacío '
-            '(${raw.length} chars cargados)');
+        errors.add(
+          'AssetBundle $path: parseo devolvió vacío '
+          '(${raw.length} chars cargados)',
+        );
       } catch (e) {
         errors.add('AssetBundle $path: $e');
         print('[CsvService] AssetBundle fallo en $path → $e');
@@ -236,5 +250,167 @@ class CsvService {
         'No se pudo cargar $fileName.\nErrores:\n${errors.join('\n')}';
     print('[CsvService] FALLO total para $fileName');
     throw Exception(errorMsg);
+  }
+
+  /// Carga un JSON asset y lo retorna como mapa.
+  static Future<Map<String, dynamic>> loadJsonAsMap(String assetPath) async {
+    final fileName = assetPath.replaceAll('\\', '/').split('/').last;
+    final errors = <String>[];
+    print('[CsvService] === Loading JSON: $fileName ===');
+
+    if (kIsWeb) {
+      final urls = ['assets/assets/data/$fileName', 'assets/data/$fileName'];
+      for (final url in urls) {
+        try {
+          final response = await http
+              .get(Uri.parse(url))
+              .timeout(const Duration(seconds: 15));
+          if (response.statusCode != 200) {
+            throw Exception('HTTP ${response.statusCode}');
+          }
+          final body = utf8.decode(response.bodyBytes, allowMalformed: true);
+          final parsed = jsonDecode(body);
+          if (parsed is Map<String, dynamic>) {
+            return parsed;
+          }
+          if (parsed is Map) {
+            return parsed.map((key, value) => MapEntry(key.toString(), value));
+          }
+          throw Exception('Invalid JSON payload shape for $url');
+        } catch (e) {
+          errors.add('HTTP $url: $e');
+        }
+      }
+    }
+
+    final bundlePaths = <String>['assets/data/$fileName', assetPath];
+    final seen = <String>{};
+    final unique = bundlePaths.where((p) => seen.add(p)).toList();
+
+    for (final path in unique) {
+      try {
+        final raw = await rootBundle.loadString(path);
+        final parsed = jsonDecode(raw);
+        if (parsed is Map<String, dynamic>) {
+          return parsed;
+        }
+        if (parsed is Map) {
+          return parsed.map((key, value) => MapEntry(key.toString(), value));
+        }
+        errors.add('AssetBundle $path: invalid JSON payload shape');
+      } catch (e) {
+        errors.add('AssetBundle $path: $e');
+      }
+    }
+
+    throw Exception(
+      'No se pudo cargar JSON $fileName.\nErrores:\n${errors.join('\n')}',
+    );
+  }
+
+  static int _asInt(dynamic value, {int fallback = 0}) {
+    if (value is int) return value;
+    return int.tryParse(value?.toString() ?? '') ?? fallback;
+  }
+
+  static double _asDouble(dynamic value, {double fallback = 0.0}) {
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    return double.tryParse(value?.toString() ?? '') ?? fallback;
+  }
+
+  static List<Map<String, dynamic>> _normalizeTrendRowsFromCsv(
+    List<Map<String, dynamic>> csvRows,
+    int topN,
+  ) {
+    final normalized = csvRows
+        .map(
+          (row) => {
+            'ranking': _asInt(row['ranking'], fallback: 999999),
+            'tecnologia': row['tecnologia']?.toString() ?? '',
+            'trend_score': _asDouble(row['trend_score'], fallback: 0.0),
+            'fuentes': _asInt(row['fuentes'], fallback: 0),
+          },
+        )
+        .where((row) => (row['tecnologia']?.toString().isNotEmpty ?? false))
+        .toList();
+
+    normalized.sort(
+      (a, b) => _asInt(a['ranking']).compareTo(_asInt(b['ranking'])),
+    );
+    return normalized.take(topN).toList();
+  }
+
+  /// Carga vista temporal de Trend Score.
+  ///
+  /// Si `useHistoryBridgeJson` está activo, intenta usar bridge JSON y
+  /// mantiene fallback automático a CSV.
+  static Future<Map<String, dynamic>> loadTrendTemporalView({
+    int topN = 5,
+  }) async {
+    final csvRows = await loadCsvAsMap('assets/data/trend_score.csv');
+    final csvTop = _normalizeTrendRowsFromCsv(csvRows, topN);
+
+    if (!FeatureFlags.useHistoryBridgeJson) {
+      return {
+        'source': 'csv',
+        'snapshotCount': csvTop.isEmpty ? 0 : 1,
+        'items': csvTop,
+      };
+    }
+
+    try {
+      final bridgePayload = await loadJsonAsMap(
+        'assets/data/trend_score_history.json',
+      );
+      final rawSnapshots = (bridgePayload['snapshots'] as List?) ?? const [];
+      if (rawSnapshots.isEmpty) {
+        return {
+          'source': 'csv_fallback',
+          'snapshotCount': csvTop.isEmpty ? 0 : 1,
+          'items': csvTop,
+        };
+      }
+
+      final latestSnapshot = rawSnapshots.last;
+      if (latestSnapshot is! Map) {
+        return {
+          'source': 'csv_fallback',
+          'snapshotCount': csvTop.isEmpty ? 0 : 1,
+          'items': csvTop,
+        };
+      }
+
+      final topRows = (latestSnapshot['top_10'] as List?) ?? const [];
+      final bridgeItems = topRows
+          .whereType<Map>()
+          .map(
+            (row) => {
+              'ranking': _asInt(row['ranking'], fallback: 999999),
+              'tecnologia': row['tecnologia']?.toString() ?? '',
+              'trend_score': _asDouble(row['trend_score'], fallback: 0.0),
+              'fuentes': _asInt(row['fuentes'], fallback: 0),
+            },
+          )
+          .where((row) => (row['tecnologia']?.toString().isNotEmpty ?? false))
+          .take(topN)
+          .toList();
+
+      if (bridgeItems.isNotEmpty) {
+        return {
+          'source': 'bridge_json',
+          'snapshotCount': rawSnapshots.length,
+          'items': bridgeItems,
+        };
+      }
+    } catch (e) {
+      print('[CsvService] Bridge JSON fallback to CSV: $e');
+    }
+
+    return {
+      'source': 'csv_fallback',
+      'snapshotCount': csvTop.isEmpty ? 0 : 1,
+      'items': csvTop,
+    };
   }
 }

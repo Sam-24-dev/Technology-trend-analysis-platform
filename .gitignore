@@ -47,3 +47,8 @@ logs/
 
 # Temporary files
 etl_log_full.txt
+
+# Runtime ETL outputs (dual-write paths)
+datos/latest/
+datos/history/
+datos/metadata/

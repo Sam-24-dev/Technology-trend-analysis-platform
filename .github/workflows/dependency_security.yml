@@ -2,7 +2,7 @@ name: Dependency Security Audit
 
 on:
   push:
-    branches: [main, refactor/standard-structure]
+    branches: [main, feat/backend]
     paths:
       - 'backend/requirements.txt'
       - '.github/workflows/dependency_security.yml'
@@ -42,4 +42,6 @@ jobs:
 
       - name: Run vulnerability audit
         run: |
-          pip-audit -r backend/requirements.txt
+          # Temporary exception: CVE-2025-14009 has no fixed NLTK release yet.
+          # Keep this ignored only until upstream publishes a patched version.
+          pip-audit -r backend/requirements.txt --ignore-vuln CVE-2025-14009

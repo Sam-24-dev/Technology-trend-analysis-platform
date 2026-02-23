@@ -229,7 +229,7 @@ class RedditETL(BaseETL):
             self.logger.error(f"Error obteniendo posts: {e}")
 
         if not posts_data:
-            # Intentar cargar datos anteriores si existen
+            # Try loading previous data if available
             ruta_anterior = ARCHIVOS_SALIDA.get("reddit_sentimiento")
             if ruta_anterior and ruta_anterior.exists():
                 self.logger.warning(f"No se pudo extraer posts de r/{subreddit_name} — usando datos anteriores")

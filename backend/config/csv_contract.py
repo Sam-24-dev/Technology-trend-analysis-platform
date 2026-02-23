@@ -1,12 +1,12 @@
 """
-Contrato de esquemas CSV compartido entre backend y frontend.
+Shared CSV schema contract between backend and frontend.
 
-Este módulo define las columnas requeridas/criticas para cada salida
-del pipeline ETL. Centralizar este contrato reduce acoplamiento implícito
-y hace explícitas las dependencias de datos entre módulos.
+This module defines required/critical columns for each ETL output.
+Centralizing the contract reduces implicit coupling and makes
+data dependencies explicit across modules.
 """
 
-CONTRACT_VERSION = "2026.03"
+CONTRACT_VERSION = "2026.04"
 
 CSV_SCHEMA_CONTRACT = {
     "github_repos": {
@@ -156,25 +156,30 @@ CSV_SCHEMA_CONTRACT = {
 
 
 def get_required_columns(nombre_archivo):
-    """Retorna las columnas requeridas para un archivo lógico de salida."""
+    """Returns required columns for a logical output file."""
     return CSV_SCHEMA_CONTRACT.get(nombre_archivo, {}).get("required_columns", [])
 
 
 def get_critical_columns(nombre_archivo):
-    """Retorna las columnas críticas para un archivo lógico de salida."""
+    """Returns critical columns for a logical output file."""
     return CSV_SCHEMA_CONTRACT.get(nombre_archivo, {}).get("critical_columns", [])
 
 
 def get_optional_columns(nombre_archivo):
-    """Retorna columnas opcionales para un archivo lógico de salida."""
+    """Returns optional columns for a logical output file."""
     return CSV_SCHEMA_CONTRACT.get(nombre_archivo, {}).get("optional_columns", [])
 
 
 def get_column_types(nombre_archivo):
-    """Retorna contrato mínimo de tipos por columna para un CSV lógico."""
+    """Returns the minimal column-type contract for a logical CSV."""
     return CSV_SCHEMA_CONTRACT.get(nombre_archivo, {}).get("column_types", {})
 
 
 def get_contract_version():
-    """Retorna la versión vigente del contrato de datos CSV."""
+    """Returns the current CSV data contract version."""
     return CONTRACT_VERSION
+
+
+def get_logical_dataset_names():
+    """Returns logical dataset names available in the CSV contract."""
+    return sorted(CSV_SCHEMA_CONTRACT.keys())

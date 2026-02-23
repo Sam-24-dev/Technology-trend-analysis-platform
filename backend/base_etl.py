@@ -9,17 +9,24 @@ Usage:
     class GitHubETL(BaseETL):
         def definir_pasos(self):
             return [
-                ("Extraccion de repos", self.extraer_repos),
-                ("Analisis de lenguajes", self.analizar_lenguajes),
+                ("Repository extraction", self.extraer_repos),
+                ("Language analysis", self.analizar_lenguajes),
             ]
 """
 import logging
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from abc import ABC, abstractmethod
 from time import perf_counter
 
 from config.settings import LOG_FORMAT, LOG_DATE_FORMAT, LOGS_DIR, ARCHIVOS_SALIDA
+from config.settings import (
+    WRITE_LEGACY_CSV,
+    WRITE_LATEST_CSV,
+    WRITE_HISTORY_CSV,
+    get_latest_output_path,
+    get_history_output_path,
+)
 from exceptions import ETLExtractionError, ETLValidationError
 from validador import validar_dataframe
 
@@ -68,7 +75,7 @@ class BaseETL(ABC):
         self.logger.addHandler(file_handler)
 
     def guardar_csv(self, df, nombre_archivo):
-        """Validates and saves a DataFrame to CSV.
+        """Validates and saves a DataFrame to one or more CSV destinations.
 
         Args:
             df: DataFrame to save.
@@ -77,17 +84,45 @@ class BaseETL(ABC):
         Raises:
             ETLValidationError: If the DataFrame is empty.
         """
-        ruta = ARCHIVOS_SALIDA.get(nombre_archivo)
-        if ruta is None:
+        ruta_legacy = ARCHIVOS_SALIDA.get(nombre_archivo)
+        if ruta_legacy is None:
             self.logger.warning("No hay ruta de salida para '%s'", nombre_archivo)
             return
 
         validar_dataframe(df, nombre_archivo)
-        df.to_csv(ruta, index=False, encoding="utf-8")
+
+        destinos = []
+        if WRITE_LEGACY_CSV:
+            destinos.append(("legacy", ruta_legacy))
+        if WRITE_LATEST_CSV:
+            ruta_latest = get_latest_output_path(nombre_archivo)
+            if ruta_latest is not None:
+                destinos.append(("latest", ruta_latest))
+        if WRITE_HISTORY_CSV:
+            ruta_history = get_history_output_path(nombre_archivo, fecha=datetime.now(timezone.utc))
+            if ruta_history is not None:
+                destinos.append(("history", ruta_history))
+
+        if not destinos:
+            self.logger.warning(
+                "Escritura deshabilitada para '%s' (sin destinos activos por config)",
+                nombre_archivo,
+            )
+            return
+
+        rutas_escritas = set()
+        for salida, ruta in destinos:
+            ruta = ruta.resolve()
+            if ruta in rutas_escritas:
+                continue
+            ruta.parent.mkdir(parents=True, exist_ok=True)
+            df.to_csv(ruta, index=False, encoding="utf-8")
+            rutas_escritas.add(ruta)
+            self._run_summary["files_written"].append(str(ruta))
+            self.logger.info("[WRITE] archivo=%s destino=%s filas=%d", ruta, salida, len(df))
+
         filas = len(df)
-        self._run_summary["files_written"].append(str(ruta))
         self._run_summary["rows_written"] += filas
-        self.logger.info("[WRITE] archivo=%s filas=%d", ruta, filas)
 
     @abstractmethod
     def definir_pasos(self):
@@ -102,8 +137,8 @@ class BaseETL(ABC):
 
         Example:
             return [
-                ("Extraccion", self.extraer_repos),
-                ("Lenguajes", self.analizar_lenguajes),
+                ("Extraction", self.extraer_repos),
+                ("Languages", self.analizar_lenguajes),
             ]
         """
         raise NotImplementedError
