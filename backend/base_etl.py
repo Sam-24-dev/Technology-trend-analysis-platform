@@ -1,42 +1,49 @@
 """
-Clase base ETL para la Technology Trend Analysis Platform.
+Base ETL class for the Technology Trend Analysis Platform.
 
-Proporciona un patrón estandarizado de Extract-Transform-Load del
- cual heredan todos los scripts ETL. Maneja la configuración de 
- logging, validación de datos y salida a CSV de manera consistente.
-Uso:
+Provides a standardized Extract-Transform-Load pattern that all
+ETL scripts inherit from. Handles logging setup, data validation,
+and CSV output in a consistent way.
+
+Usage:
     class GitHubETL(BaseETL):
         def definir_pasos(self):
             return [
-                ("Extraccion de repos", self.extraer_repos),
-                ("Analisis de lenguajes", self.analizar_lenguajes),
+                ("Repository extraction", self.extraer_repos),
+                ("Language analysis", self.analizar_lenguajes),
             ]
 """
 import logging
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from abc import ABC, abstractmethod
 from time import perf_counter
 
 from config.settings import LOG_FORMAT, LOG_DATE_FORMAT, LOGS_DIR, ARCHIVOS_SALIDA
+from config.settings import (
+    WRITE_LEGACY_CSV,
+    WRITE_LATEST_CSV,
+    WRITE_HISTORY_CSV,
+    get_latest_output_path,
+    get_history_output_path,
+)
 from exceptions import ETLExtractionError, ETLValidationError
 from validador import validar_dataframe
 
 
 class BaseETL(ABC):
-    """Clase base para todos los extractores ETL.
+    """Base class for all ETL extractors.
 
-Las subclases deben implementar definir_pasos(),
- retornando una lista de tuplas (nombre, función).
-Cada paso se ejecuta de forma independiente, de modo 
-que un fallo no detenga la ejecución de los demás..
+    Subclasses must implement definir_pasos() returning a list
+    of (name, function) tuples. Each step runs independently
+    so one failure doesn't stop the others.
     """
 
     def __init__(self, nombre_fuente):
-        """Inicializa el ETL con el nombre de la fuente y el logger.
+        """Initializes the ETL with source name and logger.
 
-Args:
-    nombre_fuente: Nombre de la fuente de datos (ej. 'github', 'reddit').
+        Args:
+            nombre_fuente: Name of the data source (e.g. 'github', 'reddit').
         """
         self.nombre = nombre_fuente
         self.logger = logging.getLogger(nombre_fuente)
@@ -49,9 +56,7 @@ Args:
         }
 
     def configurar_logging(self):
-        """Configura el **logging** hacia la consola y
-          hacia un archivo de log diario.
-         """
+        """Sets up logging to console and daily log file."""
         self.logger.setLevel(logging.INFO)
 
         if self.logger.handlers:
@@ -70,64 +75,90 @@ Args:
         self.logger.addHandler(file_handler)
 
     def guardar_csv(self, df, nombre_archivo):
-        """Valida y guarda un DataFrame en formato CSV.
+        """Validates and saves a DataFrame to one or more CSV destinations.
 
-Args:
-    df: DataFrame a guardar.
-    nombre_archivo: Clave tomada de ARCHIVOS_SALIDA (ej. 'github_repos').
+        Args:
+            df: DataFrame to save.
+            nombre_archivo: Key from ARCHIVOS_SALIDA (e.g. 'github_repos').
 
-Raises:
-    ETLValidationError: Si el DataFrame está vacío.
+        Raises:
+            ETLValidationError: If the DataFrame is empty.
         """
-        ruta = ARCHIVOS_SALIDA.get(nombre_archivo)
-        if ruta is None:
+        ruta_legacy = ARCHIVOS_SALIDA.get(nombre_archivo)
+        if ruta_legacy is None:
             self.logger.warning("No hay ruta de salida para '%s'", nombre_archivo)
             return
 
         validar_dataframe(df, nombre_archivo)
-        df.to_csv(ruta, index=False, encoding="utf-8")
+
+        destinos = []
+        if WRITE_LEGACY_CSV:
+            destinos.append(("legacy", ruta_legacy))
+        if WRITE_LATEST_CSV:
+            ruta_latest = get_latest_output_path(nombre_archivo)
+            if ruta_latest is not None:
+                destinos.append(("latest", ruta_latest))
+        if WRITE_HISTORY_CSV:
+            ruta_history = get_history_output_path(nombre_archivo, fecha=datetime.now(timezone.utc))
+            if ruta_history is not None:
+                destinos.append(("history", ruta_history))
+
+        if not destinos:
+            self.logger.warning(
+                "Escritura deshabilitada para '%s' (sin destinos activos por config)",
+                nombre_archivo,
+            )
+            return
+
+        rutas_escritas = set()
+        for salida, ruta in destinos:
+            ruta = ruta.resolve()
+            if ruta in rutas_escritas:
+                continue
+            ruta.parent.mkdir(parents=True, exist_ok=True)
+            df.to_csv(ruta, index=False, encoding="utf-8")
+            rutas_escritas.add(ruta)
+            self._run_summary["files_written"].append(str(ruta))
+            self.logger.info("[WRITE] archivo=%s destino=%s filas=%d", ruta, salida, len(df))
+
         filas = len(df)
-        self._run_summary["files_written"].append(str(ruta))
         self._run_summary["rows_written"] += filas
-        self.logger.info("[WRITE] archivo=%s filas=%d", ruta, filas)
 
     @abstractmethod
     def definir_pasos(self):
-        """Define los pasos ETL a ejecutar.
+        """Defines the ETL steps to execute.
 
-Debe ser implementado por las subclases.
+        Must be implemented by subclasses.
 
-Returns:
-    list: Lista de tuplas (nombre_paso, funcion_paso).
-        Cada función se ejecuta sin argumentos.
-        Usa self para compartir datos entre los pasos.
-        Ejemplo:
+        Returns:
+            list: List of tuples (step_name, step_function).
+                  Each function is called with no arguments.
+                  Use self to share data between steps.
+
+        Example:
             return [
-                ("Extraccion", self.extraer_repos),
-                ("Lenguajes", self.analizar_lenguajes),
+                ("Extraction", self.extraer_repos),
+                ("Languages", self.analizar_lenguajes),
             ]
         """
         raise NotImplementedError
 
     def validar_configuracion(self):
-        """Valida la configuración del ETL antes de ejecutar los pasos.
+        """Validates ETL configuration before running steps.
 
-        Las subclases pueden sobrescribir este método para 
-        exigir variables de entorno requeridas o realizar 
-        verificaciones de consistencia.
-        Lanza ETLExtractionError(critical=True) para detener 
-        la ejecución anticipadamente.
+        Subclasses can override this method to enforce required
+        environment variables or consistency checks. Raise
+        ETLExtractionError(critical=True) to stop early.
         """
         return
 
     def ejecutar(self):
-        """Ejecuta el pipeline completo de ETL.
+        """Runs the complete ETL pipeline.
 
-        Llama a configurar_logging() y luego ejecuta cada paso
-        definido en definir_pasos() de manera independiente usando 
-        try/except.
-        Si un paso lanza ETLExtractionError con critical=True, 
-        el pipeline se detiene y finaliza con código de salida 1.
+        Calls configurar_logging(), then runs each step from
+        definir_pasos() independently with try/except.
+        If a step raises ETLExtractionError with critical=True,
+        the pipeline stops and exits with code 1.
         """
         self.configurar_logging()
         run_start = perf_counter()
@@ -199,7 +230,7 @@ Returns:
         self.logger.info("ETL %s completado", self.nombre)
 
     def _log_summary(self, run_start, final_status):
-        """Registra un resumen compacto de la ejecución para observabilidad."""
+        """Logs a compact execution summary for observability."""
         total_duration = perf_counter() - run_start
         total_steps = len(self._run_summary["steps"])
         successful_steps = sum(1 for s in self._run_summary["steps"] if s["status"] == "success")

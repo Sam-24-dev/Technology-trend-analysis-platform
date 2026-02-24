@@ -14,6 +14,7 @@ from trend_score import (
     normalizar_scores,
     cargar_github,
     calcular_trend_score,
+    resolve_trend_engine,
     PESOS
 )
 
@@ -170,6 +171,37 @@ class TestCalcularTrendScore:
             result = calcular_trend_score()
 
         assert result.empty
+
+    def test_resolve_unknown_engine_falls_back_to_legacy(self):
+        assert resolve_trend_engine("custom_engine") == "legacy"
+
+    def test_calcular_trend_score_duckdb_engine(self):
+        df_github = pd.DataFrame(
+            {
+                "tecnologia": ["Python", "JavaScript"],
+                "github_score": [100.0, 50.0],
+            }
+        )
+        df_so = pd.DataFrame(
+            {
+                "tecnologia": ["Python", "JavaScript"],
+                "so_score": [80.0, 60.0],
+            }
+        )
+        df_reddit = pd.DataFrame(
+            {
+                "tecnologia": ["Python", "JavaScript"],
+                "reddit_score": [70.0, 40.0],
+            }
+        )
+
+        with patch("trend_score.cargar_github", return_value=df_github), \
+             patch("trend_score.cargar_stackoverflow", return_value=df_so), \
+             patch("trend_score.cargar_reddit", return_value=df_reddit):
+            result = calcular_trend_score(engine="duckdb")
+
+        assert not result.empty
+        assert result.iloc[0]["tecnologia"] == "Python"
 
 
 class TestCargarGitHub:

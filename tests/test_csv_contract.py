@@ -1,6 +1,10 @@
 import pandas as pd
 
-from config.csv_contract import CSV_SCHEMA_CONTRACT, get_contract_version
+from config.csv_contract import (
+    CSV_SCHEMA_CONTRACT,
+    get_contract_version,
+    get_logical_dataset_names,
+)
 from config.settings import ARCHIVOS_SALIDA
 
 
@@ -41,3 +45,10 @@ def test_contract_includes_column_types_for_core_outputs():
         assert type_map, f"{key} no define column_types"
         for required_col in schema["required_columns"]:
             assert required_col in type_map, f"{key} no define tipo para {required_col}"
+
+
+def test_get_logical_dataset_names_includes_core_outputs():
+    logical_names = get_logical_dataset_names()
+    assert "trend_score" in logical_names
+    assert "github_lenguajes" in logical_names
+    assert "so_volumen" in logical_names

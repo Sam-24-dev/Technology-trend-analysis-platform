@@ -1,0 +1,329 @@
+{
+  "generated_at_utc": "2026-02-23T08:58:55Z",
+  "snapshot_count": 1,
+  "snapshots": [
+    {
+      "date": "2026-02-23",
+      "path": "datos/history/trend_score/year=2026/month=02/day=23/trend_score.csv",
+      "source_type": "history",
+      "row_count": 23,
+      "top_10": [
+        {
+          "ranking": 1,
+          "tecnologia": "Python",
+          "trend_score": 76.45,
+          "fuentes": 3
+        },
+        {
+          "ranking": 2,
+          "tecnologia": "TypeScript",
+          "trend_score": 35.74,
+          "fuentes": 3
+        },
+        {
+          "ranking": 3,
+          "tecnologia": "AI/ML",
+          "trend_score": 25.0,
+          "fuentes": 1
+        },
+        {
+          "ranking": 4,
+          "tecnologia": "JavaScript",
+          "trend_score": 22.94,
+          "fuentes": 2
+        },
+        {
+          "ranking": 5,
+          "tecnologia": "Java",
+          "trend_score": 14.32,
+          "fuentes": 2
+        },
+        {
+          "ranking": 6,
+          "tecnologia": "Go",
+          "trend_score": 6.35,
+          "fuentes": 1
+        },
+        {
+          "ranking": 7,
+          "tecnologia": "Microservices",
+          "trend_score": 4.9,
+          "fuentes": 1
+        },
+        {
+          "ranking": 8,
+          "tecnologia": "Rust",
+          "trend_score": 4.19,
+          "fuentes": 1
+        },
+        {
+          "ranking": 9,
+          "tecnologia": "Performance",
+          "trend_score": 4.02,
+          "fuentes": 1
+        },
+        {
+          "ranking": 10,
+          "tecnologia": "Cloud",
+          "trend_score": 2.73,
+          "fuentes": 1
+        }
+      ]
+    }
+  ],
+  "series": [
+    {
+      "tecnologia": "Python",
+      "points": [
+        {
+          "date": "2026-02-23",
+          "ranking": 1,
+          "trend_score": 76.45,
+          "fuentes": 3
+        }
+      ]
+    },
+    {
+      "tecnologia": "TypeScript",
+      "points": [
+        {
+          "date": "2026-02-23",
+          "ranking": 2,
+          "trend_score": 35.74,
+          "fuentes": 3
+        }
+      ]
+    },
+    {
+      "tecnologia": "AI/ML",
+      "points": [
+        {
+          "date": "2026-02-23",
+          "ranking": 3,
+          "trend_score": 25.0,
+          "fuentes": 1
+        }
+      ]
+    },
+    {
+      "tecnologia": "JavaScript",
+      "points": [
+        {
+          "date": "2026-02-23",
+          "ranking": 4,
+          "trend_score": 22.94,
+          "fuentes": 2
+        }
+      ]
+    },
+    {
+      "tecnologia": "Java",
+      "points": [
+        {
+          "date": "2026-02-23",
+          "ranking": 5,
+          "trend_score": 14.32,
+          "fuentes": 2
+        }
+      ]
+    },
+    {
+      "tecnologia": "Go",
+      "points": [
+        {
+          "date": "2026-02-23",
+          "ranking": 6,
+          "trend_score": 6.35,
+          "fuentes": 1
+        }
+      ]
+    },
+    {
+      "tecnologia": "Microservices",
+      "points": [
+        {
+          "date": "2026-02-23",
+          "ranking": 7,
+          "trend_score": 4.9,
+          "fuentes": 1
+        }
+      ]
+    },
+    {
+      "tecnologia": "Rust",
+      "points": [
+        {
+          "date": "2026-02-23",
+          "ranking": 8,
+          "trend_score": 4.19,
+          "fuentes": 1
+        }
+      ]
+    },
+    {
+      "tecnologia": "Performance",
+      "points": [
+        {
+          "date": "2026-02-23",
+          "ranking": 9,
+          "trend_score": 4.02,
+          "fuentes": 1
+        }
+      ]
+    },
+    {
+      "tecnologia": "Cloud",
+      "points": [
+        {
+          "date": "2026-02-23",
+          "ranking": 10,
+          "trend_score": 2.73,
+          "fuentes": 1
+        }
+      ]
+    },
+    {
+      "tecnologia": "Shell",
+      "points": [
+        {
+          "date": "2026-02-23",
+          "ranking": 11,
+          "trend_score": 2.54,
+          "fuentes": 1
+        }
+      ]
+    },
+    {
+      "tecnologia": "Security",
+      "points": [
+        {
+          "date": "2026-02-23",
+          "ranking": 12,
+          "trend_score": 1.93,
+          "fuentes": 1
+        }
+      ]
+    },
+    {
+      "tecnologia": "C++",
+      "points": [
+        {
+          "date": "2026-02-23",
+          "ranking": 13,
+          "trend_score": 1.9,
+          "fuentes": 1
+        }
+      ]
+    },
+    {
+      "tecnologia": "Jupyter Notebook",
+      "points": [
+        {
+          "date": "2026-02-23",
+          "ranking": 14,
+          "trend_score": 1.9,
+          "fuentes": 1
+        }
+      ]
+    },
+    {
+      "tecnologia": "Testing",
+      "points": [
+        {
+          "date": "2026-02-23",
+          "ranking": 15,
+          "trend_score": 1.69,
+          "fuentes": 1
+        }
+      ]
+    },
+    {
+      "tecnologia": "Swift",
+      "points": [
+        {
+          "date": "2026-02-23",
+          "ranking": 16,
+          "trend_score": 1.4,
+          "fuentes": 1
+        }
+      ]
+    },
+    {
+      "tecnologia": "Kotlin",
+      "points": [
+        {
+          "date": "2026-02-23",
+          "ranking": 17,
+          "trend_score": 1.27,
+          "fuentes": 1
+        }
+      ]
+    },
+    {
+      "tecnologia": "DevOps",
+      "points": [
+        {
+          "date": "2026-02-23",
+          "ranking": 18,
+          "trend_score": 1.21,
+          "fuentes": 1
+        }
+      ]
+    },
+    {
+      "tecnologia": "Html",
+      "points": [
+        {
+          "date": "2026-02-23",
+          "ranking": 19,
+          "trend_score": 0.76,
+          "fuentes": 1
+        }
+      ]
+    },
+    {
+      "tecnologia": "C",
+      "points": [
+        {
+          "date": "2026-02-23",
+          "ranking": 20,
+          "trend_score": 0.64,
+          "fuentes": 1
+        }
+      ]
+    },
+    {
+      "tecnologia": "C#",
+      "points": [
+        {
+          "date": "2026-02-23",
+          "ranking": 21,
+          "trend_score": 0.64,
+          "fuentes": 1
+        }
+      ]
+    },
+    {
+      "tecnologia": "Vue",
+      "points": [
+        {
+          "date": "2026-02-23",
+          "ranking": 22,
+          "trend_score": 0.0,
+          "fuentes": 0
+        }
+      ]
+    },
+    {
+      "tecnologia": "Web3",
+      "points": [
+        {
+          "date": "2026-02-23",
+          "ranking": 23,
+          "trend_score": 0.0,
+          "fuentes": 0
+        }
+      ]
+    }
+  ]
+}

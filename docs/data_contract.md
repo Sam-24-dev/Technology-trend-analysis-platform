@@ -1,85 +1,113 @@
-# Contrato de datos CSV (Backend ↔ Frontend)
+﻿# Contrato de Datos (Backend <-> Frontend)
 
-Este documento formaliza el contrato de columnas entre el pipeline ETL (`backend/`) y el dashboard Flutter (`frontend/`).
+Este documento define los contratos activos para salidas de datos y metadata.
 
-## Fuente de verdad
+## 1) Contrato CSV
 
-El contrato ejecutable vive en:
-
+Fuente de verdad:
 - `backend/config/csv_contract.py`
 
-Versión actual del contrato:
+Objetivo:
+- mantener compatibilidad entre salidas backend y consumo frontend.
 
-- `CONTRACT_VERSION = 2026.03`
+Validacion:
 
-El validador consume ese contrato para verificar columnas requeridas y columnas críticas.
+```bash
+python backend/validate_csv_contract.py
+```
 
-Además, el pipeline ETL semanal ejecuta validación de headers con:
+Modos relevantes:
 
-- `python backend/validate_csv_contract.py`
+```bash
+python backend/validate_csv_contract.py --no-strict
+python backend/validate_csv_contract.py --pandera-strict
+python backend/validate_csv_contract.py --no-strict --skip-pandera
+```
 
-Si faltan columnas requeridas o no se cumplen tipos mínimos, el workflow falla antes de publicar cambios de datos.
+## 2) Contrato de Producto de Datos (Manifest)
 
-Modo opcional no estricto (solo advertencias):
+Fuente de verdad:
+- `backend/config/data_product_contract.py`
 
-- `python backend/validate_csv_contract.py --no-strict`
+Incluye:
+- run manifest
+- dataset manifest
 
-## Reglas del contrato
+### 2.1 Campos obligatorios de run manifest
 
-1. **required_columns**: deben existir para considerar que el CSV cumple contrato.
-2. **critical_columns**: no deberían contener nulos; en modo estricto, fallan la validación.
-3. **column_types**: define tipos mínimos esperados por columna (`string`, `integer`, `number`, `datetime`, `string_or_integer`).
-4. **optional_columns**: columnas permitidas (compatibilidad y métricas adicionales), pero no obligatorias.
+- `run_id`
+- `generated_at_utc`
+- `git_sha`
+- `branch`
+- `source_window_start_utc`
+- `source_window_end_utc`
+- `quality_gate_status` (`pass`, `pass_with_warnings`, `fail`)
+- `datasets`
 
-## Tipos mínimos por archivo (resumen)
+### 2.2 Campos obligatorios de dataset manifest
 
-- `github_repos.csv`
-  - `repo_name:string`, `language:string`, `stars:integer`, `forks:integer`, `created_at:datetime`
-- `github_lenguajes.csv`
-  - `lenguaje:string`, `repos_count:integer`, `porcentaje:number`
-- `github_ai_repos_insights.csv`
-  - `total_repos_analizados:integer`, `repos_ai_detectados:integer`, `porcentaje_ai:number`, `mes_pico_ai:string`, `repos_mes_pico_ai:integer`, `top_keywords_ai:string`, `top_repos_ai:string`
-- `github_commits_frameworks.csv`
-  - `framework:string`, `repo:string`, `commits_2025:integer`, `ranking:integer`
-- `github_correlacion.csv`
-  - `repo_name:string`, `stars:integer`, `contributors:integer`, `language:string`
-- `so_volumen_preguntas.csv`
-  - `lenguaje:string`, `preguntas_nuevas_2025:integer`
-- `so_tasa_aceptacion.csv`
-  - `tecnologia:string`, `total_preguntas:integer`, `respuestas_aceptadas:integer`, `tasa_aceptacion_pct:number`
-- `so_tendencias_mensuales.csv`
-  - `mes:string`, `python:integer`, `javascript:integer`, `typescript:integer`
-- `reddit_sentimiento_frameworks.csv`
-  - `framework:string`, `total_menciones:integer`, `positivos:integer`, `neutros:integer`, `negativos:integer`
-  - opcionales: `% positivo:number`, `% neutro:number`, `% negativo:number`
-- `reddit_temas_emergentes.csv`
-  - `tema:string`, `menciones:integer`
-- `interseccion_github_reddit.csv`
-  - `tecnologia:string`, `tipo:string`, `ranking_github:integer`, `ranking_reddit:string_or_integer`
-- `trend_score.csv`
-  - `ranking:integer`, `tecnologia:string`, `github_score:number`, `so_score:number`, `reddit_score:number`, `trend_score:number`, `fuentes:integer`
+- `dataset_logical_name`
+- `version_semver`
+- `generated_at_utc`
+- `source_run_id`
+- `schema_hash`
+- `row_count`
+- `quality_status` (`pass`, `warning`, `fail`)
+- `latest_path`
+- `history_path`
 
-## Archivos clave consumidos por frontend
+## 3) Reglas de Validacion
 
-- `github_lenguajes.csv`
-  - requeridas: `lenguaje`, `repos_count`, `porcentaje`
-- `so_volumen_preguntas.csv`
-  - requeridas: `lenguaje`, `preguntas_nuevas_2025`
-- `so_tasa_aceptacion.csv`
-  - requeridas: `tecnologia`, `total_preguntas`, `respuestas_aceptadas`, `tasa_aceptacion_pct`
-- `reddit_temas_emergentes.csv`
-  - requeridas: `tema`, `menciones`
-- `trend_score.csv`
-  - requeridas: `ranking`, `tecnologia`, `github_score`, `so_score`, `reddit_score`, `trend_score`, `fuentes`
+- fechas en formato ISO-8601 con zona horaria.
+- `version_semver` valida SemVer.
+- `schema_hash` debe ser SHA-256 hexadecimal de 64 caracteres.
+- `row_count` debe ser entero >= 0.
+- `source_run_id` debe coincidir con `run_id`.
+- `history_path` puede ser `null` cuando `quality_status=fail`.
 
-## Compatibilidad de `reddit_sentimiento_frameworks.csv`
+## 4) Utilidades de Schema y Versionado
 
-El backend mantiene como requeridas:
+Fuente de verdad:
+- `backend/config/schema_contract_utils.py`
 
-- `framework`, `total_menciones`, `positivos`, `neutros`, `negativos`
+Funciones:
+- `compute_schema_hash(...)`
+- `recommend_semver_bump(...)`
+- `aggregate_semver_bump(...)`
 
-Y como opcionales para visualización:
+Politica SemVer implementada:
+- `major`: cambio breaking (remove/rename required column, tipo incompatible, etc).
+- `minor`: cambios backward-compatible (columna opcional, regla no breaking, etc).
+- `patch`: cambios internos sin romper contrato.
 
-- `% positivo`, `% neutro`, `% negativo`
+## 5) Estrategia de Escritura
 
-Esto evita acoplamiento implícito y deja explícita la coexistencia de métricas absolutas y porcentuales.
+Control por flags:
+- `DATA_WRITE_LEGACY_CSV`
+- `DATA_WRITE_LATEST_CSV`
+- `DATA_WRITE_HISTORY_CSV`
+
+Rutas:
+- Legacy: `datos/*.csv`
+- Latest: `datos/latest/*.csv`
+- History: `datos/history/<dataset>/year=YYYY/month=MM/day=DD/*.csv`
+
+## 6) Bridge Frontend
+
+Fuente de verdad:
+- `backend/export_history_json.py`
+
+Activos generados:
+- `frontend/assets/data/history_index.json`
+- `frontend/assets/data/trend_score_history.json`
+
+Comportamiento:
+- si el historial esta incompleto o corrupto, se usa fallback a `latest` para trend.
+
+## 7) Recomendacion Operativa
+
+Antes de publicar cambios de contrato:
+1. actualizar contrato en backend.
+2. agregar o ajustar tests.
+3. ejecutar `pytest -q`.
+4. validar que frontend sigue consumiendo sin regresiones.

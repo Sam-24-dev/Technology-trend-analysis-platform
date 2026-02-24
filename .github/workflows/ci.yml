@@ -2,7 +2,7 @@ name: CI - Tests
 
 on:
   push:
-    branches: [main, refactor/standard-structure]
+    branches: [main, feat/backend, feat/frontend]
     paths-ignore:
       - 'datos/**'
       - 'frontend/assets/data/**'

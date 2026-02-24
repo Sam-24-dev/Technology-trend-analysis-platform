@@ -1,109 +1,96 @@
-# Architecture -- Technology Trend Analysis Platform
+﻿# Arquitectura del Proyecto
 
-## System Overview
+## Resumen
 
-Plataforma multi-fuente que extrae, transforma y visualiza datos de tendencias tecnologicas
-desde tres comunidades de desarrolladores: GitHub, StackOverflow y Reddit.
+La plataforma procesa tendencias de tecnologia desde tres fuentes (GitHub, StackOverflow, Reddit),
+calcula un Trend Score compuesto, valida calidad de datos y publica activos para frontend.
 
-## Data Flow
+## Flujo de Datos
 
-```
-                    .env (API Keys)
-                         |
-          +--------------+--------------+
-          v              v              v
-   GitHub API    StackOverflow API   Reddit API
-     (REST)         (REST)          (OAuth/JSON)
-          |              |              |
-          v              v              v
-   github_etl.py  so_etl.py      reddit_etl.py
-          |              |              |
-          +--------------+--------------+
-                         v
-                   datos/ (CSV)
-                 Fuente de Verdad
-                         |
-                  sync_assets.py
-                         |
-                         v
-              frontend/assets/data/
-                         |
-                         v
-               Flutter Web Dashboard
-                    (fl_chart)
+```text
+GitHub ETL -------\
+StackOverflow ETL --> datos/*.csv --> Trend Score --> sync_assets --> frontend/assets/data/*
+Reddit ETL -------/
+
+Adicional:
+- dual write opcional a datos/latest y datos/history
+- export de bridge JSON para historico de trend
 ```
 
-## Data Schema
+## Componentes Backend
 
-### GitHub
+- `backend/base_etl.py`
+  - clase base para ejecucion, logging y escritura.
+- `backend/config/settings.py`
+  - rutas, flags de escritura y configuracion global.
+- `backend/trend_score.py`
+  - motor principal de Trend Score con selector de engine.
+- `backend/trend_score_duckdb.py`
+  - engine DuckDB para calculo SQL.
+- `backend/validador.py`
+  - validacion de schema y quality report por severidad.
+- `backend/quality/pandera_schemas.py`
+  - reglas `critical/warning/info` con Pandera.
+- `backend/quality/degradation_policy.py`
+  - politica de degradacion por disponibilidad de fuentes.
+- `backend/validate_csv_contract.py`
+  - contrato CSV para compatibilidad backend/frontend.
+- `backend/config/data_product_contract.py`
+  - contrato de run manifest y dataset manifest.
+- `backend/config/schema_contract_utils.py`
+  - `schema_hash` deterministico y reglas SemVer bump.
+- `backend/sync_assets.py`
+  - sincroniza CSV a frontend con prioridad por archivo (`latest` -> fallback `legacy`).
+- `backend/export_history_json.py`
+  - genera `history_index.json` y `trend_score_history.json`.
 
-| Archivo | Columnas | Descripcion |
-|---------|----------|-------------|
-| github_repos_2025.csv | repo_name, language, stars, forks, created_at, description | Top 1000 repos creados en 2025 |
-| github_lenguajes.csv | lenguaje, repos_count, porcentaje | Top 10 lenguajes por cantidad de repos |
-| github_commits_frameworks.csv | framework, repo, commits_2025, ranking | Actividad de commits en frameworks frontend |
-| github_correlacion.csv | repo_name, stars, contributors, language | Correlacion Stars vs Contributors |
+## Estrategia de Escritura
 
-### StackOverflow
+Control por variables de entorno:
 
-| Archivo | Columnas | Descripcion |
-|---------|----------|-------------|
-| so_volumen_preguntas.csv | lenguaje, preguntas_nuevas_2025 | Volumen de preguntas por lenguaje |
-| so_tasa_aceptacion.csv | tecnologia, total_preguntas, respuestas_aceptadas, tasa_aceptacion_pct | Tasa de respuestas aceptadas por framework |
-| so_tendencias_mensuales.csv | mes, python, javascript, typescript | Tendencias mensuales de preguntas |
+- `DATA_WRITE_LEGACY_CSV`
+- `DATA_WRITE_LATEST_CSV`
+- `DATA_WRITE_HISTORY_CSV`
 
-### Reddit
+Rutas:
 
-| Archivo | Columnas | Descripcion |
-|---------|----------|-------------|
-| reddit_sentimiento_frameworks.csv | framework, total_menciones, positivos, neutros, negativos, % positivo, % neutro, % negativo | Analisis de sentimiento para frameworks backend |
-| reddit_temas_emergentes.csv | tema, menciones | Temas emergentes en r/webdev |
-| interseccion_github_reddit.csv | tecnologia, tipo, ranking_github, ranking_reddit, diferencia | Comparacion de rankings entre plataformas |
+- Legacy: `datos/*.csv`
+- Latest: `datos/latest/*.csv`
+- History: `datos/history/<dataset>/year=YYYY/month=MM/day=DD/*.csv`
+- Metadata: `datos/metadata/`
 
-### Trend Score
+## Conexion con Frontend
 
-| Archivo | Columnas | Descripcion |
-|---------|----------|-------------|
-| trend_score.csv | ranking, tecnologia, github_score, so_score, reddit_score, trend_score, fuentes | Indice compuesto ponderado (GitHub 40% + SO 35% + Reddit 25%) |
+El frontend consume:
 
-## Frontend Architecture
+- CSV tradicionales en `frontend/assets/data/*.csv`
+- Bridge JSON opcional:
+  - `frontend/assets/data/history_index.json`
+  - `frontend/assets/data/trend_score_history.json`
 
-```
-Flutter Web Dashboard
-  HomeScreen          - KPIs globales, insights
-  GithubDashboard     - 3 graficos (barras, donut, scatter)
-  SODashboard         - 3 graficos (barras, stacked, lineas)
-  RedditDashboard     - 3 graficos (divergentes, barras, rankings)
+Feature flag:
 
-Cada dashboard incluye:
-  - Carga de CSV via CsvService
-  - Graficos interactivos (fl_chart)
-  - Key Insights
-  - Exportar ZIP
-```
+- `frontend/lib/config/feature_flags.dart`
+- `USE_HISTORY_BRIDGE_JSON=false` por defecto.
 
-## Deployment
+Esto permite cutover parcial sin romper dashboards existentes.
 
-### Local
-```bash
-# Backend
-make install
-make etl
+## GitHub Actions
 
-# Frontend
-cd frontend
-flutter pub get
-flutter run -d chrome
-```
+Workflows activos:
 
-### GitHub Pages
-```bash
-cd frontend
-flutter build web --base-href "/Technology-trend-analysis-platform/"
-```
+1. `etl_semanal.yml`
+   - lunes `08:00 UTC` + manual.
+   - jobs paralelos por fuente + aggregate + publish.
+2. `ci.yml`
+   - tests en `main`, `feat/backend`, `feat/frontend`.
+3. `dependency_security.yml`
+   - auditoria de dependencias (push/PR/schedule/manual).
+4. `deploy_frontend.yml`
+   - deploy de Flutter Web en `main` o tras ETL exitoso.
 
-### Automatizacion (GitHub Actions)
-- Cron: cada lunes a las 08:00 UTC (03:00 Ecuador)
-- Ejecuta el pipeline ETL completo
-- Sincroniza CSVs al frontend
-- Rebuild y deploy de Flutter Web
+## Estado de Backend V2
+
+- Implementacion tecnica: completada.
+- Gate operativo pendiente para cutover final:
+  - 4 corridas semanales consecutivas sin fallos `critical`.

@@ -65,3 +65,8 @@ etl_log_full.txt
 .github/prompts/
 .cursorrules
 .github/copilot-instructions.md
+
+# Runtime ETL outputs (dual-write paths)
+datos/latest/
+datos/history/
+datos/metadata/
