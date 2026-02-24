@@ -1,12 +1,10 @@
 """
-GitHub ETL  Technology Trend Analysis Platform
+GitHub ETL - Technology Trend Analysis Platform
 
 Extrae datos de repositorios desde la GitHub API 
 para analizar tendencias tecnológicas: lenguajes más utilizados, 
 actividad de frameworks y correlación entre stars y 
 contributors.
-
-
 Author: Samir Caizapasto
 """
 import requests
@@ -26,7 +24,7 @@ from base_etl import BaseETL
 
 
 class GitHubETL(BaseETL):
-    """Extractor ETL para datos de repositorios de GitHub.."""
+    """Extractor ETL para datos de repositorios de GitHub."""
 
     ETIQUETAS_NO_LENGUAJE = {
         "sin especificar",

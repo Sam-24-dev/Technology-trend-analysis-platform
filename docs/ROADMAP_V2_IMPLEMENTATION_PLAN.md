@@ -11,8 +11,8 @@ Objetivo:
 - ejecutar por fases (PR-FE-01 a PR-FE-04) sin romper dashboards actuales.
 
 Nota de gobernanza:
-- En esta rama se usa este roadmap frontend como documento principal en `docs/ROADMAP_V2_IMPLEMENTATION_PLAN.md`.
-- El roadmap backend ya vive en la historia de `main` y `feat/backend`.
+- En esta rama se usa este roadmap frontend como documento principal en `docs/ROADMAP_V2_IMPLEMENTATION_PLAN.md`, reemplazando el contenido previo del roadmap backend V2 en este archivo.
+- El roadmap backend V2 original permanece accesible en el historial de `main` y en la rama `feat/backend`.
 
 ## 2) Decisiones cerradas (obligatorias)
 
