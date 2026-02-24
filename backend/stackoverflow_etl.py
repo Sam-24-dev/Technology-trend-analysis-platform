@@ -1,11 +1,11 @@
 """
 StackOverflow ETL - Technology Trend Analysis Platform
 
-Extracts question data from the StackOverflow API to analyze
-technology trends: question volume, accepted answer rates,
-and monthly trends by language.
+Extrae datos de preguntas desde la API de StackOverflow para analizar
+tendencias tecnológicas: volumen de preguntas, tasas de respuestas
+aceptadas y tendencias mensuales por lenguaje.
 
-Author: Andres
+Autor: Andres
 """
 import requests
 import pandas as pd
@@ -24,13 +24,13 @@ from base_etl import BaseETL
 
 
 class StackOverflowETL(BaseETL):
-    """ETL extractor for StackOverflow question data."""
+    """Extractor ETL para datos de preguntas de StackOverflow."""
 
     def __init__(self):
         super().__init__("stackoverflow")
 
     def definir_pasos(self):
-        """Defines the StackOverflow ETL steps."""
+        """Define los pasos del ETL de StackOverflow."""
         return [
             ("Volumen de preguntas", self.extraer_volumen_preguntas),
             ("Tasa de aceptacion", self.calcular_tasa_aceptacion),
@@ -38,7 +38,7 @@ class StackOverflowETL(BaseETL):
         ]
 
     def validar_configuracion(self):
-        """Warns when StackOverflow key is missing (reduced quota mode)."""
+        """Advierte cuando falta la key de StackOverflow (modo de cuota reducida)."""
         if not SO_API_KEY:
             self.logger.warning(
                 "STACKOVERFLOW_KEY no configurado. Se ejecutara en modo degradado "
@@ -46,10 +46,10 @@ class StackOverflowETL(BaseETL):
             )
 
     def get_total_count(self, params):
-        """Queries the API returning only the total result count.
+        """Consulta la API devolviendo solo el conteo total de resultados.
 
         Raises:
-            ETLExtractionError: If the API call fails.
+            ETLExtractionError: Si falla la llamada a la API.
         """
         request_params = dict(params)
         request_params['filter'] = 'total'
@@ -76,7 +76,7 @@ class StackOverflowETL(BaseETL):
         raise ETLExtractionError("StackOverflow API no disponible tras reintentos")
 
     def extraer_volumen_preguntas(self):
-        """Extracts yearly question volume per language from StackOverflow."""
+        """Extrae el volumen anual de preguntas por lenguaje desde StackOverflow."""
         self.logger.info("[1/3] Obteniendo volumen TOTAL de preguntas...")
         languages = ['python', 'javascript', 'typescript', 'java', 'go']
         data_volumen = []
@@ -110,7 +110,7 @@ class StackOverflowETL(BaseETL):
         self.guardar_csv(df_volumen, "so_volumen")
 
     def calcular_tasa_aceptacion(self):
-        """Calculates accepted answer rates per framework as a maturity metric."""
+        """Calcula tasas de respuestas aceptadas por framework como métrica de madurez."""
         self.logger.info("[2/3] Calculando metricas de madurez...")
         frameworks = ['reactjs', 'vue.js', 'angular', 'next.js', 'svelte']
         data_madurez = []
@@ -160,7 +160,7 @@ class StackOverflowETL(BaseETL):
         self.guardar_csv(df_madurez, "so_aceptacion")
 
     def generar_tendencias_mensuales(self):
-        """Generates monthly question trends for top languages."""
+        """Genera tendencias mensuales de preguntas para los lenguajes principales."""
         self.logger.info("[3/3] Generando historico mensual...")
         target_langs = ['python', 'javascript', 'typescript']
         data_trends = []
@@ -212,7 +212,7 @@ class StackOverflowETL(BaseETL):
 
 
 def main():
-    """Entry point for the StackOverflow ETL pipeline."""
+    """Punto de entrada para el pipeline ETL de StackOverflow."""
     etl = StackOverflowETL()
     etl.ejecutar()
 

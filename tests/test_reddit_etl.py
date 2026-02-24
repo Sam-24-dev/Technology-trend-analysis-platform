@@ -1,10 +1,10 @@
 """
-Tests for reddit_etl.py - Reddit ETL module.
+Tests para reddit_etl.py - módulo ETL de Reddit.
 
-Tests cover:
-- Sentiment analysis with known text
-- Emerging topics detection
-- API mocking
+Los tests cubren:
+- Análisis de sentimiento con texto conocido
+- Detección de temas emergentes
+- Mocking de API
 """
 import pytest
 import pandas as pd
@@ -15,7 +15,7 @@ from exceptions import ETLExtractionError
 
 @pytest.fixture
 def etl():
-    """Creates a RedditETL instance with logging configured."""
+    """Crea una instancia de RedditETL con logging configurado."""
     instance = RedditETL()
     instance.configurar_logging()
     return instance
@@ -23,7 +23,7 @@ def etl():
 
 @pytest.fixture
 def sample_posts_df():
-    """Creates sample posts DataFrame for testing."""
+    """Crea un DataFrame de posts de ejemplo para pruebas."""
     return pd.DataFrame({
         "post_id": ["abc1", "abc2", "abc3", "abc4"],
         "titulo": [
@@ -46,7 +46,7 @@ def sample_posts_df():
 
 
 class TestDefinirPasos:
-    """Tests for definir_pasos."""
+    """Tests para definir_pasos."""
 
     def test_returns_five_steps(self, etl):
         pasos = etl.definir_pasos()
@@ -62,7 +62,7 @@ class TestDefinirPasos:
 
 
 class TestConfiguracionReddit:
-    """Tests for early configuration validation in Reddit ETL."""
+    """Tests para validación temprana de configuración en Reddit ETL."""
 
     def test_validar_configuracion_falla_si_credenciales_incompletas(self, etl):
         with patch("reddit_etl.REDDIT_CLIENT_ID", "id_solo"), patch("reddit_etl.REDDIT_CLIENT_SECRET", None):
@@ -75,10 +75,10 @@ class TestConfiguracionReddit:
 
 
 class TestSentimientoFrameworks:
-    """Tests for analizar_sentimiento_frameworks."""
+    """Tests para analizar_sentimiento_frameworks."""
 
     def test_sentiment_produces_correct_columns(self, etl, sample_posts_df, tmp_path):
-        """Verify output has correct columns."""
+        """Verifica que la salida tenga columnas correctas."""
         etl.df_posts = sample_posts_df
 
         with patch("base_etl.ARCHIVOS_SALIDA", {"reddit_sentimiento": tmp_path / "test.csv"}):
@@ -90,7 +90,7 @@ class TestSentimientoFrameworks:
             assert col in df.columns
 
     def test_sentiment_detects_frameworks(self, etl, sample_posts_df, tmp_path):
-        """Verify that framework mentions are detected."""
+        """Verifica que las menciones de frameworks sean detectadas."""
         etl.df_posts = sample_posts_df
 
         with patch("base_etl.ARCHIVOS_SALIDA", {"reddit_sentimiento": tmp_path / "test.csv"}):
@@ -102,7 +102,7 @@ class TestSentimientoFrameworks:
         assert "FastAPI" in frameworks
 
     def test_sentiment_positive_text(self, etl, tmp_path):
-        """Verify positive text is classified correctly."""
+        """Verifica que el texto positivo sea clasificado correctamente."""
         positive_posts = pd.DataFrame({
             "post_id": ["p1"],
             "titulo": ["Django is the best framework ever, absolutely love it"],
@@ -123,17 +123,17 @@ class TestSentimientoFrameworks:
             assert django_row["positivos"].values[0] >= 1
 
     def test_sentiment_raises_on_empty(self, etl):
-        """Verify it raises on empty DataFrame."""
+        """Verifica que lance excepción con DataFrame vacío."""
         etl.df_posts = pd.DataFrame()
         with pytest.raises(Exception):
             etl.analizar_sentimiento_frameworks()
 
 
 class TestTemasEmergentes:
-    """Tests for detectar_temas_emergentes."""
+    """Tests para detectar_temas_emergentes."""
 
     def test_detects_known_topics(self, etl, sample_posts_df, tmp_path):
-        """Verify known topics are detected from sample data."""
+        """Verifica que temas conocidos se detecten desde datos de ejemplo."""
         etl.df_posts = sample_posts_df
 
         with patch("base_etl.ARCHIVOS_SALIDA", {"reddit_temas": tmp_path / "test.csv"}):
@@ -141,12 +141,12 @@ class TestTemasEmergentes:
 
         df = pd.read_csv(tmp_path / "test.csv")
         temas = df["tema"].tolist()
-        # Post 4 mentions AI/ML and Cloud and Python
+        # El post 4 menciona AI/ML, Cloud y Python
         assert "IA/Machine Learning" in temas
         assert "Python" in temas
 
     def test_topics_have_positive_counts(self, etl, sample_posts_df, tmp_path):
-        """Verify all detected topics have at least 1 mention."""
+        """Verifica que todos los temas detectados tengan al menos 1 mención."""
         etl.df_posts = sample_posts_df
 
         with patch("base_etl.ARCHIVOS_SALIDA", {"reddit_temas": tmp_path / "test.csv"}):
@@ -156,17 +156,17 @@ class TestTemasEmergentes:
         assert (df["menciones"] > 0).all()
 
     def test_topics_raises_on_empty(self, etl):
-        """Verify it raises on empty DataFrame."""
+        """Verifica que lance excepción con DataFrame vacío."""
         etl.df_posts = pd.DataFrame()
         with pytest.raises(Exception):
             etl.detectar_temas_emergentes()
 
 
 class TestKeywordPrecision:
-    """Tests for keyword matching precision in Reddit ETL."""
+    """Tests para precisión de matching de keywords en Reddit ETL."""
 
     def test_javascript_does_not_match_java_keyword(self, etl, tmp_path):
-        """Ensure 'javascript' does not trigger Java/Spring false positives."""
+        """Asegura que 'javascript' no dispare falsos positivos de Java/Spring."""
         etl.df_posts = pd.DataFrame({
             "post_id": ["p1"],
             "titulo": ["JavaScript ecosystem news and Django notes"],
@@ -186,7 +186,7 @@ class TestKeywordPrecision:
             assert spring_row["total_menciones"].values[0] == 0
 
     def test_api_word_alone_does_not_count_as_microservices(self, etl, tmp_path):
-        """Ensure generic 'api' alone does not count as Microservicios."""
+        """Asegura que 'api' genérico por sí solo no cuente como Microservicios."""
         etl.df_posts = pd.DataFrame({
             "post_id": ["p2"],
             "titulo": ["Public API release for cloud users"],

@@ -1,14 +1,14 @@
 """
-Custom exceptions for the ETL pipeline.
+Excepciones personalizadas para el pipeline ETL.
 
-Provides specific error types to distinguish between
-extraction failures (API issues) and validation failures
-(data quality issues).
+Proporciona tipos de error especificos para distinguir entre
+fallos de extraccion (problemas de API) y fallos de validacion
+(problemas de calidad de datos).
 """
 
 
 class ETLExtractionError(Exception):
-    """Raised when data extraction from an API fails."""
+    """Se lanza cuando la extraccion de datos desde una API falla."""
 
     def __init__(self, message, critical=False):
         super().__init__(message)
@@ -16,4 +16,5 @@ class ETLExtractionError(Exception):
 
 
 class ETLValidationError(Exception):
-    """Raised when extracted data fails validation checks."""
+    """Se lanza cuando los datos extraidos no superan las validaciones establecidas."""
+

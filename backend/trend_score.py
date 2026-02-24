@@ -1,4 +1,4 @@
-"""Trend Score generator for the Technology Trend Analysis Platform."""
+"""Generador de Trend Score para Technology Trend Analysis Platform."""
 
 import logging
 import os
@@ -35,12 +35,12 @@ ETIQUETAS_NO_LENGUAJE = {
 
 
 def normalizar_nombre(nombre):
-    """Normalizes technology names for cross-source comparison."""
+    """Normaliza nombres de tecnologias para comparacion entre fuentes."""
     return normalize_technology_name(nombre)
 
 
 def normalizar_scores(serie):
-    """Normalizes a numeric series to 0-100 scale using min-max."""
+    """Normaliza una serie numerica a escala 0-100 usando min-max."""
     if serie.max() == serie.min():
         return pd.Series([50.0] * len(serie), index=serie.index)
 
@@ -48,7 +48,7 @@ def normalizar_scores(serie):
 
 
 def cargar_github():
-    """Loads and processes GitHub data for scoring."""
+    """Carga y procesa datos de GitHub para scoring."""
     try:
         df_repos = pd.read_csv(ARCHIVOS_SALIDA["github_repos"])
         df_repos["language"] = df_repos["language"].fillna("Sin especificar").astype(str).str.strip()
@@ -73,7 +73,7 @@ def cargar_github():
 
 
 def cargar_stackoverflow():
-    """Loads and processes StackOverflow data for scoring."""
+    """Carga y procesa datos de StackOverflow para scoring."""
     try:
         df_vol = pd.read_csv(ARCHIVOS_SALIDA["so_volumen"])
         df_vol["tecnologia"] = df_vol["lenguaje"].apply(normalizar_nombre)
@@ -89,7 +89,7 @@ def cargar_stackoverflow():
 
 
 def cargar_reddit():
-    """Loads and processes Reddit data for scoring."""
+    """Carga y procesa datos de Reddit para scoring."""
     try:
         df_temas = pd.read_csv(ARCHIVOS_SALIDA["reddit_temas"])
         df_temas["tecnologia"] = df_temas["tema"].apply(normalizar_nombre)
@@ -112,7 +112,7 @@ def _load_score_sources():
 
 
 def _build_legacy_trend_score(df_github, df_so, df_reddit):
-    """Builds Trend Score with the legacy pandas merge strategy."""
+    """Construye Trend Score con estrategia legacy basada en pandas merge."""
     df_combined = pd.DataFrame({"tecnologia": []})
 
     if not df_github.empty:
@@ -153,12 +153,12 @@ def _build_legacy_trend_score(df_github, df_so, df_reddit):
 
 
 def calculate_trend_score_legacy(df_github, df_so, df_reddit):
-    """Public helper to compute trend score with the legacy engine."""
+    """Helper publico para calcular trend score con motor legacy."""
     return _build_legacy_trend_score(df_github, df_so, df_reddit)
 
 
 def resolve_trend_engine(engine=None):
-    """Resolves the Trend Score engine from explicit input or environment."""
+    """Resuelve el motor de Trend Score desde parametro o entorno."""
     resolved = str(engine or os.getenv("TREND_SCORE_ENGINE", "legacy")).strip().lower()
     if resolved not in TREND_ENGINES:
         logger.warning("Unknown trend engine '%s'. Falling back to 'legacy'.", resolved)
@@ -185,7 +185,7 @@ def _log_ranking_preview(df_combined):
 
 
 def calcular_trend_score(engine=None):
-    """Calculates the composite Trend Score for all technologies."""
+    """Calcula Trend Score compuesto para todas las tecnologias."""
     logger.info("Calculating composite Trend Score...")
     logger.info("Weights: GitHub=%s, SO=%s, Reddit=%s", PESOS["github"], PESOS["stackoverflow"], PESOS["reddit"])
 
@@ -220,13 +220,13 @@ def calcular_trend_score(engine=None):
 
 
 def main():
-    """Main function that generates the Trend Score CSV."""
+    """Funcion principal que genera el CSV de Trend Score."""
     etl = TrendScoreETL()
     etl.ejecutar()
 
 
 class TrendScoreETL(BaseETL):
-    """ETL adapter for Trend Score under the BaseETL contract."""
+    """Adaptador ETL para Trend Score bajo el contrato BaseETL."""
 
     def __init__(self):
         super().__init__("trend_score")

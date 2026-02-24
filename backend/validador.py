@@ -1,8 +1,8 @@
 """
-Data validation utilities for the ETL pipeline.
+Utilidades de validacion de datos para el pipeline ETL.
 
-Provides reusable functions to validate DataFrames before
-saving them to CSV, including severity-aware quality checks.
+Proporciona funciones reutilizables para validar DataFrames antes
+de guardarlos en CSV, incluyendo checks de calidad por severidad.
 """
 
 import logging
@@ -21,7 +21,7 @@ logger = logging.getLogger("validador")
 
 
 def _is_series_type_valid(series, expected_type):
-    """Validates pandas Series against a minimal type contract."""
+    """Valida Series de pandas contra un contrato minimo de tipos."""
     non_null = series.dropna()
     if non_null.empty:
         return True
@@ -126,32 +126,32 @@ def validar_dataframe(
     pandera_warn_only=True,
     return_quality_report=False,
 ):
-    """Validates a DataFrame before saving.
+    """Valida un DataFrame antes de guardar.
 
     Checks:
-    1. DataFrame is not empty
-    2. Expected columns exist
-    3. Critical columns have no nulls
+    1. DataFrame no vacio
+    2. Columnas esperadas presentes
+    3. Columnas criticas sin nulos
 
     Args:
-        df: The DataFrame to validate.
-        nombre_archivo: Key from ARCHIVOS_SALIDA (e.g. 'github_repos').
-        strict: If True, raises ETLValidationError on schema violations.
-        validate_types: If True, applies minimal type checks defined in the contract.
-        enable_pandera: If True, executes Pandera-based quality checks.
-        pandera_warn_only: If True, Pandera critical issues are routed as warnings (no block).
-        return_quality_report: If True, returns quality report instead of bool.
+        df: DataFrame a validar.
+        nombre_archivo: Key de ARCHIVOS_SALIDA (ej. 'github_repos').
+        strict: Si es True, lanza ETLValidationError ante violaciones de schema.
+        validate_types: Si es True, aplica checks minimos de tipos del contrato.
+        enable_pandera: Si es True, ejecuta checks de calidad con Pandera.
+        pandera_warn_only: Si es True, critical de Pandera se routea como warning.
+        return_quality_report: Si es True, retorna quality report en vez de bool.
 
     Raises:
-        ETLValidationError: If the DataFrame is empty.
+        ETLValidationError: Si el DataFrame esta vacio.
     """
-    # 1. Verify DataFrame is not empty
+    # 1. Verificar que el DataFrame no este vacio
     if df.empty:
         raise ETLValidationError(f"DataFrame '{nombre_archivo}' esta vacio, no se puede guardar")
 
     logger.info("Validando '%s': %d filas, %d columnas", nombre_archivo, len(df), len(df.columns))
 
-    # 2. Verify expected columns
+    # 2. Verificar columnas esperadas
     esperadas = get_required_columns(nombre_archivo)
     if esperadas:
         faltantes = [col for col in esperadas if col not in df.columns]
@@ -162,7 +162,7 @@ def validar_dataframe(
                     f"'{nombre_archivo}' no cumple schema requerido, faltan columnas: {faltantes}"
                 )
 
-    # 3. Verify nulls in critical columns
+    # 3. Verificar nulos en columnas criticas
     criticas = get_critical_columns(nombre_archivo)
     for col in criticas:
         if col not in df.columns:
@@ -184,7 +184,7 @@ def validar_dataframe(
                     f"'{nombre_archivo}' no cumple schema critico: columna '{col}' con nulos"
                 )
 
-    # 4. Verify minimal types (optional)
+    # 4. Verificar tipos minimos (opcional)
     if validate_types:
         type_map = get_column_types(nombre_archivo)
         for col, expected_type in type_map.items():

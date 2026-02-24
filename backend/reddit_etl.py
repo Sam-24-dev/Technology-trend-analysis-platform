@@ -1,11 +1,11 @@
 """
 Reddit ETL - Technology Trend Analysis Platform
 
-Extracts data from subreddit r/webdev to analyze technology trends:
-backend framework sentiment, emerging topics, and cross-platform
-comparison with GitHub data.
+Extrae datos de subreddit r/webdev para analizar tendencias tecnologicas:
+sentimiento de frameworks backend, temas emergentes y comparacion
+cross-platform con datos de GitHub.
 
-Author: Mateo Mayorga
+Autor: Mateo Mayorga
 """
 import pandas as pd
 from datetime import datetime
@@ -31,19 +31,19 @@ warnings.filterwarnings("ignore")
 
 
 class RedditETL(BaseETL):
-    """ETL extractor for Reddit post data."""
+    """Extractor ETL para datos de posts de Reddit."""
 
     def __init__(self):
         super().__init__("reddit")
         self.df_posts = None
         self.df_temas = None
         self.access_token = None
-        self.api_base = "https://www.reddit.com"  # fallback: public API
+        self.api_base = "https://www.reddit.com"  # fallback: API publica
         self.headers = dict(REDDIT_HEADERS)
 
     @staticmethod
     def _coincide_keyword(texto, keyword):
-        """Checks keyword presence using boundary-safe regex matching."""
+        """Verifica presencia de keyword usando regex segura por limites."""
         kw = keyword.strip().lower()
         if not kw:
             return False
@@ -55,11 +55,11 @@ class RedditETL(BaseETL):
         return re.search(patron, texto, flags=re.IGNORECASE) is not None
 
     def _obtener_token_oauth(self):
-        """Obtains an OAuth2 bearer token from Reddit using client credentials.
+        """Obtiene token bearer OAuth2 de Reddit usando client credentials.
 
-        If REDDIT_CLIENT_ID and REDDIT_CLIENT_SECRET are set, switches
-        to the authenticated oauth.reddit.com endpoint which works from
-        datacenter IPs (GitHub Actions).
+        Si REDDIT_CLIENT_ID y REDDIT_CLIENT_SECRET existen, cambia
+        al endpoint autenticado oauth.reddit.com que funciona desde
+        IPs de datacenter (GitHub Actions).
         """
         if not REDDIT_CLIENT_ID or not REDDIT_CLIENT_SECRET:
             self.logger.warning(
@@ -107,7 +107,7 @@ class RedditETL(BaseETL):
             self.logger.warning("Error en OAuth: %s — usando API publica", e)
 
     def definir_pasos(self):
-        """Defines the Reddit ETL steps."""
+        """Define los pasos ETL de Reddit."""
         return [
             ("Preparar recursos NLTK", self._ensure_nltk_resources),
             ("Autenticacion OAuth", self._obtener_token_oauth),
@@ -118,10 +118,10 @@ class RedditETL(BaseETL):
         ]
 
     def validar_configuracion(self):
-        """Validates Reddit credentials consistency before running.
+        """Valida consistencia de credenciales de Reddit antes de ejecutar.
 
-        - If both are missing: allowed (degraded public API mode).
-        - If only one is present: invalid configuration (critical).
+        - Si faltan ambas: permitido (modo degradado API publica).
+        - Si solo hay una: configuracion invalida (critical).
         """
         if bool(REDDIT_CLIENT_ID) ^ bool(REDDIT_CLIENT_SECRET):
             raise ETLExtractionError(
@@ -137,9 +137,9 @@ class RedditETL(BaseETL):
             )
 
     def _ensure_nltk_resources(self):
-        """Ensures required NLTK resources are available at runtime.
+        """Asegura que recursos NLTK requeridos esten disponibles en runtime.
 
-        Avoids side effects during module import.
+        Evita side effects durante import del modulo.
         """
         try:
             nltk.data.find('sentiment/vader_lexicon')
@@ -154,10 +154,10 @@ class RedditETL(BaseETL):
             nltk.download('stopwords', quiet=True)
 
     def extraer_posts(self, subreddit_name=REDDIT_SUBREDDIT, limit=REDDIT_LIMIT):
-        """Fetches posts from a subreddit using Reddit's public JSON API.
+        """Extrae posts de un subreddit usando la API JSON publica de Reddit.
 
         Raises:
-            ETLExtractionError: If no posts could be fetched.
+            ETLExtractionError: Si no se pudieron extraer posts.
         """
         self.logger.info(f"Obteniendo posts de r/{subreddit_name}...")
 
@@ -229,7 +229,7 @@ class RedditETL(BaseETL):
             self.logger.error(f"Error obteniendo posts: {e}")
 
         if not posts_data:
-            # Try loading previous data if available
+            # Intentar cargar datos previos si existen
             ruta_anterior = ARCHIVOS_SALIDA.get("reddit_sentimiento")
             if ruta_anterior and ruta_anterior.exists():
                 self.logger.warning(f"No se pudo extraer posts de r/{subreddit_name} — usando datos anteriores")
@@ -247,7 +247,7 @@ class RedditETL(BaseETL):
         self.df_posts = pd.DataFrame(posts_data)
 
     def analizar_sentimiento_frameworks(self):
-        """Analyzes sentiment for backend frameworks mentioned in posts."""
+        """Analiza sentimiento para frameworks backend mencionados en posts."""
         self.logger.info("PREGUNTA 1: Analizando sentimiento de frameworks backend...")
 
         if self.df_posts is None or self.df_posts.empty:
@@ -326,7 +326,7 @@ class RedditETL(BaseETL):
         self.guardar_csv(df_sentimientos, "reddit_sentimiento")
 
     def detectar_temas_emergentes(self):
-        """Detects emerging topics mentioned in r/webdev posts."""
+        """Detecta temas emergentes mencionados en posts de r/webdev."""
         self.logger.info("PREGUNTA 2: Detectando temas emergentes...")
 
         if self.df_posts is None or self.df_posts.empty:
@@ -369,7 +369,7 @@ class RedditETL(BaseETL):
         self.guardar_csv(self.df_temas, "reddit_temas")
 
     def interseccion_tecnologias(self):
-        """Compares technology rankings between GitHub and Reddit."""
+        """Compara ranking de tecnologias entre GitHub y Reddit."""
         self.logger.info("PREGUNTA 3: Analizando interseccion GitHub vs Reddit...")
 
         if self.df_temas is None or self.df_temas.empty:
@@ -443,7 +443,7 @@ class RedditETL(BaseETL):
 
 
 def main():
-    """Entry point for the Reddit ETL pipeline."""
+    """Punto de entrada para el pipeline ETL de Reddit."""
     etl = RedditETL()
     etl.ejecutar()
 

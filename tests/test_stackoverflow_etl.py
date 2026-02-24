@@ -1,10 +1,10 @@
 """
-Tests for stackoverflow_etl.py - StackOverflow ETL module.
+Tests para stackoverflow_etl.py - módulo ETL de StackOverflow.
 
-Tests cover:
-- Acceptance rate calculation
-- Output CSV format and columns
-- API mocking
+Los tests cubren:
+- Cálculo de tasa de aceptación
+- Formato y columnas del CSV de salida
+- Mocking de API
 """
 import pytest
 import pandas as pd
@@ -14,14 +14,14 @@ from stackoverflow_etl import StackOverflowETL
 
 @pytest.fixture
 def etl():
-    """Creates a StackOverflowETL instance with logging configured."""
+    """Crea una instancia de StackOverflowETL con logging configurado."""
     instance = StackOverflowETL()
     instance.configurar_logging()
     return instance
 
 
 class TestDefinirPasos:
-    """Tests for definir_pasos."""
+    """Tests para definir_pasos."""
 
     def test_returns_three_steps(self, etl):
         pasos = etl.definir_pasos()
@@ -36,7 +36,7 @@ class TestDefinirPasos:
 
 
 class TestGetTotalCount:
-    """Tests for the get_total_count helper."""
+    """Tests para el helper get_total_count."""
 
     def test_returns_total_on_success(self, etl):
         mock_response = MagicMock()
@@ -58,7 +58,7 @@ class TestGetTotalCount:
                 etl.get_total_count({"site": "stackoverflow", "tagged": "python"})
 
     def test_does_not_mutate_input_params(self, etl):
-        """Verify get_total_count does not mutate caller params."""
+        """Verifica que get_total_count no muta los params del caller."""
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.json.return_value = {"total": 10}
@@ -73,10 +73,10 @@ class TestGetTotalCount:
 
 
 class TestTasaAceptacion:
-    """Tests for calcular_tasa_aceptacion."""
+    """Tests para calcular_tasa_aceptacion."""
 
     def test_correct_rate_calculation(self, etl, tmp_path):
-        """Verify acceptance rate is calculated correctly."""
+        """Verifica que la tasa de aceptación se calcule correctamente."""
         call_count = [0]
         totals = [100, 75, 200, 150, 300, 200, 50, 30, 80, 40]
 
@@ -94,11 +94,11 @@ class TestTasaAceptacion:
         assert "tecnologia" in df.columns
         assert len(df) == 5
 
-        # First framework: 100 total, 75 accepted = 75%
+        # Primer framework: 100 total, 75 aceptadas = 75%
         assert df.iloc[0]["tasa_aceptacion_pct"] == 75.0
 
     def test_output_format(self, etl, tmp_path):
-        """Verify CSV has all required columns."""
+        """Verifica que el CSV tenga todas las columnas requeridas."""
         with patch.object(etl, "get_total_count", return_value=100):
             with patch("base_etl.ARCHIVOS_SALIDA", {"so_aceptacion": tmp_path / "test.csv"}):
                 etl.calcular_tasa_aceptacion()
@@ -110,10 +110,10 @@ class TestTasaAceptacion:
 
 
 class TestVolumenPreguntas:
-    """Tests for extraer_volumen_preguntas."""
+    """Tests para extraer_volumen_preguntas."""
 
     def test_correct_output_columns(self, etl, tmp_path):
-        """Verify output has correct columns."""
+        """Verifica que la salida tenga columnas correctas."""
         with patch.object(etl, "get_total_count", return_value=500):
             with patch("base_etl.ARCHIVOS_SALIDA", {"so_volumen": tmp_path / "test.csv"}):
                 etl.extraer_volumen_preguntas()
@@ -124,7 +124,7 @@ class TestVolumenPreguntas:
         assert len(df) == 5
 
     def test_raises_when_all_fail(self, etl):
-        """Verify it raises when all API calls fail."""
+        """Verifica que lance excepción cuando todas las llamadas a API fallan."""
         from exceptions import ETLExtractionError
 
         with patch.object(etl, "get_total_count", side_effect=ETLExtractionError("fail")):

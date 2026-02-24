@@ -1,11 +1,11 @@
 """
-Tests for trend_score.py - Trend Score module.
+Tests para trend_score.py - módulo Trend Score.
 
-Tests cover:
-- Trend Score calculation with sample data
-- Correct ranking order
-- Normalization logic
-- Handling missing sources
+Los tests cubren:
+- Cálculo de Trend Score con datos de ejemplo
+- Orden correcto de ranking
+- Lógica de normalización
+- Manejo de fuentes faltantes
 """
 import pandas as pd
 from unittest.mock import patch
@@ -20,7 +20,7 @@ from trend_score import (
 
 
 class TestNormalizarNombre:
-    """Tests for technology name normalization."""
+    """Tests para normalización de nombres de tecnología."""
 
     def test_python_normalized(self):
         assert normalizar_nombre("python") == "Python"
@@ -44,7 +44,7 @@ class TestNormalizarNombre:
 
 
 class TestNormalizarScores:
-    """Tests for min-max score normalization."""
+    """Tests para normalización de score min-max."""
 
     def test_normalizes_to_0_100(self):
         serie = pd.Series([10, 20, 30, 40, 50])
@@ -53,7 +53,7 @@ class TestNormalizarScores:
         assert result.max() == 100.0
 
     def test_handles_equal_values(self):
-        """When all values are equal, should return 50."""
+        """Cuando todos los valores son iguales, debe retornar 50."""
         serie = pd.Series([5, 5, 5])
         result = normalizar_scores(serie)
         assert (result == 50.0).all()
@@ -65,10 +65,10 @@ class TestNormalizarScores:
 
 
 class TestCalcularTrendScore:
-    """Tests for the composite Trend Score calculation."""
+    """Tests para el cálculo compuesto de Trend Score."""
 
     def test_correct_ranking_order(self):
-        """Top score should be ranked #1."""
+        """El score más alto debe quedar rankeado como #1."""
         df_github = pd.DataFrame({
             "tecnologia": ["Python", "JavaScript"],
             "github_score": [100.0, 50.0]
@@ -92,7 +92,7 @@ class TestCalcularTrendScore:
         assert result.iloc[1]["ranking"] == 2
 
     def test_weighted_calculation(self):
-        """Verify the weighted formula is correct."""
+        """Verifica que la fórmula ponderada sea correcta."""
         df_github = pd.DataFrame({
             "tecnologia": ["TestLang"],
             "github_score": [100.0]
@@ -116,7 +116,7 @@ class TestCalcularTrendScore:
         assert result.iloc[0]["trend_score"] == expected
 
     def test_missing_source_fills_zero(self):
-        """Technologies not in a source should get 0 for that source."""
+        """Las tecnologías no presentes en una fuente deben recibir 0 en esa fuente."""
         df_github = pd.DataFrame({
             "tecnologia": ["Python", "Go"],
             "github_score": [100.0, 50.0]
@@ -137,7 +137,7 @@ class TestCalcularTrendScore:
         assert go_row["reddit_score"].values[0] == 0.0
 
     def test_fuentes_count(self):
-        """Verify the 'fuentes' column counts sources correctly."""
+        """Verifica que la columna 'fuentes' cuente correctamente las fuentes."""
         df_github = pd.DataFrame({
             "tecnologia": ["Python", "Rust"],
             "github_score": [100.0, 80.0]
@@ -162,7 +162,7 @@ class TestCalcularTrendScore:
         assert rust_row["fuentes"].values[0] == 1
 
     def test_empty_all_sources(self):
-        """Returns empty DataFrame when no data is available."""
+        """Retorna DataFrame vacío cuando no hay datos disponibles."""
         empty = pd.DataFrame(columns=["tecnologia", "github_score"])
 
         with patch("trend_score.cargar_github", return_value=empty), \
@@ -205,7 +205,7 @@ class TestCalcularTrendScore:
 
 
 class TestCargarGitHub:
-    """Tests for GitHub data loading and filtering in trend score."""
+    """Tests para carga y filtrado de datos de GitHub en trend score."""
 
     def test_filtra_etiquetas_no_lenguaje(self):
         sample = pd.DataFrame({
