@@ -1,8 +1,8 @@
 """
-Syncs CSV files from datos/ to frontend/assets/data/.
+Sincroniza archivos CSV desde datos/ hacia frontend/assets/data/.
 
-Ensures the Flutter Web dashboard always uses the latest
-processed data from the ETL pipeline.
+Asegura que el dashboard Flutter Web use siempre los datos
+procesados más recientes del pipeline ETL.
 """
 import logging
 import shutil
@@ -10,7 +10,7 @@ from pathlib import Path
 
 
 def sincronizar():
-    """Copies all CSV files from datos/ to frontend/assets/data/."""
+    """Copia todos los archivos CSV de datos/ a frontend/assets/data/."""
     logger = logging.getLogger("sync_assets")
     if not logger.handlers:
         logging.basicConfig(level=logging.INFO, format="[%(asctime)s] [%(levelname)s] %(name)s - %(message)s")

@@ -1,9 +1,11 @@
 """
-GitHub ETL - Technology Trend Analysis Platform
+GitHub ETL  Technology Trend Analysis Platform
 
-Extracts repository data from the GitHub API to analyze
-technology trends: top languages, framework activity,
-and stars-contributors correlation.
+Extrae datos de repositorios desde la GitHub API 
+para analizar tendencias tecnológicas: lenguajes más utilizados, 
+actividad de frameworks y correlación entre stars y 
+contributors.
+
 
 Author: Samir Caizapasto
 """
@@ -24,7 +26,7 @@ from base_etl import BaseETL
 
 
 class GitHubETL(BaseETL):
-    """ETL extractor for GitHub repository data."""
+    """Extractor ETL para datos de repositorios de GitHub.."""
 
     ETIQUETAS_NO_LENGUAJE = {
         "sin especificar",
@@ -47,7 +49,7 @@ class GitHubETL(BaseETL):
         self.df_repos = None
 
     def definir_pasos(self):
-        """Defines the GitHub ETL steps."""
+        """Define los pasos del ETL de GitHub."""
         return [
             ("Verificar conexion", self.verificar_conexion),
             ("Extraccion de repos", self.extraer_repos),
@@ -58,7 +60,7 @@ class GitHubETL(BaseETL):
         ]
 
     def validar_configuracion(self):
-        """Warns when running without GitHub token (degraded quota mode)."""
+        """Advierte cuando se ejecuta sin GitHub token (modo degradado de cuota)."""
         if not GITHUB_HEADERS.get("Authorization"):
             self.logger.warning(
                 "GITHUB_TOKEN no configurado. Se ejecutara en modo degradado "
@@ -66,20 +68,20 @@ class GitHubETL(BaseETL):
             )
 
     def _normalizar_lenguaje(self, valor):
-        """Normalizes language values from GitHub API."""
+        """Normaliza valores de lenguaje provenientes de la GitHub API."""
         if valor is None:
             return "Sin especificar"
         texto = str(valor).strip()
         return texto if texto else "Sin especificar"
 
     def _es_lenguaje_clasificable(self, lenguaje):
-        """Returns True when the value represents a real programming language."""
+        """Retorna True cuando el valor representa un lenguaje de programación real."""
         if lenguaje is None:
             return False
         return str(lenguaje).strip().lower() not in self.ETIQUETAS_NO_LENGUAJE
 
     def _es_repo_ai(self, repo_name, description, language):
-        """Detects whether a repository is related to AI/LLMs."""
+        """Detecta si un repositorio está relacionado con AI/LLMs."""
         nombre = str(repo_name or "").lower()
         desc = str(description or "").lower()
         lenguaje = str(language or "").strip().lower()
@@ -91,7 +93,7 @@ class GitHubETL(BaseETL):
         return any(kw in texto for kw in self.KEYWORDS_AI)
 
     def verificar_conexion(self):
-        """Verifies connection to the GitHub API and checks rate limit."""
+        """Verifica conexión con la GitHub API y revisa el rate limit."""
         self.logger.info("Verificando conexion con GitHub API...")
 
         try:
@@ -119,7 +121,7 @@ class GitHubETL(BaseETL):
             raise ETLExtractionError(f"Error de conexion: {response.status_code}", critical=True)
 
     def esperar_rate_limit(self, response):
-        """Handles GitHub API rate limiting by waiting until reset."""
+        """Gestiona el rate limiting de GitHub API esperando hasta el reset."""
         if response.status_code == 403:
             reset_time = int(response.headers.get('X-RateLimit-Reset', 0))
             if reset_time:
@@ -131,10 +133,10 @@ class GitHubETL(BaseETL):
         return False
 
     def extraer_repos(self, max_repos=MAX_REPOS):
-        """Extracts the most popular repositories from the last 12 months.
+        """Extrae los repositorios más populares de los últimos 12 meses.
 
         Raises:
-            ETLExtractionError: If no repositories could be extracted.
+            ETLExtractionError: Si no se pudo extraer ningún repositorio.
         """
         self.logger.info(f"Extrayendo top {max_repos} repos ({FECHA_INICIO_STR} a {FECHA_FIN_STR})...")
 
@@ -224,7 +226,7 @@ class GitHubETL(BaseETL):
         self.guardar_csv(self.df_repos, "github_repos")
 
     def analizar_lenguajes(self):
-        """Analyzes the most used programming languages in recent repos."""
+        """Analiza los lenguajes de programación más usados en repos recientes."""
         self.logger.info("PREGUNTA 1: Analizando lenguajes...")
 
         if self.df_repos is None or self.df_repos.empty:
@@ -261,7 +263,7 @@ class GitHubETL(BaseETL):
         self.guardar_csv(df_lenguajes, "github_lenguajes")
 
     def generar_insights_repos_ai(self):
-        """Builds a dedicated insights CSV for AI/LLM repositories."""
+        """Construye un CSV de insights dedicado para repositorios AI/LLM."""
         self.logger.info("PREGUNTA 1b: Generando insights de repos IA/LLMs...")
 
         if self.df_repos is None or self.df_repos.empty:
@@ -322,7 +324,7 @@ class GitHubETL(BaseETL):
         self.guardar_csv(df_insights, "github_ai_insights")
 
     def analizar_commits_frameworks(self):
-        """Analyzes commit activity for frontend frameworks."""
+        """Analiza la actividad de commits de frameworks frontend."""
         self.logger.info("PREGUNTA 2: Analizando commits de frameworks...")
 
         commits_data = []
@@ -393,7 +395,7 @@ class GitHubETL(BaseETL):
         self.guardar_csv(df_commits, "github_commits")
 
     def analizar_correlacion(self):
-        """Analyzes the correlation between Stars and Contributors."""
+        """Analiza la correlación entre Stars y Contributors."""
         self.logger.info("PREGUNTA 3: Analizando correlacion Stars vs Contributors...")
 
         if self.df_repos is None or self.df_repos.empty:
@@ -483,7 +485,7 @@ class GitHubETL(BaseETL):
 
 
 def main():
-    """Entry point for the GitHub ETL pipeline."""
+    """Punto de entrada para el pipeline ETL de GitHub."""
     etl = GitHubETL()
     etl.ejecutar()
 

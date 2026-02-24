@@ -1,9 +1,9 @@
 """
-Data validation utilities for the ETL pipeline.
+Utilidades de validación de datos para el pipeline ETL.
 
-Provides reusable functions to validate DataFrames before
-saving them to CSV: empty checks, column verification,
-and null detection.
+Proporciona funciones reutilizables para validar DataFrames antes
+de guardarlos como CSV: validación de vacíos, verificación de columnas
+y detección de nulos.
 """
 import logging
 import pandas as pd
@@ -15,7 +15,7 @@ logger = logging.getLogger("validador")
 
 
 def _is_series_type_valid(series, expected_type):
-    """Validates pandas Series against a minimal type contract."""
+    """Valida una Series de pandas contra un contrato mínimo de tipos."""
     non_null = series.dropna()
     if non_null.empty:
         return True
@@ -48,21 +48,21 @@ def _is_series_type_valid(series, expected_type):
 
 
 def validar_dataframe(df, nombre_archivo, strict=False, validate_types=False):
-    """Validates a DataFrame before saving.
+    """Valida un DataFrame antes de guardar.
 
-    Checks:
-    1. DataFrame is not empty
-    2. Expected columns exist
-    3. Critical columns have no nulls
+    Validaciones:
+    1. El DataFrame no está vacío
+    2. Existen las columnas esperadas
+    3. Las columnas críticas no tienen nulos
 
     Args:
-        df: The DataFrame to validate.
-        nombre_archivo: Key from ARCHIVOS_SALIDA (e.g. 'github_repos').
-        strict: If True, raises ETLValidationError on schema violations.
-        validate_types: If True, applies minimal type checks defined in the contract.
+        df: DataFrame a validar.
+        nombre_archivo: Key de ARCHIVOS_SALIDA (ej. 'github_repos').
+        strict: Si es True, lanza ETLValidationError ante violaciones de schema.
+        validate_types: Si es True, aplica validaciones mínimas de tipos definidas en el contrato.
 
     Raises:
-        ETLValidationError: If the DataFrame is empty.
+        ETLValidationError: Si el DataFrame está vacío.
     """
     # 1. Verificar que no esta vacio
     if df.empty:

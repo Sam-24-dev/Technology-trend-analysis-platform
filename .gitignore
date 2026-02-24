@@ -47,3 +47,21 @@ logs/
 
 # Temporary files
 etl_log_full.txt
+
+# Local AI assistant tooling/config (UIPro-generated, local-only)
+.agent/
+.claude/
+.codebuddy/
+.codex/
+.continue/
+.cursor/
+.gemini/
+.kiro/
+.opencode/
+.qoder/
+.roo/
+.trae/
+.windsurf/
+.github/prompts/
+.cursorrules
+.github/copilot-instructions.md

@@ -1,11 +1,10 @@
 """
-Base ETL class for the Technology Trend Analysis Platform.
+Clase base ETL para la Technology Trend Analysis Platform.
 
-Provides a standardized Extract-Transform-Load pattern that all
-ETL scripts inherit from. Handles logging setup, data validation,
-and CSV output in a consistent way.
-
-Usage:
+Proporciona un patrón estandarizado de Extract-Transform-Load del
+ cual heredan todos los scripts ETL. Maneja la configuración de 
+ logging, validación de datos y salida a CSV de manera consistente.
+Uso:
     class GitHubETL(BaseETL):
         def definir_pasos(self):
             return [
@@ -25,18 +24,19 @@ from validador import validar_dataframe
 
 
 class BaseETL(ABC):
-    """Base class for all ETL extractors.
+    """Clase base para todos los extractores ETL.
 
-    Subclasses must implement definir_pasos() returning a list
-    of (name, function) tuples. Each step runs independently
-    so one failure doesn't stop the others.
+Las subclases deben implementar definir_pasos(),
+ retornando una lista de tuplas (nombre, función).
+Cada paso se ejecuta de forma independiente, de modo 
+que un fallo no detenga la ejecución de los demás..
     """
 
     def __init__(self, nombre_fuente):
-        """Initializes the ETL with source name and logger.
+        """Inicializa el ETL con el nombre de la fuente y el logger.
 
-        Args:
-            nombre_fuente: Name of the data source (e.g. 'github', 'reddit').
+Args:
+    nombre_fuente: Nombre de la fuente de datos (ej. 'github', 'reddit').
         """
         self.nombre = nombre_fuente
         self.logger = logging.getLogger(nombre_fuente)
@@ -49,7 +49,9 @@ class BaseETL(ABC):
         }
 
     def configurar_logging(self):
-        """Sets up logging to console and daily log file."""
+        """Configura el **logging** hacia la consola y
+          hacia un archivo de log diario.
+         """
         self.logger.setLevel(logging.INFO)
 
         if self.logger.handlers:
@@ -68,14 +70,14 @@ class BaseETL(ABC):
         self.logger.addHandler(file_handler)
 
     def guardar_csv(self, df, nombre_archivo):
-        """Validates and saves a DataFrame to CSV.
+        """Valida y guarda un DataFrame en formato CSV.
 
-        Args:
-            df: DataFrame to save.
-            nombre_archivo: Key from ARCHIVOS_SALIDA (e.g. 'github_repos').
+Args:
+    df: DataFrame a guardar.
+    nombre_archivo: Clave tomada de ARCHIVOS_SALIDA (ej. 'github_repos').
 
-        Raises:
-            ETLValidationError: If the DataFrame is empty.
+Raises:
+    ETLValidationError: Si el DataFrame está vacío.
         """
         ruta = ARCHIVOS_SALIDA.get(nombre_archivo)
         if ruta is None:
@@ -91,16 +93,15 @@ class BaseETL(ABC):
 
     @abstractmethod
     def definir_pasos(self):
-        """Defines the ETL steps to execute.
+        """Define los pasos ETL a ejecutar.
 
-        Must be implemented by subclasses.
+Debe ser implementado por las subclases.
 
-        Returns:
-            list: List of tuples (step_name, step_function).
-                  Each function is called with no arguments.
-                  Use self to share data between steps.
-
-        Example:
+Returns:
+    list: Lista de tuplas (nombre_paso, funcion_paso).
+        Cada función se ejecuta sin argumentos.
+        Usa self para compartir datos entre los pasos.
+        Ejemplo:
             return [
                 ("Extraccion", self.extraer_repos),
                 ("Lenguajes", self.analizar_lenguajes),
@@ -109,21 +110,24 @@ class BaseETL(ABC):
         raise NotImplementedError
 
     def validar_configuracion(self):
-        """Validates ETL configuration before running steps.
+        """Valida la configuración del ETL antes de ejecutar los pasos.
 
-        Subclasses can override this method to enforce required
-        environment variables or consistency checks. Raise
-        ETLExtractionError(critical=True) to stop early.
+        Las subclases pueden sobrescribir este método para 
+        exigir variables de entorno requeridas o realizar 
+        verificaciones de consistencia.
+        Lanza ETLExtractionError(critical=True) para detener 
+        la ejecución anticipadamente.
         """
         return
 
     def ejecutar(self):
-        """Runs the complete ETL pipeline.
+        """Ejecuta el pipeline completo de ETL.
 
-        Calls configurar_logging(), then runs each step from
-        definir_pasos() independently with try/except.
-        If a step raises ETLExtractionError with critical=True,
-        the pipeline stops and exits with code 1.
+        Llama a configurar_logging() y luego ejecuta cada paso
+        definido en definir_pasos() de manera independiente usando 
+        try/except.
+        Si un paso lanza ETLExtractionError con critical=True, 
+        el pipeline se detiene y finaliza con código de salida 1.
         """
         self.configurar_logging()
         run_start = perf_counter()
@@ -195,7 +199,7 @@ class BaseETL(ABC):
         self.logger.info("ETL %s completado", self.nombre)
 
     def _log_summary(self, run_start, final_status):
-        """Logs a compact execution summary for observability."""
+        """Registra un resumen compacto de la ejecución para observabilidad."""
         total_duration = perf_counter() - run_start
         total_steps = len(self._run_summary["steps"])
         successful_steps = sum(1 for s in self._run_summary["steps"] if s["status"] == "success")

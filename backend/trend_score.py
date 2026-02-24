@@ -1,16 +1,16 @@
 """
-Trend Score Generator - Technology Trend Analysis Platform
+Generador de Trend Score - Technology Trend Analysis Platform
 
-Combines data from GitHub, StackOverflow, and Reddit to produce
-a unified technology ranking. The composite score uses weighted
-metrics from each source.
+Combina datos de GitHub, StackOverflow y Reddit para producir
+un ranking unificado de tecnologías. El score compuesto usa
+métricas ponderadas de cada fuente.
 
-Formula:
+Fórmula:
     Trend Score = (peso_github × github_score) +
                   (peso_so × so_score) +
                   (peso_reddit × reddit_score)
 
-Author: Samir Caizapasto
+Autor: Samir Caizapasto
 """
 import pandas as pd
 import logging
@@ -45,25 +45,25 @@ ETIQUETAS_NO_LENGUAJE = {
 
 
 def normalizar_nombre(nombre):
-    """Normalizes technology names for cross-source comparison.
+    """Normaliza nombres de tecnologías para comparación entre fuentes.
 
     Args:
-        nombre: Raw technology name from any source.
+        nombre: Nombre de tecnología en bruto desde cualquier fuente.
 
     Returns:
-        Normalized lowercase name.
+        Nombre normalizado en minúsculas.
     """
     return normalize_technology_name(nombre)
 
 
 def normalizar_scores(serie):
-    """Normalizes a numeric series to 0-100 scale using min-max.
+    """Normaliza una serie numérica a escala 0-100 usando min-max.
 
     Args:
-        serie: pandas Series with numeric values.
+        serie: Serie de pandas con valores numéricos.
 
     Returns:
-        Normalized series (0-100).
+        Serie normalizada (0-100).
     """
     if serie.max() == serie.min():
         return pd.Series([50.0] * len(serie), index=serie.index)
@@ -72,10 +72,10 @@ def normalizar_scores(serie):
 
 
 def cargar_github():
-    """Loads and processes GitHub data for scoring.
+    """Carga y procesa datos de GitHub para el scoring.
 
     Returns:
-        DataFrame with columns: [tecnologia, github_score]
+        DataFrame con columnas: [tecnologia, github_score]
     """
     try:
         df_repos = pd.read_csv(ARCHIVOS_SALIDA["github_repos"])
@@ -101,10 +101,10 @@ def cargar_github():
 
 
 def cargar_stackoverflow():
-    """Loads and processes StackOverflow data for scoring.
+    """Carga y procesa datos de StackOverflow para el scoring.
 
     Returns:
-        DataFrame with columns: [tecnologia, so_score]
+        DataFrame con columnas: [tecnologia, so_score]
     """
     try:
         df_vol = pd.read_csv(ARCHIVOS_SALIDA["so_volumen"])
@@ -121,10 +121,10 @@ def cargar_stackoverflow():
 
 
 def cargar_reddit():
-    """Loads and processes Reddit data for scoring.
+    """Carga y procesa datos de Reddit para el scoring.
 
     Returns:
-        DataFrame with columns: [tecnologia, reddit_score]
+        DataFrame con columnas: [tecnologia, reddit_score]
     """
     try:
         df_temas = pd.read_csv(ARCHIVOS_SALIDA["reddit_temas"])
@@ -141,15 +141,15 @@ def cargar_reddit():
 
 
 def calcular_trend_score():
-    """Calculates the composite Trend Score for all technologies.
+    """Calcula el Trend Score compuesto para todas las tecnologías.
 
-    Combines normalized scores from GitHub, StackOverflow, and Reddit
-    using weighted average. Technologies not found in a source get
-    a score of 0 for that source.
+    Combina scores normalizados de GitHub, StackOverflow y Reddit
+    usando promedio ponderado. Las tecnologías no encontradas en una
+    fuente reciben score 0 para esa fuente.
 
     Returns:
-        DataFrame with columns: [tecnologia, github_score, so_score,
-                                  reddit_score, trend_score, ranking]
+        DataFrame con columnas: [tecnologia, github_score, so_score,
+                                 reddit_score, trend_score, ranking]
     """
     logger.info("Calculando Trend Score compuesto...")
     logger.info("Pesos: GitHub=%s, SO=%s, Reddit=%s", PESOS['github'], PESOS['stackoverflow'], PESOS['reddit'])
@@ -216,7 +216,7 @@ def calcular_trend_score():
 
 
 def main():
-    """Main function that generates the Trend Score CSV."""
+    """Función principal que genera el CSV de Trend Score."""
     etl = TrendScoreETL()
     etl.ejecutar()
 

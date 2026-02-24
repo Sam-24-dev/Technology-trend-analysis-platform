@@ -1,8 +1,8 @@
 """
-Centralized configuration for the Technology Trend Analysis Platform.
+Configuración centralizada para la Technology Trend Analysis Platform.
 
-Manages paths, API credentials, and constants using pathlib
-for cross-platform compatibility (Windows/Linux/Mac).
+Gestiona rutas, credenciales de API y constantes usando pathlib 
+para compatibilidad cross-platform (Windows/Linux/Mac).
 """
 import os
 from pathlib import Path

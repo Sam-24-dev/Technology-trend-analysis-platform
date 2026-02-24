@@ -1,10 +1,10 @@
 """
-Tests for github_etl.py - GitHub ETL module.
+Tests para github_etl.py - módulo ETL de GitHub.
 
-Tests cover:
-- Transformation: analizar_lenguajes returns correct columns
-- Validation: no nulls in critical columns
-- Mock of API responses (no real API calls)
+Los tests cubren:
+- Transformación: analizar_lenguajes retorna columnas correctas
+- Validación: sin nulos en columnas críticas
+- Mock de respuestas de API (sin llamadas reales a la API)
 """
 import pytest
 import pandas as pd
@@ -14,7 +14,7 @@ from github_etl import GitHubETL
 
 @pytest.fixture
 def etl():
-    """Creates a GitHubETL instance with logging configured."""
+    """Crea una instancia de GitHubETL con logging configurado."""
     instance = GitHubETL()
     instance.configurar_logging()
     return instance
@@ -22,7 +22,7 @@ def etl():
 
 @pytest.fixture
 def sample_repos_df():
-    """Creates a sample repos DataFrame for testing."""
+    """Crea un DataFrame de repos de ejemplo para pruebas."""
     return pd.DataFrame({
         "repo_name": ["user/repo1", "user/repo2", "user/repo3", "user/repo4", "user/repo5"],
         "language": ["Python", "Python", "JavaScript", "TypeScript", "Python"],
@@ -34,7 +34,7 @@ def sample_repos_df():
 
 
 class TestGitHubETLDefinirPasos:
-    """Tests for the definir_pasos method."""
+    """Tests del método definir_pasos."""
 
     def test_definir_pasos_returns_list(self, etl):
         pasos = etl.definir_pasos()
@@ -51,10 +51,10 @@ class TestGitHubETLDefinirPasos:
 
 
 class TestAnalizarLenguajes:
-    """Tests for the analizar_lenguajes method."""
+    """Tests del método analizar_lenguajes."""
 
     def test_lenguajes_correct_columns(self, etl, sample_repos_df, tmp_path):
-        """Verify that analizar_lenguajes produces correct columns."""
+        """Verifica que analizar_lenguajes produzca columnas correctas."""
         etl.df_repos = sample_repos_df
 
         with patch("base_etl.ARCHIVOS_SALIDA", {"github_lenguajes": tmp_path / "test.csv"}):
@@ -66,7 +66,7 @@ class TestAnalizarLenguajes:
         assert "porcentaje" in df.columns
 
     def test_lenguajes_correct_counts(self, etl, sample_repos_df, tmp_path):
-        """Verify that language counts are correct."""
+        """Verifica que los conteos de lenguaje sean correctos."""
         etl.df_repos = sample_repos_df
 
         with patch("base_etl.ARCHIVOS_SALIDA", {"github_lenguajes": tmp_path / "test.csv"}):
@@ -77,7 +77,7 @@ class TestAnalizarLenguajes:
         assert python_row["repos_count"].values[0] == 3
 
     def test_lenguajes_no_nulls_in_critical(self, etl, sample_repos_df, tmp_path):
-        """Verify no nulls in critical columns."""
+        """Verifica que no haya nulos en columnas críticas."""
         etl.df_repos = sample_repos_df
 
         with patch("base_etl.ARCHIVOS_SALIDA", {"github_lenguajes": tmp_path / "test.csv"}):
@@ -88,13 +88,13 @@ class TestAnalizarLenguajes:
         assert df["repos_count"].isnull().sum() == 0
 
     def test_lenguajes_raises_on_empty_df(self, etl):
-        """Verify it raises when df_repos is empty."""
+        """Verifica que lance excepción cuando df_repos está vacío."""
         etl.df_repos = pd.DataFrame()
         with pytest.raises(Exception):
             etl.analizar_lenguajes()
 
     def test_lenguajes_filtra_no_clasificables(self, etl, tmp_path):
-        """Verify 'Sin especificar' and AI labels are excluded from language ranking."""
+        """Verifica que 'Sin especificar' y etiquetas de AI se excluyan del ranking de lenguajes."""
         etl.df_repos = pd.DataFrame({
             "repo_name": ["a/repo1", "a/repo2", "a/repo3", "a/repo4"],
             "language": ["Python", "Sin especificar", "LLMs/AI", "AI/ML"],
@@ -115,7 +115,7 @@ class TestAnalizarLenguajes:
 
 
 class TestInsightsIA:
-    """Tests for AI/LLM insights generation."""
+    """Tests para la generación de insights de AI/LLM."""
 
     def test_genera_insights_ai_csv(self, etl, tmp_path):
         etl.df_repos = pd.DataFrame({
@@ -137,10 +137,10 @@ class TestInsightsIA:
 
 
 class TestExtraerRepos:
-    """Tests for extraer_repos with mocked API."""
+    """Tests para extraer_repos con API mockeada."""
 
     def test_extraer_repos_success(self, etl, tmp_path):
-        """Test successful repo extraction with mocked API."""
+        """Test de extracción exitosa de repos con API mockeada."""
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.json.return_value = {
@@ -166,7 +166,7 @@ class TestExtraerRepos:
         assert etl.df_repos.iloc[0]["repo_name"] == "test/repo1"
 
     def test_extraer_repos_handles_empty_response(self, etl):
-        """Test that empty API response raises ETLExtractionError."""
+        """Test que verifica que una respuesta vacía de API lance ETLExtractionError."""
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.json.return_value = {"items": []}
@@ -177,10 +177,10 @@ class TestExtraerRepos:
 
 
 class TestAnalizarCorrelacion:
-    """Tests for analizar_correlacion."""
+    """Tests para analizar_correlacion."""
 
     def test_correlacion_raises_on_empty_df(self, etl):
-        """Verify it raises when df_repos is empty."""
+        """Verifica que lance excepción cuando df_repos está vacío."""
         etl.df_repos = pd.DataFrame()
         with pytest.raises(Exception):
             etl.analizar_correlacion()

@@ -1,429 +1,479 @@
-﻿# ROADMAP V2 FINAL - Technology Trend Analysis Platform
+﻿# ROADMAP FRONTEND V2 FINAL - Technology Trend Analysis Platform
 
-## 1) Summary
+## 1) Resumen
 
-This is the final, decision-complete plan for V2.
-Goal: migrate from V1 CSV-only pipeline to a serverless data stack V2 without breaking current frontend behavior.
+Este documento define el plan final de implementacion frontend V2 en la rama `feat/frontend`.
 
-Primary outcomes:
-1. Data Product Contract V2 with run and dataset metadata.
-2. Dual write (latest + history) with controlled transition.
-3. Quality gate with severity levels.
-4. Trend Score V1 vs V2 numeric equivalence tests.
-5. Parallel CI pipeline with artifacts and conditional publish.
-6. Frontend bridge with JSON history while keeping CSV compatibility.
+Objetivo:
+- migrar de consumo CSV-first a JSON-first con fallback controlado,
+- mejorar UX/UI (responsive + accesibilidad),
+- mantener compatibilidad con el backend V2 ya implementado,
+- ejecutar por fases (PR-FE-01 a PR-FE-04) sin romper dashboards actuales.
 
-## 2) Scope
+Nota de gobernanza:
+- En esta rama se usa este roadmap frontend como documento principal en `docs/ROADMAP_V2_IMPLEMENTATION_PLAN.md`.
+- El roadmap backend ya vive en la historia de `main` y `feat/backend`.
 
-In scope now (V2 core): F2-F7
-- Contract V2
-- Dual write
-- Pandera quality gate
-- DuckDB trend score engine
-- GitHub Actions parallel jobs with artifacts
-- Frontend bridge
-- Cutover governance
+## 2) Decisiones cerradas (obligatorias)
 
-Out of scope now:
-- Advanced forecasting productionization
-- Advanced topic modeling productionization
-- External BI platform integration
+1. Estrategia: migracion hibrida gradual.
+2. Stack frontend: Riverpod + GoRouter.
+3. Routing V2.0: hash routing (`/#/...`) oficial.
+4. UI idioma: espanol.
+5. Diseno: evolutivo premium (sin rediseno total disruptivo).
+6. Accesibilidad gate: WCAG AA practico.
+7. Metadata UI: `run_manifest.json` publico reducido.
+8. Fuente de verdad de degradacion: frontend NO recalcula `degraded_mode`.
+9. Export ZIP: reemplazar `universal_html` con `file_saver + DownloadService`.
+10. Cobertura: rampa por PR + regla no-drop.
+11. Owner por fase: owner unico en FE-01..FE-04.
 
-These move to V2.1 or post-V2.
+## 3) Variables operativas CI (desde FE-01)
 
-## 3) Current baseline (verified)
+- `REQUIRE_FRONTEND_METADATA`
+  - `0` en `feat/*`
+  - `1` en `main`
+- `USE_PUBLIC_RUN_MANIFEST=true`
+- `USE_HISTORY_BRIDGE_JSON=true`
+- `ENABLE_CSV_FALLBACK=true` (hasta cutover final)
 
-Backend:
-- ETLs: GitHub, StackOverflow, Reddit
-- Trend score engine: `backend/trend_score.py`
-- CSV contract: `backend/config/csv_contract.py`
-- CSV contract validator: `backend/validate_csv_contract.py`
+## 3.1) Tooling local UI/UX asistido (UIPro)
 
-Frontend:
-- Flutter dashboards read CSV from `frontend/assets/data/`
-- Loader: `frontend/lib/services/csv_service.dart`
+Estado:
+- habilitado como apoyo local de diseno para frontend V2.
 
-CI/CD:
-- Weekly ETL workflow exists and works
-- Current flow is mostly sequential for ETL processing
+Alcance:
+- se usa como soporte de UX/UI principalmente en FE-03 (responsive + accesibilidad + polish visual)
+  y FE-04 (consistencia final de componentes).
 
-## 4) Branch strategy and governance
+Reglas:
+- configuraciones de asistentes generadas por `uipro init --ai all` son solo locales.
+- no forman parte del entregable funcional de backend/frontend.
+- no se incluyen en commits ni PRs.
 
-Branches:
-- Backend work branch: `feat/backend`
-- Frontend work branch: `feat/frontend`
+Carpetas locales de asistencia (no versionar):
+- `.agent/`
+- `.claude/`
+- `.codebuddy/`
+- `.codex/`
+- `.continue/`
+- `.cursor/`
+- `.gemini/`
+- `.kiro/`
+- `.opencode/`
+- `.qoder/`
+- `.roo/`
+- `.trae/`
+- `.windsurf/`
+- `.github/prompts/`
 
-Default merge policy:
-- `squash merge` unless explicit reason to preserve detailed commit graph.
+Uso recomendado:
+- aplicar prompts de diseno de forma controlada por pantalla/componente.
+- no aceptar cambios visuales que rompan:
+  - breakpoints objetivo,
+  - contraste WCAG AA practico,
+  - estados de error/degraded,
+  - consistencia con el estilo del producto.
 
-Sync policy before each backend PR:
-1. `git fetch --all --prune`
-2. `git switch main && git pull --ff-only origin main`
-3. `git switch feat/backend && git merge --ff-only main`
+## 3.2) Reglas de agente locales con `.cursorrules`
 
-If exact-commit alignment is required and FF does not apply:
-- `git reset --hard main`
-- `git push --force-with-lease`
+Estado:
+- activo como control de arquitectura para asistentes AI durante implementacion frontend.
 
-## 5) Data Product Contract V2
+Objetivo:
+- evitar mezcla de patron legado con arquitectura V2 (`DataService -> Repository -> Riverpod -> UI`),
+- forzar planificacion antes de cambios grandes,
+- estandarizar decisiones de routing, fallback y calidad.
 
-### 5.1 Run-level metadata (required)
+Uso por fase:
+- FE-01: validar contratos, CI y manifest publico sin romper reglas de arquitectura.
+- FE-02: aplicar regla estricta Riverpod (sin estado de dominio con `setState`).
+- FE-03: aplicar reglas de responsive/a11y + routing hash.
+- FE-04: aplicar reglas de limpieza tecnica y gates strict.
 
-- `run_id` (uuid)
-- `generated_at_utc` (ISO datetime)
-- `git_sha`
-- `branch`
-- `source_window_start_utc`
-- `source_window_end_utc`
-- `quality_gate_status` (`pass`, `pass_with_warnings`, `fail`)
-- `datasets` (array of dataset manifests)
+Como usarlo (operativo):
+1. Mantener `.cursorrules` actualizado en la raiz local del repo.
+2. Al iniciar sesion con un asistente, pedir explicitamente:
+   - \"lee `.cursorrules` y sigue estas reglas para esta tarea\".
+3. Revisar que el plan del asistente respete:
+   - arquitectura por capas,
+   - feature flags,
+   - pruebas y rollback.
+4. Si el asistente propone codigo fuera del patron, rechazar y reintentar con referencia directa al archivo.
 
-### 5.2 Dataset-level metadata (required)
+Nota:
+- `.cursorrules` es configuracion local de asistencia; no es parte del artefacto funcional de produccion.
 
-- `dataset_logical_name`
-- `version_semver`
-- `generated_at_utc`
-- `source_run_id`
-- `schema_hash`
+## 3.3) Debug web asistido con `chrome-devtools-mcp`
+
+Estado:
+- habilitado localmente para soporte de debugging en Flutter Web.
+
+Objetivo:
+- diagnosticar errores de runtime web que no aparecen en tests unitarios/widget,
+- inspeccionar consola/red/performance durante problemas de routing hash y descarga ZIP.
+
+Uso por fase:
+- FE-01:
+  - validar que no existan errores JS en arranque web y carga de assets/manifest.
+- FE-03:
+  - validar deep links hash (`/#/github`, `/#/stackoverflow`, etc.) y refresh sin errores.
+- FE-04:
+  - validar export ZIP en web tras reemplazo de `universal_html` por `DownloadService` + `file_saver`.
+
+Comandos de validacion local:
+- smoke de instalacion/CLI:
+  - `npx -y chrome-devtools-mcp@latest --help`
+- smoke de arranque MCP (headless):
+  - `npx -y chrome-devtools-mcp@latest --headless --isolated --viewport 1280x720`
+
+Cuando usarlo:
+- error intermitente solo en navegador,
+- fallo de navegacion hash/deep-link en refresh,
+- error de descarga/export ZIP en web,
+- necesidad de inspeccionar warnings/errores de consola y requests en vivo.
+
+Cuando no usarlo:
+- para bugs puros de logica de dominio que ya se reproducen en tests,
+- para cambios de backend ETL/CI que no dependen del runtime web del navegador.
+
+Reglas operativas:
+- herramienta local de debugging, no parte del artefacto de produccion.
+- no versionar configuraciones locales ni logs de sesion de MCP.
+- resultado de debugging debe traducirse en tests/regresion cuando aplique.
+
+## 3.4) CI/PR asistido con `github-mcp-server` (GitHub MCP)
+
+Estado:
+- habilitado en el entorno local para consultar runs, jobs y logs de GitHub Actions desde el agente.
+
+Objetivo:
+- acelerar diagnostico de fallos de CI sin navegar manualmente cada log en la UI de GitHub.
+- priorizar fixes de FE segun evidencia real de pipeline (tests, coverage, allowlist, budgets).
+
+Uso por fase:
+- FE-01:
+  - revisar fallos de `flutter analyze`, `flutter test`, coverage inicial (gate >=20%).
+  - validar contrato de artifacts/assets (modo warning).
+- FE-02:
+  - revisar regresiones de providers/data layer y fallback JSON/CSV en CI.
+- FE-03:
+  - revisar fallos de routing/responsive/a11y en jobs de frontend.
+- FE-04:
+  - revisar gates strict (coverage >=55%, allowlist strict, budgets de assets).
+
+Comandos de validacion local:
+- verificar que MCP este registrado en Codex:
+  - `codex mcp list`
+- inspeccionar configuracion de un servidor:
+  - `codex mcp get github`
+
+Cuando usarlo:
+- cuando un workflow/PR falla y necesitas root cause exacto desde logs.
+- cuando el error en CI no se reproduce igual en local.
+- para confirmar que el fix realmente resolvio el job fallido.
+
+Cuando no usarlo:
+- para bugs puramente de UI local ya diagnosticados con `chrome-devtools-mcp`.
+- para tareas que no dependen de resultados de GitHub Actions.
+
+Reglas operativas:
+- no hardcodear tokens en repositorio ni en archivos versionados.
+- preferir credenciales por entorno/secret manager del IDE.
+- si se usa token personal local, mantenerlo fuera del repo y rotarlo ante cualquier exposicion accidental.
+
+## 4) Contrato publico `run_manifest.json` (UI)
+
+Ruta destino:
+- `frontend/assets/data/run_manifest.json`
+
+Fuente:
+- `datos/metadata/run_manifest.json` (interno completo)
+- transformado a version publica reducida para UI
+
+Campos publicos requeridos:
+- `manifest_version` (SemVer `x.y.z`)
+- `generated_at_utc` (ISO-8601)
+- `source_window_start_utc` (ISO-8601)
+- `source_window_end_utc` (ISO-8601)
+- `quality_gate_status` (`pass|pass_with_warnings|fail`)
+- `degraded_mode` (bool)
+- `available_sources` (subset unico de `github|stackoverflow|reddit`)
+- `dataset_summaries` (array >= 1)
+- `notes` (opcional, string/null)
+
+`dataset_summaries[]`:
+- `dataset`
 - `row_count`
-- `quality_status` (`pass`, `warning`, `fail`)
-- `latest_path`
-- `history_path`
+- `quality_status` (`pass|warning|fail`)
+- `updated_at_utc`
 
-### 5.3 SemVer rules for datasets
+Reglas:
+- Frontend renderiza `degraded_mode` y `available_sources` tal como llegan del manifest.
+- Si falta metadata:
+  - en `feat/*`: warning + fallback UI (`metadata unavailable`)
+  - en `main`: falla pipeline si `REQUIRE_FRONTEND_METADATA=1`.
 
-- MAJOR: breaking schema change (remove/rename required column, incompatible type change)
-- MINOR: backward-compatible additions (optional columns, non-breaking checks)
-- PATCH: internal fixes with no schema contract break
+## 5) Arquitectura frontend objetivo
 
-## 6) Storage layout (fixed now)
+Flujo:
+- `DataService` -> `Repository` por dominio -> `Riverpod Providers` -> UI
 
-Latest outputs:
-- `datos/latest/*.csv`
-- `datos/latest/history_index.json`
-- `datos/latest/trend_score_history.json`
+Providers minimos:
+- `runManifestProvider`
+- `historyIndexProvider`
+- `trendTemporalProvider`
+- `githubDashboardProvider`
+- `stackoverflowDashboardProvider`
+- `redditDashboardProvider`
+- `frontendHealthProvider`
 
-History outputs:
-- `datos/history/<dataset_logical_name>/year=YYYY/month=MM/day=DD/part-0000.parquet`
+Estados estandar:
+- `loading`
+- `data`
+- `degraded`
+- `error`
 
-Metadata outputs:
-- `datos/metadata/run_manifest.json`
-- `datos/metadata/runs/<run_id>.json`
+TTL cache:
+- Manifest: 5 min
+- History index: 15 min
+- Trend history: 15 min
+- Dashboards de corrida: 30 min
 
-Examples:
-- `datos/history/trend_score/year=2026/month=02/day=22/part-0000.parquet`
-- `datos/history/so_volumen/year=2026/month=02/day=22/part-0000.parquet`
+Retry policy:
+- 3 intentos: `300ms`, `900ms`, `1800ms`
+- retry solo en timeout/5xx
+- 404: no retry, fallback inmediato
 
-## 7) V1 -> V2 compatibility matrix (core)
+## 6) Routing, responsive y accesibilidad
 
-- `datos/trend_score.csv` -> `datos/latest/trend_score.csv` + `datos/history/trend_score/...`
-- `datos/so_volumen_preguntas.csv` -> `datos/latest/so_volumen_preguntas.csv` + `datos/history/so_volumen/...`
-- `datos/so_tendencias_mensuales.csv` -> `datos/latest/so_tendencias_mensuales.csv` + `datos/history/so_tendencias/...`
-- `datos/reddit_temas_emergentes.csv` -> `datos/latest/reddit_temas_emergentes.csv` + `datos/history/reddit_temas/...`
-- `datos/github_lenguajes.csv` -> `datos/latest/github_lenguajes.csv` + `datos/history/github_lenguajes/...`
+Routing V2.0:
+- `/#/`
+- `/#/github`
+- `/#/stackoverflow`
+- `/#/reddit`
+- `/#/trends/:tech`
 
-Frontend cutover rule:
-- CSV stays until bridge JSON passes 4 consecutive weekly runs without critical failures.
+Responsive gate obligatorio:
+- `390x844` (portrait)
+- `844x390` (landscape)
+- `768x1024`
+- `1024x768`
+- `1280+`
 
-## 8) Quality model (Pandera + severity)
+Criterios:
+- cero overflow/layout exceptions
+- navegacion usable touch + mouse + teclado
+- sidebar adaptativo (drawer/rail/sidebar segun breakpoint)
 
-Severity and actions:
-- `critical`: fail pipeline, no publish
-- `warning`: publish with warning flag
-- `info`: publish, observability only
+Accesibilidad (WCAG AA practico):
+- contraste suficiente
+- focus visible
+- soporte teclado
+- semantics labels en elementos interactivos
+- no depender solo de color para estado
 
-Minimum required rules:
-1. Required columns present (critical)
-2. Critical types valid (critical)
-3. Critical columns no nulls (critical)
-4. `trend_score >= 0` (critical)
-5. Ranking uniqueness (critical)
-6. Core dataset row_count > 0 (warning)
-7. Freshness threshold exceeded (warning)
-8. Distribution drift soft breach (warning)
-9. Optional fields missing (info)
-10. Minor cardinality variation (info)
+## 7) Plan por fases (PR-ready)
 
-## 9) Trend score equivalence V1 vs V2
+## PR-FE-01 - Foundation + Metadata publica + CI frontend
 
-Acceptance thresholds:
-- Absolute score difference per shared technology: `<= 0.01`
-- Top-10 overlap: `>= 90%`
-- Ranking delta: `<= 1` for at least 90% of shared technologies
-- Tie handling allowed when score delta is `<= 0.01`
+Owner:
+- owner unico
 
-## 10) Source failure degradation policy
+Objetivo:
+- habilitar metadata publica y baseline de calidad frontend.
 
-- 3/3 sources available: publish, normal weights
-- 2/3 sources available: renormalize available weights, publish with warning
-- 1/3 source available: do not publish new latest, mark fail
-- 0/3 available: fail run
+Cambios principales:
+- `backend/config/run_manifest_public_schema.json` (new)
+- `backend/config/run_manifest_public_contract.py` (new)
+- `backend/generate_run_manifest.py` (new)
+- `backend/sync_assets.py` (update: publicar `run_manifest.json` publico)
+- `.github/workflows/etl_semanal.yml` (update: generar/validar manifest publico)
+- `.github/workflows/ci.yml` (update: `flutter analyze`, `flutter test`, coverage, checks assets)
+- `scripts/check_frontend_assets.py` (new, modo warning)
+- `frontend/test/smoke/main_app_smoke_test.dart` (new)
+- `frontend/test/contracts/run_manifest_contract_test.dart` (new)
+- `docs/frontend_coding_style.md` (new)
+- `docs/frontend_ui_ux_rules.md` (new)
 
-## 11) CI/CD V2 architecture (artifacts)
-
-Main workflow: `.github/workflows/etl_semanal.yml`
-
-Jobs:
-1. `job_github`
-2. `job_stackoverflow`
-3. `job_reddit`
-4. `job_aggregate` (downloads artifacts, computes trend, runs quality gate, writes manifest)
-5. `job_publish` (conditional on quality gate)
-
-Publish condition:
-- only if quality status is `pass` or `pass_with_warnings`
-
-## 12) Runtime and cost budgets (GitHub Actions)
-
-Per-run limits:
-- Source job timeout: 20 min each
-- Aggregate timeout: 15 min
-- Publish timeout: 10 min
-- Total run budget: 60 min
-
-Artifact budget:
-- Warning at 75 MB total
-- Critical at 100 MB total
-
-Alerting thresholds:
-- Warning: runtime > 45 min
-- Critical: runtime > 60 min
-
-## 13) Reproducibility
-
-- Python lock file for deterministic installs
-- Flutter lock file committed
-- Deterministic seed for transforms where applicable
-- Baseline fixtures for V1 equivalence tests
-- Historical replay by `run_id` supported through manifest metadata
-
-## 14) Retention and lifecycle
-
-Core aggregated datasets:
-- Daily: 180 days
-- Monthly compacted: 5 years
-
-Heavy raw-like datasets:
-- Daily: 90 days
-- Monthly compacted: 24 months
-
-Compaction:
-- Monthly parquet compaction
-- Integrity validation after compaction (row_count, schema_hash, checksums)
-
-## 15) Security and compliance in CI
-
-- Least-privilege workflow permissions
-- `contents: write` only where publish is needed
-- Secrets required:
-  - `GH_PAT`
-  - `STACKOVERFLOW_KEY`
-  - `REDDIT_CLIENT_ID`
-  - `REDDIT_CLIENT_SECRET`
-- Secret masking required
-- No sensitive payloads in logs/artifacts
-- Preflight secret checks before extraction
-
-## 16) PR plan (F2-F7, PR-ready)
-
-### PR-01 (F2) - Contract V2 foundation
-Goal:
-- Introduce V2 contract and manifest model.
-
-Files:
-- `backend/config/data_product_contract_v2.py` (new)
-- `backend/config/csv_contract.py`
-- `docs/data_contract.md`
-
-Checks:
-- contract tests pass
-- schema validation tests pass
-
-Merge criteria:
-- no regressions in current tests
+DoD:
+- manifest publico publicado y valido
+- fallback UI funcional si metadata falta
+- CI frontend en verde
+- baseline inicial registrado:
+  - cobertura inicial
+  - peso total assets
+  - tiempo de build web
 
 Rollback:
-- revert PR
+- `USE_PUBLIC_RUN_MANIFEST=false`
+- `REQUIRE_FRONTEND_METADATA=0`
+- revert de pasos workflow/manifest
 
-### PR-02 (F3) - Dual write infrastructure
-Goal:
-- Add latest/history writing path while preserving existing CSV behavior.
+## PR-FE-02 - Data layer JSON-first + Riverpod
 
-Files:
-- `backend/base_etl.py`
-- `backend/config/settings.py`
-- `backend/sync_assets.py`
-- tests for write behavior
+Owner:
+- owner unico
 
-Checks:
-- write tests pass
-- current ETL tests pass
+Objetivo:
+- centralizar carga/estado por dominio con fallback CSV controlado.
 
-Rollback:
-- disable history writes via config flag
+Cambios principales:
+- `frontend/pubspec.yaml` (add `flutter_riverpod`)
+- `frontend/lib/services/data_service.dart` (new)
+- `frontend/lib/services/retry_policy.dart` (new)
+- `frontend/lib/services/csv_service.dart` (wrapper temporal)
+- `frontend/lib/models/*_models.dart` para manifest/history/trend
+- `frontend/lib/repositories/*.dart` (new)
+- `frontend/lib/providers/*.dart` (new)
+- ajuste de pantallas para consumir providers
 
-### PR-03 (F5) - Quality gate warn-only
-Goal:
-- Add Pandera validation with severity routing.
-
-Files:
-- `backend/validador.py`
-- `backend/validate_csv_contract.py`
-- `backend/quality/pandera_schemas.py` (new)
-- tests for severity handling
-
-Checks:
-- quality tests pass
-- warning path does not block publish
+DoD:
+- JSON-first operativo
+- estados `loading/data/degraded/error` estandarizados
+- fallback CSV funcionando por flag
+- sin regresiones en dashboards
 
 Rollback:
-- bypass Pandera stage
+- `USE_HISTORY_BRIDGE_JSON=false`
+- `ENABLE_CSV_FALLBACK=true`
 
-### PR-04 (F4) - DuckDB trend engine + equivalence tests
-Goal:
-- Move trend calculation to DuckDB while proving equivalence.
+## PR-FE-03 - GoRouter + responsive + a11y + DataHealthBadge
 
-Files:
-- `backend/trend_score.py`
-- `backend/trend_score_v2_duckdb.py` (new)
-- `tests/test_trend_equivalence_v1_v2.py` (new)
+Owner:
+- owner unico
 
-Checks:
-- equivalence thresholds satisfied
+Objetivo:
+- cerrar experiencia de navegacion web y UX cross-device.
 
-Rollback:
-- switch to previous trend engine path
+Cambios principales:
+- `frontend/pubspec.yaml` (add `go_router`)
+- `frontend/lib/router/app_router.dart` (new)
+- `frontend/lib/main.dart` (`MaterialApp.router`)
+- `frontend/lib/screens/main_screen.dart` (shell responsive)
+- `frontend/lib/widgets/data_health_badge.dart` (new)
+- `frontend/lib/widgets/degraded_state_card.dart` (new)
+- refactor de dashboards/home para estados degradados
+- tests de routing/responsive/a11y
 
-### PR-05 (F6) - Parallel workflow with artifacts
-Goal:
-- Split source jobs and aggregate with artifacts.
-
-Files:
-- `.github/workflows/etl_semanal.yml`
-
-Checks:
-- manual workflow run succeeds
-- artifact handoff valid
-
-Rollback:
-- restore sequential workflow version
-
-### PR-06 (F7) - Frontend bridge assets
-Goal:
-- Produce JSON history bridge assets while keeping CSV.
-
-Files:
-- `backend/export_history_json.py` (new)
-- `backend/sync_assets.py`
-- generated files under `frontend/assets/data/`
-
-Checks:
-- bridge files generated
-- frontend can load existing CSV unchanged
+DoD:
+- deep links hash + refresh OK
+- responsive gate completo (incluye landscape movil)
+- badge de salud operativo
+- accesibilidad minima obligatoria cumplida
 
 Rollback:
-- disable bridge export
+- fallback temporal a shell previo si router rompe flujo
+- mantener badge en `unknown` si metadata no disponible
 
-### PR-07 (F7) - Frontend partial cutover
-Goal:
-- Consume bridge JSON via feature flag.
+## PR-FE-04 - Cutover tecnico + limpieza + strict CI
 
-Files:
-- `frontend/lib/services/csv_service.dart`
-- `frontend/lib/config/feature_flags.dart` (new)
-- minimal temporal view wiring
+Owner:
+- owner unico
 
-Checks:
-- smoke load for CSV and JSON paths
-- no regressions in existing dashboards
+Objetivo:
+- consolidar frontend V2, limpiar deuda y activar gates strict.
+
+Cambios principales:
+- `frontend/lib/services/download/download_service.dart` (new)
+- `frontend/lib/services/download/download_service_web.dart` (new)
+- `frontend/lib/services/download/download_service_stub.dart` (new)
+- reemplazo de `universal_html` por `file_saver + adapter`
+- `frontend/pubspec.yaml` (remove `universal_html`, add `file_saver`)
+- `backend/sync_assets.py` (allowlist strict)
+- `.github/workflows/etl_semanal.yml` (validaciones strict outputs)
+- `.github/workflows/ci.yml` (coverage ramp + no-drop + assets strict)
+
+DoD:
+- export ZIP funcional sin `universal_html`
+- assets allowlist strict activo
+- budgets de tamano en verde
+- cobertura >=55% sin violar regla no-drop
 
 Rollback:
-- feature flag off
+- `ENABLE_CSV_FALLBACK=true`
+- downgrade temporal de strict->warning solo en emergencia
 
-## 17) DoD by phase (F2-F7)
+## 8) Cobertura por rampa y gate
 
-F2:
-- Deliverables: V2 contract + manifest schema
-- Tests: contract schema tests
-- Acceptance: manifest valid in sample run
-- Rollback: PR revert
+Umbral por PR:
+- FE-01: >=20%
+- FE-02: >=35%
+- FE-03: >=45%
+- FE-04: >=55%
 
-F3:
-- Deliverables: dual write latest/history
-- Tests: write path + idempotency tests
-- Acceptance: expected files created in fixed layout
-- Rollback: disable history flag
+Regla no-drop:
+- cobertura global del PR no puede ser menor a `main` (tolerancia tecnica: 0.5 puntos)
 
-F4:
-- Deliverables: DuckDB trend engine
-- Tests: equivalence suite
-- Acceptance: all thresholds pass
-- Rollback: switch back to V1 engine
+Politica `flutter analyze` FE-01:
+- errors/warnings bloquean
+- infos no bloquean (se reportan)
 
-F5:
-- Deliverables: severity quality gate
-- Tests: critical/warning/info routing
-- Acceptance: critical blocks publish, warning allows publish-with-flag
-- Rollback: bypass new gate
+## 9) Policy de assets frontend (CI)
 
-F6:
-- Deliverables: parallel CI with artifacts
-- Tests: workflow dry run + artifact contract
-- Acceptance: successful end-to-end run
-- Rollback: sequential workflow restore
+Allowlist oficial:
+- `trend_score.csv`
+- `github_lenguajes.csv`
+- `github_commits_frameworks.csv`
+- `github_correlacion.csv`
+- `so_volumen_preguntas.csv`
+- `so_tasa_aceptacion.csv`
+- `so_tendencias_mensuales.csv`
+- `reddit_sentimiento_frameworks.csv`
+- `reddit_temas_emergentes.csv`
+- `interseccion_github_reddit.csv`
+- `history_index.json`
+- `trend_score_history.json`
+- `run_manifest.json`
 
-F7:
-- Deliverables: bridge JSON + frontend flag cutover
-- Tests: frontend smoke path
-- Acceptance: 4 weekly runs stable before CSV retirement decision
-- Rollback: flag off and CSV-only fallback
+Budgets:
+- max por archivo: `<=150 KB`
+- max total data: `<=600 KB`
+- ruta critica: `<=250 KB`
 
-## 18) Test scenarios (mandatory)
+Reglas CI:
+- falla si aparece asset no allowlisted
+- falla si falta asset required
+- falla si codigo referencia asset inexistente
+- falla si asset allowlisted no se referencia en `frontend/lib/**`
+- FE-01: modo warning
+- FE-04: modo strict
 
-1. Manifest schema: valid and invalid samples
-2. SemVer bump correctness on representative changes
-3. Deterministic schema_hash stability
-4. Dual write idempotent behavior by run_id
-5. Quality gate severity actions
-6. V1 vs V2 trend equivalence thresholds
-7. Degradation matrix (3/3, 2/3, 1/3, 0/3 sources)
-8. Artifact corruption or missing artifact handling
-9. Frontend bridge fallback behavior
-10. Rollback verification per PR
+## 10) Escenarios de prueba obligatorios
 
-## 19) Release and tags
+1. Contrato `run_manifest.json` valido/invalido.
+2. Contratos `history_index.json` y `trend_score_history.json`.
+3. Fallback metadata missing -> badge gris + UI operativa.
+4. Fallback bridge missing -> CSV snapshot.
+5. Estados `loading/data/degraded/error` por dominio.
+6. Retry transitorio y no retry en 404.
+7. Routing hash con refresh web.
+8. Responsive en portrait y landscape movil.
+9. A11y smoke (focus, teclado, semantics, contraste).
+10. Export ZIP web sin `universal_html`.
+11. Allowlist y budgets en CI.
+12. No regresion de dashboards actuales.
 
-Recommended release checkpoints:
-- `v2.0.0-rc1`: F2 + F3
-- `v2.0.0-rc2`: F5 + F4
-- `v2.0.0-rc3`: F6
-- `v2.0.0`: F7 stable and cutover-ready
-- `v2.1.0`: advanced analytics
+## 11) Riesgos y mitigaciones
 
-Cutover complete criteria:
-- 4 consecutive weekly runs without critical quality failures
-- SLO targets met
-- trend equivalence stable
-- frontend bridge stable under flag-on
+- Riesgo: overlap labels/charts en movil.
+  - Mitigacion: truncado + tooltip + scroll horizontal controlado.
+- Riesgo: cambios de schema de manifest sin coordinacion.
+  - Mitigacion: contract tests frontend obligatorios + schema versionado.
+- Riesgo: fallback CSV permanente.
+  - Mitigacion: owner + criterio de salida + fecha objetivo de retiro en FE-04.
 
-## 20) Decision timeline tags
+## 12) Criterio de salida y cutover final
 
-- Adopt now:
-  - Contract V2
-  - Dual write
-  - Pandera severity
-  - DuckDB equivalence
-  - CI artifacts
-  - Frontend bridge
+Para declarar frontend V2 cutover-ready:
+1. FE-01..FE-04 completados con DoD en verde.
+2. 4 corridas semanales consecutivas sin `critical`.
+3. `run_manifest` publico estable en assets.
+4. SLO frontend en rango (errores de carga controlados).
+5. Luego desactivar fallback por defecto (`ENABLE_CSV_FALLBACK=false`) en release de cutover.
 
-- Adopt in V2.1:
-  - forecasting and advanced NLP
+---
 
-- Post-V2:
-  - external BI and non-GitHub long-term storage
-
-## 21) Final assumptions
-
-1. Serverless architecture remains mandatory.
-2. This document is the execution source of truth for backend V2 in `feat/backend`.
-3. No open decision should be left to implementers outside this plan.
+Estado del documento:
+- aprobado para ejecucion por fases.
+- iniciar por FE-01 y no mezclar fases en un mismo PR.
