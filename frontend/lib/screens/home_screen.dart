@@ -635,47 +635,52 @@ class _TrendTemporalBridgeCard extends ConsumerWidget {
                   'No hay datos temporales disponibles.',
                   style: TextStyle(color: Color(0xFF6B7280)),
                 )
-              else if (state.isDegraded)
-                DegradedStateCard(
-                  message:
-                      state.message ??
-                      'Modo degradado activo en la vista temporal.',
-                )
               else
-                Wrap(
-                  spacing: 10,
-                  runSpacing: 10,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    for (final item in items)
-                      Container(
-                        width: 220,
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF9FAFB),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: const Color(0xFFE5E7EB)),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '#${item.ranking} ${item.tecnologia}',
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Score: ${item.trendScore} | Fuentes: ${item.fuentes}',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Color(0xFF6B7280),
-                              ),
-                            ),
-                          ],
-                        ),
+                    if (state.isDegraded)
+                      DegradedStateCard(
+                        message:
+                            state.message ??
+                            'Modo degradado activo en la vista temporal.',
                       ),
+                    Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: [
+                        for (final item in items)
+                          Container(
+                            width: 220,
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF9FAFB),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: const Color(0xFFE5E7EB)),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '#${item.ranking} ${item.tecnologia}',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Score: ${item.trendScore} | Fuentes: ${item.fuentes}',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Color(0xFF6B7280),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
                   ],
                 ),
             ],

@@ -195,6 +195,21 @@ void main() {
     expect(state.isDegraded, true);
   });
 
+  test('TrendRepository maps csv source to data state', () async {
+    final repo = TrendRepository(
+      const FakeDataService(
+        fakeTrendView: TrendTemporalViewData(
+          source: 'csv',
+          snapshotCount: 1,
+          items: [],
+        ),
+      ),
+    );
+    final state = await repo.loadTrendTemporalView();
+    expect(state.isData, true);
+    expect(state.isDegraded, false);
+  });
+
   test(
     'TrendRepository keeps CSV snapshot data when bridge is unavailable',
     () async {

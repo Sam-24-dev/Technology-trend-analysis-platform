@@ -245,9 +245,6 @@ jobs:
       - name: Sync CSVs to frontend assets
         run: python backend/sync_assets.py
 
-      - name: Generate/validate public run manifest
-        run: python backend/generate_run_manifest.py
-
       - name: Validate CSV contract headers
         run: python backend/validate_csv_contract.py
 

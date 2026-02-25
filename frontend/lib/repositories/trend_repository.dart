@@ -1,4 +1,3 @@
-import '../config/feature_flags.dart';
 import '../models/dashboard_domain_models.dart';
 import '../models/data_load_state.dart';
 import '../services/data_service.dart';
@@ -12,15 +11,13 @@ class TrendRepository {
     try {
       final trendData = await dataService.loadTrendTemporalView(topN: 5);
 
-      if (trendData.source == 'bridge_json') {
+      if (trendData.source == 'bridge_json' || trendData.source == 'csv') {
         return DataLoadState.data(trendData);
       }
-      if (trendData.source == 'csv_fallback' || trendData.source == 'csv') {
+      if (trendData.source == 'csv_fallback') {
         return DataLoadState.degraded(
           trendData,
-          message: FeatureFlags.useHistoryBridgeJson
-              ? 'bridge unavailable, using CSV fallback'
-              : 'bridge disabled, using CSV mode',
+          message: 'bridge unavailable, using CSV fallback',
         );
       }
       return DataLoadState.data(trendData);

@@ -68,8 +68,9 @@ def test_workflow_enables_dual_write_and_bridge_flags():
     assert 'TREND_SCORE_ENGINE: "duckdb"' in content
 
 
-def test_workflow_generates_public_run_manifest():
+def test_workflow_generates_public_run_manifest_via_sync_assets():
     content = _load_workflow_text()
 
-    assert "Generate/validate public run manifest" in content
-    assert "python backend/generate_run_manifest.py" in content
+    assert "Sync CSVs to frontend assets" in content
+    assert "python backend/sync_assets.py" in content
+    assert "Generate/validate public run manifest" not in content

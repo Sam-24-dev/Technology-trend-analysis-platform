@@ -57,7 +57,9 @@ class DataService {
       throw Exception('Bridge JSON unavailable and CSV fallback disabled');
     }
 
-    final csvPayload = await CsvService.loadTrendTemporalView(topN: topN);
+    final csvPayload = await retryPolicy.run(
+      () => CsvService.loadTrendTemporalView(topN: topN),
+    );
     final rawItems = (csvPayload['items'] as List?) ?? const [];
     final items = rawItems
         .whereType<Map>()
