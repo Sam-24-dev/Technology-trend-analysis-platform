@@ -1,6 +1,13 @@
 from pathlib import Path
 
+import pytest
+
 import sync_assets
+
+
+@pytest.fixture(autouse=True)
+def _default_assets_policy_mode(monkeypatch):
+    monkeypatch.setenv("FRONTEND_ASSETS_POLICY_MODE", "warning")
 
 
 def test_sincronizar_copies_only_csv_files(tmp_path, monkeypatch):
@@ -12,16 +19,16 @@ def test_sincronizar_copies_only_csv_files(tmp_path, monkeypatch):
     backend_dir.mkdir(parents=True)
     datos_dir.mkdir(parents=True)
 
-    (datos_dir / "a.csv").write_text("col\n1\n", encoding="utf-8")
-    (datos_dir / "b.csv").write_text("col\n2\n", encoding="utf-8")
+    (datos_dir / "trend_score.csv").write_text("col\n1\n", encoding="utf-8")
+    (datos_dir / "github_lenguajes.csv").write_text("col\n2\n", encoding="utf-8")
     (datos_dir / "notes.txt").write_text("ignore", encoding="utf-8")
 
     monkeypatch.setattr(sync_assets, "__file__", str(backend_dir / "sync_assets.py"))
 
     sync_assets.sincronizar()
 
-    assert (destino_dir / "a.csv").exists()
-    assert (destino_dir / "b.csv").exists()
+    assert (destino_dir / "trend_score.csv").exists()
+    assert (destino_dir / "github_lenguajes.csv").exists()
     assert not (destino_dir / "notes.txt").exists()
 
 
@@ -34,14 +41,14 @@ def test_sincronizar_creates_destination_if_missing(tmp_path, monkeypatch):
     backend_dir.mkdir(parents=True)
     datos_dir.mkdir(parents=True)
 
-    (datos_dir / "only.csv").write_text("x\n1\n", encoding="utf-8")
+    (datos_dir / "trend_score.csv").write_text("x\n1\n", encoding="utf-8")
 
     monkeypatch.setattr(sync_assets, "__file__", str(backend_dir / "sync_assets.py"))
 
     assert not destino_dir.exists()
     sync_assets.sincronizar()
     assert destino_dir.exists()
-    assert (destino_dir / "only.csv").exists()
+    assert (destino_dir / "trend_score.csv").exists()
 
 
 def test_sincronizar_overwrites_existing_csv(tmp_path, monkeypatch):
@@ -54,14 +61,14 @@ def test_sincronizar_overwrites_existing_csv(tmp_path, monkeypatch):
     datos_dir.mkdir(parents=True)
     destino_dir.mkdir(parents=True)
 
-    (datos_dir / "dup.csv").write_text("v\n2\n", encoding="utf-8")
-    (destino_dir / "dup.csv").write_text("v\n1\n", encoding="utf-8")
+    (datos_dir / "trend_score.csv").write_text("v\n2\n", encoding="utf-8")
+    (destino_dir / "trend_score.csv").write_text("v\n1\n", encoding="utf-8")
 
     monkeypatch.setattr(sync_assets, "__file__", str(backend_dir / "sync_assets.py"))
 
     sync_assets.sincronizar()
 
-    assert (destino_dir / "dup.csv").read_text(encoding="utf-8") == "v\n2\n"
+    assert (destino_dir / "trend_score.csv").read_text(encoding="utf-8") == "v\n2\n"
 
 
 def test_sincronizar_returns_summary(tmp_path, monkeypatch):
@@ -71,7 +78,7 @@ def test_sincronizar_returns_summary(tmp_path, monkeypatch):
 
     backend_dir.mkdir(parents=True)
     datos_dir.mkdir(parents=True)
-    (datos_dir / "one.csv").write_text("a\n1\n", encoding="utf-8")
+    (datos_dir / "trend_score.csv").write_text("a\n1\n", encoding="utf-8")
 
     monkeypatch.setattr(sync_assets, "__file__", str(backend_dir / "sync_assets.py"))
 
@@ -92,15 +99,15 @@ def test_sincronizar_prefers_latest_directory_when_available(tmp_path, monkeypat
     datos_dir.mkdir(parents=True)
     latest_dir.mkdir(parents=True)
 
-    (datos_dir / "same.csv").write_text("v\nlegacy\n", encoding="utf-8")
-    (latest_dir / "same.csv").write_text("v\nlatest\n", encoding="utf-8")
+    (datos_dir / "trend_score.csv").write_text("v\nlegacy\n", encoding="utf-8")
+    (latest_dir / "trend_score.csv").write_text("v\nlatest\n", encoding="utf-8")
 
     monkeypatch.setattr(sync_assets, "__file__", str(backend_dir / "sync_assets.py"))
 
     summary = sync_assets.sincronizar()
 
     assert summary["files_copied"] == 1
-    assert (destino_dir / "same.csv").read_text(encoding="utf-8") == "v\nlatest\n"
+    assert (destino_dir / "trend_score.csv").read_text(encoding="utf-8") == "v\nlatest\n"
     assert summary["source_mode"] == "latest"
     assert summary["source"].endswith(str(Path("datos") / "latest"))
 
@@ -158,8 +165,11 @@ def test_sincronizar_generates_bridge_json_when_enabled(tmp_path, monkeypatch):
 
     assert summary["bridge_export_enabled"] is True
     assert summary["bridge_files_written"] == 2
+    assert summary["public_manifest_enabled"] is True
+    assert summary["public_manifest_written"] is True
     assert (destino_dir / "history_index.json").exists()
     assert (destino_dir / "trend_score_history.json").exists()
+    assert (destino_dir / "run_manifest.json").exists()
 
 
 def test_sincronizar_skips_bridge_json_when_disabled(tmp_path, monkeypatch):
@@ -186,5 +196,103 @@ def test_sincronizar_skips_bridge_json_when_disabled(tmp_path, monkeypatch):
 
     assert summary["bridge_export_enabled"] is False
     assert summary["bridge_files_written"] == 0
+    assert summary["public_manifest_enabled"] is True
+    assert summary["public_manifest_written"] is True
     assert not (destino_dir / "history_index.json").exists()
     assert not (destino_dir / "trend_score_history.json").exists()
+    assert (destino_dir / "run_manifest.json").exists()
+
+
+def test_sincronizar_public_manifest_soft_mode_when_missing_metadata(tmp_path, monkeypatch):
+    project_root = tmp_path
+    backend_dir = project_root / "backend"
+    datos_dir = project_root / "datos"
+    destino_dir = project_root / "frontend" / "assets" / "data"
+
+    backend_dir.mkdir(parents=True)
+    datos_dir.mkdir(parents=True)
+    destino_dir.mkdir(parents=True)
+
+    monkeypatch.setattr(sync_assets, "__file__", str(backend_dir / "sync_assets.py"))
+    monkeypatch.setenv("USE_PUBLIC_RUN_MANIFEST", "1")
+    monkeypatch.setenv("REQUIRE_FRONTEND_METADATA", "0")
+    monkeypatch.setenv("EXPORT_HISTORY_BRIDGE_JSON", "0")
+
+    summary = sync_assets.sincronizar()
+
+    assert summary["errors"] == 0
+    assert summary["public_manifest_enabled"] is True
+    assert summary["public_manifest_required"] is False
+    assert summary["public_manifest_written"] is False
+    assert summary["public_manifest_status"] == "warning"
+    assert not (destino_dir / "run_manifest.json").exists()
+
+
+def test_sincronizar_public_manifest_strict_mode_counts_error(tmp_path, monkeypatch):
+    project_root = tmp_path
+    backend_dir = project_root / "backend"
+    datos_dir = project_root / "datos"
+    destino_dir = project_root / "frontend" / "assets" / "data"
+
+    backend_dir.mkdir(parents=True)
+    datos_dir.mkdir(parents=True)
+    destino_dir.mkdir(parents=True)
+
+    monkeypatch.setattr(sync_assets, "__file__", str(backend_dir / "sync_assets.py"))
+    monkeypatch.setenv("USE_PUBLIC_RUN_MANIFEST", "1")
+    monkeypatch.setenv("REQUIRE_FRONTEND_METADATA", "1")
+    monkeypatch.setenv("EXPORT_HISTORY_BRIDGE_JSON", "0")
+
+    summary = sync_assets.sincronizar()
+
+    assert summary["errors"] == 1
+    assert summary["public_manifest_enabled"] is True
+    assert summary["public_manifest_required"] is True
+    assert summary["public_manifest_written"] is False
+    assert summary["public_manifest_status"] == "failed"
+    assert not (destino_dir / "run_manifest.json").exists()
+
+
+def test_sincronizar_skips_csv_not_allowlisted(tmp_path, monkeypatch):
+    project_root = tmp_path
+    backend_dir = project_root / "backend"
+    datos_dir = project_root / "datos"
+    destino_dir = project_root / "frontend" / "assets" / "data"
+
+    backend_dir.mkdir(parents=True)
+    datos_dir.mkdir(parents=True)
+    destino_dir.mkdir(parents=True)
+
+    (datos_dir / "trend_score.csv").write_text("score\n1\n", encoding="utf-8")
+    (datos_dir / "github_repos_2025.csv").write_text("repo\nx\n", encoding="utf-8")
+
+    monkeypatch.setattr(sync_assets, "__file__", str(backend_dir / "sync_assets.py"))
+    monkeypatch.setenv("EXPORT_HISTORY_BRIDGE_JSON", "0")
+    monkeypatch.setenv("USE_PUBLIC_RUN_MANIFEST", "0")
+
+    summary = sync_assets.sincronizar()
+
+    assert (destino_dir / "trend_score.csv").exists()
+    assert not (destino_dir / "github_repos_2025.csv").exists()
+    assert "github_repos_2025.csv" in summary["skipped_not_allowlisted"]
+
+
+def test_sincronizar_strict_assets_policy_adds_errors_for_missing_required(tmp_path, monkeypatch):
+    project_root = tmp_path
+    backend_dir = project_root / "backend"
+    datos_dir = project_root / "datos"
+
+    backend_dir.mkdir(parents=True)
+    datos_dir.mkdir(parents=True)
+    (datos_dir / "trend_score.csv").write_text("score\n1\n", encoding="utf-8")
+
+    monkeypatch.setattr(sync_assets, "__file__", str(backend_dir / "sync_assets.py"))
+    monkeypatch.setenv("EXPORT_HISTORY_BRIDGE_JSON", "0")
+    monkeypatch.setenv("USE_PUBLIC_RUN_MANIFEST", "0")
+    monkeypatch.setenv("FRONTEND_ASSETS_POLICY_MODE", "strict")
+
+    summary = sync_assets.sincronizar()
+
+    assert summary["assets_policy_mode"] == "strict"
+    assert summary["files_copied"] == 1
+    assert summary["errors"] > 0

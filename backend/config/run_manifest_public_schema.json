@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://techtrends.local/schemas/run_manifest_public.schema.json",
+  "title": "RunManifestPublic",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "manifest_version",
+    "generated_at_utc",
+    "source_window_start_utc",
+    "source_window_end_utc",
+    "quality_gate_status",
+    "degraded_mode",
+    "available_sources",
+    "dataset_summaries"
+  ],
+  "properties": {
+    "manifest_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$"
+    },
+    "generated_at_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source_window_start_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source_window_end_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "quality_gate_status": {
+      "type": "string",
+      "enum": [
+        "pass",
+        "pass_with_warnings",
+        "fail"
+      ]
+    },
+    "degraded_mode": {
+      "type": "boolean"
+    },
+    "available_sources": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "github",
+          "stackoverflow",
+          "reddit"
+        ]
+      },
+      "uniqueItems": true,
+      "minItems": 0,
+      "maxItems": 3
+    },
+    "dataset_summaries": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "dataset",
+          "row_count",
+          "quality_status",
+          "updated_at_utc"
+        ],
+        "properties": {
+          "dataset": {
+            "type": "string",
+            "minLength": 1
+          },
+          "row_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "quality_status": {
+            "type": "string",
+            "enum": [
+              "pass",
+              "warning",
+              "fail"
+            ]
+          },
+          "updated_at_utc": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    "notes": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}

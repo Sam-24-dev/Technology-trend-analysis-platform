@@ -45,11 +45,14 @@ def test_workflow_publish_gate_and_bridge_asset_paths():
     content = _load_workflow_text()
 
     assert "if: ${{ needs.job_aggregate.result == 'success' }}" in content
+    assert "Enforce frontend assets policy (strict)" in content
+    assert "python scripts/check_frontend_assets.py --mode strict --root ." in content
     assert "frontend/assets/data/*.json" in content
     assert "artifact_payload/frontend/assets/data/*.json" in content
     assert "frontend/assets/data/github_lenguajes.csv" in content
     assert "frontend/assets/data/so_volumen_preguntas.csv" in content
     assert "frontend/assets/data/reddit_temas_emergentes.csv" in content
+    assert "frontend/assets/data/run_manifest.json" in content
 
 
 def test_workflow_enables_dual_write_and_bridge_flags():
@@ -59,4 +62,15 @@ def test_workflow_enables_dual_write_and_bridge_flags():
     assert 'DATA_WRITE_LATEST_CSV: "1"' in content
     assert 'DATA_WRITE_HISTORY_CSV: "1"' in content
     assert 'EXPORT_HISTORY_BRIDGE_JSON: "1"' in content
+    assert 'USE_PUBLIC_RUN_MANIFEST: "1"' in content
+    assert "REQUIRE_FRONTEND_METADATA:" in content
+    assert 'FRONTEND_ASSETS_POLICY_MODE: "strict"' in content
     assert 'TREND_SCORE_ENGINE: "duckdb"' in content
+
+
+def test_workflow_generates_public_run_manifest_via_sync_assets():
+    content = _load_workflow_text()
+
+    assert "Sync CSVs to frontend assets" in content
+    assert "python backend/sync_assets.py" in content
+    assert "Generate/validate public run manifest" not in content

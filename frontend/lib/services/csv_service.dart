@@ -319,6 +319,13 @@ class CsvService {
     return double.tryParse(value?.toString() ?? '') ?? fallback;
   }
 
+  static List<String> _toStringList(dynamic value) {
+    if (value is List) {
+      return value.map((item) => item.toString()).toList();
+    }
+    return const [];
+  }
+
   static List<Map<String, dynamic>> _normalizeTrendRowsFromCsv(
     List<Map<String, dynamic>> csvRows,
     int topN,
@@ -339,6 +346,42 @@ class CsvService {
       (a, b) => _asInt(a['ranking']).compareTo(_asInt(b['ranking'])),
     );
     return normalized.take(topN).toList();
+  }
+
+  /// Carga metadata publica de run manifest para UI.
+  ///
+  /// `status`:
+  /// - available
+  /// - metadata_unavailable
+  /// - disabled
+  static Future<Map<String, dynamic>> loadPublicRunManifestView() async {
+    if (!FeatureFlags.usePublicRunManifest) {
+      return const {
+        'status': 'disabled',
+        'message': 'Public run manifest disabled by feature flag',
+      };
+    }
+
+    try {
+      final payload = await loadJsonAsMap('assets/data/run_manifest.json');
+      final datasetSummaries =
+          (payload['dataset_summaries'] as List?) ?? const [];
+      return {
+        'status': 'available',
+        'quality_gate_status':
+            payload['quality_gate_status']?.toString() ?? 'unknown',
+        'generated_at_utc': payload['generated_at_utc']?.toString() ?? '',
+        'degraded_mode': payload['degraded_mode'] == true,
+        'available_sources': _toStringList(payload['available_sources']),
+        'dataset_count': datasetSummaries.length,
+      };
+    } catch (e) {
+      return {
+        'status': 'metadata_unavailable',
+        'message': 'metadata unavailable',
+        'error': e.toString(),
+      };
+    }
   }
 
   /// Carga vista temporal de Trend Score.

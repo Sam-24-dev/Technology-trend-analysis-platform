@@ -14,6 +14,7 @@ permissions:
 
 jobs:
   test:
+    name: Backend tests
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -39,3 +40,222 @@ jobs:
 
       - name: Run tests
         run: python -m pytest tests/ -v
+
+  frontend_quality:
+    name: Frontend quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      FRONTEND_PHASE: "4"
+      FRONTEND_COVERAGE_DROP_TOLERANCE: "0.5"
+      FRONTEND_ASSETS_POLICY_MODE: "strict"
+      FRONTEND_ASSETS_MAX_FILE_KB: "150"
+      FRONTEND_ASSETS_MAX_TOTAL_KB: "600"
+      FRONTEND_ASSETS_MAX_CRITICAL_KB: "250"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install frontend dependencies
+        run: flutter pub get
+        working-directory: frontend
+
+      - name: Flutter analyze
+        run: flutter analyze --no-fatal-infos
+        working-directory: frontend
+
+      - name: Flutter test with coverage
+        run: flutter test --coverage
+        working-directory: frontend
+
+      - name: Enforce frontend coverage threshold
+        id: coverage_gate
+        shell: bash
+        run: |
+          python3 - << 'PY'
+          from pathlib import Path
+          import os
+          import re
+          import sys
+
+          lcov_path = Path("frontend/coverage/lcov.info")
+          if not lcov_path.exists():
+              print("::error::Missing coverage file frontend/coverage/lcov.info")
+              sys.exit(1)
+
+          lines_found = 0
+          lines_hit = 0
+          for line in lcov_path.read_text(encoding="utf-8").splitlines():
+              if line.startswith("LF:"):
+                  lines_found += int(line.split(":", maxsplit=1)[1])
+              elif line.startswith("LH:"):
+                  lines_hit += int(line.split(":", maxsplit=1)[1])
+
+          if lines_found <= 0:
+              print("::error::Coverage has zero LF lines")
+              sys.exit(1)
+
+          coverage = (lines_hit / lines_found) * 100.0
+
+          phase = str(os.getenv("FRONTEND_PHASE", "4")).strip()
+          phase_minimum_map = {
+              "1": 20.0,
+              "2": 35.0,
+              "3": 45.0,
+              "4": 55.0,
+          }
+          minimum = phase_minimum_map.get(phase, 55.0)
+          print(f"frontend coverage: {coverage:.2f}% (phase={phase}, min {minimum:.2f}%)")
+
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as handle:
+              handle.write(f"coverage={coverage:.2f}\n")
+              handle.write(f"coverage_phase={phase}\n")
+              handle.write(f"coverage_minimum={minimum:.2f}\n")
+
+          if coverage + 1e-9 < minimum:
+              print("::error::Frontend coverage is below configured threshold")
+              sys.exit(1)
+          PY
+
+      - name: Compute base branch coverage (PR only)
+        if: github.event_name == 'pull_request'
+        id: coverage_base
+        shell: bash
+        run: |
+          set -uo pipefail
+          base_ref="${GITHUB_BASE_REF}"
+          worktree_dir="$(mktemp -d)"
+
+          git fetch --no-tags origin "${base_ref}" --depth=1
+          git worktree add "${worktree_dir}" "origin/${base_ref}"
+
+          pushd "${worktree_dir}/frontend" >/dev/null
+          flutter pub get
+
+          if [ ! -d "test" ] || [ -z "$(find test -name '*_test.dart' -print -quit)" ]; then
+            echo "::warning::Base branch has no frontend tests; using base coverage 0.00%"
+            echo "coverage=0.00" >> "$GITHUB_OUTPUT"
+            popd >/dev/null
+            git worktree remove "${worktree_dir}" --force
+            exit 0
+          fi
+
+          if ! flutter test --coverage; then
+            echo "::warning::Base branch frontend tests failed; using base coverage 0.00%"
+            echo "coverage=0.00" >> "$GITHUB_OUTPUT"
+            popd >/dev/null
+            git worktree remove "${worktree_dir}" --force
+            exit 0
+          fi
+
+          python3 - << 'PY'
+          from pathlib import Path
+          import os
+          import sys
+
+          lcov_path = Path("coverage/lcov.info")
+          if not lcov_path.exists():
+              print("::warning::Missing baseline coverage file; using base coverage 0.00%")
+              with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as handle:
+                  handle.write("coverage=0.00\n")
+              sys.exit(0)
+
+          lines_found = 0
+          lines_hit = 0
+          for line in lcov_path.read_text(encoding="utf-8").splitlines():
+              if line.startswith("LF:"):
+                  lines_found += int(line.split(":", maxsplit=1)[1])
+              elif line.startswith("LH:"):
+                  lines_hit += int(line.split(":", maxsplit=1)[1])
+
+          if lines_found <= 0:
+              print("::error::Base branch coverage has zero LF lines")
+              sys.exit(1)
+
+          coverage = (lines_hit / lines_found) * 100.0
+          print(f"base branch frontend coverage: {coverage:.2f}%")
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as handle:
+              handle.write(f"coverage={coverage:.2f}\n")
+          PY
+
+          popd >/dev/null
+          git worktree remove "${worktree_dir}" --force
+
+      - name: Enforce no-drop coverage rule (PR only)
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          python3 - << 'PY'
+          import os
+          import sys
+
+          current = float("${{ steps.coverage_gate.outputs.coverage }}")
+          base = float("${{ steps.coverage_base.outputs.coverage }}")
+          tolerance = float(os.getenv("FRONTEND_COVERAGE_DROP_TOLERANCE", "0.5"))
+
+          print(f"coverage current={current:.2f}% base={base:.2f}% tolerance={tolerance:.2f}")
+
+          if current + tolerance < base:
+              print("::error::Coverage no-drop gate failed")
+              sys.exit(1)
+          PY
+
+      - name: Frontend assets policy check
+        shell: bash
+        run: |
+          python3 scripts/check_frontend_assets.py \
+            --mode "${FRONTEND_ASSETS_POLICY_MODE}" \
+            --root . \
+            --max-file-kb "${FRONTEND_ASSETS_MAX_FILE_KB}" \
+            --max-total-kb "${FRONTEND_ASSETS_MAX_TOTAL_KB}" \
+            --max-critical-kb "${FRONTEND_ASSETS_MAX_CRITICAL_KB}"
+
+      - name: Build Flutter web (debug baseline)
+        id: web_build
+        shell: bash
+        run: |
+          start_ts=$(date +%s)
+          flutter build web --debug
+          end_ts=$(date +%s)
+          duration=$((end_ts - start_ts))
+          echo "build_seconds=${duration}" >> "$GITHUB_OUTPUT"
+        working-directory: frontend
+
+      - name: Publish frontend baseline summary
+        shell: bash
+        run: |
+          python3 - << 'PY'
+          from pathlib import Path
+          import os
+
+          assets_dir = Path("frontend/assets/data")
+          total_bytes = sum(path.stat().st_size for path in assets_dir.glob("*") if path.is_file())
+          total_kb = total_bytes / 1024
+
+          coverage = "${{ steps.coverage_gate.outputs.coverage }}"
+          coverage_phase = "${{ steps.coverage_gate.outputs.coverage_phase }}"
+          coverage_minimum = "${{ steps.coverage_gate.outputs.coverage_minimum }}"
+          base_coverage = "${{ steps.coverage_base.outputs.coverage || 'n/a' }}"
+          build_seconds = "${{ steps.web_build.outputs.build_seconds }}"
+          assets_mode = os.getenv("FRONTEND_ASSETS_POLICY_MODE", "strict")
+          max_file = os.getenv("FRONTEND_ASSETS_MAX_FILE_KB", "150")
+          max_total = os.getenv("FRONTEND_ASSETS_MAX_TOTAL_KB", "600")
+          max_critical = os.getenv("FRONTEND_ASSETS_MAX_CRITICAL_KB", "250")
+
+          summary_path = Path(os.environ["GITHUB_STEP_SUMMARY"])
+          with summary_path.open("a", encoding="utf-8") as handle:
+              handle.write("## Frontend FE-04 Quality Summary\\n")
+              handle.write(f"- coverage: {coverage}%\\n")
+              handle.write(f"- coverage phase: {coverage_phase} (min {coverage_minimum}%)\\n")
+              handle.write(f"- base coverage (PR): {base_coverage}%\\n")
+              handle.write(f"- assets/data total size: {total_kb:.1f} KB\\n")
+              handle.write(f"- assets policy: mode={assets_mode}, max_file={max_file}KB, max_total={max_total}KB, max_critical={max_critical}KB\\n")
+              handle.write(f"- flutter build web --debug: {build_seconds}s\\n")
+          PY

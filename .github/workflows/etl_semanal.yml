@@ -18,6 +18,9 @@ env:
   DATA_WRITE_LATEST_CSV: "1"
   DATA_WRITE_HISTORY_CSV: "1"
   EXPORT_HISTORY_BRIDGE_JSON: "1"
+  USE_PUBLIC_RUN_MANIFEST: "1"
+  REQUIRE_FRONTEND_METADATA: ${{ github.ref_name == 'main' && '1' || '0' }}
+  FRONTEND_ASSETS_POLICY_MODE: "strict"
   TREND_SCORE_ENGINE: "duckdb"
 
 jobs:
@@ -274,9 +277,22 @@ jobs:
               fi
             done
           fi
+          if [ "${USE_PUBLIC_RUN_MANIFEST}" = "1" ]; then
+            if [ ! -f "frontend/assets/data/run_manifest.json" ]; then
+              if [ "${REQUIRE_FRONTEND_METADATA}" = "1" ]; then
+                echo "::error::Missing required public manifest frontend/assets/data/run_manifest.json"
+                missing=1
+              else
+                echo "::warning::Public manifest missing (soft mode): frontend/assets/data/run_manifest.json"
+              fi
+            fi
+          fi
           if [ "$missing" -ne 0 ]; then
             exit 1
           fi
+
+      - name: Enforce frontend assets policy (strict)
+        run: python scripts/check_frontend_assets.py --mode strict --root .
 
       - name: Upload aggregate artifacts
         uses: actions/upload-artifact@v4
