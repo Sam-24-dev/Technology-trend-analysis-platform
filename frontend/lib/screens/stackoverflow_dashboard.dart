@@ -1,25 +1,33 @@
-import 'package:universal_html/html.dart' as html; // Para descarga web
 import 'dart:convert'; // Para utf8 encode
 import 'package:archive/archive.dart'; // Para crear el ZIP
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../models/dashboard_domain_models.dart';
 import '../models/stackoverflow_models.dart';
-import '../services/csv_service.dart';
+import '../providers/app_providers.dart';
+import '../services/download/download_service.dart';
 import '../widgets/chart_card.dart';
+import '../widgets/degraded_state_card.dart';
 
-class StackOverflowDashboard extends StatefulWidget {
+class StackOverflowDashboard extends ConsumerStatefulWidget {
   const StackOverflowDashboard({super.key});
 
   @override
-  State<StackOverflowDashboard> createState() => _StackOverflowDashboardState();
+  ConsumerState<StackOverflowDashboard> createState() =>
+      _StackOverflowDashboardState();
 }
 
-class _StackOverflowDashboardState extends State<StackOverflowDashboard> {
+class _StackOverflowDashboardState
+    extends ConsumerState<StackOverflowDashboard> {
+  final DownloadService _downloadService = createDownloadService();
   List<VolumenPreguntasModel> volumenData = [];
   List<TasaAceptacionModel> aceptacionData = [];
   List<TendenciaMensualModel> tendenciasData = [];
 
   bool isLoading = true;
+  bool isDegraded = false;
+  String? degradedMessage;
   String? errorMessage;
 
   final Color soOrange = const Color(0xFFF48024);
@@ -35,31 +43,27 @@ class _StackOverflowDashboardState extends State<StackOverflowDashboard> {
 
   Future<void> _loadAllData() async {
     try {
-      final volRaw = await CsvService.loadCsvAsMap(
-        'assets/data/so_volumen_preguntas.csv',
-      );
-      volumenData = volRaw
-          .map((e) => VolumenPreguntasModel.fromMap(e))
-          .toList();
+      final state = await ref.read(stackoverflowDashboardProvider.future);
+      if (!mounted) return;
+      final StackOverflowDashboardData? data = state.data;
+      if (state.isError || data == null) {
+        setState(() {
+          isLoading = false;
+          errorMessage =
+              state.message ?? 'Error cargando datos de StackOverflow';
+        });
+        return;
+      }
 
-      // Ordenar por volumen para los insights y gráfica
-      volumenData.sort((a, b) => b.preguntas.compareTo(a.preguntas));
-
-      final acepRaw = await CsvService.loadCsvAsMap(
-        'assets/data/so_tasa_aceptacion.csv',
-      );
-      aceptacionData = acepRaw
-          .map((e) => TasaAceptacionModel.fromMap(e))
-          .toList();
-
-      final trendRaw = await CsvService.loadCsvAsMap(
-        'assets/data/so_tendencias_mensuales.csv',
-      );
-      tendenciasData = trendRaw
-          .map((e) => TendenciaMensualModel.fromMap(e))
-          .toList();
-
-      setState(() => isLoading = false);
+      setState(() {
+        volumenData = data.volumen;
+        aceptacionData = data.aceptacion;
+        tendenciasData = data.tendencias;
+        isDegraded = state.isDegraded;
+        degradedMessage = state.isDegraded ? state.message : null;
+        errorMessage = null;
+        isLoading = false;
+      });
     } catch (e) {
       debugPrint("Error cargando datos: $e");
       setState(() {
@@ -70,7 +74,7 @@ class _StackOverflowDashboardState extends State<StackOverflowDashboard> {
   }
 
   // --- FUNCIÓN DE EXPORTACIÓN (Requerimiento Samir) ---
-  void _exportDataAsZip() {
+  Future<void> _exportDataAsZip() async {
     // 1. CSV Volumen de Preguntas
     String csv1 = 'lenguaje,preguntas\n';
     for (var item in volumenData) {
@@ -108,13 +112,22 @@ class _StackOverflowDashboardState extends State<StackOverflowDashboard> {
     );
 
     final zipData = ZipEncoder().encode(archive);
-    if (zipData != null) {
-      final blob = html.Blob([zipData], 'application/zip');
-      final url = html.Url.createObjectUrlFromBlob(blob);
-      html.AnchorElement(href: url)
-        ..setAttribute('download', 'stackoverflow_dashboard_data.zip')
-        ..click();
-      html.Url.revokeObjectUrl(url);
+    if (zipData == null) {
+      return;
+    }
+
+    try {
+      await _downloadService.saveZipBytes(
+        fileName: 'stackoverflow_dashboard_data',
+        bytes: zipData,
+      );
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('No se pudo exportar ZIP: $error')),
+      );
     }
   }
 
@@ -177,6 +190,13 @@ class _StackOverflowDashboardState extends State<StackOverflowDashboard> {
               ),
             ],
           ),
+          if (isDegraded)
+            DegradedStateCard(
+              message:
+                  degradedMessage ??
+                  'Modo degradado: algunos datasets no estuvieron disponibles.',
+              onRetry: _loadAllData,
+            ),
 
           const SizedBox(height: 24),
 
@@ -514,13 +534,13 @@ class _StackOverflowDashboardState extends State<StackOverflowDashboard> {
           ),
 
           const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 16,
+            runSpacing: 8,
             children: [
               _buildLegend(colorPython, 'Python'),
-              const SizedBox(width: 16),
               _buildLegend(colorJS, 'JavaScript'),
-              const SizedBox(width: 16),
               _buildLegend(colorTS, 'TypeScript'),
             ],
           ),
@@ -592,7 +612,12 @@ class _StackOverflowDashboardState extends State<StackOverflowDashboard> {
   }
 
   // Widget con imagen de logo
-  Widget _buildInsightCardImage(String imagePath, String title, String description, Color accentColor) {
+  Widget _buildInsightCardImage(
+    String imagePath,
+    String title,
+    String description,
+    Color accentColor,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -613,9 +638,7 @@ class _StackOverflowDashboardState extends State<StackOverflowDashboard> {
           Container(
             width: 48,
             height: 48,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-            ),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Image.asset(imagePath, fit: BoxFit.contain),

@@ -11,10 +11,38 @@ import shutil
 from pathlib import Path
 
 from export_history_json import export_bridge_assets
+from generate_run_manifest import generate_manifest_public
+
+
+FRONTEND_CSV_ALLOWLIST = {
+    "trend_score.csv",
+    "github_lenguajes.csv",
+    "github_commits_frameworks.csv",
+    "github_correlacion.csv",
+    "so_volumen_preguntas.csv",
+    "so_tasa_aceptacion.csv",
+    "so_tendencias_mensuales.csv",
+    "reddit_sentimiento_frameworks.csv",
+    "reddit_temas_emergentes.csv",
+    "interseccion_github_reddit.csv",
+}
 
 
 def _is_bridge_export_enabled():
     return os.getenv("EXPORT_HISTORY_BRIDGE_JSON", "1") == "1"
+
+
+def _is_public_manifest_enabled():
+    return os.getenv("USE_PUBLIC_RUN_MANIFEST", "1") == "1"
+
+
+def _is_public_manifest_required():
+    return os.getenv("REQUIRE_FRONTEND_METADATA", "0") == "1"
+
+
+def _assets_policy_mode():
+    mode = os.getenv("FRONTEND_ASSETS_POLICY_MODE", "warning").strip().lower()
+    return mode if mode in {"warning", "strict"} else "warning"
 
 
 def _resolver_origen_csv(proyecto_root):
@@ -84,10 +112,24 @@ def sincronizar():
     archivos_copiados = 0
     errores = 0
     bridge_files_written = 0
+    public_manifest_written = False
+    public_manifest_status = "disabled"
     bridge_enabled = _is_bridge_export_enabled()
+    public_manifest_enabled = _is_public_manifest_enabled()
+    public_manifest_required = _is_public_manifest_required()
+    policy_mode = _assets_policy_mode()
+    skipped_not_allowlisted = []
 
     for csv_name in sorted(csv_by_name):
         csv_file = csv_by_name[csv_name]
+        if csv_name not in FRONTEND_CSV_ALLOWLIST:
+            skipped_not_allowlisted.append(csv_name)
+            logger.info(
+                "[STEP][SKIP] accion=copy archivo=%s razon=not_allowlisted policy_mode=%s",
+                csv_name,
+                policy_mode,
+            )
+            continue
         try:
             shutil.copy2(csv_file, destino / csv_file.name)
             archivos_copiados += 1
@@ -95,6 +137,21 @@ def sincronizar():
         except Exception as exc:  # pylint: disable=broad-exception-caught
             errores += 1
             logger.error("[STEP][END] accion=copy archivo=%s estado=failed error=%s", csv_file.name, exc)
+
+    missing_required = [
+        csv_name for csv_name in sorted(FRONTEND_CSV_ALLOWLIST) if not (destino / csv_name).exists()
+    ]
+    if missing_required:
+        for csv_name in missing_required:
+            message = (
+                "[STEP][END] accion=allowlist_required archivo=%s "
+                "estado=%s policy_mode=%s"
+            )
+            if policy_mode == "strict":
+                errores += 1
+                logger.error(message, csv_name, "missing", policy_mode)
+            else:
+                logger.warning(message, csv_name, "missing", policy_mode)
 
     if bridge_enabled:
         try:
@@ -109,13 +166,44 @@ def sincronizar():
             errores += 1
             logger.error("[STEP][END] action=bridge_export status=failed error=%s", exc)
 
+    if public_manifest_enabled:
+        try:
+            manifest_summary = generate_manifest_public(
+                proyecto_root,
+                require_metadata=public_manifest_required,
+            )
+            public_manifest_written = bool(manifest_summary["valid"])
+            public_manifest_status = str(manifest_summary["status"])
+            logger.info(
+                "[STEP][END] action=run_manifest_public status=%s valid=%s source_mode=%s output=%s",
+                manifest_summary["status"],
+                manifest_summary["valid"],
+                manifest_summary["source_mode"],
+                manifest_summary["output_path"],
+            )
+        except Exception as exc:  # pylint: disable=broad-exception-caught
+            public_manifest_status = "failed"
+            if public_manifest_required:
+                errores += 1
+            logger.error(
+                "[STEP][END] action=run_manifest_public status=failed required=%s error=%s",
+                public_manifest_required,
+                exc,
+            )
+
     logger.info(
         "[RUN][SUMMARY] estado=%s archivos_copiados=%d bridge_files=%d bridge_enabled=%s "
-        "errores=%d source_mode=%s origen=%s destino=%s",
+        "public_manifest_enabled=%s public_manifest_status=%s public_manifest_written=%s "
+        "assets_policy_mode=%s skipped_not_allowlisted=%d errores=%d source_mode=%s origen=%s destino=%s",
         "success" if errores == 0 else "partial",
         archivos_copiados,
         bridge_files_written,
         bridge_enabled,
+        public_manifest_enabled,
+        public_manifest_status,
+        public_manifest_written,
+        policy_mode,
+        len(skipped_not_allowlisted),
         errores,
         source_mode,
         origen,
@@ -125,6 +213,12 @@ def sincronizar():
         "files_copied": archivos_copiados,
         "bridge_files_written": bridge_files_written,
         "bridge_export_enabled": bridge_enabled,
+        "public_manifest_enabled": public_manifest_enabled,
+        "public_manifest_required": public_manifest_required,
+        "public_manifest_status": public_manifest_status,
+        "public_manifest_written": public_manifest_written,
+        "assets_policy_mode": policy_mode,
+        "skipped_not_allowlisted": skipped_not_allowlisted,
         "errors": errores,
         "source_mode": source_mode,
         "source": str(origen),

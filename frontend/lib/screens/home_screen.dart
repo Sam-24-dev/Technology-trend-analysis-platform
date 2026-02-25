@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../config/feature_flags.dart';
-import '../services/csv_service.dart';
+import '../models/data_load_state.dart';
+import '../models/run_manifest_models.dart';
+import '../models/trend_history_models.dart';
+import '../providers/app_providers.dart';
+import '../widgets/degraded_state_card.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -64,10 +69,12 @@ class HomeScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: const [
                     Icon(Icons.insights, color: Color(0xFF374151), size: 28),
-                    SizedBox(width: 12),
                     Text(
                       'Key Insights',
                       style: TextStyle(
@@ -107,6 +114,10 @@ class HomeScreen extends StatelessWidget {
           ),
 
           const SizedBox(height: 48),
+
+          const _RunManifestStatusCard(),
+
+          const SizedBox(height: 20),
 
           const _TrendTemporalBridgeCard(),
 
@@ -258,11 +269,14 @@ class HomeScreen extends StatelessWidget {
             children: [
               FaIcon(icon, size: 20, color: color),
               const SizedBox(width: 10),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+              Expanded(
+                child: Text(
+                  title,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],
@@ -296,12 +310,18 @@ class HomeScreen extends StatelessWidget {
             child: FaIcon(icon, color: color, size: 18),
           ),
           const SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
-              Text(role, style: const TextStyle(color: Colors.grey)),
-            ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text(
+                  role,
+                  style: const TextStyle(color: Colors.grey),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -371,22 +391,143 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-class _TrendTemporalBridgeCard extends StatefulWidget {
-  const _TrendTemporalBridgeCard();
+class _RunManifestStatusCard extends ConsumerWidget {
+  const _RunManifestStatusCard();
+
+  Color _statusColor(
+    String qualityStatus,
+    DataLoadState<RunManifestPublic> state,
+  ) {
+    if (state.isError || state.data == null) {
+      return const Color(0xFF6B7280);
+    }
+    switch (qualityStatus) {
+      case 'pass':
+        return const Color(0xFF15803D);
+      case 'pass_with_warnings':
+        return const Color(0xFFD97706);
+      case 'fail':
+        return const Color(0xFFB91C1C);
+      default:
+        return const Color(0xFF6B7280);
+    }
+  }
+
+  String _statusLabel(
+    String qualityStatus,
+    DataLoadState<RunManifestPublic> state,
+  ) {
+    if (state.isError || state.data == null) return 'Metadata no disponible';
+    if (state.isDegraded) return 'Metadata parcial disponible';
+    switch (qualityStatus) {
+      case 'pass':
+        return 'Quality gate: pass';
+      case 'pass_with_warnings':
+        return 'Quality gate: pass_with_warnings';
+      case 'fail':
+        return 'Quality gate: fail';
+      default:
+        return 'Quality gate: unknown';
+    }
+  }
 
   @override
-  State<_TrendTemporalBridgeCard> createState() =>
-      _TrendTemporalBridgeCardState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final manifestAsync = ref.watch(runManifestProvider);
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
+      ),
+      child: manifestAsync.when(
+        loading: () => const SizedBox(
+          height: 56,
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        ),
+        error: (error, stackTrace) => const Text(
+          'Metadata no disponible',
+          style: TextStyle(color: Color(0xFF6B7280)),
+        ),
+        data: (state) {
+          final manifest = state.data;
+          final qualityStatus = manifest?.qualityGateStatus ?? 'unknown';
+          final statusColor = _statusColor(qualityStatus, state);
+          final statusLabel = _statusLabel(qualityStatus, state);
+          final generatedAt = manifest?.generatedAtUtc ?? '-';
+          final datasetCount = manifest?.datasetSummaries.length ?? 0;
+          final availableSources =
+              manifest?.availableSources ?? const <String>[];
+          final degradedMode = manifest?.degradedMode ?? true;
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      color: statusColor,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Data metadata status',
+                    style: TextStyle(
+                      color: statusColor,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                statusLabel,
+                style: const TextStyle(fontSize: 13, color: Color(0xFF374151)),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'updated_at: $generatedAt | datasets: $datasetCount | sources: ${availableSources.join(", ")}',
+                style: const TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
+              ),
+              if (state.message?.isNotEmpty == true)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(
+                    state.message!,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF6B7280),
+                    ),
+                  ),
+                ),
+              if (degradedMode)
+                const Padding(
+                  padding: EdgeInsets.only(top: 4),
+                  child: Text(
+                    'Modo degradado activo: algunas fuentes no estuvieron disponibles.',
+                    style: TextStyle(fontSize: 12, color: Color(0xFFD97706)),
+                  ),
+                ),
+            ],
+          );
+        },
+      ),
+    );
+  }
 }
 
-class _TrendTemporalBridgeCardState extends State<_TrendTemporalBridgeCard> {
-  late final Future<Map<String, dynamic>> _futureTemporalData;
-
-  @override
-  void initState() {
-    super.initState();
-    _futureTemporalData = CsvService.loadTrendTemporalView(topN: 5);
-  }
+class _TrendTemporalBridgeCard extends ConsumerWidget {
+  const _TrendTemporalBridgeCard();
 
   String _buildSourceLabel(String source) {
     switch (source) {
@@ -400,7 +541,9 @@ class _TrendTemporalBridgeCardState extends State<_TrendTemporalBridgeCard> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final trendAsync = ref.watch(trendTemporalProvider);
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -416,35 +559,30 @@ class _TrendTemporalBridgeCardState extends State<_TrendTemporalBridgeCard> {
           ),
         ],
       ),
-      child: FutureBuilder<Map<String, dynamic>>(
-        future: _futureTemporalData,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const SizedBox(
-              height: 120,
-              child: Center(child: CircularProgressIndicator()),
-            );
-          }
-
-          if (snapshot.hasError) {
-            return Text(
-              'No se pudo cargar la vista temporal: ${snapshot.error}',
-              style: const TextStyle(color: Colors.red),
-            );
-          }
-
-          final data = snapshot.data ?? const <String, dynamic>{};
-          final source = data['source']?.toString() ?? 'csv';
-          final snapshotCount = (data['snapshotCount'] as num?)?.toInt() ?? 0;
-          final items = (data['items'] as List?) ?? const [];
+      child: trendAsync.when(
+        loading: () => const SizedBox(
+          height: 120,
+          child: Center(child: CircularProgressIndicator()),
+        ),
+        error: (error, stackTrace) => Text(
+          'No se pudo cargar la vista temporal: $error',
+          style: const TextStyle(color: Colors.red),
+        ),
+        data: (state) {
+          final trendData = state.data;
+          final source = trendData?.source ?? 'csv';
+          final snapshotCount = trendData?.snapshotCount ?? 0;
+          final items = trendData?.items ?? const <TrendTopEntry>[];
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
+              Wrap(
+                spacing: 10,
+                runSpacing: 8,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   const Icon(Icons.timeline, color: Color(0xFF1F2937)),
-                  const SizedBox(width: 8),
                   const Text(
                     'Vista temporal de Trend Score',
                     style: TextStyle(
@@ -453,7 +591,6 @@ class _TrendTemporalBridgeCardState extends State<_TrendTemporalBridgeCard> {
                       color: Color(0xFF1F2937),
                     ),
                   ),
-                  const SizedBox(width: 12),
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,
@@ -464,7 +601,7 @@ class _TrendTemporalBridgeCardState extends State<_TrendTemporalBridgeCard> {
                       borderRadius: BorderRadius.circular(999),
                     ),
                     child: Text(
-                      '${_buildSourceLabel(source)} • snapshots: $snapshotCount',
+                      '${_buildSourceLabel(source)} | snapshots: $snapshotCount',
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -481,54 +618,64 @@ class _TrendTemporalBridgeCardState extends State<_TrendTemporalBridgeCard> {
                     : 'Modo bridge desactivado por feature flag (CSV por defecto)',
                 style: const TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
               ),
+              if (state.message?.isNotEmpty == true)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(
+                    state.message!,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF6B7280),
+                    ),
+                  ),
+                ),
               const SizedBox(height: 14),
               if (items.isEmpty)
                 const Text(
                   'No hay datos temporales disponibles.',
                   style: TextStyle(color: Color(0xFF6B7280)),
                 )
+              else if (state.isDegraded)
+                DegradedStateCard(
+                  message:
+                      state.message ??
+                      'Modo degradado activo en la vista temporal.',
+                )
               else
                 Wrap(
                   spacing: 10,
                   runSpacing: 10,
                   children: [
-                    for (final dynamic raw in items)
-                      () {
-                        final row = raw is Map ? raw : const {};
-                        final rank = row['ranking']?.toString() ?? '-';
-                        final tech = row['tecnologia']?.toString() ?? 'N/A';
-                        final score = row['trend_score']?.toString() ?? '0.0';
-                        final fuentes = row['fuentes']?.toString() ?? '0';
-                        return Container(
-                          width: 220,
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF9FAFB),
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: const Color(0xFFE5E7EB)),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '#$rank $tech',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                    for (final item in items)
+                      Container(
+                        width: 220,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF9FAFB),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: const Color(0xFFE5E7EB)),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '#${item.ranking} ${item.tecnologia}',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
                               ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Score: $score • Fuentes: $fuentes',
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  color: Color(0xFF6B7280),
-                                ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Score: ${item.trendScore} | Fuentes: ${item.fuentes}',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Color(0xFF6B7280),
                               ),
-                            ],
-                          ),
-                        );
-                      }(),
+                            ),
+                          ],
+                        ),
+                      ),
                   ],
                 ),
             ],

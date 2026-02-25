@@ -1,25 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:universal_html/html.dart' as html;
 import 'dart:convert';
 import 'dart:math';
 import 'package:archive/archive.dart';
-import '../services/csv_service.dart';
+import '../models/dashboard_domain_models.dart';
 import '../models/github_models.dart';
+import '../providers/app_providers.dart';
+import '../services/download/download_service.dart';
 import '../widgets/chart_card.dart';
+import '../widgets/degraded_state_card.dart';
 
-class GithubDashboard extends StatefulWidget {
+class GithubDashboard extends ConsumerStatefulWidget {
   const GithubDashboard({super.key});
 
   @override
-  State<GithubDashboard> createState() => _GithubDashboardState();
+  ConsumerState<GithubDashboard> createState() => _GithubDashboardState();
 }
 
-class _GithubDashboardState extends State<GithubDashboard> {
+class _GithubDashboardState extends ConsumerState<GithubDashboard> {
+  final DownloadService _downloadService = createDownloadService();
   List<LenguajeModel> lenguajes = [];
   List<FrameworkCommitModel> frameworks = [];
   List<CorrelacionModel> correlacion = [];
   bool isLoading = true;
+  bool isDegraded = false;
+  String? degradedMessage;
 
   // Colores distintivos para cada lenguaje (todos diferentes)
   final List<Color> distinctColors = [
@@ -45,34 +51,29 @@ class _GithubDashboardState extends State<GithubDashboard> {
 
   Future<void> _loadData() async {
     try {
-      try {
-        final lenguajesData = await CsvService.loadCsvAsMap('assets/data/github_lenguajes.csv');
-        lenguajes = lenguajesData.map((e) => LenguajeModel.fromMap(e)).take(5).toList();
-      } catch (e) {
-        print('Error cargando github_lenguajes.csv: $e');
+      final state = await ref.read(githubDashboardProvider.future);
+      if (!mounted) return;
+      final GithubDashboardData? data = state.data;
+      if (state.isError || data == null) {
+        setState(() {
+          isLoading = false;
+          errorMessage =
+              state.message ?? 'No se cargaron datos. Verifique logs.';
+        });
+        return;
       }
 
-      try {
-        final frameworksData = await CsvService.loadCsvAsMap('assets/data/github_commits_frameworks.csv');
-        frameworks = frameworksData.map((e) => FrameworkCommitModel.fromMap(e)).toList();
-      } catch (e) {
-        print('Error cargando github_commits_frameworks.csv: $e');
-      }
-
-      try {
-        final correlacionData = await CsvService.loadCsvAsMap('assets/data/github_correlacion.csv');
-        correlacion = correlacionData.map((e) => CorrelacionModel.fromMap(e)).toList();
-      } catch (e) {
-        print('Error cargando github_correlacion.csv: $e');
-      }
-
-      if (lenguajes.isEmpty && frameworks.isEmpty && correlacion.isEmpty) {
-        throw Exception('No se cargaron datos. Verifique logs.');
-      }
-
-      setState(() => isLoading = false);
+      setState(() {
+        lenguajes = data.lenguajes;
+        frameworks = data.frameworks;
+        correlacion = data.correlacion;
+        isDegraded = state.isDegraded;
+        degradedMessage = state.isDegraded ? state.message : null;
+        errorMessage = null;
+        isLoading = false;
+      });
     } catch (e, stackTrace) {
-      print('Error cargando datos: $e');
+      debugPrint('Error cargando datos: $e');
       setState(() {
         isLoading = false;
         errorMessage = 'Error: $e\n$stackTrace';
@@ -80,39 +81,59 @@ class _GithubDashboardState extends State<GithubDashboard> {
     }
   }
 
-  void _exportDataAsZip() {
+  Future<void> _exportDataAsZip() async {
     // CSV 1: Lenguajes
     String csv1 = 'lenguaje,repos_count,porcentaje\n';
     for (var lang in lenguajes) {
       csv1 += '${lang.lenguaje},${lang.reposCount},${lang.porcentaje}\n';
     }
-    
+
     // CSV 2: Frameworks
     String csv2 = 'framework,commits_2025\n';
     for (var fw in frameworks) {
       csv2 += '${fw.framework},${fw.commits2025}\n';
     }
-    
+
     // CSV 3: Correlación
     String csv3 = 'repo_name,stars,contributors,language\n';
     for (var item in correlacion) {
-      csv3 += '${item.repoName},${item.stars},${item.contributors},${item.language}\n';
+      csv3 +=
+          '${item.repoName},${item.stars},${item.contributors},${item.language}\n';
     }
-    
+
     // Crear ZIP
     final archive = Archive();
-    archive.addFile(ArchiveFile('1_lenguajes_top10.csv', csv1.length, utf8.encode(csv1)));
-    archive.addFile(ArchiveFile('2_commits_frameworks.csv', csv2.length, utf8.encode(csv2)));
-    archive.addFile(ArchiveFile('3_correlacion_stars_contributors.csv', csv3.length, utf8.encode(csv3)));
-    
+    archive.addFile(
+      ArchiveFile('1_lenguajes_top10.csv', csv1.length, utf8.encode(csv1)),
+    );
+    archive.addFile(
+      ArchiveFile('2_commits_frameworks.csv', csv2.length, utf8.encode(csv2)),
+    );
+    archive.addFile(
+      ArchiveFile(
+        '3_correlacion_stars_contributors.csv',
+        csv3.length,
+        utf8.encode(csv3),
+      ),
+    );
+
     final zipData = ZipEncoder().encode(archive);
-    if (zipData != null) {
-      final blob = html.Blob([zipData], 'application/zip');
-      final url = html.Url.createObjectUrlFromBlob(blob);
-      html.AnchorElement(href: url)
-        ..setAttribute('download', 'github_dashboard_data.zip')
-        ..click();
-      html.Url.revokeObjectUrl(url);
+    if (zipData == null) {
+      return;
+    }
+
+    try {
+      await _downloadService.saveZipBytes(
+        fileName: 'github_dashboard_data',
+        bytes: zipData,
+      );
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('No se pudo exportar ZIP: $error')),
+      );
     }
   }
 
@@ -134,39 +155,30 @@ class _GithubDashboardState extends State<GithubDashboard> {
       );
     }
 
-
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Flexible(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text(
-                      'Dashboard GitHub',
-                      style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      'Análisis de tendencias tecnológicas 2025',
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
-                    ),
-                  ],
-                ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              const Text(
+                'Dashboard GitHub',
+                style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(height: 12),
               ElevatedButton.icon(
                 onPressed: _exportDataAsZip,
                 icon: const Icon(Icons.folder_zip, size: 18),
                 label: const Text('Exportar ZIP'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue, // Blue
+                  backgroundColor: Colors.blue,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
                 ),
               ),
             ],
@@ -176,9 +188,16 @@ class _GithubDashboardState extends State<GithubDashboard> {
             'Análisis de tendencias tecnológicas 2025',
             style: TextStyle(fontSize: 16, color: Colors.grey),
           ),
+          if (isDegraded)
+            DegradedStateCard(
+              message:
+                  degradedMessage ??
+                  'Modo degradado: algunos datasets no estuvieron disponibles.',
+              onRetry: _loadData,
+            ),
           const SizedBox(height: 24),
 
-          // KEY INSIGHTS SECTION 
+          // KEY INSIGHTS SECTION
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
@@ -253,7 +272,8 @@ class _GithubDashboardState extends State<GithubDashboard> {
           // Gráfico 3
           ChartCard(
             title: 'Correlación entre Stars y Contributors',
-            subtitle: 'Coeficiente de correlación (r = ${_calculateCorrelation().toStringAsFixed(2)}) - 100 repos top de 2025',
+            subtitle:
+                'Coeficiente de correlación (r = ${_calculateCorrelation().toStringAsFixed(2)}) - 100 repos top de 2025',
             height: 450,
             chart: _buildScatterChart(),
           ),
@@ -277,16 +297,21 @@ class _GithubDashboardState extends State<GithubDashboard> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 crossAxisAlignment: CrossAxisAlignment.end,
-                children: lenguajes.map((lang) => 
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: Text(
-                      lang.lenguaje,
-                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-                      textAlign: TextAlign.right,
-                    ),
-                  )
-                ).toList(),
+                children: lenguajes
+                    .map(
+                      (lang) => Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: Text(
+                          lang.lenguaje,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          textAlign: TextAlign.right,
+                        ),
+                      ),
+                    )
+                    .toList(),
               ),
             ),
             // Gráfico de barras
@@ -308,8 +333,11 @@ class _GithubDashboardState extends State<GithubDashboard> {
                             height: 28,
                             width: constraints.maxWidth * 0.75 * widthPercent,
                             decoration: BoxDecoration(
-                              color: distinctColors[index % distinctColors.length],
-                              borderRadius: const BorderRadius.horizontal(right: Radius.circular(4)),
+                              color:
+                                  distinctColors[index % distinctColors.length],
+                              borderRadius: const BorderRadius.horizontal(
+                                right: Radius.circular(4),
+                              ),
                             ),
                           ),
                         );
@@ -320,12 +348,17 @@ class _GithubDashboardState extends State<GithubDashboard> {
                   const SizedBox(height: 8),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [0, 100, 200, 300, 400].map((val) => 
-                      Text(
-                        val.toString(),
-                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500),
-                      )
-                    ).toList(),
+                    children: [0, 100, 200, 300, 400]
+                        .map(
+                          (val) => Text(
+                            val.toString(),
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        )
+                        .toList(),
                   ),
                 ],
               ),
@@ -339,7 +372,7 @@ class _GithubDashboardState extends State<GithubDashboard> {
   // Gráfico 2: Pie/Donut Chart para frameworks
   Widget _buildFrameworkPieChart() {
     final total = frameworks.fold<int>(0, (sum, f) => sum + f.commits2025);
-    
+
     final colors = [
       const Color(0xFFDD0031), // Angular red
       const Color(0xFF61DAFB), // React blue
@@ -400,11 +433,17 @@ class _GithubDashboardState extends State<GithubDashboard> {
                         children: [
                           Text(
                             item.framework,
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
                           ),
                           Text(
                             '${item.commits2025.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')} commits',
-                            style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 12,
+                            ),
                           ),
                         ],
                       ),
@@ -423,16 +462,16 @@ class _GithubDashboardState extends State<GithubDashboard> {
   Widget _buildScatterChart() {
     double sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
     int n = correlacion.length;
-    
+
     for (var item in correlacion) {
       sumX += item.stars;
       sumY += item.contributors;
       sumXY += item.stars * item.contributors;
       sumX2 += item.stars * item.stars;
     }
-    
-    double slope = n > 0 && (n * sumX2 - sumX * sumX) != 0 
-        ? (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX) 
+
+    double slope = n > 0 && (n * sumX2 - sumX * sumX) != 0
+        ? (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX)
         : 0;
     double intercept = n > 0 ? (sumY - slope * sumX) / n : 0;
 
@@ -441,7 +480,10 @@ class _GithubDashboardState extends State<GithubDashboard> {
 
     List<FlSpot> trendSpots = [
       FlSpot(0, intercept.clamp(0, maxContributors)),
-      FlSpot(maxStars, (slope * maxStars + intercept).clamp(0, maxContributors)),
+      FlSpot(
+        maxStars,
+        (slope * maxStars + intercept).clamp(0, maxContributors),
+      ),
     ];
 
     return Padding(
@@ -458,8 +500,15 @@ class _GithubDashboardState extends State<GithubDashboard> {
               getTooltipItems: (spots) => spots.map((spot) {
                 if (spot.barIndex == 0) {
                   final repo = correlacion.firstWhere(
-                    (r) => r.stars == spot.x.toInt() && r.contributors == spot.y.toInt(),
-                    orElse: () => CorrelacionModel(repoName: '', stars: spot.x.toInt(), contributors: spot.y.toInt(), language: ''),
+                    (r) =>
+                        r.stars == spot.x.toInt() &&
+                        r.contributors == spot.y.toInt(),
+                    orElse: () => CorrelacionModel(
+                      repoName: '',
+                      stars: spot.x.toInt(),
+                      contributors: spot.y.toInt(),
+                      language: '',
+                    ),
                   );
                   return LineTooltipItem(
                     '${repo.repoName.isNotEmpty ? repo.repoName.split('/').last : ''}\n⭐ ${spot.x.toInt()} | 👥 ${spot.y.toInt()}',
@@ -475,7 +524,10 @@ class _GithubDashboardState extends State<GithubDashboard> {
             bottomTitles: AxisTitles(
               axisNameWidget: const Padding(
                 padding: EdgeInsets.only(top: 12),
-                child: Text('Stars', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                child: Text(
+                  'Stars',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                ),
               ),
               axisNameSize: 35,
               sideTitles: SideTitles(
@@ -483,16 +535,26 @@ class _GithubDashboardState extends State<GithubDashboard> {
                 reservedSize: 35,
                 interval: 20000,
                 getTitlesWidget: (value, meta) {
-                  if (value == 0) return const Padding(padding: EdgeInsets.only(top: 8), child: Text('0', style: TextStyle(fontSize: 10)));
+                  if (value == 0)
+                    return const Padding(
+                      padding: EdgeInsets.only(top: 8),
+                      child: Text('0', style: TextStyle(fontSize: 10)),
+                    );
                   return Padding(
                     padding: const EdgeInsets.only(top: 8),
-                    child: Text('${(value / 1000).toStringAsFixed(0)}k', style: const TextStyle(fontSize: 10)),
+                    child: Text(
+                      '${(value / 1000).toStringAsFixed(0)}k',
+                      style: const TextStyle(fontSize: 10),
+                    ),
                   );
                 },
               ),
             ),
             leftTitles: AxisTitles(
-              axisNameWidget: const Text('Contributors', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+              axisNameWidget: const Text(
+                'Contributors',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+              ),
               axisNameSize: 35,
               sideTitles: SideTitles(
                 showTitles: true,
@@ -501,13 +563,20 @@ class _GithubDashboardState extends State<GithubDashboard> {
                 getTitlesWidget: (value, meta) {
                   return Padding(
                     padding: const EdgeInsets.only(right: 8),
-                    child: Text(value.toInt().toString(), style: const TextStyle(fontSize: 10)),
+                    child: Text(
+                      value.toInt().toString(),
+                      style: const TextStyle(fontSize: 10),
+                    ),
                   );
                 },
               ),
             ),
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
           ),
           borderData: FlBorderData(
             show: true,
@@ -522,12 +591,21 @@ class _GithubDashboardState extends State<GithubDashboard> {
             drawVerticalLine: true,
             horizontalInterval: 200,
             verticalInterval: 20000,
-            getDrawingHorizontalLine: (value) => FlLine(color: Colors.grey.shade200, strokeWidth: 1),
-            getDrawingVerticalLine: (value) => FlLine(color: Colors.grey.shade200, strokeWidth: 1),
+            getDrawingHorizontalLine: (value) =>
+                FlLine(color: Colors.grey.shade200, strokeWidth: 1),
+            getDrawingVerticalLine: (value) =>
+                FlLine(color: Colors.grey.shade200, strokeWidth: 1),
           ),
           lineBarsData: [
             LineChartBarData(
-              spots: correlacion.map((item) => FlSpot(item.stars.toDouble(), item.contributors.toDouble())).toList(),
+              spots: correlacion
+                  .map(
+                    (item) => FlSpot(
+                      item.stars.toDouble(),
+                      item.contributors.toDouble(),
+                    ),
+                  )
+                  .toList(),
               isCurved: false,
               color: Colors.transparent,
               dotData: FlDotData(
@@ -559,22 +637,22 @@ class _GithubDashboardState extends State<GithubDashboard> {
   // Calcular insight de frameworks
   String _getFrameworkInsight() {
     if (frameworks.isEmpty) return 'Sin datos de frameworks';
-    
+
     frameworks.sort((a, b) => b.commits2025.compareTo(a.commits2025));
     final leader = frameworks.first;
     final total = frameworks.fold<int>(0, (sum, f) => sum + f.commits2025);
     final percentage = (leader.commits2025 / total * 100).toStringAsFixed(0);
-    
+
     return '${leader.framework} lidera con $percentage% de los commits totales de frameworks frontend';
   }
 
   // Calcular coeficiente de correlación de Pearson
   double _calculateCorrelation() {
     if (correlacion.isEmpty) return 0.0;
-    
+
     int n = correlacion.length;
     double sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0, sumY2 = 0;
-    
+
     for (var item in correlacion) {
       double x = item.stars.toDouble();
       double y = item.contributors.toDouble();
@@ -584,19 +662,24 @@ class _GithubDashboardState extends State<GithubDashboard> {
       sumX2 += x * x;
       sumY2 += y * y;
     }
-    
+
     double numerator = n * sumXY - sumX * sumY;
     double denomX = n * sumX2 - sumX * sumX;
     double denomY = n * sumY2 - sumY * sumY;
-    
+
     if (denomX <= 0 || denomY <= 0) return 0.0;
-    
+
     double denominator = sqrt(denomX * denomY);
     return numerator / denominator;
   }
 
   // Widget con imagen de logo
-  Widget _buildGithubInsightCard(String imagePath, String title, String description, Color accentColor) {
+  Widget _buildGithubInsightCard(
+    String imagePath,
+    String title,
+    String description,
+    Color accentColor,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -617,15 +700,10 @@ class _GithubDashboardState extends State<GithubDashboard> {
           Container(
             width: 48,
             height: 48,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-            ),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: Image.asset(
-                imagePath,
-                fit: BoxFit.contain,
-              ),
+              child: Image.asset(imagePath, fit: BoxFit.contain),
             ),
           ),
           const SizedBox(width: 16),
@@ -658,7 +736,12 @@ class _GithubDashboardState extends State<GithubDashboard> {
   }
 
   // Widget con icono de Material
-  Widget _buildGithubInsightCardIcon(IconData icon, String title, String description, Color accentColor) {
+  Widget _buildGithubInsightCardIcon(
+    IconData icon,
+    String title,
+    String description,
+    Color accentColor,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(

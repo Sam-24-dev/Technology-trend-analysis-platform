@@ -16,6 +16,17 @@ class ChartCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.sizeOf(context).width;
+    final bool isNarrow = screenWidth < 760;
+
+    Widget chartBody = SizedBox(height: height, child: chart);
+    if (isNarrow) {
+      chartBody = SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: SizedBox(width: 760, height: height, child: chart),
+      );
+    }
+
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -36,17 +47,11 @@ class ChartCard extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 subtitle!,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
               ),
             ],
             const SizedBox(height: 20),
-            SizedBox(
-              height: height,
-              child: chart,
-            ),
+            chartBody,
           ],
         ),
       ),

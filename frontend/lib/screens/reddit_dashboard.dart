@@ -1,24 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:universal_html/html.dart' as html;
 import 'dart:convert';
 import 'package:archive/archive.dart';
+import '../models/dashboard_domain_models.dart';
 import '../models/reddit_models.dart';
-import '../services/csv_service.dart';
+import '../providers/app_providers.dart';
+import '../services/download/download_service.dart';
 import '../widgets/chart_card.dart';
+import '../widgets/degraded_state_card.dart';
 
-class RedditDashboard extends StatefulWidget {
+class RedditDashboard extends ConsumerStatefulWidget {
   const RedditDashboard({super.key});
 
   @override
-  State<RedditDashboard> createState() => _RedditDashboardState();
+  ConsumerState<RedditDashboard> createState() => _RedditDashboardState();
 }
 
-class _RedditDashboardState extends State<RedditDashboard> {
+class _RedditDashboardState extends ConsumerState<RedditDashboard> {
+  final DownloadService _downloadService = createDownloadService();
   List<SentimientoModel> sentimientoData = [];
   List<TemasEmergentesModel> temasData = [];
   List<InterseccionModel> interseccionData = [];
   bool isLoading = true;
+  bool isDegraded = false;
+  String? degradedMessage;
   String? errorMessage;
 
   @override
@@ -29,26 +35,29 @@ class _RedditDashboardState extends State<RedditDashboard> {
 
   Future<void> _loadData() async {
     try {
-      final sentimientoCsv =
-          await CsvService.loadCsvAsMap('assets/data/reddit_sentimiento_frameworks.csv');
-      final temasCsv =
-          await CsvService.loadCsvAsMap('assets/data/reddit_temas_emergentes.csv');
-      final interseccionCsv = await CsvService.loadCsvAsMap(
-          'assets/data/interseccion_github_reddit.csv');
+      final state = await ref.read(redditDashboardProvider.future);
+      if (!mounted) return;
+      final RedditDashboardData? data = state.data;
+
+      if (state.isError || data == null) {
+        setState(() {
+          isLoading = false;
+          errorMessage = state.message ?? 'Error cargando datos de Reddit';
+        });
+        return;
+      }
 
       setState(() {
-        sentimientoData = sentimientoCsv
-            .map((e) => SentimientoModel.fromMap(e))
-            .toList();
-        temasData =
-            temasCsv.map((e) => TemasEmergentesModel.fromMap(e)).toList();
-        interseccionData = interseccionCsv
-            .map((e) => InterseccionModel.fromMap(e))
-            .toList();
+        sentimientoData = data.sentimiento;
+        temasData = data.temas;
+        interseccionData = data.interseccion;
+        isDegraded = state.isDegraded;
+        degradedMessage = state.isDegraded ? state.message : null;
+        errorMessage = null;
         isLoading = false;
       });
     } catch (e) {
-      print('Error cargando datos: $e');
+      debugPrint('Error cargando datos: $e');
       setState(() {
         isLoading = false;
         errorMessage = 'Error cargando datos: $e';
@@ -80,8 +89,10 @@ class _RedditDashboardState extends State<RedditDashboard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header con título y botón exportar
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Wrap(
+            spacing: 16,
+            runSpacing: 12,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               const Text(
                 'Dashboard Reddit',
@@ -92,9 +103,12 @@ class _RedditDashboardState extends State<RedditDashboard> {
                 icon: const Icon(Icons.folder_zip, size: 18),
                 label: const Text('Exportar ZIP'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFF4500), // Reddit orange
+                  backgroundColor: const Color(0xFFFF4500),
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
                 ),
               ),
             ],
@@ -104,6 +118,13 @@ class _RedditDashboardState extends State<RedditDashboard> {
             'Análisis de sentimientos y tendencias en comunidades de tecnología 2025',
             style: TextStyle(fontSize: 16, color: Colors.grey),
           ),
+          if (isDegraded)
+            DegradedStateCard(
+              message:
+                  degradedMessage ??
+                  'Modo degradado: algunos datasets no estuvieron disponibles.',
+              onRetry: _loadData,
+            ),
           const SizedBox(height: 32),
           // Key Insights Section
           _buildKeyInsightsSection(),
@@ -111,7 +132,8 @@ class _RedditDashboardState extends State<RedditDashboard> {
           // Gráfico 1: Sentimiento de Frameworks
           ChartCard(
             title: 'Sentimiento de Frameworks Backend',
-            subtitle: 'Porcentaje de opiniones positivas (verde) y negativas (rojo) en Reddit',
+            subtitle:
+                'Porcentaje de opiniones positivas (verde) y negativas (rojo) en Reddit',
             height: 400,
             chart: _buildSentimientoChart(),
           ),
@@ -127,17 +149,19 @@ class _RedditDashboardState extends State<RedditDashboard> {
           // Gráfico 3: Intersección GitHub-Reddit
           ChartCard(
             title: 'Intersección GitHub vs Reddit',
-            subtitle: 'Comparación de ranking de popularidad en ambas plataformas',
+            subtitle:
+                'Comparación de ranking de popularidad en ambas plataformas',
             height: 400,
             chart: _buildInterseccionChart(),
           ),
           const SizedBox(height: 16),
           // Leyenda para Gráfico 3
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 24,
+            runSpacing: 8,
             children: [
               _buildLegend(const Color(0xFF3B82F6), 'Ranking GitHub'),
-              const SizedBox(width: 24),
               _buildLegend(const Color(0xFFFF4500), 'Ranking Reddit'),
             ],
           ),
@@ -169,14 +193,19 @@ class _RedditDashboardState extends State<RedditDashboard> {
               final isPositive = rodIndex == 1;
               return BarTooltipItem(
                 '${_capitalizeFramework(item.framework)}\n',
-                const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
                 children: [
                   TextSpan(
-                    text: isPositive 
+                    text: isPositive
                         ? '${item.porcentajePositivo.toStringAsFixed(1)}% Positivo'
                         : '${item.porcentajeNegativo.toStringAsFixed(1)}% Negativo',
                     style: TextStyle(
-                      color: isPositive ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+                      color: isPositive
+                          ? const Color(0xFF10B981)
+                          : const Color(0xFFEF4444),
                     ),
                   ),
                 ],
@@ -184,34 +213,39 @@ class _RedditDashboardState extends State<RedditDashboard> {
             },
           ),
         ),
-        barGroups: List.generate(
-          sortedData.length,
-          (index) {
-            final item = sortedData[index];
-            return BarChartGroupData(
-              x: index,
-              barRods: [
-                // Barra negativa
-                BarChartRodData(
-                  toY: -item.porcentajeNegativo,
-                  color: const Color(0xFFEF4444),
-                  width: 22,
-                  borderRadius: const BorderRadius.vertical(bottom: Radius.circular(4)),
+        barGroups: List.generate(sortedData.length, (index) {
+          final item = sortedData[index];
+          return BarChartGroupData(
+            x: index,
+            barRods: [
+              // Barra negativa
+              BarChartRodData(
+                toY: -item.porcentajeNegativo,
+                color: const Color(0xFFEF4444),
+                width: 22,
+                borderRadius: const BorderRadius.vertical(
+                  bottom: Radius.circular(4),
                 ),
-                // Barra positiva
-                BarChartRodData(
-                  toY: item.porcentajePositivo,
-                  color: const Color(0xFF10B981),
-                  width: 22,
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+              ),
+              // Barra positiva
+              BarChartRodData(
+                toY: item.porcentajePositivo,
+                color: const Color(0xFF10B981),
+                width: 22,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(4),
                 ),
-              ],
-            );
-          },
-        ),
+              ),
+            ],
+          );
+        }),
         titlesData: FlTitlesData(
-          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
@@ -222,7 +256,10 @@ class _RedditDashboardState extends State<RedditDashboard> {
                     padding: const EdgeInsets.only(top: 8),
                     child: Text(
                       _capitalizeFramework(sortedData[value.toInt()].framework),
-                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500),
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   );
                 }
@@ -257,7 +294,7 @@ class _RedditDashboardState extends State<RedditDashboard> {
 
     final sortedData = List<TemasEmergentesModel>.from(temasData)
       ..sort((a, b) => b.menciones.compareTo(a.menciones));
-    
+
     final maxMenciones = sortedData.first.menciones.toDouble();
 
     return BarChart(
@@ -272,30 +309,36 @@ class _RedditDashboardState extends State<RedditDashboard> {
               final item = sortedData[group.x.toInt()];
               return BarTooltipItem(
                 '${_formatTema(item.tema)}\n${item.menciones} menciones',
-                const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               );
             },
           ),
         ),
-        barGroups: List.generate(
-          sortedData.length,
-          (index) {
-            return BarChartGroupData(
-              x: index,
-              barRods: [
-                BarChartRodData(
-                  toY: sortedData[index].menciones.toDouble(),
-                  color: const Color(0xFFFF4500),
-                  width: 28,
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+        barGroups: List.generate(sortedData.length, (index) {
+          return BarChartGroupData(
+            x: index,
+            barRods: [
+              BarChartRodData(
+                toY: sortedData[index].menciones.toDouble(),
+                color: const Color(0xFFFF4500),
+                width: 28,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(4),
                 ),
-              ],
-            );
-          },
-        ),
+              ),
+            ],
+          );
+        }),
         titlesData: FlTitlesData(
-          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
@@ -308,7 +351,10 @@ class _RedditDashboardState extends State<RedditDashboard> {
                       quarterTurns: -1,
                       child: Text(
                         _formatTema(sortedData[value.toInt()].tema),
-                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500),
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                        ),
                         textAlign: TextAlign.left,
                       ),
                     ),
@@ -343,11 +389,15 @@ class _RedditDashboardState extends State<RedditDashboard> {
     }
 
     final datosValidos = interseccionData
-        .where((item) => item.rankingGitHub != null && item.rankingReddit != null)
+        .where(
+          (item) => item.rankingGitHub != null && item.rankingReddit != null,
+        )
         .toList();
 
     if (datosValidos.isEmpty) {
-      return const Center(child: Text('No hay datos con ambos rankings disponibles'));
+      return const Center(
+        child: Text('No hay datos con ambos rankings disponibles'),
+      );
     }
 
     return BarChart(
@@ -364,14 +414,19 @@ class _RedditDashboardState extends State<RedditDashboard> {
               final isGitHub = rodIndex == 0;
               return BarTooltipItem(
                 '${_capitalizeFramework(item.tecnologia)}\n',
-                const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
                 children: [
                   TextSpan(
-                    text: isGitHub 
+                    text: isGitHub
                         ? 'GitHub: #${item.rankingGitHub}'
                         : 'Reddit: #${item.rankingReddit}',
                     style: TextStyle(
-                      color: isGitHub ? const Color(0xFF3B82F6) : const Color(0xFFFF4500),
+                      color: isGitHub
+                          ? const Color(0xFF3B82F6)
+                          : const Color(0xFFFF4500),
                     ),
                   ),
                 ],
@@ -379,36 +434,41 @@ class _RedditDashboardState extends State<RedditDashboard> {
             },
           ),
         ),
-        barGroups: List.generate(
-          datosValidos.length,
-          (index) {
-            final item = datosValidos[index];
-            // Invertir: ranking 1 = barra alta (10), ranking 10 = barra baja (1)
-            final githubHeight = (11 - item.rankingGitHub!).toDouble();
-            final redditHeight = (11 - item.rankingReddit!).toDouble();
-            
-            return BarChartGroupData(
-              x: index,
-              barRods: [
-                BarChartRodData(
-                  toY: githubHeight,
-                  color: const Color(0xFF3B82F6),
-                  width: 20,
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+        barGroups: List.generate(datosValidos.length, (index) {
+          final item = datosValidos[index];
+          // Invertir: ranking 1 = barra alta (10), ranking 10 = barra baja (1)
+          final githubHeight = (11 - item.rankingGitHub!).toDouble();
+          final redditHeight = (11 - item.rankingReddit!).toDouble();
+
+          return BarChartGroupData(
+            x: index,
+            barRods: [
+              BarChartRodData(
+                toY: githubHeight,
+                color: const Color(0xFF3B82F6),
+                width: 20,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(4),
                 ),
-                BarChartRodData(
-                  toY: redditHeight,
-                  color: const Color(0xFFFF4500),
-                  width: 20,
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+              ),
+              BarChartRodData(
+                toY: redditHeight,
+                color: const Color(0xFFFF4500),
+                width: 20,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(4),
                 ),
-              ],
-            );
-          },
-        ),
+              ),
+            ],
+          );
+        }),
         titlesData: FlTitlesData(
-          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
@@ -418,8 +478,13 @@ class _RedditDashboardState extends State<RedditDashboard> {
                   return Padding(
                     padding: const EdgeInsets.only(top: 8),
                     child: Text(
-                      _capitalizeFramework(datosValidos[value.toInt()].tecnologia),
-                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500),
+                      _capitalizeFramework(
+                        datosValidos[value.toInt()].tecnologia,
+                      ),
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   );
                 }
@@ -455,10 +520,14 @@ class _RedditDashboardState extends State<RedditDashboard> {
   Widget _buildLegend(Color color, String text) {
     return Row(
       children: [
-        Container(width: 16, height: 16, decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(4),
-        )),
+        Container(
+          width: 16,
+          height: 16,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(4),
+          ),
+        ),
         const SizedBox(width: 8),
         Text(text, style: const TextStyle(fontWeight: FontWeight.w500)),
       ],
@@ -502,7 +571,9 @@ class _RedditDashboardState extends State<RedditDashboard> {
     String frameworkTopico = 'Express';
     double sentimientoMax = 0;
     if (sentimientoData.isNotEmpty) {
-      sentimientoData.sort((a, b) => b.porcentajePositivo.compareTo(a.porcentajePositivo));
+      sentimientoData.sort(
+        (a, b) => b.porcentajePositivo.compareTo(a.porcentajePositivo),
+      );
       frameworkTopico = sentimientoData.first.framework;
       sentimientoMax = sentimientoData.first.porcentajePositivo;
     }
@@ -564,7 +635,12 @@ class _RedditDashboardState extends State<RedditDashboard> {
     );
   }
 
-  Widget _buildInsightCardIcon(IconData icon, String title, String description, Color accentColor) {
+  Widget _buildInsightCardIcon(
+    IconData icon,
+    String title,
+    String description,
+    Color accentColor,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -620,7 +696,12 @@ class _RedditDashboardState extends State<RedditDashboard> {
   }
 
   // Widget con imagen de logo
-  Widget _buildInsightCardImage(String imagePath, String title, String description, Color accentColor) {
+  Widget _buildInsightCardImage(
+    String imagePath,
+    String title,
+    String description,
+    Color accentColor,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -640,9 +721,7 @@ class _RedditDashboardState extends State<RedditDashboard> {
           Container(
             width: 48,
             height: 48,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-            ),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Image.asset(imagePath, fit: BoxFit.contain),
@@ -677,11 +756,12 @@ class _RedditDashboardState extends State<RedditDashboard> {
     );
   }
 
-  void _exportDataAsZip() {
+  Future<void> _exportDataAsZip() async {
     // CSV 1: Sentimiento de Frameworks
     String csv1 = 'Framework,Porcentaje Positivo,Porcentaje Negativo\n';
     for (var item in sentimientoData) {
-      csv1 += '${item.framework},${item.porcentajePositivo},${item.porcentajeNegativo}\n';
+      csv1 +=
+          '${item.framework},${item.porcentajePositivo},${item.porcentajeNegativo}\n';
     }
 
     // CSV 2: Temas Emergentes
@@ -693,23 +773,47 @@ class _RedditDashboardState extends State<RedditDashboard> {
     // CSV 3: Intersección GitHub-Reddit
     String csv3 = 'Tecnologia,Ranking GitHub,Ranking Reddit\n';
     for (var item in interseccionData) {
-      csv3 += '${item.tecnologia},${item.rankingGitHub},${item.rankingReddit}\n';
+      csv3 +=
+          '${item.tecnologia},${item.rankingGitHub},${item.rankingReddit}\n';
     }
 
     // Crear ZIP
     final archive = Archive();
-    archive.addFile(ArchiveFile('1_sentimiento_frameworks.csv', csv1.length, utf8.encode(csv1)));
-    archive.addFile(ArchiveFile('2_temas_emergentes.csv', csv2.length, utf8.encode(csv2)));
-    archive.addFile(ArchiveFile('3_interseccion_github_reddit.csv', csv3.length, utf8.encode(csv3)));
+    archive.addFile(
+      ArchiveFile(
+        '1_sentimiento_frameworks.csv',
+        csv1.length,
+        utf8.encode(csv1),
+      ),
+    );
+    archive.addFile(
+      ArchiveFile('2_temas_emergentes.csv', csv2.length, utf8.encode(csv2)),
+    );
+    archive.addFile(
+      ArchiveFile(
+        '3_interseccion_github_reddit.csv',
+        csv3.length,
+        utf8.encode(csv3),
+      ),
+    );
 
     final zipData = ZipEncoder().encode(archive);
-    if (zipData != null) {
-      final blob = html.Blob([zipData], 'application/zip');
-      final url = html.Url.createObjectUrlFromBlob(blob);
-      html.AnchorElement(href: url)
-        ..setAttribute('download', 'reddit_dashboard_data.zip')
-        ..click();
-      html.Url.revokeObjectUrl(url);
+    if (zipData == null) {
+      return;
+    }
+
+    try {
+      await _downloadService.saveZipBytes(
+        fileName: 'reddit_dashboard_data',
+        bytes: zipData,
+      );
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('No se pudo exportar ZIP: $error')),
+      );
     }
   }
 }

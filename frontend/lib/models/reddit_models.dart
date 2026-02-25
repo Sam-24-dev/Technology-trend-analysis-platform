@@ -29,8 +29,7 @@ class TemasEmergentesModel {
   factory TemasEmergentesModel.fromMap(Map<String, dynamic> map) {
     return TemasEmergentesModel(
       tema: map['tema'] ?? '',
-      menciones:
-          int.tryParse(map['menciones']?.toString() ?? '0') ?? 0,
+      menciones: int.tryParse(map['menciones']?.toString() ?? '0') ?? 0,
     );
   }
 }
