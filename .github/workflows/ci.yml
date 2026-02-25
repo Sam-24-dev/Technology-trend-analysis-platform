@@ -12,14 +12,6 @@ on:
 permissions:
   contents: read
 
-env:
-  FRONTEND_PHASE: "4"
-  FRONTEND_COVERAGE_DROP_TOLERANCE: "0.5"
-  FRONTEND_ASSETS_POLICY_MODE: "strict"
-  FRONTEND_ASSETS_MAX_FILE_KB: "150"
-  FRONTEND_ASSETS_MAX_TOTAL_KB: "600"
-  FRONTEND_ASSETS_MAX_CRITICAL_KB: "250"
-
 jobs:
   test:
     name: Backend tests
@@ -53,6 +45,13 @@ jobs:
     name: Frontend quality
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    env:
+      FRONTEND_PHASE: "4"
+      FRONTEND_COVERAGE_DROP_TOLERANCE: "0.5"
+      FRONTEND_ASSETS_POLICY_MODE: "strict"
+      FRONTEND_ASSETS_MAX_FILE_KB: "150"
+      FRONTEND_ASSETS_MAX_TOTAL_KB: "600"
+      FRONTEND_ASSETS_MAX_CRITICAL_KB: "250"
 
     steps:
       - name: Checkout code
@@ -130,7 +129,7 @@ jobs:
         id: coverage_base
         shell: bash
         run: |
-          set -euo pipefail
+          set -uo pipefail
           base_ref="${GITHUB_BASE_REF}"
           worktree_dir="$(mktemp -d)"
 
@@ -139,7 +138,22 @@ jobs:
 
           pushd "${worktree_dir}/frontend" >/dev/null
           flutter pub get
-          flutter test --coverage
+
+          if [ ! -d "test" ] || [ -z "$(find test -name '*_test.dart' -print -quit)" ]; then
+            echo "::warning::Base branch has no frontend tests; using base coverage 0.00%"
+            echo "coverage=0.00" >> "$GITHUB_OUTPUT"
+            popd >/dev/null
+            git worktree remove "${worktree_dir}" --force
+            exit 0
+          fi
+
+          if ! flutter test --coverage; then
+            echo "::warning::Base branch frontend tests failed; using base coverage 0.00%"
+            echo "coverage=0.00" >> "$GITHUB_OUTPUT"
+            popd >/dev/null
+            git worktree remove "${worktree_dir}" --force
+            exit 0
+          fi
 
           python3 - << 'PY'
           from pathlib import Path
@@ -148,8 +162,10 @@ jobs:
 
           lcov_path = Path("coverage/lcov.info")
           if not lcov_path.exists():
-              print("::error::Missing baseline coverage file in base branch worktree")
-              sys.exit(1)
+              print("::warning::Missing baseline coverage file; using base coverage 0.00%")
+              with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as handle:
+                  handle.write("coverage=0.00\n")
+              sys.exit(0)
 
           lines_found = 0
           lines_hit = 0

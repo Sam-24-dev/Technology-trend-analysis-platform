@@ -1,6 +1,13 @@
 from pathlib import Path
 
+import pytest
+
 import sync_assets
+
+
+@pytest.fixture(autouse=True)
+def _default_assets_policy_mode(monkeypatch):
+    monkeypatch.setenv("FRONTEND_ASSETS_POLICY_MODE", "warning")
 
 
 def test_sincronizar_copies_only_csv_files(tmp_path, monkeypatch):
