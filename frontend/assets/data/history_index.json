@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-03-02T08:55:50Z",
+  "generated_at_utc": "2026-03-04T21:27:38Z",
   "dataset_count": 1,
   "datasets": [
     {
@@ -9,8 +9,8 @@
       "history_snapshot_count": 1,
       "snapshots": [
         {
-          "date": "2026-03-02",
-          "path": "datos/history/trend_score/year=2026/month=03/day=02/trend_score.csv",
+          "date": "2026-03-04",
+          "path": "datos/history/trend_score/year=2026/month=03/day=04/trend_score.csv",
           "row_count": 23
         }
       ]

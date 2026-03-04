@@ -1,10 +1,10 @@
 {
-  "generated_at_utc": "2026-03-02T08:55:50Z",
+  "generated_at_utc": "2026-03-04T21:27:38Z",
   "snapshot_count": 1,
   "snapshots": [
     {
-      "date": "2026-03-02",
-      "path": "datos/history/trend_score/year=2026/month=03/day=02/trend_score.csv",
+      "date": "2026-03-04",
+      "path": "datos/history/trend_score/year=2026/month=03/day=04/trend_score.csv",
       "source_type": "history",
       "row_count": 23,
       "top_10": [
@@ -17,7 +17,7 @@
         {
           "ranking": 2,
           "tecnologia": "TypeScript",
-          "trend_score": 35.79,
+          "trend_score": 35.99,
           "fuentes": 3
         },
         {
@@ -29,31 +29,31 @@
         {
           "ranking": 4,
           "tecnologia": "JavaScript",
-          "trend_score": 22.26,
+          "trend_score": 22.31,
           "fuentes": 2
         },
         {
           "ranking": 5,
           "tecnologia": "Java",
-          "trend_score": 14.59,
+          "trend_score": 14.46,
           "fuentes": 2
         },
         {
           "ranking": 6,
           "tecnologia": "Go",
-          "trend_score": 6.58,
+          "trend_score": 6.73,
           "fuentes": 1
         },
         {
           "ranking": 7,
-          "tecnologia": "Rust",
-          "trend_score": 5.19,
+          "tecnologia": "Microservices",
+          "trend_score": 4.9,
           "fuentes": 1
         },
         {
           "ranking": 8,
-          "tecnologia": "Microservices",
-          "trend_score": 4.9,
+          "tecnologia": "Rust",
+          "trend_score": 4.82,
           "fuentes": 1
         },
         {
@@ -65,7 +65,7 @@
         {
           "ranking": 10,
           "tecnologia": "Shell",
-          "trend_score": 3.04,
+          "trend_score": 3.05,
           "fuentes": 1
         }
       ]
@@ -76,7 +76,7 @@
       "tecnologia": "Python",
       "points": [
         {
-          "date": "2026-03-02",
+          "date": "2026-03-04",
           "ranking": 1,
           "trend_score": 76.45,
           "fuentes": 3
@@ -87,9 +87,9 @@
       "tecnologia": "TypeScript",
       "points": [
         {
-          "date": "2026-03-02",
+          "date": "2026-03-04",
           "ranking": 2,
-          "trend_score": 35.79,
+          "trend_score": 35.99,
           "fuentes": 3
         }
       ]
@@ -98,7 +98,7 @@
       "tecnologia": "AI/ML",
       "points": [
         {
-          "date": "2026-03-02",
+          "date": "2026-03-04",
           "ranking": 3,
           "trend_score": 25.0,
           "fuentes": 1
@@ -109,9 +109,9 @@
       "tecnologia": "JavaScript",
       "points": [
         {
-          "date": "2026-03-02",
+          "date": "2026-03-04",
           "ranking": 4,
-          "trend_score": 22.26,
+          "trend_score": 22.31,
           "fuentes": 2
         }
       ]
@@ -120,9 +120,9 @@
       "tecnologia": "Java",
       "points": [
         {
-          "date": "2026-03-02",
+          "date": "2026-03-04",
           "ranking": 5,
-          "trend_score": 14.59,
+          "trend_score": 14.46,
           "fuentes": 2
         }
       ]
@@ -131,20 +131,9 @@
       "tecnologia": "Go",
       "points": [
         {
-          "date": "2026-03-02",
+          "date": "2026-03-04",
           "ranking": 6,
-          "trend_score": 6.58,
-          "fuentes": 1
-        }
-      ]
-    },
-    {
-      "tecnologia": "Rust",
-      "points": [
-        {
-          "date": "2026-03-02",
-          "ranking": 7,
-          "trend_score": 5.19,
+          "trend_score": 6.73,
           "fuentes": 1
         }
       ]
@@ -153,9 +142,20 @@
       "tecnologia": "Microservices",
       "points": [
         {
-          "date": "2026-03-02",
-          "ranking": 8,
+          "date": "2026-03-04",
+          "ranking": 7,
           "trend_score": 4.9,
+          "fuentes": 1
+        }
+      ]
+    },
+    {
+      "tecnologia": "Rust",
+      "points": [
+        {
+          "date": "2026-03-04",
+          "ranking": 8,
+          "trend_score": 4.82,
           "fuentes": 1
         }
       ]
@@ -164,7 +164,7 @@
       "tecnologia": "Performance",
       "points": [
         {
-          "date": "2026-03-02",
+          "date": "2026-03-04",
           "ranking": 9,
           "trend_score": 4.02,
           "fuentes": 1
@@ -175,9 +175,9 @@
       "tecnologia": "Shell",
       "points": [
         {
-          "date": "2026-03-02",
+          "date": "2026-03-04",
           "ranking": 10,
-          "trend_score": 3.04,
+          "trend_score": 3.05,
           "fuentes": 1
         }
       ]
@@ -186,7 +186,7 @@
       "tecnologia": "Cloud",
       "points": [
         {
-          "date": "2026-03-02",
+          "date": "2026-03-04",
           "ranking": 11,
           "trend_score": 2.73,
           "fuentes": 1
@@ -197,20 +197,9 @@
       "tecnologia": "C++",
       "points": [
         {
-          "date": "2026-03-02",
+          "date": "2026-03-04",
           "ranking": 12,
-          "trend_score": 2.02,
-          "fuentes": 1
-        }
-      ]
-    },
-    {
-      "tecnologia": "Jupyter Notebook",
-      "points": [
-        {
-          "date": "2026-03-02",
-          "ranking": 13,
-          "trend_score": 2.02,
+          "trend_score": 2.03,
           "fuentes": 1
         }
       ]
@@ -219,9 +208,20 @@
       "tecnologia": "Security",
       "points": [
         {
-          "date": "2026-03-02",
-          "ranking": 14,
+          "date": "2026-03-04",
+          "ranking": 13,
           "trend_score": 1.93,
+          "fuentes": 1
+        }
+      ]
+    },
+    {
+      "tecnologia": "Jupyter Notebook",
+      "points": [
+        {
+          "date": "2026-03-04",
+          "ranking": 14,
+          "trend_score": 1.78,
           "fuentes": 1
         }
       ]
@@ -230,9 +230,9 @@
       "tecnologia": "Swift",
       "points": [
         {
-          "date": "2026-03-02",
+          "date": "2026-03-04",
           "ranking": 15,
-          "trend_score": 1.77,
+          "trend_score": 1.78,
           "fuentes": 1
         }
       ]
@@ -241,20 +241,9 @@
       "tecnologia": "Testing",
       "points": [
         {
-          "date": "2026-03-02",
+          "date": "2026-03-04",
           "ranking": 16,
           "trend_score": 1.69,
-          "fuentes": 1
-        }
-      ]
-    },
-    {
-      "tecnologia": "Kotlin",
-      "points": [
-        {
-          "date": "2026-03-02",
-          "ranking": 17,
-          "trend_score": 1.39,
           "fuentes": 1
         }
       ]
@@ -263,9 +252,20 @@
       "tecnologia": "Html",
       "points": [
         {
-          "date": "2026-03-02",
+          "date": "2026-03-04",
+          "ranking": 17,
+          "trend_score": 1.4,
+          "fuentes": 1
+        }
+      ]
+    },
+    {
+      "tecnologia": "Kotlin",
+      "points": [
+        {
+          "date": "2026-03-04",
           "ranking": 18,
-          "trend_score": 1.26,
+          "trend_score": 1.4,
           "fuentes": 1
         }
       ]
@@ -274,7 +274,7 @@
       "tecnologia": "DevOps",
       "points": [
         {
-          "date": "2026-03-02",
+          "date": "2026-03-04",
           "ranking": 19,
           "trend_score": 1.21,
           "fuentes": 1
@@ -285,9 +285,9 @@
       "tecnologia": "C",
       "points": [
         {
-          "date": "2026-03-02",
+          "date": "2026-03-04",
           "ranking": 20,
-          "trend_score": 0.89,
+          "trend_score": 1.02,
           "fuentes": 1
         }
       ]
@@ -296,7 +296,7 @@
       "tecnologia": "C#",
       "points": [
         {
-          "date": "2026-03-02",
+          "date": "2026-03-04",
           "ranking": 21,
           "trend_score": 0.89,
           "fuentes": 1
@@ -307,7 +307,7 @@
       "tecnologia": "Lua",
       "points": [
         {
-          "date": "2026-03-02",
+          "date": "2026-03-04",
           "ranking": 22,
           "trend_score": 0.0,
           "fuentes": 0
@@ -318,7 +318,7 @@
       "tecnologia": "Web3",
       "points": [
         {
-          "date": "2026-03-02",
+          "date": "2026-03-04",
           "ranking": 23,
           "trend_score": 0.0,
           "fuentes": 0
