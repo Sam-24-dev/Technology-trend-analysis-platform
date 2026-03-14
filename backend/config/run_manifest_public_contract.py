@@ -167,6 +167,9 @@ def _dataset_summary_row_count(dataset_summaries: list[dict[str, Any]], dataset_
 
 
 def _compute_so_languages_count(dataset_summaries: list[dict[str, Any]]) -> int:
+    count = _dataset_summary_row_count(dataset_summaries, "so_volumen_preguntas")
+    if count > 0:
+        return count
     return _dataset_summary_row_count(dataset_summaries, "so_volumen")
 
 

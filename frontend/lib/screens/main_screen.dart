@@ -133,7 +133,9 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       return KeyEventResult.handled;
     }
     if (key == LogicalKeyboardKey.end) {
-      _jumpTo(_pageScrollController.position.maxScrollExtent);
+      if (_pageScrollController.hasClients) {
+        _jumpTo(_pageScrollController.position.maxScrollExtent);
+      }
       return KeyEventResult.handled;
     }
     return KeyEventResult.ignored;

@@ -157,7 +157,7 @@ if _reference_date:
     except ValueError:
         FECHA_FIN = datetime.now(timezone.utc)
 else:
-    FECHA_FIN = datetime.now()
+    FECHA_FIN = datetime.now(timezone.utc)
 
 FECHA_INICIO = FECHA_FIN - timedelta(days=365)
 

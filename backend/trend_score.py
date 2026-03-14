@@ -138,8 +138,8 @@ def _build_legacy_trend_score(df_github, df_so, df_reddit):
         + PESOS["reddit"] * df_combined["reddit_score"]
     ).round(2)
 
-    # Rows with zero contribution across every source add noise to the ranking
-    # and trigger data-quality warnings without providing product value.
+    # Filas sin contribución en todas las fuentes agregan ruido al ranking
+    # y disparan alertas de calidad sin aportar valor al producto.
     df_combined = df_combined[df_combined["trend_score"] > 0].copy()
 
     if df_combined.empty:

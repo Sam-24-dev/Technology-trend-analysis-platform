@@ -447,9 +447,10 @@ class GitHubETL(BaseETL):
             framework = str(row.get("framework", "")).strip()
             if not framework:
                 continue
-            commits_prev[framework] = int(
-                pd.to_numeric(row.get("commits_2025"), errors="coerce") or 0
-            )
+            prev_value = pd.to_numeric(row.get("commits_2025"), errors="coerce")
+            if pd.isna(prev_value):
+                prev_value = 0
+            commits_prev[framework] = int(prev_value)
         return commits_prev, snapshot_date
 
     @staticmethod

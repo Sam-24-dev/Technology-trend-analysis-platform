@@ -42,10 +42,12 @@ class TrendRepository {
       final previousSnapshot = trendHistory.snapshots.length >= 2
           ? trendHistory.snapshots[trendHistory.snapshots.length - 2]
           : null;
+      final items = latestSnapshot.top10;
+      final resolvedTopN = topN < items.length ? topN : items.length;
       return TrendTemporalViewData(
         source: 'bridge_json',
         snapshotCount: trendHistory.snapshotCount,
-        items: latestSnapshot.top10.take(topN).toList(),
+        items: items.take(resolvedTopN).toList(),
         latestSnapshotDate: latestSnapshot.date,
         previousSnapshotDate: previousSnapshot?.date,
       );
