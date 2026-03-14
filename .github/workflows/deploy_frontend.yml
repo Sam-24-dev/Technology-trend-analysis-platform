@@ -61,10 +61,21 @@ jobs:
           cd frontend
           flutter pub get
 
+      - name: Resolve remote assets base
+        shell: bash
+        run: |
+          if [ -d "etl_artifacts/datos/metadata/remote_assets" ] && ls etl_artifacts/datos/metadata/remote_assets/*.json >/dev/null 2>&1; then
+            echo "REMOTE_ASSETS_BASE_URL=https://sam-24-dev.github.io/Technology-trend-analysis-platform/assets/data/" >> $GITHUB_ENV
+            echo "Remote assets detected; enabling REMOTE_ASSETS_BASE_URL."
+          else
+            echo "REMOTE_ASSETS_BASE_URL=" >> $GITHUB_ENV
+            echo "Remote assets not found; using local bundled assets."
+          fi
+
       - name: Build Flutter Web
         run: |
           cd frontend
-          flutter build web --base-href "/Technology-trend-analysis-platform/" --dart-define=USE_HISTORY_BRIDGE_JSON=true --dart-define=REMOTE_ASSETS_BASE_URL=https://sam-24-dev.github.io/Technology-trend-analysis-platform/assets/data/
+          flutter build web --base-href "/Technology-trend-analysis-platform/" --dart-define=USE_HISTORY_BRIDGE_JSON=true --dart-define=REMOTE_ASSETS_BASE_URL=${REMOTE_ASSETS_BASE_URL}
 
       - name: Inject remote JSON assets
         shell: bash
