@@ -36,6 +36,7 @@ jobs:
 
       - name: Download ETL artifact (workflow_run)
         if: ${{ github.event_name == 'workflow_run' }}
+        continue-on-error: true
         uses: dawidd6/action-download-artifact@v2
         with:
           run_id: ${{ github.event.workflow_run.id }}
@@ -45,6 +46,7 @@ jobs:
 
       - name: Download ETL artifact (latest main)
         if: ${{ github.event_name != 'workflow_run' }}
+        continue-on-error: true
         uses: dawidd6/action-download-artifact@v2
         with:
           workflow: ETL Weekly Data Refresh
