@@ -112,6 +112,45 @@ def test_sincronizar_prefers_latest_directory_when_available(tmp_path, monkeypat
     assert summary["source"].endswith(str(Path("datos") / "latest"))
 
 
+def test_sincronizar_prefers_richer_schema_over_latest_stale_file(tmp_path, monkeypatch):
+    project_root = tmp_path
+    backend_dir = project_root / "backend"
+    datos_dir = project_root / "datos"
+    latest_dir = datos_dir / "latest"
+    destino_dir = project_root / "frontend" / "assets" / "data"
+
+    backend_dir.mkdir(parents=True)
+    datos_dir.mkdir(parents=True)
+    latest_dir.mkdir(parents=True)
+
+    legacy_csv = (
+        "framework,repo,commits_2025,active_contributors,merged_prs,closed_issues,releases_count,ranking\n"
+        "Angular,angular/angular,100,10,50,20,3,1\n"
+    )
+    latest_csv = (
+        "framework,repo,commits_2025,ranking\n"
+        "Angular,angular/angular,90,1\n"
+    )
+    (datos_dir / "github_commits_frameworks.csv").write_text(
+        legacy_csv,
+        encoding="utf-8",
+    )
+    (latest_dir / "github_commits_frameworks.csv").write_text(
+        latest_csv,
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr(sync_assets, "__file__", str(backend_dir / "sync_assets.py"))
+    monkeypatch.setenv("EXPORT_HISTORY_BRIDGE_JSON", "0")
+
+    summary = sync_assets.sincronizar()
+
+    assert summary["files_copied"] == 1
+    assert (destino_dir / "github_commits_frameworks.csv").read_text(
+        encoding="utf-8"
+    ) == legacy_csv
+
+
 def test_sincronizar_uses_latest_per_file_with_legacy_fallback(tmp_path, monkeypatch):
     project_root = tmp_path
     backend_dir = project_root / "backend"
@@ -164,11 +203,22 @@ def test_sincronizar_generates_bridge_json_when_enabled(tmp_path, monkeypatch):
     summary = sync_assets.sincronizar()
 
     assert summary["bridge_export_enabled"] is True
-    assert summary["bridge_files_written"] == 2
+    assert summary["bridge_files_written"] == 13
     assert summary["public_manifest_enabled"] is True
     assert summary["public_manifest_written"] is True
     assert (destino_dir / "history_index.json").exists()
     assert (destino_dir / "trend_score_history.json").exists()
+    assert (destino_dir / "reddit_sentimiento_public.json").exists()
+    assert (destino_dir / "reddit_temas_history.json").exists()
+    assert (destino_dir / "reddit_interseccion_history.json").exists()
+    assert (destino_dir / "github_lenguajes_public.json").exists()
+    assert (destino_dir / "github_frameworks_history.json").exists()
+    assert (destino_dir / "github_correlacion_history.json").exists()
+    assert (destino_dir / "home_highlights.json").exists()
+    assert (destino_dir / "so_volumen_history.json").exists()
+    assert (destino_dir / "so_aceptacion_history.json").exists()
+    assert (destino_dir / "so_tendencias_history.json").exists()
+    assert (destino_dir / "technology_profiles.json").exists()
     assert (destino_dir / "run_manifest.json").exists()
 
 

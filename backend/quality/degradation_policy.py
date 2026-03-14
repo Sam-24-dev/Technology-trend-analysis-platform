@@ -1,4 +1,4 @@
-"""Trend score degradation policy based on source availability."""
+"""Política de degradación de trend score basada en disponibilidad de fuentes."""
 
 from __future__ import annotations
 
@@ -37,7 +37,7 @@ def evaluate_degradation_policy(
     source_status: Mapping[str, bool],
     default_weights: Mapping[str, float] | None = None,
 ) -> dict[str, object]:
-    """Evaluates publication decision and weights for source availability."""
+    """Evalúa decisión de publicación y pesos según disponibilidad de fuentes."""
     weights = default_weights or DEFAULT_SOURCE_WEIGHTS
     status = _normalize_status(source_status)
 

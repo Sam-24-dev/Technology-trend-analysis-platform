@@ -1,7 +1,7 @@
-"""Validates CSV outputs against the shared backend/frontend contract.
+"""Valida salidas CSV contra el contrato compartido backend/frontend.
 
-Used in CI/ETL to detect incompatible schema changes
-before publishing data to the frontend.
+Usado en CI/ETL para detectar cambios de schema incompatibles
+antes de publicar datos al frontend.
 """
 
 import logging
@@ -20,15 +20,15 @@ logger = logging.getLogger("validate_csv_contract")
 
 
 def validate_contract(strict=True, enable_pandera=True, pandera_warn_only=True):
-    """Validates CSV files and routes quality issues by severity.
+    """Valida archivos CSV y enruta issues de calidad por severidad.
 
     Args:
-        strict: Enforces required schema and type checks.
-        enable_pandera: Enables/disables the Pandera quality stage.
-        pandera_warn_only: Routes Pandera critical issues as warnings when True.
+        strict: Fuerza checks de schema requerido y tipos.
+        enable_pandera: Habilita/deshabilita la etapa de calidad con Pandera.
+        pandera_warn_only: Enruta issues críticos de Pandera como warnings cuando es True.
 
     Returns:
-        tuple(bool, list[str]): (overall_ok, messages)
+        tuple(bool, list[str]): (ok_global, mensajes)
     """
     mode = "strict" if strict else "warn-only"
     pandera_mode = "warn-only" if pandera_warn_only else "strict"

@@ -1,10 +1,10 @@
-"""Pandera quality checks with severity routing.
+"""Checks de calidad con Pandera y enrutamiento por severidad.
 
-This module defines dataset-level Pandera schemas and complementary
-quality rules with explicit severities:
-- critical: candidate to block publication in strict mode
-- warning: publish allowed with quality flag
-- info: observability only
+Este módulo define schemas de Pandera a nivel dataset y reglas
+de calidad complementarias con severidades explícitas:
+- critical: candidato a bloquear publicación en modo strict
+- warning: publicación permitida con quality flag
+- info: solo observabilidad
 """
 
 from __future__ import annotations
@@ -24,12 +24,12 @@ try:
     from pandera.errors import SchemaError, SchemaErrors
 
     PANDERA_AVAILABLE = True
-except Exception:  # pylint: disable=broad-exception-caught
+    PANDERA_SCHEMA_EXCEPTIONS: tuple[type[BaseException], ...] = (SchemaErrors, SchemaError)
+except ImportError:
     pa = None
     Check = None
-    SchemaError = Exception
-    SchemaErrors = Exception
     PANDERA_AVAILABLE = False
+    PANDERA_SCHEMA_EXCEPTIONS = ()
 
 
 def _make_issue(dataset: str, severity: str, rule: str, message: str) -> dict[str, str]:
@@ -186,7 +186,7 @@ def _run_info_checks(df: pd.DataFrame, logical_name: str) -> list[dict[str, str]
 
 
 def run_pandera_quality_checks(df: pd.DataFrame, logical_name: str) -> list[dict[str, str]]:
-    """Runs Pandera schema validation and severity checks for one dataset."""
+    """Ejecuta validación de schema Pandera y checks de severidad para un dataset."""
     issues: list[dict[str, str]] = []
 
     if not PANDERA_AVAILABLE:
@@ -205,9 +205,7 @@ def run_pandera_quality_checks(df: pd.DataFrame, logical_name: str) -> list[dict
     if schema is not None:
         try:
             schema.validate(df, lazy=True)
-        except SchemaErrors as exc:
-            issues.extend(_parse_schema_errors(logical_name, exc))
-        except SchemaError as exc:
+        except PANDERA_SCHEMA_EXCEPTIONS as exc:
             issues.extend(_parse_schema_errors(logical_name, exc))
 
     issues.extend(_run_warning_checks(df, logical_name))

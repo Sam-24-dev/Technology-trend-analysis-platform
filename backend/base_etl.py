@@ -19,7 +19,13 @@ from datetime import datetime, timezone
 from abc import ABC, abstractmethod
 from time import perf_counter
 
-from config.settings import LOG_FORMAT, LOG_DATE_FORMAT, LOGS_DIR, ARCHIVOS_SALIDA
+from config.settings import (
+    LOG_FORMAT,
+    LOG_DATE_FORMAT,
+    LOGS_DIR,
+    ARCHIVOS_SALIDA,
+    FECHA_FIN,
+)
 from config.settings import (
     WRITE_LEGACY_CSV,
     WRITE_LATEST_CSV,
@@ -99,7 +105,7 @@ class BaseETL(ABC):
             if ruta_latest is not None:
                 destinos.append(("latest", ruta_latest))
         if WRITE_HISTORY_CSV:
-            ruta_history = get_history_output_path(nombre_archivo, fecha=datetime.now(timezone.utc))
+            ruta_history = get_history_output_path(nombre_archivo, fecha=FECHA_FIN)
             if ruta_history is not None:
                 destinos.append(("history", ruta_history))
 

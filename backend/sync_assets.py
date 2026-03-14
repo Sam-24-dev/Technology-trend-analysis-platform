@@ -45,6 +45,38 @@ def _assets_policy_mode():
     return mode if mode in {"warning", "strict"} else "warning"
 
 
+def _resolve_bridge_remote_dir(project_root):
+    raw = os.getenv("FRONTEND_BRIDGE_REMOTE_DIR", "").strip()
+    if not raw:
+        return None
+    path = Path(raw)
+    if not path.is_absolute():
+        path = project_root / raw
+    return path
+
+
+def _csv_column_count(csv_path):
+    try:
+        first_line = csv_path.read_text(encoding="utf-8", errors="ignore").splitlines()[0]
+    except Exception:  # pylint: disable=broad-exception-caught
+        return 0
+    return len([col for col in first_line.split(",") if col.strip() != ""])
+
+
+def _should_replace_csv(existing_path, candidate_path):
+    existing_cols = _csv_column_count(existing_path)
+    candidate_cols = _csv_column_count(candidate_path)
+    if candidate_cols != existing_cols:
+        return candidate_cols > existing_cols
+
+    try:
+        existing_mtime = existing_path.stat().st_mtime_ns
+        candidate_mtime = candidate_path.stat().st_mtime_ns
+        return candidate_mtime >= existing_mtime
+    except Exception:  # pylint: disable=broad-exception-caught
+        return True
+
+
 def _resolver_origen_csv(proyecto_root):
     """Resolves CSV source strategy, prioritizing latest per file with legacy fallback."""
     origen_latest = proyecto_root / "datos" / "latest"
@@ -57,7 +89,9 @@ def _resolver_origen_csv(proyecto_root):
 
     if origen_latest.exists():
         for csv_file in origen_latest.glob("*.csv"):
-            csv_by_name[csv_file.name] = csv_file
+            existing = csv_by_name.get(csv_file.name)
+            if existing is None or _should_replace_csv(existing, csv_file):
+                csv_by_name[csv_file.name] = csv_file
 
     return csv_by_name, origen_latest, origen_legacy
 
@@ -112,6 +146,7 @@ def sincronizar():
     archivos_copiados = 0
     errores = 0
     bridge_files_written = 0
+    bridge_output_dir = None
     public_manifest_written = False
     public_manifest_status = "disabled"
     bridge_enabled = _is_bridge_export_enabled()
@@ -155,12 +190,21 @@ def sincronizar():
 
     if bridge_enabled:
         try:
-            bridge_summary = export_bridge_assets(proyecto_root)
+            bridge_output_dir = _resolve_bridge_remote_dir(proyecto_root)
+            if bridge_output_dir is not None:
+                bridge_summary = export_bridge_assets(
+                    proyecto_root,
+                    output_dir=bridge_output_dir,
+                )
+            else:
+                bridge_summary = export_bridge_assets(proyecto_root)
             bridge_files_written = int(bridge_summary["files_written"])
+            output_location = bridge_output_dir if bridge_output_dir is not None else bridge_summary["history_index_path"]
             logger.info(
-                "[STEP][END] action=bridge_export status=success files_written=%d trend_snapshots=%d",
+                "[STEP][END] action=bridge_export status=success files_written=%d trend_snapshots=%d output_dir=%s",
                 bridge_files_written,
                 bridge_summary["trend_snapshot_count"],
+                output_location,
             )
         except Exception as exc:  # pylint: disable=broad-exception-caught
             errores += 1
@@ -223,6 +267,7 @@ def sincronizar():
         "source_mode": source_mode,
         "source": str(origen),
         "destination": str(destino),
+        "bridge_output_dir": str(bridge_output_dir) if bridge_output_dir else None,
     }
 
 

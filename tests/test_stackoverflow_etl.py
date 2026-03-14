@@ -6,10 +6,12 @@ Los tests cubren:
 - Formato y columnas del CSV de salida
 - Mocking de API
 """
+import json
 import pytest
 import pandas as pd
 from unittest.mock import patch, MagicMock
 from stackoverflow_etl import StackOverflowETL
+from config.settings import SO_TOP_LANGUAGES
 
 
 @pytest.fixture
@@ -121,7 +123,23 @@ class TestVolumenPreguntas:
         df = pd.read_csv(tmp_path / "test.csv")
         assert "lenguaje" in df.columns
         assert "preguntas_nuevas_2025" in df.columns
-        assert len(df) == 5
+        expected_count = len(SO_TOP_LANGUAGES) if SO_TOP_LANGUAGES else 5
+        assert len(df) == expected_count
+
+    def test_uses_configurable_language_list(self, etl, tmp_path):
+        """Verifica que la salida respete N lenguajes configurados en runtime."""
+        configured = ["python", "rust", "kotlin"]
+        with patch("stackoverflow_etl.SO_TOP_LANGUAGES", configured):
+            with patch.object(etl, "get_total_count", return_value=123):
+                with patch(
+                    "base_etl.ARCHIVOS_SALIDA",
+                    {"so_volumen": tmp_path / "test_configurable.csv"},
+                ):
+                    etl.extraer_volumen_preguntas()
+
+        df = pd.read_csv(tmp_path / "test_configurable.csv")
+        assert len(df) == len(configured)
+        assert df["lenguaje"].tolist() == configured
 
     def test_raises_when_all_fail(self, etl):
         """Verifica que lance excepción cuando todas las llamadas a API fallan."""
@@ -130,3 +148,58 @@ class TestVolumenPreguntas:
         with patch.object(etl, "get_total_count", side_effect=ETLExtractionError("fail")):
             with pytest.raises(ETLExtractionError):
                 etl.extraer_volumen_preguntas()
+
+
+class TestTendenciasMensuales:
+    """Tests para generar_tendencias_mensuales."""
+
+    def test_writes_legacy_csv_and_richer_metadata(self, etl, tmp_path):
+        configured = [
+            "python",
+            "javascript",
+            "typescript",
+            "java",
+            "go",
+            "php",
+        ]
+        monthly_totals = {
+            "python": 120,
+            "javascript": 110,
+            "typescript": 90,
+            "java": 80,
+            "go": 70,
+            "php": 60,
+        }
+
+        def mock_get_total(params):
+            return monthly_totals[params["tagged"]]
+
+        metadata_path = tmp_path / "so_tendencias_series.json"
+        with patch("stackoverflow_etl.SO_TOP_LANGUAGES", configured):
+            with patch.object(etl, "get_total_count", side_effect=mock_get_total):
+                with patch(
+                    "base_etl.ARCHIVOS_SALIDA",
+                    {"so_tendencias": tmp_path / "so_tendencias_mensuales.csv"},
+                ):
+                    with patch("stackoverflow_etl.SO_TRENDS_METADATA_PATH", metadata_path):
+                        etl.generar_tendencias_mensuales()
+
+        df = pd.read_csv(tmp_path / "so_tendencias_mensuales.csv")
+        assert list(df.columns) == ["mes", "python", "javascript", "typescript"]
+        assert len(df) == 12
+        assert (df["python"] == 120).all()
+        assert (df["javascript"] == 110).all()
+        assert (df["typescript"] == 90).all()
+
+        payload = json.loads(metadata_path.read_text(encoding="utf-8"))
+        assert payload["selection_mode"] == "top_n_by_cumulative_volume"
+        assert payload["selection_basis"] == "last_12_complete_months"
+        assert payload["top_n"] == 5
+        assert payload["months"] == df["mes"].astype(str).tolist()
+        assert [item["tecnologia"] for item in payload["series"]] == [
+            "python",
+            "javascript",
+            "typescript",
+            "java",
+            "go",
+        ]

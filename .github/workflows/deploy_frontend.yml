@@ -14,6 +14,7 @@ on:
 
 permissions:
   contents: write
+  actions: read
 
 jobs:
   deploy:
@@ -33,6 +34,26 @@ jobs:
           channel: 'stable'
           cache: true
 
+      - name: Download ETL artifact (workflow_run)
+        if: ${{ github.event_name == 'workflow_run' }}
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          run_id: ${{ github.event.workflow_run.id }}
+          name: aggregate-data
+          path: etl_artifacts
+          if_no_artifact_found: warn
+
+      - name: Download ETL artifact (latest main)
+        if: ${{ github.event_name != 'workflow_run' }}
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: ETL Weekly Data Refresh
+          branch: main
+          name: aggregate-data
+          path: etl_artifacts
+          workflow_conclusion: success
+          if_no_artifact_found: warn
+
       - name: Install dependencies
         run: |
           cd frontend
@@ -41,7 +62,18 @@ jobs:
       - name: Build Flutter Web
         run: |
           cd frontend
-          flutter build web --base-href "/Technology-trend-analysis-platform/"
+          flutter build web --base-href "/Technology-trend-analysis-platform/" --dart-define=USE_HISTORY_BRIDGE_JSON=true --dart-define=REMOTE_ASSETS_BASE_URL=https://sam-24-dev.github.io/Technology-trend-analysis-platform/assets/data/
+
+      - name: Inject remote JSON assets
+        shell: bash
+        run: |
+          if [ -d "etl_artifacts/datos/metadata/remote_assets" ]; then
+            mkdir -p frontend/build/web/assets/data
+            cp -f etl_artifacts/datos/metadata/remote_assets/*.json frontend/build/web/assets/data/ 2>/dev/null || true
+            echo "Remote assets injected from ETL artifact."
+          else
+            echo "No remote assets found in ETL artifact; keeping local stubs."
+          fi
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4

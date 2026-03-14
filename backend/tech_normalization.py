@@ -1,6 +1,6 @@
-"""Shared utilities to normalize technology names.
+"""Utilidades compartidas para normalizar nombres de tecnologías.
 
-Centralizes mappings used by ETLs to avoid cross-module drift.
+Centraliza mappings usados por ETLs para evitar drift entre módulos.
 """
 
 from __future__ import annotations
@@ -57,7 +57,7 @@ MATCH_ALIASES = {
 
 
 def normalize_technology_name(name: str) -> str:
-    """Normalizes a name into a consistent display label."""
+    """Normaliza un nombre hacia una etiqueta de display consistente."""
     text = str(name or "").strip()
     if not text:
         return ""
@@ -65,12 +65,27 @@ def normalize_technology_name(name: str) -> str:
 
 
 def normalize_for_match(name: str) -> str:
-    """Normalizes a name for flexible cross-source matching."""
+    """Normaliza un nombre para matching flexible entre fuentes."""
     raw = str(name or "").strip().lower()
     if not raw:
         return ""
 
+    whitespace_tokens = [token.strip(".,:;!?()[]{}\"'") for token in raw.split()]
+
+    # Pass 1: exact canonical / exact alias only.
     for canonical, aliases in MATCH_ALIASES.items():
-        if raw == canonical or any(alias in raw for alias in aliases):
+        if raw == canonical or any(raw == alias for alias in aliases):
+            return canonical
+
+    # Pass 2: token-aware match for short aliases like "js", while still
+    # avoiding false positives such as "next.js" -> "javascript".
+    for canonical, aliases in MATCH_ALIASES.items():
+        for alias in aliases:
+            if len(alias) <= 2 and alias in whitespace_tokens:
+                return canonical
+
+    # Pass 3: contains match for longer aliases only.
+    for canonical, aliases in MATCH_ALIASES.items():
+        if any(len(alias) >= 3 and alias in raw for alias in aliases):
             return canonical
     return raw

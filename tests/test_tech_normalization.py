@@ -15,3 +15,4 @@ def test_normalize_for_match_aliases():
 	assert normalize_for_match("JavaScript") == "javascript"
 	assert normalize_for_match("js ecosystem") == "javascript"
 	assert normalize_for_match("asp.net core") == "c#"
+	assert normalize_for_match("next.js") == "next.js"

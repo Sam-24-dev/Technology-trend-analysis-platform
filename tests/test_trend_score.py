@@ -14,6 +14,7 @@ from trend_score import (
     normalizar_scores,
     cargar_github,
     calcular_trend_score,
+    calculate_trend_score_legacy,
     resolve_trend_engine,
     PESOS
 )
@@ -171,6 +172,22 @@ class TestCalcularTrendScore:
             result = calcular_trend_score()
 
         assert result.empty
+
+    def test_filters_rows_with_zero_total_score(self):
+        """Technologies with zero contribution across all sources must be excluded."""
+        df_github = pd.DataFrame(
+            {
+                "tecnologia": ["Python", "Ruby"],
+                "github_score": [100.0, 0.0],
+            }
+        )
+        df_so = pd.DataFrame(columns=["tecnologia", "so_score"])
+        df_reddit = pd.DataFrame(columns=["tecnologia", "reddit_score"])
+
+        result = calculate_trend_score_legacy(df_github, df_so, df_reddit)
+
+        assert "Python" in result["tecnologia"].tolist()
+        assert "Ruby" not in result["tecnologia"].tolist()
 
     def test_resolve_unknown_engine_falls_back_to_legacy(self):
         assert resolve_trend_engine("custom_engine") == "legacy"

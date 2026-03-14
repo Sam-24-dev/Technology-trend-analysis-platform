@@ -22,6 +22,18 @@ def test_reddit_sentimiento_contract_supports_frontend_percentages():
     assert "% negativo" in optional
 
 
+def test_github_correlacion_contract_includes_derived_metrics():
+    contract = CSV_SCHEMA_CONTRACT["github_correlacion"]
+    required = set(contract["required_columns"])
+    assert "engagement_ratio" in required
+    assert "contributors_per_1k_stars" in required
+    assert "expected_contributors" in required
+    assert "contributors_delta_vs_trend" in required
+    assert "outlier_score" in required
+    assert "trend_bucket" in required
+    assert "snapshot_date_utc" in required
+
+
 def test_current_csv_headers_match_required_contract_for_core_dashboards():
     targets = ["github_lenguajes", "so_volumen", "so_aceptacion", "reddit_temas", "trend_score"]
     for key in targets:
