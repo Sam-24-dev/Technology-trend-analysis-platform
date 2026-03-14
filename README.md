@@ -42,15 +42,9 @@
 
 ## Pipeline Architecture
 
-```
-┌──────────────┐     ┌────────────────┐     ┌──────────────────┐     ┌──────────────────┐
-│   GitHub     │     │ StackOverflow  │     │     Reddit       │     │  Trend Score     │
-│   ETL        │────▶│     ETL        │────▶│      ETL          │────▶│ + Bridges JSON   │
-└──────────────┘     └────────────────┘     └──────────────────┘     └──────────────────┘
-                                                              │
-                                                              ▼
-                                                   frontend/assets/data
-```
+<div align="center">
+  <img src="./docs/architecture/data-pipeline-architecture.png" alt="Data Pipeline Architecture" width="100%" />
+</div>
 
 ---
 
