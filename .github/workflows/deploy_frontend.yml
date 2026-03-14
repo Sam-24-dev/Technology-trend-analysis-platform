@@ -64,9 +64,38 @@ jobs:
       - name: Resolve remote assets base
         shell: bash
         run: |
-          if [ -d "etl_artifacts/datos/metadata/remote_assets" ] && ls etl_artifacts/datos/metadata/remote_assets/*.json >/dev/null 2>&1; then
-            echo "REMOTE_ASSETS_BASE_URL=https://sam-24-dev.github.io/Technology-trend-analysis-platform/assets/data/" >> $GITHUB_ENV
-            echo "Remote assets detected; enabling REMOTE_ASSETS_BASE_URL."
+          REMOTE_DIR="etl_artifacts/datos/metadata/remote_assets"
+          REQUIRED_FILES=(
+            "history_index.json"
+            "trend_score_history.json"
+            "technology_profiles.json"
+            "home_highlights.json"
+            "github_lenguajes_public.json"
+            "github_frameworks_history.json"
+            "github_correlacion_history.json"
+            "so_volumen_history.json"
+            "so_aceptacion_history.json"
+            "so_tendencias_history.json"
+            "reddit_sentimiento_public.json"
+            "reddit_temas_history.json"
+            "reddit_interseccion_history.json"
+          )
+
+          if [ -d "$REMOTE_DIR" ]; then
+            missing=0
+            for file in "${REQUIRED_FILES[@]}"; do
+              if [ ! -f "$REMOTE_DIR/$file" ]; then
+                echo "Missing remote asset: $file"
+                missing=1
+              fi
+            done
+            if [ "$missing" -eq 0 ]; then
+              echo "REMOTE_ASSETS_BASE_URL=https://sam-24-dev.github.io/Technology-trend-analysis-platform/assets/data/" >> $GITHUB_ENV
+              echo "Remote assets complete; enabling REMOTE_ASSETS_BASE_URL."
+            else
+              echo "REMOTE_ASSETS_BASE_URL=" >> $GITHUB_ENV
+              echo "Remote assets incomplete; using local bundled assets."
+            fi
           else
             echo "REMOTE_ASSETS_BASE_URL=" >> $GITHUB_ENV
             echo "Remote assets not found; using local bundled assets."
