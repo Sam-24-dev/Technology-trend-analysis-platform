@@ -56,6 +56,9 @@ docs/archive/
 tmp_*.log
 tmp_*.txt
 tmp_http_server.py
+auditoria_v2.ipynb
+frontend/README.md
+frontend/frontend_coding_style.md
 
 # Local AI assistant tooling/config (UIPro-generated, local-only)
 .agent/
