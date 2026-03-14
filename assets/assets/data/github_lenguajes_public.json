@@ -1,0 +1,76 @@
+{
+  "generated_at_utc": "2026-03-13T22:12:53Z",
+  "dataset": "github_lenguajes",
+  "source_mode": "latest",
+  "source_path": "datos/latest/github_lenguajes.csv",
+  "source_updated_at_utc": "2026-03-10T01:49:31Z",
+  "language_count": 10,
+  "languages": [
+    {
+      "lenguaje": "Python",
+      "repos_count": 321,
+      "share_pct": 34.48
+    },
+    {
+      "lenguaje": "TypeScript",
+      "repos_count": 244,
+      "share_pct": 26.21
+    },
+    {
+      "lenguaje": "JavaScript",
+      "repos_count": 64,
+      "share_pct": 6.87
+    },
+    {
+      "lenguaje": "Go",
+      "repos_count": 59,
+      "share_pct": 6.34
+    },
+    {
+      "lenguaje": "Rust",
+      "repos_count": 43,
+      "share_pct": 4.62
+    },
+    {
+      "lenguaje": "Shell",
+      "repos_count": 31,
+      "share_pct": 3.33
+    },
+    {
+      "lenguaje": "C++",
+      "repos_count": 21,
+      "share_pct": 2.26
+    },
+    {
+      "lenguaje": "Swift",
+      "repos_count": 19,
+      "share_pct": 2.04
+    },
+    {
+      "lenguaje": "Jupyter Notebook",
+      "repos_count": 18,
+      "share_pct": 1.93
+    },
+    {
+      "lenguaje": "HTML",
+      "repos_count": 16,
+      "share_pct": 1.72
+    }
+  ],
+  "summary": {
+    "leader": {
+      "lenguaje": "Python",
+      "repos_count": 321,
+      "share_pct": 34.48
+    },
+    "runner_up": {
+      "lenguaje": "TypeScript",
+      "repos_count": 244,
+      "share_pct": 26.21
+    },
+    "language_count": 10,
+    "total_classifiable_repos": 836,
+    "leader_gap_repos": 77,
+    "leader_gap_share_pct": 8.27
+  }
+}
