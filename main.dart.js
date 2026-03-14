@@ -31619,7 +31619,7 @@ aKU(a){a.gV().xv(B.RF)
 switch(A.aQ().a){case 0:case 1:return A.ad9()
 case 2:return A.p7(A.b([A.GO(B.CQ),A.ad7()],t.mo),t.H)
 case 3:case 4:case 5:return A.dI(null,t.H)}},
-b1A(a){var s=B.b.au("https://sam-24-dev.github.io/Technology-trend-analysis-platform/assets/data/")
+b1A(a){var s=B.b.au("")
 if(s.length===0)return""
 if(B.b.jl(s,"/"))return s+a
 return s+"/"+a},
