@@ -520,6 +520,31 @@ class _GithubDashboardState extends ConsumerState<GithubDashboard> {
     );
   }
 
+  Widget _buildTapTooltip({required String message, required Widget child}) {
+    final GlobalKey<TooltipState> tooltipKey = GlobalKey<TooltipState>();
+    return Tooltip(
+      key: tooltipKey,
+      message: message,
+      waitDuration: const Duration(milliseconds: 120),
+      showDuration: const Duration(milliseconds: 1400),
+      textStyle: const TextStyle(
+        color: Colors.white,
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0F172A),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => tooltipKey.currentState?.ensureTooltipVisible(),
+        child: child,
+      ),
+    );
+  }
+
   Widget _buildFrameworkLegend(BuildContext context) {
     final _GithubFrameworkMetric metric = _effectiveFrameworkMetric;
     final bool variationMode =
@@ -2074,46 +2099,29 @@ class _GithubDashboardState extends ConsumerState<GithubDashboard> {
                               final double widthPercent = axisMax == 0
                                   ? 0
                                   : currentMetric / axisMax;
-                              return Tooltip(
-                                message: sortByPercentage
-                                    ? '${_formatTech(item.lenguaje)}: ${item.porcentaje.toStringAsFixed(1)}%'
-                                    : '${_formatTech(item.lenguaje)}: ${item.reposCount} repos',
-                                waitDuration: const Duration(milliseconds: 120),
-                                showDuration: const Duration(
-                                  milliseconds: 1400,
-                                ),
-                                textStyle: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 8,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF0F172A),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Container(
-                                  height: 28,
-                                  width: max(
-                                    40,
-                                    (constraints.maxWidth - 130) * widthPercent,
-                                  ).toDouble(),
-                                  decoration: BoxDecoration(
-                                    color:
-                                        distinctColors[index %
-                                            distinctColors.length],
-                                    borderRadius: const BorderRadius.horizontal(
-                                      right: Radius.circular(4),
+                                return _buildTapTooltip(
+                                  message: sortByPercentage
+                                      ? '${_formatTech(item.lenguaje)}: ${item.porcentaje.toStringAsFixed(1)}%'
+                                      : '${_formatTech(item.lenguaje)}: ${item.reposCount} repos',
+                                  child: Container(
+                                    height: 28,
+                                    width: max(
+                                      40,
+                                      (constraints.maxWidth - 130) * widthPercent,
+                                    ).toDouble(),
+                                    decoration: BoxDecoration(
+                                      color:
+                                          distinctColors[index %
+                                              distinctColors.length],
+                                      borderRadius: const BorderRadius.horizontal(
+                                        right: Radius.circular(4),
+                                      ),
                                     ),
                                   ),
-                                ),
-                              );
-                            }).toList(),
+                                );
+                              }).toList(),
+                            ),
                           ),
-                        ),
                         const SizedBox(height: 8),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,

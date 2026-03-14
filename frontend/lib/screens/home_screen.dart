@@ -1536,14 +1536,14 @@ class _TrendTemporalBridgeCardState
                     'Ranking calculado con datos combinados de GitHub, StackOverflow y Reddit.',
                     style: TextStyle(fontSize: 13, color: Color(0xFF475569)),
                   ),
-                  Tooltip(
-                    message: 'Puntaje total = GH 40% · SO 35% · RD 25%.',
-                    child: Icon(
-                      Icons.info_outline_rounded,
-                      size: 14,
-                      color: Color(0xFF64748B),
+                    _buildTapTooltip(
+                      message: 'Puntaje total = GH 40% · SO 35% · RD 25%.',
+                      child: Icon(
+                        Icons.info_outline_rounded,
+                        size: 14,
+                        color: Color(0xFF64748B),
+                      ),
                     ),
-                  ),
                 ],
               ),
               const SizedBox(height: 4),
@@ -1661,9 +1661,24 @@ class _TrendTemporalBridgeCardState
           ),
         )
         .toList();
-  }
+    }
 
-  static String _viewLabel(_HomeRankingView view) {
+    Widget _buildTapTooltip({required String message, required Widget child}) {
+      final GlobalKey<TooltipState> tooltipKey = GlobalKey<TooltipState>();
+      return Tooltip(
+        key: tooltipKey,
+        message: message,
+        waitDuration: const Duration(milliseconds: 200),
+        showDuration: const Duration(seconds: 2),
+        child: GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () => tooltipKey.currentState?.ensureTooltipVisible(),
+          child: child,
+        ),
+      );
+    }
+
+    static String _viewLabel(_HomeRankingView view) {
     switch (view) {
       case _HomeRankingView.topRecommended:
         return 'Top recomendado';
@@ -1973,10 +1988,10 @@ class _TrendTopEntryCardState extends State<_TrendTopEntryCard> {
           ),
         ],
       ),
-    );
-  }
+      );
+    }
 
-  String _rankingChangeLabel() {
+    String _rankingChangeLabel() {
     final int? deltaRanking = widget.item.deltaRanking;
     final int? rankingPrev = widget.item.rankingPrev;
     if (deltaRanking == null || rankingPrev == null) {

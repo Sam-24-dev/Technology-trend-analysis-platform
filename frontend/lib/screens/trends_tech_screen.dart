@@ -1048,20 +1048,35 @@ class TrendsTechScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(width: 6),
-          Tooltip(
-            message: tooltip,
-            child: Icon(
-              Icons.info_outline_rounded,
-              size: 14,
-              color: color,
+            _buildTapTooltip(
+              message: tooltip,
+              child: Icon(
+                Icons.info_outline_rounded,
+                size: 14,
+                color: color,
+              ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
+          ],
+        ),
+      );
+    }
 
-  Widget _buildLineChart(_TechSummary summary) {
+    Widget _buildTapTooltip({required String message, required Widget child}) {
+      final GlobalKey<TooltipState> tooltipKey = GlobalKey<TooltipState>();
+      return Tooltip(
+        key: tooltipKey,
+        message: message,
+        waitDuration: const Duration(milliseconds: 200),
+        showDuration: const Duration(seconds: 2),
+        child: GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () => tooltipKey.currentState?.ensureTooltipVisible(),
+          child: child,
+        ),
+      );
+    }
+  
+    Widget _buildLineChart(_TechSummary summary) {
     final List<FlSpot> githubSpots = _buildSeries(summary.githubSeries);
     final List<FlSpot> stackSpots = _buildSeries(summary.stackSeries);
     final List<FlSpot> redditSpots = _buildSeries(summary.redditSeries);
