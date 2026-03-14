@@ -1,9 +1,9 @@
 """
-Shared CSV schema contract between backend and frontend.
+Contrato compartido de schema CSV entre backend y frontend.
 
-This module defines required/critical columns for each ETL output.
-Centralizing the contract reduces implicit coupling and makes
-data dependencies explicit across modules.
+Este módulo define columnas requeridas/críticas para cada salida ETL.
+Centralizar el contrato reduce el acoplamiento implícito y hace
+explícitas las dependencias de datos entre módulos.
 """
 
 CONTRACT_VERSION = "2026.04"
@@ -53,21 +53,68 @@ CSV_SCHEMA_CONTRACT = {
     "github_commits": {
         "required_columns": ["framework", "repo", "commits_2025", "ranking"],
         "critical_columns": ["framework", "commits_2025"],
+        "optional_columns": [
+            "active_contributors",
+            "merged_prs",
+            "closed_issues",
+            "releases_count",
+            "commits_prev",
+            "delta_commits",
+            "growth_pct",
+            "trend_direction",
+        ],
         "column_types": {
             "framework": "string",
             "repo": "string",
             "commits_2025": "integer",
+            "active_contributors": "integer",
+            "merged_prs": "integer",
+            "closed_issues": "integer",
+            "releases_count": "integer",
+            "commits_prev": "integer",
+            "delta_commits": "integer",
+            "growth_pct": "number",
+            "trend_direction": "string",
             "ranking": "integer",
         },
     },
+    "github_commits_monthly": {
+        "required_columns": ["framework", "repo", "month", "commits"],
+        "critical_columns": ["framework", "month", "commits"],
+        "column_types": {
+            "framework": "string",
+            "repo": "string",
+            "month": "string",
+            "commits": "integer",
+        },
+    },
     "github_correlacion": {
-        "required_columns": ["repo_name", "stars", "contributors", "language"],
-        "critical_columns": ["repo_name", "stars"],
+        "required_columns": [
+            "repo_name",
+            "stars",
+            "contributors",
+            "language",
+            "engagement_ratio",
+            "contributors_per_1k_stars",
+            "expected_contributors",
+            "contributors_delta_vs_trend",
+            "outlier_score",
+            "trend_bucket",
+            "snapshot_date_utc",
+        ],
+        "critical_columns": ["repo_name", "stars", "contributors"],
         "column_types": {
             "repo_name": "string",
             "stars": "integer",
             "contributors": "integer",
             "language": "string",
+            "engagement_ratio": "number",
+            "contributors_per_1k_stars": "number",
+            "expected_contributors": "number",
+            "contributors_delta_vs_trend": "number",
+            "outlier_score": "number",
+            "trend_bucket": "string",
+            "snapshot_date_utc": "string",
         },
     },
     "so_volumen": {
@@ -156,30 +203,30 @@ CSV_SCHEMA_CONTRACT = {
 
 
 def get_required_columns(nombre_archivo):
-    """Returns required columns for a logical output file."""
+    """Retorna columnas requeridas para un archivo lógico de salida."""
     return CSV_SCHEMA_CONTRACT.get(nombre_archivo, {}).get("required_columns", [])
 
 
 def get_critical_columns(nombre_archivo):
-    """Returns critical columns for a logical output file."""
+    """Retorna columnas críticas para un archivo lógico de salida."""
     return CSV_SCHEMA_CONTRACT.get(nombre_archivo, {}).get("critical_columns", [])
 
 
 def get_optional_columns(nombre_archivo):
-    """Returns optional columns for a logical output file."""
+    """Retorna columnas opcionales para un archivo lógico de salida."""
     return CSV_SCHEMA_CONTRACT.get(nombre_archivo, {}).get("optional_columns", [])
 
 
 def get_column_types(nombre_archivo):
-    """Returns the minimal column-type contract for a logical CSV."""
+    """Retorna el contrato mínimo de tipos de columna para un CSV lógico."""
     return CSV_SCHEMA_CONTRACT.get(nombre_archivo, {}).get("column_types", {})
 
 
 def get_contract_version():
-    """Returns the current CSV data contract version."""
+    """Retorna la versión actual del contrato de datos CSV."""
     return CONTRACT_VERSION
 
 
 def get_logical_dataset_names():
-    """Returns logical dataset names available in the CSV contract."""
+    """Retorna nombres de datasets lógicos disponibles en el contrato CSV."""
     return sorted(CSV_SCHEMA_CONTRACT.keys())

@@ -34,6 +34,14 @@ void main() {
                       tecnologia: 'Python',
                       trendScore: 76.45,
                       fuentes: 3,
+                      githubScore: 45,
+                      stackOverflowScore: 25,
+                      redditScore: 6.45,
+                      scorePrev: 74,
+                      deltaScore: 2.45,
+                      rankingPrev: 1,
+                      deltaRanking: 0,
+                      availableSources: <String>['GH', 'SO', 'RD'],
                     ),
                   ],
                 ),
@@ -50,6 +58,9 @@ void main() {
                   qualityGateStatus: 'pass_with_warnings',
                   degradedMode: true,
                   availableSources: <String>['github', 'stackoverflow'],
+                  totalReposExtraidos: 1000,
+                  totalReposClasificables: 925,
+                  soLanguagesCount: 10,
                   datasetSummaries: <RunManifestDatasetSummary>[
                     RunManifestDatasetSummary(
                       dataset: 'trend_score',
@@ -73,7 +84,8 @@ void main() {
       await tester.pump(const Duration(milliseconds: 300));
 
       expect(find.byType(DegradedStateCard), findsOneWidget);
-      expect(find.text('#1 Python'), findsOneWidget);
+      expect(find.text('Python'), findsOneWidget);
+      expect(find.text('76.45'), findsOneWidget);
     },
   );
 }

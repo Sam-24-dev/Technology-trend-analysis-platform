@@ -38,6 +38,9 @@ void main() {
                 degradedMode: false,
                 availableSources: const ['github', 'stackoverflow', 'reddit'],
                 datasetSummaries: const [],
+                totalReposExtraidos: 1000,
+                totalReposClasificables: 925,
+                soLanguagesCount: 10,
                 notes: 'ok',
               ),
             );

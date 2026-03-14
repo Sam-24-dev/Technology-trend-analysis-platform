@@ -1,4 +1,4 @@
-"""Generates frontend public run manifest from ETL outputs."""
+"""Genera el run manifest público de frontend desde salidas ETL."""
 
 from __future__ import annotations
 
@@ -26,7 +26,7 @@ def generate_manifest_public(
     *,
     require_metadata: bool,
 ) -> dict[str, object]:
-    """Generates and validates public run manifest for frontend."""
+    """Genera y valida el run manifest público para frontend."""
     generation = generate_public_run_manifest(project_root)
     is_valid = bool(generation["valid"])
     errors = generation["errors"]
@@ -61,17 +61,17 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--project-root",
         default=None,
-        help="Project root path. Defaults to repository root.",
+        help="Ruta root del proyecto. Por defecto usa el root del repositorio.",
     )
     parser.add_argument(
         "--require-metadata",
         action="store_true",
-        help="Fail if public metadata cannot be generated as valid payload.",
+        help="Falla si la metadata pública no se puede generar como payload válido.",
     )
     parser.add_argument(
         "--force-disable",
         action="store_true",
-        help="Skip generation regardless of USE_PUBLIC_RUN_MANIFEST env flag.",
+        help="Omite generación sin importar el env flag USE_PUBLIC_RUN_MANIFEST.",
     )
     return parser
 

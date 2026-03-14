@@ -7,6 +7,8 @@ actividad de frameworks y correlación entre stars y
 contributors.
 Author: Samir Caizapasto
 """
+from datetime import datetime, timezone
+
 import requests
 import pandas as pd
 import time
@@ -16,6 +18,7 @@ from config.settings import (
     GITHUB_API_BASE, GITHUB_HEADERS, MAX_REPOS, PER_PAGE,
     FRAMEWORK_REPOS,
     FECHA_INICIO_STR, FECHA_FIN_STR, FECHA_INICIO_ISO,
+    DATOS_HISTORY_DIR,
     REQUEST_TIMEOUT_SECONDS, HTTP_MAX_RETRIES, HTTP_RETRY_BACKOFF_SECONDS,
     REQUEST_PAGE_DELAY_SECONDS, REQUEST_MEDIUM_DELAY_SECONDS, REQUEST_SHORT_DELAY_SECONDS
 )
@@ -89,6 +92,71 @@ class GitHubETL(BaseETL):
 
         texto = f"{nombre} {desc}"
         return any(kw in texto for kw in self.KEYWORDS_AI)
+
+    @staticmethod
+    def _classify_correlation_trend_bucket(outlier_score):
+        """Clasifica un repo respecto a la línea de tendencia del snapshot actual."""
+        if outlier_score >= 1.0:
+            return "above_trend"
+        if outlier_score <= -1.0:
+            return "below_trend"
+        return "near_trend"
+
+    def _build_correlation_dataframe(self, correlacion_data):
+        """Enriquece el dataset de correlación con métricas derivadas del snapshot."""
+        df_correlacion = pd.DataFrame(correlacion_data)
+        if df_correlacion.empty:
+            return df_correlacion, 0.0
+
+        working = df_correlacion.copy()
+        working["repo_name"] = working["repo_name"].astype(str).str.strip()
+        working["language"] = working["language"].astype(str).str.strip()
+        working["stars"] = pd.to_numeric(working["stars"], errors="coerce").fillna(0).astype(int)
+        working["contributors"] = pd.to_numeric(working["contributors"], errors="coerce").fillna(0).astype(int)
+
+        correlation = float(working["stars"].corr(working["contributors"])) if len(working) > 1 else 0.0
+        if pd.isna(correlation):
+            correlation = 0.0
+
+        x = working["stars"].astype(float)
+        y = working["contributors"].astype(float)
+        mean_x = float(x.mean()) if len(working) > 0 else 0.0
+        mean_y = float(y.mean()) if len(working) > 0 else 0.0
+        variance_x = float(((x - mean_x) ** 2).mean()) if len(working) > 0 else 0.0
+
+        if variance_x > 0:
+            covariance_xy = float(((x - mean_x) * (y - mean_y)).mean())
+            slope = covariance_xy / variance_x
+            intercept = mean_y - (slope * mean_x)
+            expected = (slope * x) + intercept
+        else:
+            expected = pd.Series([mean_y] * len(working), index=working.index, dtype="float64")
+
+        expected = expected.clip(lower=0.0)
+        residuals = y - expected
+        residual_std = float(residuals.std(ddof=0))
+        if pd.isna(residual_std):
+            residual_std = 0.0
+
+        if residual_std > 0:
+            outlier_scores = residuals / residual_std
+        else:
+            outlier_scores = pd.Series([0.0] * len(working), index=working.index, dtype="float64")
+
+        snapshot_date_utc = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+        working["engagement_ratio"] = working.apply(
+            lambda row: round((row["contributors"] / row["stars"]) if row["stars"] > 0 else 0.0, 6),
+            axis=1,
+        )
+        working["contributors_per_1k_stars"] = working["engagement_ratio"].mul(1000).round(3)
+        working["expected_contributors"] = expected.round(3)
+        working["contributors_delta_vs_trend"] = residuals.round(3)
+        working["outlier_score"] = outlier_scores.round(6)
+        working["trend_bucket"] = working["outlier_score"].apply(self._classify_correlation_trend_bucket)
+        working["snapshot_date_utc"] = snapshot_date_utc
+
+        return working, correlation
 
     def verificar_conexion(self):
         """Verifica conexión con la GitHub API y revisa el rate limit."""
@@ -321,63 +389,332 @@ class GitHubETL(BaseETL):
         )
         self.guardar_csv(df_insights, "github_ai_insights")
 
+    @staticmethod
+    def _extract_partition_date(parts):
+        if len(parts) < 3:
+            return None
+        year_part, month_part, day_part = parts[0], parts[1], parts[2]
+        if not (
+            year_part.startswith("year=")
+            and month_part.startswith("month=")
+            and day_part.startswith("day=")
+        ):
+            return None
+        year = year_part.split("=", maxsplit=1)[1]
+        month = month_part.split("=", maxsplit=1)[1]
+        day = day_part.split("=", maxsplit=1)[1]
+        return f"{year}-{month}-{day}"
+
+    def _resolve_previous_commits_snapshot(self):
+        history_root = DATOS_HISTORY_DIR / "github_commits"
+        if not history_root.exists():
+            return None, None
+
+        snapshots = []
+        for csv_path in history_root.rglob("github_commits_frameworks.csv"):
+            rel_parts = csv_path.relative_to(history_root).parts
+            date_label = self._extract_partition_date(rel_parts)
+            if date_label is None:
+                continue
+            snapshots.append((date_label, csv_path))
+
+        if not snapshots:
+            return None, None
+
+        snapshots.sort(key=lambda item: (item[0], str(item[1])))
+        return snapshots[-1]
+
+    def _load_previous_commits_map(self):
+        snapshot_date, snapshot_path = self._resolve_previous_commits_snapshot()
+        if snapshot_path is None:
+            return {}, None
+
+        try:
+            previous_df = pd.read_csv(snapshot_path)
+        except Exception as exc:  # pylint: disable=broad-exception-caught
+            self.logger.warning(
+                "No se pudo leer snapshot historico previo de commits (%s): %s",
+                snapshot_path,
+                exc,
+            )
+            return {}, None
+
+        if "framework" not in previous_df.columns or "commits_2025" not in previous_df.columns:
+            return {}, None
+
+        commits_prev = {}
+        for _, row in previous_df.iterrows():
+            framework = str(row.get("framework", "")).strip()
+            if not framework:
+                continue
+            prev_value = pd.to_numeric(row.get("commits_2025"), errors="coerce")
+            if pd.isna(prev_value):
+                prev_value = 0
+            commits_prev[framework] = int(prev_value)
+        return commits_prev, snapshot_date
+
+    @staticmethod
+    def _safe_month_label(value):
+        parsed = pd.to_datetime(value, errors="coerce", utc=True)
+        if pd.isna(parsed):
+            return None
+        return parsed.strftime("%Y-%m")
+
+    @staticmethod
+    def _compute_growth(current_value, previous_value):
+        if previous_value is None or previous_value <= 0:
+            return None
+        return round(((current_value - previous_value) / previous_value) * 100, 2)
+
+    @staticmethod
+    def _compute_trend_direction(delta_value):
+        if delta_value is None:
+            return None
+        if delta_value > 0:
+            return "creciendo"
+        if delta_value < 0:
+            return "cayendo"
+        return "estable"
+
+    def _count_search_items(self, query):
+        for retry in range(HTTP_MAX_RETRIES):
+            try:
+                response = requests.get(
+                    f"{GITHUB_API_BASE}/search/issues",
+                    headers=GITHUB_HEADERS,
+                    params={"q": query, "per_page": 1},
+                    timeout=REQUEST_TIMEOUT_SECONDS,
+                )
+            except requests.exceptions.RequestException as exc:
+                self.logger.warning("Error de red en query search '%s': %s", query, exc)
+                time.sleep(HTTP_RETRY_BACKOFF_SECONDS * (retry + 1))
+                continue
+
+            if response.status_code == 200:
+                return int(response.json().get("total_count", 0))
+
+            if response.status_code == 403 and self.esperar_rate_limit(response):
+                continue
+
+            self.logger.warning(
+                "Query search fallo (status=%s) para '%s'",
+                response.status_code,
+                query,
+            )
+            time.sleep(HTTP_RETRY_BACKOFF_SECONDS * (retry + 1))
+        return 0
+
+    def _count_releases_since(self, repo_path):
+        since_ref = pd.to_datetime(FECHA_INICIO_ISO, errors="coerce", utc=True)
+        if pd.isna(since_ref):
+            return 0
+
+        releases_count = 0
+        page = 1
+        while page <= 10:
+            try:
+                response = requests.get(
+                    f"{GITHUB_API_BASE}/repos/{repo_path}/releases",
+                    headers=GITHUB_HEADERS,
+                    params={"per_page": 100, "page": page},
+                    timeout=REQUEST_TIMEOUT_SECONDS,
+                )
+            except requests.exceptions.RequestException as exc:
+                self.logger.warning(
+                    "Error de red obteniendo releases para %s: %s",
+                    repo_path,
+                    exc,
+                )
+                break
+
+            if response.status_code != 200:
+                if response.status_code == 403 and self.esperar_rate_limit(response):
+                    continue
+                self.logger.warning(
+                    "No se pudieron obtener releases para %s (status=%s)",
+                    repo_path,
+                    response.status_code,
+                )
+                break
+
+            releases = response.json()
+            if not isinstance(releases, list) or not releases:
+                break
+
+            for release in releases:
+                published_at = pd.to_datetime(
+                    release.get("published_at"),
+                    errors="coerce",
+                    utc=True,
+                )
+                if not pd.isna(published_at) and published_at >= since_ref:
+                    releases_count += 1
+
+            if len(releases) < 100:
+                break
+            page += 1
+            time.sleep(REQUEST_SHORT_DELAY_SECONDS)
+
+        return releases_count
+
+    def _collect_framework_metrics(self, framework, repo_path):
+        params = {
+            "since": FECHA_INICIO_ISO,
+            "per_page": 100,
+        }
+        total_commits = 0
+        page = 1
+        monthly_counts = {}
+        unique_contributors = set()
+
+        while True:
+            params["page"] = page
+            try:
+                response = requests.get(
+                    f"{GITHUB_API_BASE}/repos/{repo_path}/commits",
+                    headers=GITHUB_HEADERS,
+                    params=params,
+                    timeout=REQUEST_TIMEOUT_SECONDS,
+                )
+            except requests.exceptions.RequestException as exc:
+                self.logger.error("  Error de red para %s: %s", framework, exc)
+                break
+
+            if response.status_code != 200:
+                if response.status_code == 403 and self.esperar_rate_limit(response):
+                    continue
+                self.logger.error(
+                    "  Error obteniendo commits para %s: %s",
+                    framework,
+                    response.status_code,
+                )
+                break
+
+            commits = response.json()
+            if not commits:
+                break
+
+            total_commits += len(commits)
+            for commit in commits:
+                commit_author = commit.get("commit", {}).get("author", {}) or {}
+                commit_committer = commit.get("commit", {}).get("committer", {}) or {}
+                month_label = self._safe_month_label(
+                    commit_author.get("date") or commit_committer.get("date")
+                )
+                if month_label:
+                    monthly_counts[month_label] = monthly_counts.get(month_label, 0) + 1
+
+                author = commit.get("author") or {}
+                login = str(author.get("login", "")).strip().lower()
+                if login:
+                    unique_contributors.add(f"login:{login}")
+                else:
+                    email = str(commit_author.get("email", "")).strip().lower()
+                    name = str(commit_author.get("name", "")).strip().lower()
+                    if email or name:
+                        unique_contributors.add(f"anon:{email}|{name}")
+
+            page += 1
+            time.sleep(REQUEST_MEDIUM_DELAY_SECONDS)
+            if page > 50:
+                break
+
+        merged_prs = self._count_search_items(
+            f"repo:{repo_path} is:pr is:merged merged:{FECHA_INICIO_STR}..{FECHA_FIN_STR}"
+        )
+        closed_issues = self._count_search_items(
+            f"repo:{repo_path} is:issue closed:{FECHA_INICIO_STR}..{FECHA_FIN_STR}"
+        )
+        releases_count = self._count_releases_since(repo_path)
+
+        return {
+            "framework": framework,
+            "repo": repo_path,
+            "commits_2025": total_commits,
+            "active_contributors": len(unique_contributors),
+            "merged_prs": merged_prs,
+            "closed_issues": closed_issues,
+            "releases_count": releases_count,
+            "monthly_commits": monthly_counts,
+        }
+
+    def _build_monthly_framework_rows(self, framework, repo_path, monthly_counts):
+        month_range = (
+            pd.period_range(
+                start=FECHA_INICIO_STR[:7],
+                end=FECHA_FIN_STR[:7],
+                freq="M",
+            )
+            .astype(str)
+            .tolist()
+        )
+        return [
+            {
+                "framework": framework,
+                "repo": repo_path,
+                "month": month_label,
+                "commits": int(monthly_counts.get(month_label, 0)),
+            }
+            for month_label in month_range
+        ]
+
     def analizar_commits_frameworks(self):
         """Analiza la actividad de commits de frameworks frontend."""
         self.logger.info("PREGUNTA 2: Analizando commits de frameworks...")
 
+        commits_prev_map, previous_snapshot_date = self._load_previous_commits_map()
+        if previous_snapshot_date:
+            self.logger.info(
+                "Comparando contra snapshot historico anterior: %s",
+                previous_snapshot_date,
+            )
+
         commits_data = []
+        monthly_rows = []
 
         for framework, repo_path in FRAMEWORK_REPOS.items():
             self.logger.info(f"  Analizando {framework} ({repo_path})...")
-
-            params = {
-                "since": FECHA_INICIO_ISO,
-                "per_page": 100
-            }
-
-            total_commits = 0
-            page = 1
-
-            while True:
-                params["page"] = page
-                try:
-                    response = requests.get(
-                        f"{GITHUB_API_BASE}/repos/{repo_path}/commits",
-                        headers=GITHUB_HEADERS,
-                        params=params,
-                        timeout=REQUEST_TIMEOUT_SECONDS
-                    )
-                except requests.exceptions.RequestException as e:
-                    self.logger.error(f"  Error de red para {framework}: {e}")
-                    break
-
-                if response.status_code != 200:
-                    if response.status_code == 403:
-                        if self.esperar_rate_limit(response):
-                            continue
-                        else:
-                            self.logger.error(f"  Rate limit sin header de reset para {framework}, saltando")
-                            break
-                    self.logger.error(f"  Error obteniendo commits: {response.status_code}")
-                    break
-
-                commits = response.json()
-                if not commits:
-                    break
-
-                total_commits += len(commits)
-                page += 1
-                time.sleep(REQUEST_MEDIUM_DELAY_SECONDS)
-
-                if page > 50:
-                    break
-
+            metrics = self._collect_framework_metrics(framework, repo_path)
+            previous_commits = commits_prev_map.get(framework)
+            delta_commits = (
+                metrics["commits_2025"] - previous_commits
+                if previous_commits is not None
+                else None
+            )
+            growth_pct = self._compute_growth(
+                metrics["commits_2025"],
+                previous_commits,
+            )
+            trend_direction = self._compute_trend_direction(delta_commits)
             commits_data.append({
                 "framework": framework,
                 "repo": repo_path,
-                "commits_2025": total_commits
+                "commits_2025": metrics["commits_2025"],
+                "active_contributors": metrics["active_contributors"],
+                "merged_prs": metrics["merged_prs"],
+                "closed_issues": metrics["closed_issues"],
+                "releases_count": metrics["releases_count"],
+                "commits_prev": previous_commits,
+                "delta_commits": delta_commits,
+                "growth_pct": growth_pct,
+                "trend_direction": trend_direction,
             })
-            self.logger.info(f"  {framework}: {total_commits} commits")
+            monthly_rows.extend(
+                self._build_monthly_framework_rows(
+                    framework=framework,
+                    repo_path=repo_path,
+                    monthly_counts=metrics["monthly_commits"],
+                )
+            )
+            self.logger.info(
+                "  %s: commits=%s contributors=%s prs=%s issues=%s releases=%s",
+                framework,
+                metrics["commits_2025"],
+                metrics["active_contributors"],
+                metrics["merged_prs"],
+                metrics["closed_issues"],
+                metrics["releases_count"],
+            )
 
         if not commits_data:
             raise ETLExtractionError("No se pudo extraer datos de commits de ningun framework")
@@ -385,12 +722,42 @@ class GitHubETL(BaseETL):
         df_commits = pd.DataFrame(commits_data)
         df_commits = df_commits.sort_values("commits_2025", ascending=False).reset_index(drop=True)
         df_commits["ranking"] = range(1, len(df_commits) + 1)
+        df_commits = df_commits[
+            [
+                "framework",
+                "repo",
+                "commits_2025",
+                "active_contributors",
+                "merged_prs",
+                "closed_issues",
+                "releases_count",
+                "commits_prev",
+                "delta_commits",
+                "growth_pct",
+                "trend_direction",
+                "ranking",
+            ]
+        ]
 
         self.logger.info("Ranking de Frameworks Frontend por Commits:")
         for _, row in df_commits.iterrows():
-            self.logger.info(f"  #{row['ranking']} {row['framework']}: {row['commits_2025']} commits")
+            self.logger.info(
+                "  #%s %s: %s commits (delta=%s)",
+                row["ranking"],
+                row["framework"],
+                row["commits_2025"],
+                row["delta_commits"] if not pd.isna(row["delta_commits"]) else "N/A",
+            )
 
         self.guardar_csv(df_commits, "github_commits")
+
+        df_monthly = pd.DataFrame(monthly_rows)
+        if not df_monthly.empty:
+            df_monthly = df_monthly.sort_values(
+                ["framework", "month"],
+                ascending=[True, True],
+            ).reset_index(drop=True)
+            self.guardar_csv(df_monthly, "github_commits_monthly")
 
     def analizar_correlacion(self):
         """Analiza la correlación entre Stars y Contributors."""
@@ -464,10 +831,9 @@ class GitHubETL(BaseETL):
 
             time.sleep(REQUEST_SHORT_DELAY_SECONDS)
 
-        df_correlacion = pd.DataFrame(correlacion_data)
+        df_correlacion, correlacion = self._build_correlation_dataframe(correlacion_data)
 
         if len(df_correlacion) > 0:
-            correlacion = df_correlacion["stars"].corr(df_correlacion["contributors"])
             self.logger.info(f"Coeficiente de correlacion: {correlacion:.4f}")
 
             if correlacion > 0.7:

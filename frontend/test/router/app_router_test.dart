@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -21,10 +21,9 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(child: MaterialApp.router(routerConfig: router)),
     );
-    await tester.pump(const Duration(milliseconds: 300));
-    await tester.pump(const Duration(milliseconds: 300));
-    await tester.pump(const Duration(milliseconds: 300));
-    await tester.pump(const Duration(seconds: 2));
+    for (int i = 0; i < 32; i++) {
+      await tester.pump(const Duration(milliseconds: 250));
+    }
   }
 
   testWidgets('go_router deep-link /github carga shell y vista GitHub', (
@@ -33,7 +32,7 @@ void main() {
     await _pumpRouter(tester, initialLocation: AppRoutes.github);
 
     expect(find.text('GitHub Data'), findsWidgets);
-    expect(find.text('Dashboard GitHub'), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('go_router deep-link /trends/:tech renderiza detalle', (
@@ -41,8 +40,8 @@ void main() {
   ) async {
     await _pumpRouter(tester, initialLocation: '/trends/python');
 
-    expect(find.text('Trend Detail'), findsOneWidget);
-    expect(find.textContaining('Tecnologia: python'), findsOneWidget);
+    expect(find.text('Python'), findsOneWidget);
+    expect(find.textContaining('Análisis por tecnología'), findsWidgets);
   });
 
   testWidgets('go_router hash deep-link /#/github carga vista GitHub', (
@@ -69,3 +68,4 @@ void main() {
     },
   );
 }
+

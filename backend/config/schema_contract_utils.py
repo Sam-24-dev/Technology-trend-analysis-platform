@@ -1,4 +1,4 @@
-"""Schema contract utilities for deterministic hashing and versioning policy."""
+"""Utilidades del contrato de schema para hashing determinístico y política de versionado."""
 
 from __future__ import annotations
 
@@ -60,7 +60,7 @@ def _canonical_type_name(raw_type: Any) -> str:
 
 
 def canonicalize_schema_columns(columns: Iterable[Mapping[str, Any]]) -> list[dict[str, Any]]:
-    """Returns a deterministic canonical schema representation."""
+    """Retorna una representación canónica determinística del schema."""
     normalized: list[dict[str, Any]] = []
 
     for column in columns:
@@ -83,14 +83,14 @@ def canonicalize_schema_columns(columns: Iterable[Mapping[str, Any]]) -> list[di
 
 
 def compute_schema_hash(columns: Iterable[Mapping[str, Any]]) -> str:
-    """Computes deterministic SHA-256 hash for a canonicalized schema."""
+    """Calcula hash SHA-256 determinístico para un schema canonizado."""
     canonical = canonicalize_schema_columns(columns)
     payload = json.dumps(canonical, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
 def recommend_semver_bump(change_kind: str) -> str:
-    """Maps a schema/data-contract change kind to SemVer bump level."""
+    """Mapea un tipo de cambio de schema/data-contract al nivel de bump SemVer."""
     normalized = str(change_kind or "").strip().lower()
     if normalized not in _CHANGE_TO_BUMP:
         raise ValueError(f"Unknown change kind: {change_kind}")
@@ -98,7 +98,7 @@ def recommend_semver_bump(change_kind: str) -> str:
 
 
 def aggregate_semver_bump(change_kinds: Iterable[str]) -> str:
-    """Returns the highest-priority bump required by a list of changes."""
+    """Retorna el bump de mayor prioridad requerido por una lista de cambios."""
     selected_level = SEMVER_PATCH
     selected_priority = _BUMP_PRIORITY[selected_level]
 

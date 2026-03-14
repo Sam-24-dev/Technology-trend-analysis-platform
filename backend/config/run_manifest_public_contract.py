@@ -1,4 +1,4 @@
-"""Contract and generation utilities for frontend public run manifest."""
+"""Contrato y utilidades de generación para el run manifest público del frontend."""
 
 from __future__ import annotations
 
@@ -29,6 +29,9 @@ RUN_MANIFEST_PUBLIC_REQUIRED_FIELDS = (
     "degraded_mode",
     "available_sources",
     "dataset_summaries",
+    "total_repos_extraidos",
+    "total_repos_clasificables",
+    "so_languages_count",
 )
 
 RUN_MANIFEST_PUBLIC_ALLOWED_FIELDS = RUN_MANIFEST_PUBLIC_REQUIRED_FIELDS + ("notes",)
@@ -39,6 +42,16 @@ RUN_MANIFEST_PUBLIC_DATASET_REQUIRED_FIELDS = (
     "updated_at_utc",
 )
 RUN_MANIFEST_PUBLIC_DATASET_ALLOWED_FIELDS = RUN_MANIFEST_PUBLIC_DATASET_REQUIRED_FIELDS
+
+GITHUB_NON_CLASSIFIABLE_LANGUAGE_TAGS = {
+    "sin especificar",
+    "llms/ai",
+    "ai/ml",
+    "ai",
+    "llm",
+    "genai",
+    "artificial intelligence",
+}
 
 _SEMVER_RE = re.compile(r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$")
 
@@ -68,14 +81,120 @@ def _coerce_int(value: Any, default: int = 0) -> int:
         return default
 
 
+def _coerce_float(value: Any, default: float = 0.0) -> float:
+    if isinstance(value, bool):
+        return default
+    if isinstance(value, (int, float)):
+        return float(value)
+    try:
+        return float(str(value))
+    except (TypeError, ValueError):
+        return default
+
+
 def _count_csv_rows(path: Path) -> int:
     try:
         with path.open("r", encoding="utf-8", newline="") as handle:
             reader = csv.reader(handle)
-            next(reader, None)  # header
+            next(reader, None)  # encabezado
             return sum(1 for _ in reader)
     except Exception:  # pylint: disable=broad-exception-caught
         return 0
+
+
+def _resolve_dataset_csv_path(project_root: Path, dataset_stem: str) -> Path | None:
+    latest_path = project_root / "datos" / "latest" / f"{dataset_stem}.csv"
+    legacy_path = project_root / "datos" / f"{dataset_stem}.csv"
+    if latest_path.exists():
+        return latest_path
+    if legacy_path.exists():
+        return legacy_path
+    return None
+
+
+def _normalize_language_for_classification(value: Any) -> str:
+    if value is None:
+        return "sin especificar"
+    normalized = str(value).strip().lower()
+    return normalized if normalized else "sin especificar"
+
+
+def _count_github_classifiable_repos(repos_csv_path: Path) -> tuple[int, int]:
+    total_extracted = 0
+    total_classifiable = 0
+    try:
+        with repos_csv_path.open("r", encoding="utf-8", newline="") as handle:
+            reader = csv.DictReader(handle)
+            for row in reader:
+                total_extracted += 1
+                language = _normalize_language_for_classification(row.get("language"))
+                if language not in GITHUB_NON_CLASSIFIABLE_LANGUAGE_TAGS:
+                    total_classifiable += 1
+    except Exception:  # pylint: disable=broad-exception-caught
+        return 0, 0
+    return total_extracted, total_classifiable
+
+
+def _estimate_total_classifiable_from_languages(languages_csv_path: Path) -> int:
+    sum_top_languages = 0
+    denominator_estimates: list[int] = []
+    try:
+        with languages_csv_path.open("r", encoding="utf-8", newline="") as handle:
+            reader = csv.DictReader(handle)
+            for row in reader:
+                repos_count = _coerce_int(row.get("repos_count"), default=0)
+                percentage = _coerce_float(row.get("porcentaje"), default=0.0)
+                sum_top_languages += repos_count
+                if repos_count > 0 and percentage > 0:
+                    estimated_total = int(round(repos_count * 100 / percentage))
+                    if estimated_total > 0:
+                        denominator_estimates.append(estimated_total)
+    except Exception:  # pylint: disable=broad-exception-caught
+        return 0
+
+    if denominator_estimates:
+        denominator_estimates.sort()
+        return int(round(denominator_estimates[len(denominator_estimates) // 2]))
+
+    return sum_top_languages
+
+
+def _dataset_summary_row_count(dataset_summaries: list[dict[str, Any]], dataset_name: str) -> int:
+    for summary in dataset_summaries:
+        if str(summary.get("dataset")) == dataset_name:
+            return _coerce_int(summary.get("row_count"), default=0)
+    return 0
+
+
+def _compute_so_languages_count(dataset_summaries: list[dict[str, Any]]) -> int:
+    count = _dataset_summary_row_count(dataset_summaries, "so_volumen_preguntas")
+    if count > 0:
+        return count
+    return _dataset_summary_row_count(dataset_summaries, "so_volumen")
+
+
+def _compute_github_repo_totals(project_root: Path, dataset_summaries: list[dict[str, Any]]) -> tuple[int, int]:
+    repos_csv_path = _resolve_dataset_csv_path(project_root, "github_repos_2025")
+    total_extracted = 0
+    total_classifiable = 0
+
+    if repos_csv_path is not None:
+        total_extracted, total_classifiable = _count_github_classifiable_repos(repos_csv_path)
+
+    if total_extracted <= 0:
+        total_extracted = _dataset_summary_row_count(dataset_summaries, "github_repos_2025")
+
+    if total_classifiable <= 0:
+        languages_csv_path = _resolve_dataset_csv_path(project_root, "github_lenguajes")
+        if languages_csv_path is not None:
+            total_classifiable = _estimate_total_classifiable_from_languages(languages_csv_path)
+
+    if total_classifiable <= 0 and total_extracted > 0:
+        total_classifiable = total_extracted
+    if total_extracted <= 0 and total_classifiable > 0:
+        total_extracted = total_classifiable
+
+    return total_extracted, total_classifiable
 
 
 def _dataset_to_source(dataset_name: str) -> str | None:
@@ -112,14 +231,14 @@ def _read_json(path: Path) -> Mapping[str, Any] | None:
 
 
 def load_public_manifest_schema(project_root: Path | None = None) -> dict[str, Any]:
-    """Loads run_manifest public JSON schema."""
+    """Carga el schema JSON público de run_manifest."""
     root = Path(project_root) if project_root else Path(__file__).resolve().parents[2]
     schema_path = root / "backend" / "config" / "run_manifest_public_schema.json"
     return json.loads(schema_path.read_text(encoding="utf-8"))
 
 
 def validate_public_run_manifest(run_manifest_public: Mapping[str, Any]) -> tuple[bool, list[str]]:
-    """Validates public run manifest payload used by frontend."""
+    """Valida el payload público de run manifest usado por frontend."""
     errors: list[str] = []
 
     if not isinstance(run_manifest_public, Mapping):
@@ -150,6 +269,18 @@ def validate_public_run_manifest(run_manifest_public: Mapping[str, Any]) -> tupl
     degraded_mode = run_manifest_public.get("degraded_mode")
     if "degraded_mode" in run_manifest_public and not isinstance(degraded_mode, bool):
         errors.append("'degraded_mode' debe ser boolean")
+
+    for field in (
+        "total_repos_extraidos",
+        "total_repos_clasificables",
+        "so_languages_count",
+    ):
+        value = run_manifest_public.get(field)
+        if field in run_manifest_public:
+            if not isinstance(value, int) or isinstance(value, bool):
+                errors.append(f"'{field}' debe ser integer")
+            elif value < 0:
+                errors.append(f"'{field}' no puede ser negativo")
 
     available_sources = run_manifest_public.get("available_sources")
     if "available_sources" in run_manifest_public:
@@ -283,8 +414,9 @@ def build_public_run_manifest_from_internal(
     *,
     default_window_start_utc: str,
     default_window_end_utc: str,
+    project_root: Path | None = None,
 ) -> dict[str, Any]:
-    """Builds frontend public run manifest from internal run manifest."""
+    """Construye el run manifest público de frontend desde el run manifest interno."""
     generated_at_utc = internal_manifest.get("generated_at_utc")
     if not is_valid_iso_utc(generated_at_utc):
         generated_at_utc = _utc_now_iso()
@@ -295,6 +427,13 @@ def build_public_run_manifest_from_internal(
     ) else []
 
     dataset_summaries = _build_dataset_summaries_from_internal(datasets, generated_at_utc)
+    if project_root is not None:
+        total_repos_extraidos, total_repos_clasificables = _compute_github_repo_totals(project_root, dataset_summaries)
+    else:
+        total_repos_extraidos = _dataset_summary_row_count(dataset_summaries, "github_repos_2025")
+        total_repos_clasificables = total_repos_extraidos
+    so_languages_count = _compute_so_languages_count(dataset_summaries)
+
     dataset_names = [item["dataset"] for item in dataset_summaries]
     available_sources = _available_sources_from_dataset_names(dataset_names)
     source_status = {source: source in available_sources for source in AVAILABLE_SOURCES}
@@ -326,14 +465,19 @@ def build_public_run_manifest_from_internal(
         "degraded_mode": bool(degradation["available_count"] < len(AVAILABLE_SOURCES)),
         "available_sources": available_sources,
         "dataset_summaries": dataset_summaries,
+        "total_repos_extraidos": int(total_repos_extraidos),
+        "total_repos_clasificables": int(total_repos_clasificables),
+        "so_languages_count": int(so_languages_count),
         "notes": notes,
     }
 
 
 def build_public_run_manifest_from_filesystem(project_root: Path) -> dict[str, Any]:
-    """Builds frontend public run manifest from generated CSV outputs."""
+    """Construye el run manifest público de frontend desde salidas CSV generadas."""
     dataset_paths = _resolve_latest_dataset_paths(project_root)
     dataset_summaries = _build_dataset_summaries_from_filesystem(dataset_paths)
+    total_repos_extraidos, total_repos_clasificables = _compute_github_repo_totals(project_root, dataset_summaries)
+    so_languages_count = _compute_so_languages_count(dataset_summaries)
     dataset_names = [item["dataset"] for item in dataset_summaries]
     available_sources = _available_sources_from_dataset_names(dataset_names)
     source_status = {source: source in available_sources for source in AVAILABLE_SOURCES}
@@ -360,12 +504,15 @@ def build_public_run_manifest_from_filesystem(project_root: Path) -> dict[str, A
         "degraded_mode": bool(degradation["available_count"] < len(AVAILABLE_SOURCES)),
         "available_sources": available_sources,
         "dataset_summaries": dataset_summaries,
+        "total_repos_extraidos": int(total_repos_extraidos),
+        "total_repos_clasificables": int(total_repos_clasificables),
+        "so_languages_count": int(so_languages_count),
         "notes": notes,
     }
 
 
 def generate_public_run_manifest(project_root: Path | str) -> dict[str, Any]:
-    """Generates public run manifest payload and metadata."""
+    """Genera el payload y metadata del run manifest público."""
     root = Path(project_root)
     internal_manifest_path = root / "datos" / "metadata" / "run_manifest.json"
     internal_manifest = _read_json(internal_manifest_path)
@@ -380,6 +527,7 @@ def generate_public_run_manifest(project_root: Path | str) -> dict[str, Any]:
             internal_manifest,
             default_window_start_utc=one_year_before,
             default_window_end_utc=now_iso,
+            project_root=root,
         )
         internal_valid, internal_errors = validate_public_run_manifest(internal_payload)
         if internal_valid:
@@ -421,7 +569,7 @@ def generate_public_run_manifest(project_root: Path | str) -> dict[str, Any]:
 
 
 def write_public_run_manifest(project_root: Path | str, payload: Mapping[str, Any]) -> Path:
-    """Writes public run manifest to frontend assets path."""
+    """Escribe el run manifest público en la ruta de assets del frontend."""
     root = Path(project_root)
     output_path = root / "frontend" / "assets" / "data" / RUN_MANIFEST_PUBLIC_FILE_NAME
     output_path.parent.mkdir(parents=True, exist_ok=True)

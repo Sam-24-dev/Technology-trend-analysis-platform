@@ -387,47 +387,91 @@ class RedditETL(BaseETL):
         github_langs["ranking_github"] = range(1, len(github_langs) + 1)
         github_langs["tipo"] = "Lenguaje"
 
-        frameworks_frontend = pd.DataFrame({
-            "tecnologia": ["Angular", "React", "Vue 3"],
-            "ranking_github": [1, 2, 3],
-            "tipo": "Framework Frontend"
-        })
+        frameworks_frontend = None
+        try:
+            df_frameworks = pd.read_csv(ARCHIVOS_SALIDA["github_commits"])
+            required = {"framework", "ranking"}
+            if required.issubset(df_frameworks.columns) and not df_frameworks.empty:
+                frameworks_frontend = (
+                    df_frameworks[["framework", "ranking"]]
+                    .rename(
+                        columns={
+                            "framework": "tecnologia",
+                            "ranking": "ranking_github",
+                        }
+                    )
+                    .sort_values("ranking_github", ascending=True)
+                    .head(5)
+                )
+                frameworks_frontend["tipo"] = "Framework Frontend"
+        except FileNotFoundError:
+            self.logger.warning(
+                "No se encontro %s para construir framework intersection, usando fallback.",
+                ARCHIVOS_SALIDA["github_commits"],
+            )
+
+        if frameworks_frontend is None or frameworks_frontend.empty:
+            frameworks_frontend = pd.DataFrame({
+                "tecnologia": ["React", "Angular", "Vue 3", "Svelte", "Next.js"],
+                "ranking_github": [1, 2, 3, 4, 5],
+                "tipo": "Framework Frontend",
+            })
 
         github_data = pd.concat([github_langs[["tecnologia", "ranking_github", "tipo"]],
                                  frameworks_frontend],
                                 ignore_index=True)
 
-        reddit_temas = self.df_temas.head(10).copy()
+        reddit_temas = (
+            self.df_temas.copy()
+            .sort_values(["menciones", "tema"], ascending=[False, True])
+            .head(10)
+            .reset_index(drop=True)
+        )
         reddit_temas["ranking_reddit"] = range(1, len(reddit_temas) + 1)
         reddit_temas = reddit_temas.rename(columns={"tema": "tecnologia"})
 
         coincidencias = []
+        used_reddit_indexes = set()
 
         for _, row_gh in github_data.iterrows():
             gh_norm = normalize_for_match(row_gh["tecnologia"])
-            encontrado = False
+            encontrado = None
+            found_score = 999
 
-            for _, row_rd in reddit_temas.iterrows():
+            for rd_idx, row_rd in reddit_temas.iterrows():
+                if rd_idx in used_reddit_indexes:
+                    continue
                 rd_norm = normalize_for_match(row_rd["tecnologia"])
+                is_exact = gh_norm == rd_norm
+                is_contains = (
+                    gh_norm and rd_norm and (gh_norm in rd_norm or rd_norm in gh_norm)
+                )
+                if not is_exact and not is_contains:
+                    continue
+                match_score = 0 if is_exact else 1
+                if encontrado is None or match_score < found_score:
+                    encontrado = (rd_idx, row_rd)
+                    found_score = match_score
+                    if match_score == 0:
+                        break
 
-                if gh_norm == rd_norm or gh_norm in rd_norm or rd_norm in gh_norm:
-                    coincidencias.append({
-                        "tecnologia": row_gh["tecnologia"],
-                        "tipo": row_gh["tipo"],
-                        "ranking_github": row_gh["ranking_github"],
-                        "ranking_reddit": row_rd["ranking_reddit"],
-                        "diferencia": abs(row_gh["ranking_github"] - row_rd["ranking_reddit"])
-                    })
-                    encontrado = True
-                    break
-
-            if not encontrado:
+            if encontrado is None:
                 coincidencias.append({
                     "tecnologia": row_gh["tecnologia"],
                     "tipo": row_gh["tipo"],
                     "ranking_github": row_gh["ranking_github"],
                     "ranking_reddit": "No encontrado",
                     "diferencia": "-"
+                })
+            else:
+                rd_idx, row_rd = encontrado
+                used_reddit_indexes.add(rd_idx)
+                coincidencias.append({
+                    "tecnologia": row_gh["tecnologia"],
+                    "tipo": row_gh["tipo"],
+                    "ranking_github": row_gh["ranking_github"],
+                    "ranking_reddit": row_rd["ranking_reddit"],
+                    "diferencia": abs(row_gh["ranking_github"] - row_rd["ranking_reddit"])
                 })
 
         df_coincidencias = pd.DataFrame(coincidencias).reset_index(drop=True)

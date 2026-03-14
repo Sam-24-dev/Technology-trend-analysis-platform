@@ -138,6 +138,14 @@ def _build_legacy_trend_score(df_github, df_so, df_reddit):
         + PESOS["reddit"] * df_combined["reddit_score"]
     ).round(2)
 
+    # Filas sin contribución en todas las fuentes agregan ruido al ranking
+    # y disparan alertas de calidad sin aportar valor al producto.
+    df_combined = df_combined[df_combined["trend_score"] > 0].copy()
+
+    if df_combined.empty:
+        logger.error("No source produced a positive Trend Score after filtering zero-score rows")
+        return pd.DataFrame()
+
     df_combined = df_combined.sort_values("trend_score", ascending=False).reset_index(drop=True)
     df_combined["ranking"] = range(1, len(df_combined) + 1)
 

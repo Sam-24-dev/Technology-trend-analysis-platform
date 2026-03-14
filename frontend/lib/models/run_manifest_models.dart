@@ -1,3 +1,35 @@
+const String kAnalysisPeriodFallbackLabel =
+    'Per\u00EDodo de an\u00E1lisis: \u00FAltimos 12 meses';
+
+String buildAnalysisPeriodLabel(RunManifestPublic? manifest) {
+  if (manifest == null) {
+    return kAnalysisPeriodFallbackLabel;
+  }
+  final DateTime? start = DateTime.tryParse(manifest.sourceWindowStartUtc);
+  final DateTime? end = DateTime.tryParse(manifest.sourceWindowEndUtc);
+  if (start == null || end == null) {
+    return kAnalysisPeriodFallbackLabel;
+  }
+  return 'Per\u00EDodo de an\u00E1lisis: ${start.year}-${end.year}';
+}
+
+String buildLastUpdatedLabel(RunManifestPublic? manifest) {
+  final DateTime? generatedAt = DateTime.tryParse(
+    manifest?.generatedAtUtc ?? '',
+  );
+  final DateTime? sourceEnd = DateTime.tryParse(
+    manifest?.sourceWindowEndUtc ?? '',
+  );
+  final DateTime? reference = generatedAt ?? sourceEnd;
+  if (reference == null) {
+    return '\u00DAltima actualizaci\u00F3n (UTC): no disponible';
+  }
+  final DateTime utc = reference.toUtc();
+  final String day = utc.day.toString().padLeft(2, '0');
+  final String month = utc.month.toString().padLeft(2, '0');
+  return '\u00DAltima actualizaci\u00F3n (UTC): $day/$month/${utc.year}';
+}
+
 class RunManifestDatasetSummary {
   final String dataset;
   final int rowCount;
@@ -30,6 +62,9 @@ class RunManifestPublic {
   final bool degradedMode;
   final List<String> availableSources;
   final List<RunManifestDatasetSummary> datasetSummaries;
+  final int totalReposExtraidos;
+  final int totalReposClasificables;
+  final int soLanguagesCount;
   final String? notes;
 
   const RunManifestPublic({
@@ -41,6 +76,9 @@ class RunManifestPublic {
     required this.degradedMode,
     required this.availableSources,
     required this.datasetSummaries,
+    required this.totalReposExtraidos,
+    required this.totalReposClasificables,
+    required this.soLanguagesCount,
     required this.notes,
   });
 
@@ -63,6 +101,13 @@ class RunManifestPublic {
                 RunManifestDatasetSummary.fromMap(item.cast<String, dynamic>()),
           )
           .toList(),
+      totalReposExtraidos:
+          int.tryParse(map['total_repos_extraidos']?.toString() ?? '0') ?? 0,
+      totalReposClasificables:
+          int.tryParse(map['total_repos_clasificables']?.toString() ?? '0') ??
+          0,
+      soLanguagesCount:
+          int.tryParse(map['so_languages_count']?.toString() ?? '0') ?? 0,
       notes: map['notes']?.toString(),
     );
   }

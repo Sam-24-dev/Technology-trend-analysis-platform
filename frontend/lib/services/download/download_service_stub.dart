@@ -7,7 +7,7 @@ class StubDownloadService implements DownloadService {
     required List<int> bytes,
   }) async {
     throw UnsupportedError(
-      'La exportacion ZIP no esta disponible para esta plataforma.',
+      'La exportación ZIP no está disponible para esta plataforma.',
     );
   }
 }

@@ -6,10 +6,10 @@ CSV_SERVICE_PATH = PROJECT_ROOT / "frontend" / "lib" / "services" / "csv_service
 FEATURE_FLAGS_PATH = PROJECT_ROOT / "frontend" / "lib" / "config" / "feature_flags.dart"
 
 
-def test_feature_flag_defaults_to_csv_behavior():
+def test_feature_flag_defaults_to_bridge_behavior():
     content = FEATURE_FLAGS_PATH.read_text(encoding="utf-8")
     assert "USE_HISTORY_BRIDGE_JSON" in content
-    assert "defaultValue: false" in content
+    assert "defaultValue: true" in content
 
 
 def test_csv_service_declares_bridge_json_fallback_paths():

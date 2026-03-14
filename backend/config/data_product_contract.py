@@ -1,11 +1,11 @@
-"""Data product contract for ETL run manifests.
+"""Contrato de data product para run manifests ETL.
 
-This module defines the minimal structure and validations for:
-1. Run manifest (execution level)
-2. Dataset manifest (output level)
+Este módulo define la estructura mínima y validaciones para:
+1. Run manifest (nivel de ejecución)
+2. Dataset manifest (nivel de salida)
 
-It stays separate from the CSV contract to enable storage evolution
-(latest/history/metadata) without breaking V1.
+Se mantiene separado del contrato CSV para permitir evolución de storage
+(latest/history/metadata) sin romper V1.
 """
 
 from __future__ import annotations
@@ -58,22 +58,22 @@ def _is_non_empty_string(value: Any) -> bool:
 
 
 def get_data_product_contract_version() -> str:
-    """Returns the current data product contract version."""
+    """Retorna la versión actual del contrato de data product."""
     return DATA_PRODUCT_CONTRACT_VERSION
 
 
 def utc_now_iso() -> str:
-    """Returns UTC datetime in ISO-8601 format with Z suffix."""
+    """Retorna datetime UTC en formato ISO-8601 con sufijo Z."""
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
 def is_valid_semver(version: Any) -> bool:
-    """Validates semantic versioning (SemVer 2.0.0)."""
+    """Valida semantic versioning (SemVer 2.0.0)."""
     return _is_non_empty_string(version) and _SEMVER_RE.fullmatch(version.strip()) is not None
 
 
 def is_valid_iso_utc(value: Any) -> bool:
-    """Validates ISO-8601 datetime with timezone."""
+    """Valida datetime ISO-8601 con timezone."""
     if not _is_non_empty_string(value):
         return False
 
@@ -87,14 +87,14 @@ def is_valid_iso_utc(value: Any) -> bool:
 
 
 def validate_dataset_manifest(dataset_manifest: Mapping[str, Any], expected_run_id: str | None = None) -> list[str]:
-    """Validates minimal structure and rules for a dataset manifest.
+    """Valida estructura mínima y reglas para un dataset manifest.
 
     Args:
-        dataset_manifest: Individual dataset manifest.
-        expected_run_id: If provided, validates source_run_id == expected_run_id.
+        dataset_manifest: Dataset manifest individual.
+        expected_run_id: Si se proporciona, valida source_run_id == expected_run_id.
 
     Returns:
-        Error list. An empty list means valid manifest.
+        Lista de errores. Una lista vacía significa manifest válido.
     """
     errors: list[str] = []
 
@@ -155,7 +155,7 @@ def validate_dataset_manifest(dataset_manifest: Mapping[str, Any], expected_run_
 
 
 def validate_run_manifest(run_manifest: Mapping[str, Any]) -> tuple[bool, list[str]]:
-    """Validates minimal structure and rules for a run manifest."""
+    """Valida estructura mínima y reglas para un run manifest."""
     errors: list[str] = []
 
     if not isinstance(run_manifest, Mapping):
@@ -216,7 +216,7 @@ def build_dataset_manifest(
     history_path: str | None,
     generated_at_utc: str | None = None,
 ) -> dict[str, Any]:
-    """Builds a dataset manifest with standard fields."""
+    """Construye un dataset manifest con campos estándar."""
     return {
         "dataset_logical_name": dataset_logical_name,
         "version_semver": version_semver,
@@ -241,7 +241,7 @@ def build_run_manifest(
     datasets: list[dict[str, Any]],
     generated_at_utc: str | None = None,
 ) -> dict[str, Any]:
-    """Builds a run manifest with standard fields."""
+    """Construye un run manifest con campos estándar."""
     return {
         "run_id": run_id,
         "generated_at_utc": generated_at_utc or utc_now_iso(),

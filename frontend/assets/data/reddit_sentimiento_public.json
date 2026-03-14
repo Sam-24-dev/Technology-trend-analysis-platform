@@ -1,0 +1,94 @@
+{
+  "generated_at_utc": "2026-03-13T22:12:52Z",
+  "dataset": "reddit_sentimiento_frameworks",
+  "source_mode": "latest",
+  "source_path": "datos/latest/reddit_sentimiento_frameworks.csv",
+  "source_updated_at_utc": "2026-03-09T05:55:19Z",
+  "framework_count": 5,
+  "frameworks": [
+    {
+      "framework": "Django",
+      "total_menciones": 3,
+      "positivos": 3,
+      "neutros": 0,
+      "negativos": 0,
+      "porcentaje_positivo": 100.0,
+      "porcentaje_neutro": 0.0,
+      "porcentaje_negativo": 0.0
+    },
+    {
+      "framework": "Spring",
+      "total_menciones": 1,
+      "positivos": 1,
+      "neutros": 0,
+      "negativos": 0,
+      "porcentaje_positivo": 100.0,
+      "porcentaje_neutro": 0.0,
+      "porcentaje_negativo": 0.0
+    },
+    {
+      "framework": "Express",
+      "total_menciones": 18,
+      "positivos": 17,
+      "neutros": 0,
+      "negativos": 1,
+      "porcentaje_positivo": 94.44,
+      "porcentaje_neutro": 0.0,
+      "porcentaje_negativo": 5.56
+    },
+    {
+      "framework": "Laravel",
+      "total_menciones": 21,
+      "positivos": 19,
+      "neutros": 0,
+      "negativos": 2,
+      "porcentaje_positivo": 90.48,
+      "porcentaje_neutro": 0.0,
+      "porcentaje_negativo": 9.52
+    },
+    {
+      "framework": "FastAPI",
+      "total_menciones": 8,
+      "positivos": 6,
+      "neutros": 0,
+      "negativos": 2,
+      "porcentaje_positivo": 75.0,
+      "porcentaje_neutro": 0.0,
+      "porcentaje_negativo": 25.0
+    }
+  ],
+  "summary": {
+    "positive_leader": {
+      "framework": "Django",
+      "total_menciones": 3,
+      "positivos": 3,
+      "neutros": 0,
+      "negativos": 0,
+      "porcentaje_positivo": 100.0,
+      "porcentaje_neutro": 0.0,
+      "porcentaje_negativo": 0.0
+    },
+    "largest_sample": {
+      "framework": "Laravel",
+      "total_menciones": 21,
+      "positivos": 19,
+      "neutros": 0,
+      "negativos": 2,
+      "porcentaje_positivo": 90.48,
+      "porcentaje_neutro": 0.0,
+      "porcentaje_negativo": 9.52
+    },
+    "negative_leader": {
+      "framework": "FastAPI",
+      "total_menciones": 8,
+      "positivos": 6,
+      "neutros": 0,
+      "negativos": 2,
+      "porcentaje_positivo": 75.0,
+      "porcentaje_neutro": 0.0,
+      "porcentaje_negativo": 25.0
+    },
+    "framework_count": 5,
+    "total_menciones": 51
+  }
+}

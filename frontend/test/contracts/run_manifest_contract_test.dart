@@ -19,6 +19,9 @@ const String _validManifestJson = '''
       "updated_at_utc": "2026-02-23T09:59:30Z"
     }
   ],
+  "total_repos_extraidos": 1000,
+  "total_repos_clasificables": 925,
+  "so_languages_count": 10,
   "notes": "Reddit temporalmente no disponible"
 }
 ''';
@@ -53,6 +56,9 @@ List<String> _validatePublicRunManifest(Map<String, dynamic> payload) {
     'degraded_mode',
     'available_sources',
     'dataset_summaries',
+    'total_repos_extraidos',
+    'total_repos_clasificables',
+    'so_languages_count',
   ];
 
   for (final field in required) {
@@ -87,6 +93,17 @@ List<String> _validatePublicRunManifest(Map<String, dynamic> payload) {
 
   if (payload['degraded_mode'] is! bool) {
     errors.add('invalid:degraded_mode');
+  }
+
+  for (final field in const <String>[
+    'total_repos_extraidos',
+    'total_repos_clasificables',
+    'so_languages_count',
+  ]) {
+    final value = payload[field];
+    if (value is! int || value < 0) {
+      errors.add('invalid:$field');
+    }
   }
 
   final sources = payload['available_sources'];

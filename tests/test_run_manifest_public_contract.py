@@ -28,6 +28,9 @@ def _valid_public_manifest():
                 "updated_at_utc": "2026-02-23T09:59:30Z",
             }
         ],
+        "total_repos_extraidos": 1000,
+        "total_repos_clasificables": 925,
+        "so_languages_count": 10,
         "notes": "Reddit temporalmente no disponible",
     }
 
@@ -93,6 +96,9 @@ def test_build_public_run_manifest_from_internal():
     assert errors == []
     assert payload["degraded_mode"] is True
     assert payload["available_sources"] == ["github", "stackoverflow"]
+    assert "total_repos_extraidos" in payload
+    assert "total_repos_clasificables" in payload
+    assert "so_languages_count" in payload
 
 
 def test_build_public_run_manifest_from_filesystem(tmp_path):
@@ -112,6 +118,9 @@ def test_build_public_run_manifest_from_filesystem(tmp_path):
     assert errors == []
     assert payload["degraded_mode"] is True
     assert payload["available_sources"] == ["github", "stackoverflow"]
+    assert "total_repos_extraidos" in payload
+    assert "total_repos_clasificables" in payload
+    assert "so_languages_count" in payload
     assert len(payload["dataset_summaries"]) >= 1
 
 

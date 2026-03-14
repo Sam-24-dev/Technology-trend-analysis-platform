@@ -1,4 +1,4 @@
-"""DuckDB engine for Trend Score computation."""
+"""Motor DuckDB para el cálculo de Trend Score."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ except Exception:  # pylint: disable=broad-exception-caught
 
 
 def calcular_trend_score_duckdb(df_github, df_so, df_reddit, pesos):
-    """Computes Trend Score using DuckDB SQL over in-memory DataFrames."""
+    """Calcula Trend Score usando SQL de DuckDB sobre DataFrames en memoria."""
     if duckdb is None:
         raise RuntimeError("DuckDB engine is unavailable. Install 'duckdb' to use this engine.")
 
@@ -78,6 +78,7 @@ def calcular_trend_score_duckdb(df_github, df_so, df_reddit, pesos):
                     trend_score,
                     fuentes
                 FROM scored
+                WHERE trend_score > 0
             )
             SELECT
                 ranking,

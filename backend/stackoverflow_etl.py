@@ -7,14 +7,17 @@ aceptadas y tendencias mensuales por lenguaje.
 
 Autor: Andres
 """
+import json
 import requests
 import pandas as pd
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 import calendar
 
 from config.settings import (
     SO_API_URL, SO_API_KEY,
+    SO_TOP_LANGUAGES,
+    SO_TRENDS_METADATA_PATH,
     FECHA_INICIO, FECHA_INICIO_TIMESTAMP,
     REQUEST_TIMEOUT_SECONDS, HTTP_MAX_RETRIES, HTTP_RETRY_BACKOFF_SECONDS,
     REQUEST_MEDIUM_DELAY_SECONDS, REQUEST_SHORT_DELAY_SECONDS
@@ -25,6 +28,9 @@ from base_etl import BaseETL
 
 class StackOverflowETL(BaseETL):
     """Extractor ETL para datos de preguntas de StackOverflow."""
+
+    LEGACY_TREND_LANGUAGES = ("python", "javascript", "typescript")
+    TRENDS_BRIDGE_TOP_N = 5
 
     def __init__(self):
         super().__init__("stackoverflow")
@@ -78,7 +84,7 @@ class StackOverflowETL(BaseETL):
     def extraer_volumen_preguntas(self):
         """Extrae el volumen anual de preguntas por lenguaje desde StackOverflow."""
         self.logger.info("[1/3] Obteniendo volumen TOTAL de preguntas...")
-        languages = ['python', 'javascript', 'typescript', 'java', 'go']
+        languages = SO_TOP_LANGUAGES or ['python', 'javascript', 'typescript', 'java', 'go']
         data_volumen = []
         errores = 0
 
@@ -162,8 +168,9 @@ class StackOverflowETL(BaseETL):
     def generar_tendencias_mensuales(self):
         """Genera tendencias mensuales de preguntas para los lenguajes principales."""
         self.logger.info("[3/3] Generando historico mensual...")
-        target_langs = ['python', 'javascript', 'typescript']
+        target_langs = self._trend_collection_languages()
         data_trends = []
+        trends_by_language = {lang: [] for lang in target_langs}
 
         inicio_year = FECHA_INICIO.year
         inicio_month = FECHA_INICIO.month
@@ -183,12 +190,17 @@ class StackOverflowETL(BaseETL):
 
             if start_date > datetime.now():
                 self.logger.info(f"   Saltando {nombre_mes} {year} (futuro)...")
-                row = {'mes': mes_label, 'python': 0, 'javascript': 0, 'typescript': 0}
+                row = {'mes': mes_label}
+                for legacy_lang in self.LEGACY_TREND_LANGUAGES:
+                    row[legacy_lang] = 0
+                for lang in target_langs:
+                    trends_by_language.setdefault(lang, []).append(0)
                 data_trends.append(row)
                 continue
 
             self.logger.info(f"   Consultando {nombre_mes} {year}...")
             row = {'mes': mes_label}
+            monthly_counts = {}
 
             for lang in target_langs:
                 params = {
@@ -202,13 +214,74 @@ class StackOverflowETL(BaseETL):
                 except ETLExtractionError as e:
                     self.logger.warning(f"   Error en {nombre_mes}/{lang}: {e}")
                     count = 0
-                row[lang] = count
+                monthly_counts[lang] = count
+                trends_by_language.setdefault(lang, []).append(count)
                 time.sleep(REQUEST_SHORT_DELAY_SECONDS)
 
+            for legacy_lang in self.LEGACY_TREND_LANGUAGES:
+                row[legacy_lang] = monthly_counts.get(legacy_lang, 0)
             data_trends.append(row)
 
         df_trends = pd.DataFrame(data_trends)
         self.guardar_csv(df_trends, "so_tendencias")
+        self._write_trends_metadata(
+            months=df_trends["mes"].astype(str).tolist(),
+            trends_by_language=trends_by_language,
+        )
+
+    def _trend_collection_languages(self):
+        """Builds the language list collected for monthly trends."""
+        configured = SO_TOP_LANGUAGES or list(self.LEGACY_TREND_LANGUAGES)
+        ordered = []
+        seen = set()
+        for lang in [*self.LEGACY_TREND_LANGUAGES, *configured]:
+            normalized = str(lang).strip().lower()
+            if not normalized or normalized in seen:
+                continue
+            ordered.append(normalized)
+            seen.add(normalized)
+        return ordered
+
+    def _write_trends_metadata(self, months, trends_by_language):
+        """Writes richer monthly trends metadata for the frontend bridge."""
+        metadata_path = SO_TRENDS_METADATA_PATH.resolve()
+        metadata_path.parent.mkdir(parents=True, exist_ok=True)
+
+        ranked_languages = sorted(
+            trends_by_language.items(),
+            key=lambda item: (
+                -sum(int(value) for value in item[1]),
+                item[0],
+            ),
+        )
+        selected = ranked_languages[: self.TRENDS_BRIDGE_TOP_N]
+        payload = {
+            "generated_at_utc": datetime.now(timezone.utc)
+            .replace(microsecond=0)
+            .isoformat()
+            .replace("+00:00", "Z"),
+            "selection_mode": "top_n_by_cumulative_volume",
+            "selection_basis": "last_12_complete_months",
+            "top_n": self.TRENDS_BRIDGE_TOP_N,
+            "months": [str(month) for month in months],
+            "series": [
+                {
+                    "tecnologia": language,
+                    "points": [int(value) for value in points],
+                }
+                for language, points in selected
+            ],
+        }
+        metadata_path.write_text(
+            json.dumps(payload, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+        self._run_summary["files_written"].append(str(metadata_path))
+        self.logger.info(
+            "[WRITE] archivo=%s destino=metadata series=%d",
+            metadata_path,
+            len(payload["series"]),
+        )
 
 
 def main():

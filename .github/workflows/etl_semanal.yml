@@ -22,6 +22,7 @@ env:
   REQUIRE_FRONTEND_METADATA: ${{ github.ref_name == 'main' && '1' || '0' }}
   FRONTEND_ASSETS_POLICY_MODE: "strict"
   TREND_SCORE_ENGINE: "duckdb"
+  FRONTEND_BRIDGE_REMOTE_DIR: "datos/metadata/remote_assets"
 
 jobs:
   job_github:
@@ -304,6 +305,7 @@ jobs:
             datos/latest/*.csv
             datos/history/**/*.csv
             datos/metadata/*.json
+            datos/metadata/**/*.json
             frontend/assets/data/*.csv
             frontend/assets/data/*.json
 

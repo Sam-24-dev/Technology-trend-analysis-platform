@@ -12,7 +12,10 @@
     "quality_gate_status",
     "degraded_mode",
     "available_sources",
-    "dataset_summaries"
+    "dataset_summaries",
+    "total_repos_extraidos",
+    "total_repos_clasificables",
+    "so_languages_count"
   ],
   "properties": {
     "manifest_version": {
@@ -91,6 +94,18 @@
           }
         }
       }
+    },
+    "total_repos_extraidos": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "total_repos_clasificables": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "so_languages_count": {
+      "type": "integer",
+      "minimum": 0
     },
     "notes": {
       "type": [
