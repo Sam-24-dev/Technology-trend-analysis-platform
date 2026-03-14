@@ -125,6 +125,9 @@ void main() {
                 degradedMode: false,
                 availableSources: const ['github', 'stackoverflow', 'reddit'],
                 datasetSummaries: const <RunManifestDatasetSummary>[],
+                totalReposExtraidos: 1000,
+                totalReposClasificables: 925,
+                soLanguagesCount: 10,
                 notes: 'ok',
               ),
             );

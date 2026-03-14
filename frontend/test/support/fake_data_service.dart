@@ -11,11 +11,26 @@ class FakeDataService extends DataService {
     this.fakeTrendView,
     this.fakeManifest,
     this.fakeHistory,
+    this.fakeRedditSentimentPublic,
+    this.fakeRedditTopicsHistoryPublic,
+    this.fakeGithubLanguagePublic,
+    this.fakeGithubFrameworksHistoryPublic,
+    this.fakeGithubCorrelationHistoryPublic,
+    this.fakeStackOverflowVolumeHistoryPublic,
+    this.fakeStackOverflowAcceptanceHistoryPublic,
+    this.fakeStackOverflowTrendsHistoryPublic,
+    this.fakeTechnologyProfiles,
     this.csvDelay = Duration.zero,
     this.jsonDelay = Duration.zero,
     this.trendDelay = Duration.zero,
     this.manifestDelay = Duration.zero,
     this.historyDelay = Duration.zero,
+    this.redditSentimentDelay = Duration.zero,
+    this.redditTopicsDelay = Duration.zero,
+    this.githubFrameworksDelay = Duration.zero,
+    this.githubCorrelationDelay = Duration.zero,
+    this.stackOverflowAcceptanceDelay = Duration.zero,
+    this.stackOverflowTrendsDelay = Duration.zero,
   });
 
   final Map<String, List<Map<String, dynamic>>> csvByAsset;
@@ -24,11 +39,26 @@ class FakeDataService extends DataService {
   final TrendTemporalViewData? fakeTrendView;
   final RunManifestPublic? fakeManifest;
   final HistoryIndexModel? fakeHistory;
+  final Map<String, dynamic>? fakeRedditSentimentPublic;
+  final Map<String, dynamic>? fakeRedditTopicsHistoryPublic;
+  final Map<String, dynamic>? fakeGithubLanguagePublic;
+  final Map<String, dynamic>? fakeGithubFrameworksHistoryPublic;
+  final Map<String, dynamic>? fakeGithubCorrelationHistoryPublic;
+  final Map<String, dynamic>? fakeStackOverflowVolumeHistoryPublic;
+  final Map<String, dynamic>? fakeStackOverflowAcceptanceHistoryPublic;
+  final Map<String, dynamic>? fakeStackOverflowTrendsHistoryPublic;
+  final Map<String, dynamic>? fakeTechnologyProfiles;
   final Duration csvDelay;
   final Duration jsonDelay;
   final Duration trendDelay;
   final Duration manifestDelay;
   final Duration historyDelay;
+  final Duration redditSentimentDelay;
+  final Duration redditTopicsDelay;
+  final Duration githubFrameworksDelay;
+  final Duration githubCorrelationDelay;
+  final Duration stackOverflowAcceptanceDelay;
+  final Duration stackOverflowTrendsDelay;
 
   @override
   Future<List<Map<String, dynamic>>> loadCsvRows(String assetPath) async {
@@ -118,5 +148,96 @@ class FakeDataService extends DataService {
           snapshotCount: 1,
           items: [],
         );
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadRedditSentimentPublic() async {
+    if (redditSentimentDelay > Duration.zero) {
+      await Future<void>.delayed(redditSentimentDelay);
+    }
+    if (throwAssets.contains('assets/data/reddit_sentimiento_public.json')) {
+      throw Exception('reddit sentiment public unavailable');
+    }
+    return fakeRedditSentimentPublic ?? <String, dynamic>{};
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadRedditTopicsHistoryPublic() async {
+    if (redditTopicsDelay > Duration.zero) {
+      await Future<void>.delayed(redditTopicsDelay);
+    }
+    if (throwAssets.contains('assets/data/reddit_temas_history.json')) {
+      throw Exception('reddit topics history public unavailable');
+    }
+    return fakeRedditTopicsHistoryPublic ?? <String, dynamic>{};
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadGithubFrameworksHistoryPublic() async {
+    if (githubFrameworksDelay > Duration.zero) {
+      await Future<void>.delayed(githubFrameworksDelay);
+    }
+    if (throwAssets.contains('assets/data/github_frameworks_history.json')) {
+      throw Exception('github frameworks history public unavailable');
+    }
+    return fakeGithubFrameworksHistoryPublic ?? <String, dynamic>{};
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadGithubLanguagePublic() async {
+    if (throwAssets.contains('assets/data/github_lenguajes_public.json')) {
+      throw Exception('github language public unavailable');
+    }
+    return fakeGithubLanguagePublic ?? <String, dynamic>{};
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadGithubCorrelationHistoryPublic() async {
+    if (githubCorrelationDelay > Duration.zero) {
+      await Future<void>.delayed(githubCorrelationDelay);
+    }
+    if (throwAssets.contains('assets/data/github_correlacion_history.json')) {
+      throw Exception('github correlation history public unavailable');
+    }
+    return fakeGithubCorrelationHistoryPublic ?? <String, dynamic>{};
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadStackOverflowVolumeHistoryPublic() async {
+    if (throwAssets.contains('assets/data/so_volumen_history.json')) {
+      throw Exception('stack overflow volume history public unavailable');
+    }
+    return fakeStackOverflowVolumeHistoryPublic ?? <String, dynamic>{};
+  }
+
+  @override
+  Future<Map<String, dynamic>>
+  loadStackOverflowAcceptanceHistoryPublic() async {
+    if (stackOverflowAcceptanceDelay > Duration.zero) {
+      await Future<void>.delayed(stackOverflowAcceptanceDelay);
+    }
+    if (throwAssets.contains('assets/data/so_aceptacion_history.json')) {
+      throw Exception('stack overflow acceptance history public unavailable');
+    }
+    return fakeStackOverflowAcceptanceHistoryPublic ?? <String, dynamic>{};
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadStackOverflowTrendsHistoryPublic() async {
+    if (stackOverflowTrendsDelay > Duration.zero) {
+      await Future<void>.delayed(stackOverflowTrendsDelay);
+    }
+    if (throwAssets.contains('assets/data/so_tendencias_history.json')) {
+      throw Exception('stack overflow trends history public unavailable');
+    }
+    return fakeStackOverflowTrendsHistoryPublic ?? <String, dynamic>{};
+  }
+
+  @override
+  Future<Map<String, dynamic>> loadTechnologyProfiles() async {
+    if (throwAssets.contains('assets/data/technology_profiles.json')) {
+      throw Exception('technology profiles unavailable');
+    }
+    return fakeTechnologyProfiles ?? <String, dynamic>{};
   }
 }

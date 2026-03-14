@@ -19,6 +19,24 @@ void main() {
     expect(manifest.datasetSummaries, isNotEmpty);
   });
 
+  test(
+    'DataService.loadRedditSentimentPublic loads public reddit sentiment bridge',
+    () async {
+      final payload = await service.loadRedditSentimentPublic();
+      expect(payload['dataset'], 'reddit_sentimiento_frameworks');
+      expect(payload['frameworks'], isA<List<dynamic>>());
+    },
+  );
+
+  test(
+    'DataService.loadRedditTopicsHistoryPublic loads reddit topics history bridge',
+    () async {
+      final payload = await service.loadRedditTopicsHistoryPublic();
+      expect(payload['dataset'], 'reddit_temas_emergentes');
+      expect(payload['latest_topics'], isA<List<dynamic>>());
+    },
+  );
+
   test('DataService.loadHistoryIndex loads bridge history index', () async {
     final history = await service.loadHistoryIndex();
     expect(history.datasetCount, greaterThanOrEqualTo(0));
@@ -29,6 +47,16 @@ void main() {
     () async {
       final trend = await service.loadTrendScoreHistory();
       expect(trend, isA<TrendScoreHistoryModel>());
+    },
+  );
+
+  test(
+    'DataService.loadGithubCorrelationHistoryPublic loads correlation bridge',
+    () async {
+      final payload = await service.loadGithubCorrelationHistoryPublic();
+      expect(payload['dataset'], 'github_correlacion');
+      expect(payload['latest_items'], isA<List<dynamic>>());
+      expect(payload['summary'], isA<Map<dynamic, dynamic>>());
     },
   );
 

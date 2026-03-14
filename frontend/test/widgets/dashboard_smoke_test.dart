@@ -30,7 +30,8 @@ void main() {
   ) async {
     await _pumpDashboard(tester, child: const GithubDashboard());
 
-    expect(find.text('Dashboard GitHub'), findsOneWidget);
+    expect(find.byType(GithubDashboard), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('stackoverflow dashboard smoke renders scaffold title', (

@@ -6,6 +6,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:http/http.dart' as http;
 
 import '../config/feature_flags.dart';
+import '../utils/tech_slug.dart';
 
 /// Servicio central de carga de CSVs.
 ///
@@ -19,6 +20,16 @@ import '../config/feature_flags.dart';
 /// plataformas.  CsvToListConverter se usa solo como fallback porque
 /// tiene problemas de detección de eol en Dart2JS compilado.
 class CsvService {
+  static Map<String, dynamic> _coerceJsonMap(dynamic parsed, String source) {
+    if (parsed is Map<String, dynamic>) {
+      return parsed;
+    }
+    if (parsed is Map) {
+      return parsed.map((key, value) => MapEntry(key.toString(), value));
+    }
+    throw Exception('Invalid JSON payload shape for $source');
+  }
+
   // ── Parser manual ──────────────────────────────────────────────
 
   /// Parser robusto para una línea CSV (maneja comillas escapadas).
@@ -269,14 +280,7 @@ class CsvService {
             throw Exception('HTTP ${response.statusCode}');
           }
           final body = utf8.decode(response.bodyBytes, allowMalformed: true);
-          final parsed = jsonDecode(body);
-          if (parsed is Map<String, dynamic>) {
-            return parsed;
-          }
-          if (parsed is Map) {
-            return parsed.map((key, value) => MapEntry(key.toString(), value));
-          }
-          throw Exception('Invalid JSON payload shape for $url');
+          return _coerceJsonMap(jsonDecode(body), url);
         } catch (e) {
           errors.add('HTTP $url: $e');
         }
@@ -290,14 +294,7 @@ class CsvService {
     for (final path in unique) {
       try {
         final raw = await rootBundle.loadString(path);
-        final parsed = jsonDecode(raw);
-        if (parsed is Map<String, dynamic>) {
-          return parsed;
-        }
-        if (parsed is Map) {
-          return parsed.map((key, value) => MapEntry(key.toString(), value));
-        }
-        errors.add('AssetBundle $path: invalid JSON payload shape');
+        return _coerceJsonMap(jsonDecode(raw), path);
       } catch (e) {
         errors.add('AssetBundle $path: $e');
       }
@@ -306,6 +303,21 @@ class CsvService {
     throw Exception(
       'No se pudo cargar JSON $fileName.\nErrores:\n${errors.join('\n')}',
     );
+  }
+
+  /// Carga un JSON por URL absoluta (http/https).
+  static Future<Map<String, dynamic>> loadJsonFromUrl(String url) async {
+    final uri = Uri.parse(url);
+    if (!(uri.scheme == 'http' || uri.scheme == 'https')) {
+      throw Exception('URL no soportada para JSON remoto: $url');
+    }
+
+    final response = await http.get(uri).timeout(const Duration(seconds: 15));
+    if (response.statusCode != 200) {
+      throw Exception('HTTP ${response.statusCode} en $url');
+    }
+    final body = utf8.decode(response.bodyBytes, allowMalformed: true);
+    return _coerceJsonMap(jsonDecode(body), url);
   }
 
   static int _asInt(dynamic value, {int fallback = 0}) {
@@ -334,19 +346,60 @@ class CsvService {
         .map(
           (row) => {
             'ranking': _asInt(row['ranking'], fallback: 999999),
+            'slug': normalizeSlug(row['tecnologia']?.toString() ?? ''),
             'tecnologia': row['tecnologia']?.toString() ?? '',
             'trend_score': _asDouble(row['trend_score'], fallback: 0.0),
             'fuentes': _asInt(row['fuentes'], fallback: 0),
+            'github_score': _asDouble(row['github_score'], fallback: 0.0),
+            'so_score': _asDouble(row['so_score'], fallback: 0.0),
+            'reddit_score': _asDouble(row['reddit_score'], fallback: 0.0),
+            'score_prev': _tryDouble(row['score_prev']),
+            'delta_score': _tryDouble(row['delta_score']),
+            'ranking_prev': _tryInt(row['ranking_prev']),
+            'delta_ranking': _tryInt(row['delta_ranking']),
+            'available_source_codes':
+                _resolveCsvSourceCodes(row, _asInt(row['fuentes'])),
           },
         )
         .where((row) => (row['tecnologia']?.toString().isNotEmpty ?? false))
         .toList();
 
-    normalized.sort(
-      (a, b) => _asInt(a['ranking']).compareTo(_asInt(b['ranking'])),
-    );
-    return normalized.take(topN).toList();
-  }
+      normalized.sort(
+        (a, b) => _asInt(a['ranking']).compareTo(_asInt(b['ranking'])),
+      );
+      return normalized.take(topN).toList();
+    }
+
+    static double? _tryDouble(dynamic value) {
+      return double.tryParse(value?.toString() ?? '');
+    }
+
+    static int? _tryInt(dynamic value) {
+      return int.tryParse(value?.toString() ?? '');
+    }
+
+    static List<String> _resolveCsvSourceCodes(
+      Map<String, dynamic> row,
+      int fuentes,
+    ) {
+      final List<String> codes = <String>[];
+      final double gh = _asDouble(row['github_score'], fallback: 0.0);
+      final double so = _asDouble(row['so_score'], fallback: 0.0);
+      final double rd = _asDouble(row['reddit_score'], fallback: 0.0);
+      if (gh > 0) codes.add('GH');
+      if (so > 0) codes.add('SO');
+      if (rd > 0) codes.add('RD');
+      const List<String> ordered = <String>['GH', 'SO', 'RD'];
+      for (final label in ordered) {
+        if (codes.length >= fuentes && fuentes > 0) {
+          break;
+        }
+        if (!codes.contains(label)) {
+          codes.add(label);
+        }
+      }
+      return codes;
+    }
 
   /// Carga metadata publica de run manifest para UI.
   ///
@@ -424,36 +477,56 @@ class CsvService {
         };
       }
 
-      final topRows = (latestSnapshot['top_10'] as List?) ?? const [];
-      final bridgeItems = topRows
-          .whereType<Map>()
-          .map(
-            (row) => {
-              'ranking': _asInt(row['ranking'], fallback: 999999),
-              'tecnologia': row['tecnologia']?.toString() ?? '',
-              'trend_score': _asDouble(row['trend_score'], fallback: 0.0),
-              'fuentes': _asInt(row['fuentes'], fallback: 0),
-            },
-          )
-          .where((row) => (row['tecnologia']?.toString().isNotEmpty ?? false))
-          .take(topN)
-          .toList();
+      final Map latestSnapshotMap = latestSnapshot;
+      final Map? previousSnapshot =
+          rawSnapshots.length >= 2 ? rawSnapshots[rawSnapshots.length - 2] as Map? : null;
+      final String? latestDate = latestSnapshotMap['date']?.toString();
+      final String? previousDate = previousSnapshot?['date']?.toString();
+              final topRows = (latestSnapshotMap['top_10'] as List?) ?? const [];
+              final bridgeItems = topRows
+                  .whereType<Map>()
+                  .map(
+                    (row) => {
+                        'ranking': _asInt(row['ranking'], fallback: 999999),
+                        'slug': row['slug']?.toString() ??
+                    normalizeSlug(row['tecnologia']?.toString() ?? ''),
+                        'tecnologia': row['tecnologia']?.toString() ?? '',
+                        'trend_score': _asDouble(row['trend_score'], fallback: 0.0),
+                        'fuentes': _asInt(row['fuentes'], fallback: 0),
+                'github_score': _asDouble(row['github_score'], fallback: 0.0),
+                'so_score': _asDouble(row['so_score'], fallback: 0.0),
+                'reddit_score': _asDouble(row['reddit_score'], fallback: 0.0),
+                'score_prev': _tryDouble(row['score_prev']),
+                'delta_score': _tryDouble(row['delta_score']),
+                'ranking_prev': _tryInt(row['ranking_prev']),
+                'delta_ranking': _tryInt(row['delta_ranking']),
+                'available_source_codes':
+                    _toStringList(row['available_source_codes'])
+                        .map((code) => code.toUpperCase())
+                        .toList(),
+              },
+            )
+            .where((row) => (row['tecnologia']?.toString().isNotEmpty ?? false))
+            .take(topN)
+            .toList();
 
-      if (bridgeItems.isNotEmpty) {
-        return {
-          'source': 'bridge_json',
-          'snapshotCount': rawSnapshots.length,
-          'items': bridgeItems,
-        };
+        if (bridgeItems.isNotEmpty) {
+          return {
+            'source': 'bridge_json',
+            'snapshotCount': rawSnapshots.length,
+            'items': bridgeItems,
+            'latestSnapshotDate': latestDate,
+            'previousSnapshotDate': previousDate,
+          };
+        }
+      } catch (e) {
+        print('[CsvService] Bridge JSON fallback to CSV: $e');
       }
-    } catch (e) {
-      print('[CsvService] Bridge JSON fallback to CSV: $e');
-    }
 
-    return {
-      'source': 'csv_fallback',
-      'snapshotCount': csvTop.isEmpty ? 0 : 1,
-      'items': csvTop,
-    };
+      return {
+        'source': 'csv_fallback',
+        'snapshotCount': csvTop.isEmpty ? 0 : 1,
+        'items': csvTop,
+      };
+    }
   }
-}

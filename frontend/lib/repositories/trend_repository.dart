@@ -9,12 +9,16 @@ class TrendRepository {
 
   Future<DataLoadState<TrendTemporalViewData>> loadTrendTemporalView() async {
     try {
-      final trendData = await dataService.loadTrendTemporalView(topN: 5);
+      final trendData = await dataService.loadTrendTemporalView(topN: 15);
 
       if (trendData.source == 'bridge_json' || trendData.source == 'csv') {
         return DataLoadState.data(trendData);
       }
       if (trendData.source == 'csv_fallback') {
+        final bridgeData = await _tryLoadBridgeTrendView(topN: 15);
+        if (bridgeData != null) {
+          return DataLoadState.data(bridgeData);
+        }
         return DataLoadState.degraded(
           trendData,
           message: 'bridge unavailable, using CSV fallback',
@@ -23,6 +27,30 @@ class TrendRepository {
       return DataLoadState.data(trendData);
     } catch (error) {
       return DataLoadState.error('trend temporal load failed: $error');
+    }
+  }
+
+  Future<TrendTemporalViewData?> _tryLoadBridgeTrendView({
+    required int topN,
+  }) async {
+    try {
+      final trendHistory = await dataService.loadTrendScoreHistory();
+      if (trendHistory.snapshots.isEmpty) {
+        return null;
+      }
+      final latestSnapshot = trendHistory.snapshots.last;
+      final previousSnapshot = trendHistory.snapshots.length >= 2
+          ? trendHistory.snapshots[trendHistory.snapshots.length - 2]
+          : null;
+      return TrendTemporalViewData(
+        source: 'bridge_json',
+        snapshotCount: trendHistory.snapshotCount,
+        items: latestSnapshot.top10.take(topN).toList(),
+        latestSnapshotDate: latestSnapshot.date,
+        previousSnapshotDate: previousSnapshot?.date,
+      );
+    } catch (_) {
+      return null;
     }
   }
 }

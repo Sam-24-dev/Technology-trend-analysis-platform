@@ -20,7 +20,7 @@ class DataHealthBadge extends ConsumerWidget {
       case 'fail':
         return const Color(0xFFB91C1C);
       default:
-        return const Color(0xFF6B7280);
+        return const Color(0xFF475569);
     }
   }
 

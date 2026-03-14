@@ -71,7 +71,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('metadata missing mantiene badge unknown y UI operativa', (
+  testWidgets('metadata missing mantiene UI operativa sin badge global', (
     WidgetTester tester,
   ) async {
     await _pumpAtSize(
@@ -97,9 +97,8 @@ void main() {
       ],
     );
 
-    expect(find.byKey(const Key('data-health-badge')), findsWidgets);
-    expect(find.textContaining('unknown'), findsWidgets);
-    expect(find.text('Tech Trends 2025'), findsOneWidget);
+    expect(find.byKey(const Key('data-health-badge')), findsNothing);
+    expect(find.text('Tech Trends'), findsWidgets);
     expect(tester.takeException(), isNull);
   });
 }
