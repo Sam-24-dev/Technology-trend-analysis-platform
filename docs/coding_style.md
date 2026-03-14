@@ -54,9 +54,15 @@ Antes de PR:
 
 - no commitear salidas runtime (`datos/latest`, `datos/history`, `datos/metadata`) salvo decision explicita.
 - commitear codigo, tests y documentacion.
+- mantener `.gitignore` actualizado para herramientas locales y artefactos temporales.
 
 ## 8) Definicion de Listo
 
 - tests en verde.
 - sin regresiones de contrato de datos.
 - comportamiento de rollback definido para cambios de riesgo.
+
+## 9) Assets y branding
+
+- logos y assets de UI deben vivir en `frontend/assets/images/`.
+- nombres de archivos estables y sin espacios.

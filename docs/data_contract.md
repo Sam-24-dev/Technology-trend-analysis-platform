@@ -30,8 +30,8 @@ Fuente de verdad:
 - `backend/config/data_product_contract.py`
 
 Incluye:
-- run manifest
-- dataset manifest
+- run manifest (publico y backend)
+- dataset manifest (backend)
 
 ### 2.1 Campos obligatorios de run manifest
 
@@ -55,6 +55,15 @@ Incluye:
 - `quality_status` (`pass`, `warning`, `fail`)
 - `latest_path`
 - `history_path`
+
+### 2.3 Manifest publico (frontend)
+
+Ruta publica:
+- `frontend/assets/data/run_manifest.json`
+
+Uso:
+- control de metadata y estado de degradacion en UI.
+- base para etiquetas de fechas y ventanas comparadas.
 
 ## 3) Reglas de Validacion
 
@@ -100,9 +109,12 @@ Fuente de verdad:
 Activos generados:
 - `frontend/assets/data/history_index.json`
 - `frontend/assets/data/trend_score_history.json`
+- `frontend/assets/data/home_highlights.json`
+- `frontend/assets/data/technology_profiles.json`
 
 Comportamiento:
-- si el historial esta incompleto o corrupto, se usa fallback a `latest` para trend.
+- si el historial esta incompleto o corrupto, se usa fallback a `latest`.
+- los bridges se consumen primero y los CSV actuan como respaldo.
 
 ## 7) Recomendacion Operativa
 

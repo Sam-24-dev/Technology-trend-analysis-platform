@@ -1,123 +1,71 @@
-﻿# Technology Trend Analysis Platform
+# Tech Trends — Technology Trend Analysis Platform
 
-End-to-end data pipeline and dashboard for technology trends across GitHub, StackOverflow, and Reddit.
+<div align="center">
 
-## Current Status
+![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Flutter](https://img.shields.io/badge/Flutter-Web-02569B?style=for-the-badge&logo=flutter&logoColor=white)
+![ETL](https://img.shields.io/badge/ETL-Weekly-success?style=for-the-badge)
+![Data](https://img.shields.io/badge/Data-Contracts-blueviolet?style=for-the-badge)
+![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)
 
-- Backend refactor implementation is complete for F2-F7.
-- Test suite is green (`133 passed`).
-- Operational cutover is still pending: 4 weekly ETL runs without critical failures.
+<br>
 
-## What Is Implemented
+<a href="https://sam-24-dev.github.io/Technology-trend-analysis-platform/">
+  <img src="https://img.shields.io/badge/Live_Demo-View_Dashboard-0078D4?style=for-the-badge&logo=github&logoColor=white" />
+</a>
 
-- Multi-source ETL pipeline (GitHub, StackOverflow, Reddit).
-- Dual write strategy:
-  - `datos/*.csv` (legacy)
-  - `datos/latest/*.csv` (latest)
-  - `datos/history/<dataset>/year=YYYY/month=MM/day=DD/*.csv` (history snapshots)
-- Trend Score engine selector:
-  - `legacy` (pandas)
-  - `duckdb` (SQL engine with equivalence tests)
-- Severity-based quality gate (`critical`, `warning`, `info`) with Pandera support.
-- Data product contract for run and dataset manifests.
-- Frontend bridge JSON assets:
-  - `history_index.json`
-  - `trend_score_history.json`
-- Frontend feature flag for partial cutover to bridge JSON.
+</div>
 
-## Repository Layout
+---
 
-```text
-backend/
-  base_etl.py
-  trend_score.py
-  trend_score_duckdb.py
-  sync_assets.py
-  export_history_json.py
-  validate_csv_contract.py
-  validador.py
-  config/
-    settings.py
-    csv_contract.py
-    data_product_contract.py
-    schema_contract_utils.py
-  quality/
-    pandera_schemas.py
-    degradation_policy.py
+## Project Overview
 
-datos/
-  *.csv
-  latest/*.csv
-  history/<dataset>/year=YYYY/month=MM/day=DD/*.csv
-  metadata/
+| Challenge | Solution | Impact |
+|---|---|---|
+| Multi-source tech trends with consistent scoring | Canonical ETL pipeline + Trend Score bridge | Stable, explainable rankings |
+| Fragile frontend assumptions | Bridge-first JSON + CSV fallback | Resilient UI under data changes |
+| Weekly refresh without regressions | CI gates + data contracts | Predictable releases |
 
-frontend/
-  lib/
-  assets/data/
+---
 
-docs/
-tests/
-.github/workflows/
+## Key Metrics (Latest Run)
+
+| Metric | Value |
+|---|---|
+| Repos classified | 931 |
+| StackOverflow questions (annual window) | 33,356 |
+| Reddit mentions (emerging topics) | 366 |
+| Technologies in ranking | 22 |
+| Window | 2025-03-13 → 2026-03-13 (UTC) |
+
+---
+
+## Pipeline Architecture
+
+```
+┌──────────────┐     ┌────────────────┐     ┌──────────────────┐     ┌──────────────────┐
+│   GitHub     │     │ StackOverflow  │     │     Reddit       │     │  Trend Score     │
+│   ETL        │────▶│     ETL        │────▶│      ETL          │────▶│ + Bridges JSON   │
+└──────────────┘     └────────────────┘     └──────────────────┘     └──────────────────┘
+                                                              │
+                                                              ▼
+                                                   frontend/assets/data
 ```
 
-## Runtime Workflows
+---
 
-### 1) ETL Weekly Data Refresh (`etl_semanal.yml`)
+## Tech Stack
 
-Trigger:
-- Schedule: every Monday at `08:00 UTC`.
-- Manual: `workflow_dispatch`.
+| Layer | Technologies |
+|---|---|
+| Data | Python, pandas, duckdb, pandera |
+| ETL | Custom pipelines + contracts |
+| Frontend | Flutter Web |
+| Hosting | GitHub Pages |
 
-Flow:
-1. Run source jobs in parallel: GitHub, StackOverflow, Reddit.
-2. Upload source artifacts.
-3. Aggregate job downloads artifacts, runs Trend Score, syncs frontend assets, validates data contract.
-4. Publish job commits refreshed data if aggregate is successful.
+---
 
-Important behavior:
-- Reddit source is non-blocking in source stage (degraded mode is allowed).
-- Aggregate stage enforces required outputs for frontend and trend artifacts.
-
-### 2) CI - Tests (`ci.yml`)
-
-Trigger:
-- Push and pull request checks for Python tests.
-
-### 3) Dependency Security Audit (`dependency_security.yml`)
-
-Trigger:
-- Dependency file changes and weekly schedule (Monday at `09:00 UTC`).
-- Manual execution supported.
-
-### 4) Frontend Deploy (`deploy_frontend.yml`)
-
-Trigger:
-- Push to `main` affecting frontend/data paths.
-- Successful completion of ETL workflow.
-- Manual execution.
-
-## Environment Variables
-
-Create `.env` in repo root:
-
-```env
-GITHUB_TOKEN=your_token
-STACKOVERFLOW_KEY=your_key
-REDDIT_CLIENT_ID=your_client_id
-REDDIT_CLIENT_SECRET=your_client_secret
-
-DATA_WRITE_LEGACY_CSV=1
-DATA_WRITE_LATEST_CSV=0
-DATA_WRITE_HISTORY_CSV=0
-EXPORT_HISTORY_BRIDGE_JSON=1
-TREND_SCORE_ENGINE=legacy
-```
-
-Notes:
-- Local defaults keep legacy behavior.
-- CI workflow sets dual write and DuckDB explicitly for weekly runs.
-
-## Local Commands
+## Quick Start
 
 ```bash
 # backend
@@ -129,8 +77,6 @@ python backend/github_etl.py
 python backend/stackoverflow_etl.py
 python backend/reddit_etl.py
 python backend/trend_score.py
-
-# sync assets + bridge
 python backend/sync_assets.py
 
 # frontend
@@ -139,15 +85,56 @@ flutter pub get
 flutter run -d chrome
 ```
 
-## Release Readiness
+---
 
-Release and cutover policy is defined in:
-- `docs/ROADMAP_V2_IMPLEMENTATION_PLAN.md` (sections 19 and 20)
+## Automation (GitHub Actions)
 
-In short:
-- Implementation is done.
-- Production cutover requires operational stability gates.
+1. **ETL Weekly Refresh** (`etl_semanal.yml`)
+   - Schedule: Monday `08:00 UTC`
+   - Runs all ETLs, Trend Score, syncs assets, validates contracts, and publishes data.
+2. **Dependency Security** (`dependency_security.yml`)
+   - Schedule: Monday `09:00 UTC`
+   - Runs `pip-audit` against `backend/requirements.txt`.
+3. **Deploy Frontend** (`deploy_frontend.yml`)
+   - Publishes Flutter Web to GitHub Pages.
 
-## License
+---
 
-MIT
+## Project Structure
+
+```
+Technology-trend-analysis-platform/
+├── backend/                       # ETLs + Trend Score + contracts
+├── datos/                         # CSV outputs (legacy + latest + history)
+├── frontend/                      # Flutter Web UI
+├── docs/                          # Technical docs
+├── scripts/                       # CI / assets validation helpers
+└── .github/workflows/             # CI + ETL automation
+```
+
+---
+
+<div align="center">
+
+### Author
+
+**Samir Caizapasto**  
+*Junior Data Engineer & Analyst*
+
+<div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 10px;">
+  <a href="https://portafolio-samir-tau.vercel.app/">
+    <img src="https://img.shields.io/badge/🌐_Portfolio-Visit_Website-success?style=for-the-badge&logo=vercel&logoColor=white" />
+  </a>
+  <a href="https://www.linkedin.com/in/samir-caizapasto/">
+    <img src="https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" />
+  </a>
+  <a href="mailto:samir.leonardo.caizapasto04@gmail.com">
+    <img src="https://img.shields.io/badge/Email-Contact_Me-EA4335?style=for-the-badge&logo=gmail&logoColor=white" />
+  </a>
+</div>
+
+</div>
+
+---
+
+If you find this project useful, please give the repository a star.
