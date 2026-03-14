@@ -1,2 +1,2 @@
 total_repos_analizados,repos_ai_detectados,porcentaje_ai,mes_pico_ai,repos_mes_pico_ai,top_keywords_ai,top_repos_ai
-1000,528,52.8,2025-04,69,ai:558 | claude:174 | llm:66 | gemini:42 | rag:42,openclaw/openclaw | x1xhlol/system-prompts-and-models-of-ai-tools | google-gemini/gemini-cli | anthropics/skills | openai/codex
+1000,535,53.5,2025-04,69,ai:569 | claude:173 | llm:63 | gemini:40 | rag:40,openclaw/openclaw | google-gemini/gemini-cli | anthropics/skills | affaan-m/everything-claude-code | openai/codex

@@ -1,0 +1,193 @@
+{
+  "generated_at_utc": "2026-03-13T22:12:54Z",
+  "dataset": "so_tendencias_mensuales",
+  "source_mode": "history",
+  "snapshot_count": 10,
+  "months": [
+    "2025-03",
+    "2025-04",
+    "2025-05",
+    "2025-06",
+    "2025-07",
+    "2025-08",
+    "2025-09",
+    "2025-10",
+    "2025-11",
+    "2025-12",
+    "2026-01",
+    "2026-02"
+  ],
+  "series": [
+    {
+      "tecnologia": "Python",
+      "points": [
+        2113,
+        1659,
+        1374,
+        1022,
+        941,
+        708,
+        677,
+        656,
+        647,
+        494,
+        466,
+        385
+      ],
+      "start_value": 2113,
+      "end_value": 385,
+      "abs_delta": -1728,
+      "pct_delta": -81.78,
+      "retention_pct": 18.22,
+      "peak_month": "2025-03",
+      "peak_value": 2113,
+      "latest_rank": 1
+    },
+    {
+      "tecnologia": "C++",
+      "points": [
+        668,
+        497,
+        446,
+        389,
+        337,
+        290,
+        251,
+        231,
+        261,
+        195,
+        180,
+        184
+      ],
+      "start_value": 668,
+      "end_value": 184,
+      "abs_delta": -484,
+      "pct_delta": -72.46,
+      "retention_pct": 27.54,
+      "peak_month": "2025-03",
+      "peak_value": 668,
+      "latest_rank": 2
+    },
+    {
+      "tecnologia": "C#",
+      "points": [
+        877,
+        625,
+        520,
+        445,
+        412,
+        315,
+        283,
+        288,
+        310,
+        239,
+        185,
+        166
+      ],
+      "start_value": 877,
+      "end_value": 166,
+      "abs_delta": -711,
+      "pct_delta": -81.07,
+      "retention_pct": 18.93,
+      "peak_month": "2025-03",
+      "peak_value": 877,
+      "latest_rank": 3
+    },
+    {
+      "tecnologia": "Java",
+      "points": [
+        846,
+        747,
+        588,
+        412,
+        378,
+        275,
+        294,
+        263,
+        299,
+        240,
+        201,
+        164
+      ],
+      "start_value": 846,
+      "end_value": 164,
+      "abs_delta": -682,
+      "pct_delta": -80.61,
+      "retention_pct": 19.39,
+      "peak_month": "2025-03",
+      "peak_value": 846,
+      "latest_rank": 4
+    },
+    {
+      "tecnologia": "JavaScript",
+      "points": [
+        1054,
+        734,
+        599,
+        456,
+        425,
+        285,
+        284,
+        264,
+        277,
+        188,
+        207,
+        142
+      ],
+      "start_value": 1054,
+      "end_value": 142,
+      "abs_delta": -912,
+      "pct_delta": -86.53,
+      "retention_pct": 13.47,
+      "peak_month": "2025-03",
+      "peak_value": 1054,
+      "latest_rank": 5
+    }
+  ],
+  "summary": {
+    "current_leader": {
+      "tecnologia": "Python",
+      "start_value": 2113,
+      "end_value": 385,
+      "abs_delta": -1728,
+      "pct_delta": -81.78,
+      "retention_pct": 18.22,
+      "peak_month": "2025-03",
+      "peak_value": 2113,
+      "latest_rank": 1
+    },
+    "best_retention": {
+      "tecnologia": "C++",
+      "start_value": 668,
+      "end_value": 184,
+      "abs_delta": -484,
+      "pct_delta": -72.46,
+      "retention_pct": 27.54,
+      "peak_month": "2025-03",
+      "peak_value": 668,
+      "latest_rank": 2
+    },
+    "largest_relative_drop": {
+      "tecnologia": "JavaScript",
+      "start_value": 1054,
+      "end_value": 142,
+      "abs_delta": -912,
+      "pct_delta": -86.53,
+      "retention_pct": 13.47,
+      "peak_month": "2025-03",
+      "peak_value": 1054,
+      "latest_rank": 5
+    },
+    "largest_absolute_drop": {
+      "tecnologia": "Python",
+      "start_value": 2113,
+      "end_value": 385,
+      "abs_delta": -1728,
+      "pct_delta": -81.78,
+      "retention_pct": 18.22,
+      "peak_month": "2025-03",
+      "peak_value": 2113,
+      "latest_rank": 1
+    }
+  }
+}
