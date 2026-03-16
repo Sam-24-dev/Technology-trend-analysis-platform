@@ -1,0 +1,14 @@
+{
+  "generated_at_utc": "2026-03-16T09:07:07Z",
+  "dataset": "so_tendencias_mensuales",
+  "source_mode": "missing",
+  "snapshot_count": 0,
+  "months": [],
+  "series": [],
+  "summary": {
+    "current_leader": null,
+    "best_retention": null,
+    "largest_relative_drop": null,
+    "largest_absolute_drop": null
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "generated_at_utc": "2026-03-16T09:07:07Z",
+  "dataset": "interseccion_github_reddit",
+  "source_mode": "missing",
+  "snapshot_count": 0,
+  "latest_snapshot_date": null,
+  "previous_snapshot_date": null,
+  "coverage_pct": 0.0,
+  "comparable_count": 0,
+  "item_count": 0,
+  "latest_items": [],
+  "summary": {
+    "consenso_count": 0,
+    "divergente_count": 0,
+    "comparable_count": 0,
+    "coverage_pct": 0.0,
+    "closest_alignment": null,
+    "largest_gap_item": null,
+    "max_brecha_tecnologia": null,
+    "max_brecha_abs": null
+  },
+  "snapshots": []
+}

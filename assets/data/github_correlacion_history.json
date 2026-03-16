@@ -1,0 +1,23 @@
+{
+  "generated_at_utc": "2026-03-16T09:07:07Z",
+  "dataset": "github_correlacion",
+  "source_mode": "missing",
+  "snapshot_count": 0,
+  "latest_snapshot_date": null,
+  "previous_snapshot_date": null,
+  "item_count": 0,
+  "has_historical_comparison": false,
+  "summary": {
+    "correlation_value": null,
+    "top_stars_repo": null,
+    "top_contributors_repo": null,
+    "top_engagement_repo": null,
+    "positive_outlier_repo": null,
+    "negative_outlier_repo": null,
+    "item_count": 0,
+    "latest_snapshot_date": null,
+    "previous_snapshot_date": null
+  },
+  "latest_items": [],
+  "snapshots": []
+}

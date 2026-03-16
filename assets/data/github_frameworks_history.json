@@ -1,0 +1,31 @@
+{
+  "generated_at_utc": "2026-03-16T09:07:07Z",
+  "dataset": "github_commits_frameworks",
+  "scope_label": "repos oficiales frontend",
+  "source_mode": "missing",
+  "snapshot_count": 0,
+  "snapshot_date": null,
+  "latest_snapshot_date": null,
+  "previous_snapshot_date": null,
+  "item_count": 0,
+  "has_historical_comparison": false,
+  "latest_frameworks": [],
+  "summary": {
+    "leader": null,
+    "runner_up": null,
+    "leader_share_pct": null,
+    "leader_gap_commits": null,
+    "highest_growth": null,
+    "largest_drop": null,
+    "total_commits": 0,
+    "leader_framework": null,
+    "leader_commits": null,
+    "max_growth_framework": null,
+    "max_growth_delta": null,
+    "max_drop_framework": null,
+    "max_drop_delta": null,
+    "missing_metrics_frameworks": 0
+  },
+  "snapshots": [],
+  "series": []
+}
