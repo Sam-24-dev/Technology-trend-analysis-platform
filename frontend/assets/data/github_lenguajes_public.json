@@ -1,15 +1,15 @@
 {
-  "generated_at_utc": "2026-03-17T23:24:25Z",
+  "generated_at_utc": "2026-03-18T00:48:40Z",
   "dataset": "github_lenguajes",
   "source_mode": "latest",
   "source_path": "datos/latest/github_lenguajes.csv",
-  "source_updated_at_utc": "2026-03-17T23:07:51Z",
+  "source_updated_at_utc": "2026-03-17T23:36:02Z",
   "language_count": 10,
   "languages": [
     {
       "lenguaje": "Python",
-      "repos_count": 319,
-      "share_pct": 34.34
+      "repos_count": 320,
+      "share_pct": 34.45
     },
     {
       "lenguaje": "TypeScript",
@@ -18,18 +18,18 @@
     },
     {
       "lenguaje": "JavaScript",
-      "repos_count": 64,
-      "share_pct": 6.89
+      "repos_count": 63,
+      "share_pct": 6.78
     },
     {
       "lenguaje": "Go",
-      "repos_count": 56,
-      "share_pct": 6.03
+      "repos_count": 55,
+      "share_pct": 5.92
     },
     {
       "lenguaje": "Rust",
-      "repos_count": 40,
-      "share_pct": 4.31
+      "repos_count": 41,
+      "share_pct": 4.41
     },
     {
       "lenguaje": "Shell",
@@ -60,8 +60,8 @@
   "summary": {
     "leader": {
       "lenguaje": "Python",
-      "repos_count": 319,
-      "share_pct": 34.34
+      "repos_count": 320,
+      "share_pct": 34.45
     },
     "runner_up": {
       "lenguaje": "TypeScript",
@@ -70,7 +70,7 @@
     },
     "language_count": 10,
     "total_classifiable_repos": 835,
-    "leader_gap_repos": 69,
-    "leader_gap_share_pct": 7.43
+    "leader_gap_repos": 70,
+    "leader_gap_share_pct": 7.54
   }
 }

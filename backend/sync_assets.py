@@ -191,15 +191,21 @@ def sincronizar():
     if bridge_enabled:
         try:
             bridge_output_dir = _resolve_bridge_remote_dir(proyecto_root)
-            if bridge_output_dir is not None:
-                bridge_summary = export_bridge_assets(
+            bridge_summary = export_bridge_assets(
+                proyecto_root,
+                output_dir=destino,
+                compact=True,
+            )
+            bridge_files_written = int(bridge_summary["files_written"])
+            output_location = bridge_summary["history_index_path"]
+            if bridge_output_dir is not None and bridge_output_dir.resolve() != destino.resolve():
+                remote_summary = export_bridge_assets(
                     proyecto_root,
                     output_dir=bridge_output_dir,
+                    compact=False,
                 )
-            else:
-                bridge_summary = export_bridge_assets(proyecto_root)
-            bridge_files_written = int(bridge_summary["files_written"])
-            output_location = bridge_output_dir if bridge_output_dir is not None else bridge_summary["history_index_path"]
+                bridge_files_written += int(remote_summary["files_written"])
+                output_location = bridge_output_dir
             logger.info(
                 "[STEP][END] action=bridge_export status=success files_written=%d trend_snapshots=%d output_dir=%s",
                 bridge_files_written,
