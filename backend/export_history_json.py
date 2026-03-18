@@ -3451,12 +3451,113 @@ def build_technology_profiles(project_root, history_index):
     return _build_technology_profiles_payload(snapshots_with_df)
 
 
+def _limit_tail(items, limit):
+    if not isinstance(items, list):
+        return items
+    if limit <= 0 or len(items) <= limit:
+        return items
+    return items[-limit:]
+
+
+def _build_compact_frontend_payload(payload, *, snapshot_limit=2, point_limit=2):
+    """Reduce committed frontend bridge payloads while keeping the schema valid."""
+    if isinstance(payload, dict):
+        compact = {}
+        for key, value in payload.items():
+            if key == "snapshots" and isinstance(value, list):
+                compact[key] = [
+                    _build_compact_frontend_payload(
+                        item,
+                        snapshot_limit=snapshot_limit,
+                        point_limit=point_limit,
+                    )
+                    for item in _limit_tail(value, snapshot_limit)
+                ]
+                continue
+
+            if key in {"points", "source_history"} and isinstance(value, list):
+                compact[key] = [
+                    _build_compact_frontend_payload(
+                        item,
+                        snapshot_limit=snapshot_limit,
+                        point_limit=point_limit,
+                    )
+                    for item in _limit_tail(value, point_limit)
+                ]
+                continue
+
+            if isinstance(value, list):
+                compact[key] = [
+                    _build_compact_frontend_payload(
+                        item,
+                        snapshot_limit=snapshot_limit,
+                        point_limit=point_limit,
+                    )
+                    for item in value
+                ]
+                continue
+
+            compact[key] = _build_compact_frontend_payload(
+                value,
+                snapshot_limit=snapshot_limit,
+                point_limit=point_limit,
+            )
+
+        if "snapshots" in compact and "snapshot_count" in compact:
+            compact["snapshot_count"] = len(compact["snapshots"])
+        if "snapshots" in compact and "history_snapshot_count" in compact:
+            compact["history_snapshot_count"] = len(compact["snapshots"])
+        if "datasets" in compact and "dataset_count" in compact:
+            compact["dataset_count"] = len(compact["datasets"])
+        if "profiles" in compact and "profile_count" in compact:
+            compact["profile_count"] = len(compact["profiles"])
+        if "latest_items" in compact and "item_count" in compact:
+            compact["item_count"] = len(compact["latest_items"])
+        if "latest_topics" in compact and "topic_count" in compact:
+            compact["topic_count"] = len(compact["latest_topics"])
+        if "highlights" in compact and "highlight_count" in compact:
+            compact["highlight_count"] = len(compact["highlights"])
+
+        snapshots = compact.get("snapshots")
+        if isinstance(snapshots, list):
+            latest_snapshot = snapshots[-1] if snapshots else None
+            previous_snapshot = snapshots[-2] if len(snapshots) >= 2 else None
+            if (
+                latest_snapshot is not None
+                and isinstance(latest_snapshot, dict)
+                and latest_snapshot.get("date")
+            ):
+                compact["latest_snapshot_date"] = latest_snapshot.get("date")
+            if "previous_snapshot_date" in compact:
+                compact["previous_snapshot_date"] = (
+                    previous_snapshot.get("date")
+                    if isinstance(previous_snapshot, dict)
+                    else None
+                )
+            if "has_historical_comparison" in compact:
+                compact["has_historical_comparison"] = previous_snapshot is not None
+
+        return compact
+
+    if isinstance(payload, list):
+        return [
+            _build_compact_frontend_payload(
+                item,
+                snapshot_limit=snapshot_limit,
+                point_limit=point_limit,
+            )
+            for item in payload
+        ]
+
+    return payload
+
+
 def _write_json(path, payload):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
-def export_bridge_assets(project_root, output_dir=None):
+def export_bridge_assets(project_root, output_dir=None, compact=False):
     """Exporta archivos JSON puente para acceso histórico del frontend."""
     project_root = Path(project_root)
     output_dir = Path(output_dir) if output_dir else project_root / "frontend" / "assets" / "data"
@@ -3504,6 +3605,21 @@ def export_bridge_assets(project_root, output_dir=None):
         so_trends_payload=so_trends_history_payload,
     )
 
+    if compact:
+        history_index_payload = _build_compact_frontend_payload(history_index_payload)
+        trend_history_payload = _build_compact_frontend_payload(trend_history_payload)
+        reddit_sentiment_payload = _build_compact_frontend_payload(reddit_sentiment_payload)
+        reddit_topics_history_payload = _build_compact_frontend_payload(reddit_topics_history_payload)
+        reddit_intersection_history_payload = _build_compact_frontend_payload(reddit_intersection_history_payload)
+        github_languages_public_payload = _build_compact_frontend_payload(github_languages_public_payload)
+        github_frameworks_history_payload = _build_compact_frontend_payload(github_frameworks_history_payload)
+        github_correlation_history_payload = _build_compact_frontend_payload(github_correlation_history_payload)
+        home_highlights_payload = _build_compact_frontend_payload(home_highlights_payload)
+        so_volume_history_payload = _build_compact_frontend_payload(so_volume_history_payload)
+        so_acceptance_history_payload = _build_compact_frontend_payload(so_acceptance_history_payload)
+        so_trends_history_payload = _build_compact_frontend_payload(so_trends_history_payload)
+        technology_profiles_payload = _build_compact_frontend_payload(technology_profiles_payload)
+
     history_index_path = output_dir / HISTORY_INDEX_FILENAME
     trend_history_path = output_dir / TREND_SCORE_HISTORY_FILENAME
     reddit_sentiment_path = output_dir / REDDIT_SENTIMENT_PUBLIC_FILENAME
@@ -3546,6 +3662,7 @@ def export_bridge_assets(project_root, output_dir=None):
         "so_acceptance_history_path": str(so_acceptance_history_path),
         "so_trends_history_path": str(so_trends_history_path),
         "technology_profiles_path": str(technology_profiles_path),
+        "compact": compact,
         "dataset_count": int(history_index_payload["dataset_count"]),
         "trend_snapshot_count": int(trend_history_payload["snapshot_count"]),
         "reddit_framework_count": int(reddit_sentiment_payload["framework_count"]),

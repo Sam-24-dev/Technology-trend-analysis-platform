@@ -1,84 +1,25 @@
 {
-  "generated_at_utc": "2026-03-13T22:12:52Z",
+  "generated_at_utc": "2026-03-18T00:48:40Z",
   "dataset_count": 23,
   "datasets": [
     {
       "dataset": "github_ai_insights",
       "latest_path": null,
       "latest_row_count": null,
-      "history_snapshot_count": 14,
+      "history_snapshot_count": 2,
       "snapshots": [
         {
-          "date": "2026-03-03",
-          "path": "datos/history/github_ai_insights/year=2026/month=03/day=03/run=223828/github_ai_repos_insights.csv",
+          "date": "2026-03-16",
+          "path": "datos/history/github_ai_insights/year=2026/month=03/day=16/github_ai_repos_insights.csv",
           "row_count": 1
         },
         {
-          "date": "2026-03-03",
-          "path": "datos/history/github_ai_insights/year=2026/month=03/day=03/run=224836/github_ai_repos_insights.csv",
-          "row_count": 1
-        },
-        {
-          "date": "2026-03-03",
-          "path": "datos/history/github_ai_insights/year=2026/month=03/day=03/run=230728/github_ai_repos_insights.csv",
-          "row_count": 1
-        },
-        {
-          "date": "2026-03-03",
-          "path": "datos/history/github_ai_insights/year=2026/month=03/day=03/run=231656/github_ai_repos_insights.csv",
-          "row_count": 1
-        },
-        {
-          "date": "2026-03-04",
-          "path": "datos/history/github_ai_insights/year=2026/month=03/day=04/github_ai_repos_insights.csv",
-          "row_count": 1
-        },
-        {
-          "date": "2026-03-05",
-          "path": "datos/history/github_ai_insights/year=2026/month=03/day=05/github_ai_repos_insights.csv",
-          "row_count": 1
-        },
-        {
-          "date": "2026-03-06",
-          "path": "datos/history/github_ai_insights/year=2026/month=03/day=06/github_ai_repos_insights.csv",
-          "row_count": 1
-        },
-        {
-          "date": "2026-03-07",
-          "path": "datos/history/github_ai_insights/year=2026/month=03/day=07/github_ai_repos_insights.csv",
-          "row_count": 1
-        },
-        {
-          "date": "2026-03-08",
-          "path": "datos/history/github_ai_insights/year=2026/month=03/day=08/github_ai_repos_insights.csv",
-          "row_count": 1
-        },
-        {
-          "date": "2026-03-09",
-          "path": "datos/history/github_ai_insights/year=2026/month=03/day=09/github_ai_repos_insights.csv",
-          "row_count": 1
-        },
-        {
-          "date": "2026-03-10",
-          "path": "datos/history/github_ai_insights/year=2026/month=03/day=10/github_ai_repos_insights.csv",
-          "row_count": 1
-        },
-        {
-          "date": "2026-03-11",
-          "path": "datos/history/github_ai_insights/year=2026/month=03/day=11/github_ai_repos_insights.csv",
-          "row_count": 1
-        },
-        {
-          "date": "2026-03-12",
-          "path": "datos/history/github_ai_insights/year=2026/month=03/day=12/github_ai_repos_insights.csv",
-          "row_count": 1
-        },
-        {
-          "date": "2026-03-13",
-          "path": "datos/history/github_ai_insights/year=2026/month=03/day=13/github_ai_repos_insights.csv",
+          "date": "2026-03-17",
+          "path": "datos/history/github_ai_insights/year=2026/month=03/day=17/github_ai_repos_insights.csv",
           "row_count": 1
         }
-      ]
+      ],
+      "latest_snapshot_date": "2026-03-17"
     },
     {
       "dataset": "github_ai_repos_insights",
@@ -91,79 +32,20 @@
       "dataset": "github_commits",
       "latest_path": null,
       "latest_row_count": null,
-      "history_snapshot_count": 14,
+      "history_snapshot_count": 2,
       "snapshots": [
         {
-          "date": "2026-03-03",
-          "path": "datos/history/github_commits/year=2026/month=03/day=03/run=224123/github_commits_frameworks.csv",
-          "row_count": 3
-        },
-        {
-          "date": "2026-03-03",
-          "path": "datos/history/github_commits/year=2026/month=03/day=03/run=225151/github_commits_frameworks.csv",
-          "row_count": 3
-        },
-        {
-          "date": "2026-03-03",
-          "path": "datos/history/github_commits/year=2026/month=03/day=03/run=231013/github_commits_frameworks.csv",
-          "row_count": 3
-        },
-        {
-          "date": "2026-03-03",
-          "path": "datos/history/github_commits/year=2026/month=03/day=03/run=232044/github_commits_frameworks.csv",
-          "row_count": 3
-        },
-        {
-          "date": "2026-03-04",
-          "path": "datos/history/github_commits/year=2026/month=03/day=04/github_commits_frameworks.csv",
-          "row_count": 3
-        },
-        {
-          "date": "2026-03-05",
-          "path": "datos/history/github_commits/year=2026/month=03/day=05/github_commits_frameworks.csv",
+          "date": "2026-03-16",
+          "path": "datos/history/github_commits/year=2026/month=03/day=16/github_commits_frameworks.csv",
           "row_count": 5
         },
         {
-          "date": "2026-03-06",
-          "path": "datos/history/github_commits/year=2026/month=03/day=06/github_commits_frameworks.csv",
-          "row_count": 5
-        },
-        {
-          "date": "2026-03-07",
-          "path": "datos/history/github_commits/year=2026/month=03/day=07/github_commits_frameworks.csv",
-          "row_count": 5
-        },
-        {
-          "date": "2026-03-08",
-          "path": "datos/history/github_commits/year=2026/month=03/day=08/github_commits_frameworks.csv",
-          "row_count": 5
-        },
-        {
-          "date": "2026-03-09",
-          "path": "datos/history/github_commits/year=2026/month=03/day=09/github_commits_frameworks.csv",
-          "row_count": 5
-        },
-        {
-          "date": "2026-03-10",
-          "path": "datos/history/github_commits/year=2026/month=03/day=10/github_commits_frameworks.csv",
-          "row_count": 5
-        },
-        {
-          "date": "2026-03-11",
-          "path": "datos/history/github_commits/year=2026/month=03/day=11/github_commits_frameworks.csv",
-          "row_count": 5
-        },
-        {
-          "date": "2026-03-12",
-          "path": "datos/history/github_commits/year=2026/month=03/day=12/github_commits_frameworks.csv",
-          "row_count": 5
-        },
-        {
-          "date": "2026-03-13",
-          "path": "datos/history/github_commits/year=2026/month=03/day=13/github_commits_frameworks.csv",
+          "date": "2026-03-17",
+          "path": "datos/history/github_commits/year=2026/month=03/day=17/github_commits_frameworks.csv",
           "row_count": 5
         }
-      ]
+      ],
+      "latest_snapshot_date": "2026-03-17"
     },
     {
       "dataset": "github_commits_frameworks",
@@ -183,288 +65,77 @@
       "dataset": "github_commits_monthly",
       "latest_path": null,
       "latest_row_count": null,
-      "history_snapshot_count": 9,
+      "history_snapshot_count": 2,
       "snapshots": [
         {
-          "date": "2026-03-05",
-          "path": "datos/history/github_commits_monthly/year=2026/month=03/day=05/github_commits_frameworks_monthly.csv",
+          "date": "2026-03-16",
+          "path": "datos/history/github_commits_monthly/year=2026/month=03/day=16/github_commits_frameworks_monthly.csv",
           "row_count": 65
         },
         {
-          "date": "2026-03-06",
-          "path": "datos/history/github_commits_monthly/year=2026/month=03/day=06/github_commits_frameworks_monthly.csv",
-          "row_count": 65
-        },
-        {
-          "date": "2026-03-07",
-          "path": "datos/history/github_commits_monthly/year=2026/month=03/day=07/github_commits_frameworks_monthly.csv",
-          "row_count": 65
-        },
-        {
-          "date": "2026-03-08",
-          "path": "datos/history/github_commits_monthly/year=2026/month=03/day=08/github_commits_frameworks_monthly.csv",
-          "row_count": 65
-        },
-        {
-          "date": "2026-03-09",
-          "path": "datos/history/github_commits_monthly/year=2026/month=03/day=09/github_commits_frameworks_monthly.csv",
-          "row_count": 65
-        },
-        {
-          "date": "2026-03-10",
-          "path": "datos/history/github_commits_monthly/year=2026/month=03/day=10/github_commits_frameworks_monthly.csv",
-          "row_count": 65
-        },
-        {
-          "date": "2026-03-11",
-          "path": "datos/history/github_commits_monthly/year=2026/month=03/day=11/github_commits_frameworks_monthly.csv",
-          "row_count": 65
-        },
-        {
-          "date": "2026-03-12",
-          "path": "datos/history/github_commits_monthly/year=2026/month=03/day=12/github_commits_frameworks_monthly.csv",
-          "row_count": 65
-        },
-        {
-          "date": "2026-03-13",
-          "path": "datos/history/github_commits_monthly/year=2026/month=03/day=13/github_commits_frameworks_monthly.csv",
+          "date": "2026-03-17",
+          "path": "datos/history/github_commits_monthly/year=2026/month=03/day=17/github_commits_frameworks_monthly.csv",
           "row_count": 65
         }
-      ]
+      ],
+      "latest_snapshot_date": "2026-03-17"
     },
     {
       "dataset": "github_correlacion",
       "latest_path": "datos/latest/github_correlacion.csv",
       "latest_row_count": 100,
-      "history_snapshot_count": 14,
+      "history_snapshot_count": 2,
       "snapshots": [
         {
-          "date": "2026-03-03",
-          "path": "datos/history/github_correlacion/year=2026/month=03/day=03/run=224509/github_correlacion.csv",
+          "date": "2026-03-16",
+          "path": "datos/history/github_correlacion/year=2026/month=03/day=16/github_correlacion.csv",
           "row_count": 100
         },
         {
-          "date": "2026-03-03",
-          "path": "datos/history/github_correlacion/year=2026/month=03/day=03/run=225552/github_correlacion.csv",
-          "row_count": 100
-        },
-        {
-          "date": "2026-03-03",
-          "path": "datos/history/github_correlacion/year=2026/month=03/day=03/run=231410/github_correlacion.csv",
-          "row_count": 100
-        },
-        {
-          "date": "2026-03-03",
-          "path": "datos/history/github_correlacion/year=2026/month=03/day=03/run=232436/github_correlacion.csv",
-          "row_count": 100
-        },
-        {
-          "date": "2026-03-04",
-          "path": "datos/history/github_correlacion/year=2026/month=03/day=04/github_correlacion.csv",
-          "row_count": 100
-        },
-        {
-          "date": "2026-03-05",
-          "path": "datos/history/github_correlacion/year=2026/month=03/day=05/github_correlacion.csv",
-          "row_count": 100
-        },
-        {
-          "date": "2026-03-06",
-          "path": "datos/history/github_correlacion/year=2026/month=03/day=06/github_correlacion.csv",
-          "row_count": 100
-        },
-        {
-          "date": "2026-03-07",
-          "path": "datos/history/github_correlacion/year=2026/month=03/day=07/github_correlacion.csv",
-          "row_count": 100
-        },
-        {
-          "date": "2026-03-08",
-          "path": "datos/history/github_correlacion/year=2026/month=03/day=08/github_correlacion.csv",
-          "row_count": 100
-        },
-        {
-          "date": "2026-03-09",
-          "path": "datos/history/github_correlacion/year=2026/month=03/day=09/github_correlacion.csv",
-          "row_count": 100
-        },
-        {
-          "date": "2026-03-10",
-          "path": "datos/history/github_correlacion/year=2026/month=03/day=10/github_correlacion.csv",
-          "row_count": 100
-        },
-        {
-          "date": "2026-03-11",
-          "path": "datos/history/github_correlacion/year=2026/month=03/day=11/github_correlacion.csv",
-          "row_count": 100
-        },
-        {
-          "date": "2026-03-12",
-          "path": "datos/history/github_correlacion/year=2026/month=03/day=12/github_correlacion.csv",
-          "row_count": 100
-        },
-        {
-          "date": "2026-03-13",
-          "path": "datos/history/github_correlacion/year=2026/month=03/day=13/github_correlacion.csv",
+          "date": "2026-03-17",
+          "path": "datos/history/github_correlacion/year=2026/month=03/day=17/github_correlacion.csv",
           "row_count": 100
         }
-      ]
+      ],
+      "latest_snapshot_date": "2026-03-17"
     },
     {
       "dataset": "github_lenguajes",
       "latest_path": "datos/latest/github_lenguajes.csv",
       "latest_row_count": 10,
-      "history_snapshot_count": 14,
+      "history_snapshot_count": 2,
       "snapshots": [
         {
-          "date": "2026-03-03",
-          "path": "datos/history/github_lenguajes/year=2026/month=03/day=03/run=223827/github_lenguajes.csv",
+          "date": "2026-03-16",
+          "path": "datos/history/github_lenguajes/year=2026/month=03/day=16/github_lenguajes.csv",
           "row_count": 10
         },
         {
-          "date": "2026-03-03",
-          "path": "datos/history/github_lenguajes/year=2026/month=03/day=03/run=224836/github_lenguajes.csv",
-          "row_count": 10
-        },
-        {
-          "date": "2026-03-03",
-          "path": "datos/history/github_lenguajes/year=2026/month=03/day=03/run=230728/github_lenguajes.csv",
-          "row_count": 10
-        },
-        {
-          "date": "2026-03-03",
-          "path": "datos/history/github_lenguajes/year=2026/month=03/day=03/run=231656/github_lenguajes.csv",
-          "row_count": 10
-        },
-        {
-          "date": "2026-03-04",
-          "path": "datos/history/github_lenguajes/year=2026/month=03/day=04/github_lenguajes.csv",
-          "row_count": 10
-        },
-        {
-          "date": "2026-03-05",
-          "path": "datos/history/github_lenguajes/year=2026/month=03/day=05/github_lenguajes.csv",
-          "row_count": 10
-        },
-        {
-          "date": "2026-03-06",
-          "path": "datos/history/github_lenguajes/year=2026/month=03/day=06/github_lenguajes.csv",
-          "row_count": 10
-        },
-        {
-          "date": "2026-03-07",
-          "path": "datos/history/github_lenguajes/year=2026/month=03/day=07/github_lenguajes.csv",
-          "row_count": 10
-        },
-        {
-          "date": "2026-03-08",
-          "path": "datos/history/github_lenguajes/year=2026/month=03/day=08/github_lenguajes.csv",
-          "row_count": 10
-        },
-        {
-          "date": "2026-03-09",
-          "path": "datos/history/github_lenguajes/year=2026/month=03/day=09/github_lenguajes.csv",
-          "row_count": 10
-        },
-        {
-          "date": "2026-03-10",
-          "path": "datos/history/github_lenguajes/year=2026/month=03/day=10/github_lenguajes.csv",
-          "row_count": 10
-        },
-        {
-          "date": "2026-03-11",
-          "path": "datos/history/github_lenguajes/year=2026/month=03/day=11/github_lenguajes.csv",
-          "row_count": 10
-        },
-        {
-          "date": "2026-03-12",
-          "path": "datos/history/github_lenguajes/year=2026/month=03/day=12/github_lenguajes.csv",
-          "row_count": 10
-        },
-        {
-          "date": "2026-03-13",
-          "path": "datos/history/github_lenguajes/year=2026/month=03/day=13/github_lenguajes.csv",
+          "date": "2026-03-17",
+          "path": "datos/history/github_lenguajes/year=2026/month=03/day=17/github_lenguajes.csv",
           "row_count": 10
         }
-      ]
+      ],
+      "latest_snapshot_date": "2026-03-17"
     },
     {
       "dataset": "github_repos",
       "latest_path": null,
       "latest_row_count": null,
-      "history_snapshot_count": 14,
+      "history_snapshot_count": 2,
       "snapshots": [
         {
-          "date": "2026-03-03",
-          "path": "datos/history/github_repos/year=2026/month=03/day=03/run=223827/github_repos_2025.csv",
+          "date": "2026-03-16",
+          "path": "datos/history/github_repos/year=2026/month=03/day=16/github_repos_2025.csv",
           "row_count": 1000
         },
         {
-          "date": "2026-03-03",
-          "path": "datos/history/github_repos/year=2026/month=03/day=03/run=224835/github_repos_2025.csv",
-          "row_count": 1000
-        },
-        {
-          "date": "2026-03-03",
-          "path": "datos/history/github_repos/year=2026/month=03/day=03/run=230728/github_repos_2025.csv",
-          "row_count": 1000
-        },
-        {
-          "date": "2026-03-03",
-          "path": "datos/history/github_repos/year=2026/month=03/day=03/run=231655/github_repos_2025.csv",
-          "row_count": 1000
-        },
-        {
-          "date": "2026-03-04",
-          "path": "datos/history/github_repos/year=2026/month=03/day=04/github_repos_2025.csv",
-          "row_count": 1000
-        },
-        {
-          "date": "2026-03-05",
-          "path": "datos/history/github_repos/year=2026/month=03/day=05/github_repos_2025.csv",
-          "row_count": 1000
-        },
-        {
-          "date": "2026-03-06",
-          "path": "datos/history/github_repos/year=2026/month=03/day=06/github_repos_2025.csv",
-          "row_count": 1000
-        },
-        {
-          "date": "2026-03-07",
-          "path": "datos/history/github_repos/year=2026/month=03/day=07/github_repos_2025.csv",
-          "row_count": 1000
-        },
-        {
-          "date": "2026-03-08",
-          "path": "datos/history/github_repos/year=2026/month=03/day=08/github_repos_2025.csv",
-          "row_count": 1000
-        },
-        {
-          "date": "2026-03-09",
-          "path": "datos/history/github_repos/year=2026/month=03/day=09/github_repos_2025.csv",
-          "row_count": 1000
-        },
-        {
-          "date": "2026-03-10",
-          "path": "datos/history/github_repos/year=2026/month=03/day=10/github_repos_2025.csv",
-          "row_count": 1000
-        },
-        {
-          "date": "2026-03-11",
-          "path": "datos/history/github_repos/year=2026/month=03/day=11/github_repos_2025.csv",
-          "row_count": 1000
-        },
-        {
-          "date": "2026-03-12",
-          "path": "datos/history/github_repos/year=2026/month=03/day=12/github_repos_2025.csv",
-          "row_count": 1000
-        },
-        {
-          "date": "2026-03-13",
-          "path": "datos/history/github_repos/year=2026/month=03/day=13/github_repos_2025.csv",
+          "date": "2026-03-17",
+          "path": "datos/history/github_repos/year=2026/month=03/day=17/github_repos_2025.csv",
           "row_count": 1000
         }
-      ]
+      ],
+      "latest_snapshot_date": "2026-03-17"
     },
     {
       "dataset": "github_repos_2025",
@@ -477,79 +148,20 @@
       "dataset": "interseccion",
       "latest_path": null,
       "latest_row_count": null,
-      "history_snapshot_count": 14,
+      "history_snapshot_count": 2,
       "snapshots": [
         {
-          "date": "2026-03-03",
-          "path": "datos/history/interseccion/year=2026/month=03/day=03/run=224631/interseccion_github_reddit.csv",
-          "row_count": 8
-        },
-        {
-          "date": "2026-03-03",
-          "path": "datos/history/interseccion/year=2026/month=03/day=03/run=225656/interseccion_github_reddit.csv",
-          "row_count": 8
-        },
-        {
-          "date": "2026-03-03",
-          "path": "datos/history/interseccion/year=2026/month=03/day=03/run=231504/interseccion_github_reddit.csv",
-          "row_count": 8
-        },
-        {
-          "date": "2026-03-03",
-          "path": "datos/history/interseccion/year=2026/month=03/day=03/run=232531/interseccion_github_reddit.csv",
-          "row_count": 8
-        },
-        {
-          "date": "2026-03-04",
-          "path": "datos/history/interseccion/year=2026/month=03/day=04/interseccion_github_reddit.csv",
-          "row_count": 8
-        },
-        {
-          "date": "2026-03-05",
-          "path": "datos/history/interseccion/year=2026/month=03/day=05/interseccion_github_reddit.csv",
+          "date": "2026-03-16",
+          "path": "datos/history/interseccion/year=2026/month=03/day=16/interseccion_github_reddit.csv",
           "row_count": 10
         },
         {
-          "date": "2026-03-06",
-          "path": "datos/history/interseccion/year=2026/month=03/day=06/interseccion_github_reddit.csv",
-          "row_count": 10
-        },
-        {
-          "date": "2026-03-07",
-          "path": "datos/history/interseccion/year=2026/month=03/day=07/interseccion_github_reddit.csv",
-          "row_count": 10
-        },
-        {
-          "date": "2026-03-08",
-          "path": "datos/history/interseccion/year=2026/month=03/day=08/interseccion_github_reddit.csv",
-          "row_count": 10
-        },
-        {
-          "date": "2026-03-09",
-          "path": "datos/history/interseccion/year=2026/month=03/day=09/interseccion_github_reddit.csv",
-          "row_count": 10
-        },
-        {
-          "date": "2026-03-10",
-          "path": "datos/history/interseccion/year=2026/month=03/day=10/interseccion_github_reddit.csv",
-          "row_count": 10
-        },
-        {
-          "date": "2026-03-11",
-          "path": "datos/history/interseccion/year=2026/month=03/day=11/interseccion_github_reddit.csv",
-          "row_count": 10
-        },
-        {
-          "date": "2026-03-12",
-          "path": "datos/history/interseccion/year=2026/month=03/day=12/interseccion_github_reddit.csv",
-          "row_count": 10
-        },
-        {
-          "date": "2026-03-13",
-          "path": "datos/history/interseccion/year=2026/month=03/day=13/interseccion_github_reddit.csv",
+          "date": "2026-03-17",
+          "path": "datos/history/interseccion/year=2026/month=03/day=17/interseccion_github_reddit.csv",
           "row_count": 10
         }
-      ]
+      ],
+      "latest_snapshot_date": "2026-03-17"
     },
     {
       "dataset": "interseccion_github_reddit",
@@ -562,79 +174,20 @@
       "dataset": "reddit_sentimiento",
       "latest_path": null,
       "latest_row_count": null,
-      "history_snapshot_count": 14,
+      "history_snapshot_count": 2,
       "snapshots": [
         {
-          "date": "2026-03-03",
-          "path": "datos/history/reddit_sentimiento/year=2026/month=03/day=03/run=224628/reddit_sentimiento_frameworks.csv",
+          "date": "2026-03-16",
+          "path": "datos/history/reddit_sentimiento/year=2026/month=03/day=16/reddit_sentimiento_frameworks.csv",
           "row_count": 5
         },
         {
-          "date": "2026-03-03",
-          "path": "datos/history/reddit_sentimiento/year=2026/month=03/day=03/run=225653/reddit_sentimiento_frameworks.csv",
-          "row_count": 5
-        },
-        {
-          "date": "2026-03-03",
-          "path": "datos/history/reddit_sentimiento/year=2026/month=03/day=03/run=231501/reddit_sentimiento_frameworks.csv",
-          "row_count": 5
-        },
-        {
-          "date": "2026-03-03",
-          "path": "datos/history/reddit_sentimiento/year=2026/month=03/day=03/run=232528/reddit_sentimiento_frameworks.csv",
-          "row_count": 5
-        },
-        {
-          "date": "2026-03-04",
-          "path": "datos/history/reddit_sentimiento/year=2026/month=03/day=04/reddit_sentimiento_frameworks.csv",
-          "row_count": 5
-        },
-        {
-          "date": "2026-03-05",
-          "path": "datos/history/reddit_sentimiento/year=2026/month=03/day=05/reddit_sentimiento_frameworks.csv",
-          "row_count": 5
-        },
-        {
-          "date": "2026-03-06",
-          "path": "datos/history/reddit_sentimiento/year=2026/month=03/day=06/reddit_sentimiento_frameworks.csv",
-          "row_count": 5
-        },
-        {
-          "date": "2026-03-07",
-          "path": "datos/history/reddit_sentimiento/year=2026/month=03/day=07/reddit_sentimiento_frameworks.csv",
-          "row_count": 5
-        },
-        {
-          "date": "2026-03-08",
-          "path": "datos/history/reddit_sentimiento/year=2026/month=03/day=08/reddit_sentimiento_frameworks.csv",
-          "row_count": 5
-        },
-        {
-          "date": "2026-03-09",
-          "path": "datos/history/reddit_sentimiento/year=2026/month=03/day=09/reddit_sentimiento_frameworks.csv",
-          "row_count": 5
-        },
-        {
-          "date": "2026-03-10",
-          "path": "datos/history/reddit_sentimiento/year=2026/month=03/day=10/reddit_sentimiento_frameworks.csv",
-          "row_count": 5
-        },
-        {
-          "date": "2026-03-11",
-          "path": "datos/history/reddit_sentimiento/year=2026/month=03/day=11/reddit_sentimiento_frameworks.csv",
-          "row_count": 5
-        },
-        {
-          "date": "2026-03-12",
-          "path": "datos/history/reddit_sentimiento/year=2026/month=03/day=12/reddit_sentimiento_frameworks.csv",
-          "row_count": 5
-        },
-        {
-          "date": "2026-03-13",
-          "path": "datos/history/reddit_sentimiento/year=2026/month=03/day=13/reddit_sentimiento_frameworks.csv",
+          "date": "2026-03-17",
+          "path": "datos/history/reddit_sentimiento/year=2026/month=03/day=17/reddit_sentimiento_frameworks.csv",
           "row_count": 5
         }
-      ]
+      ],
+      "latest_snapshot_date": "2026-03-17"
     },
     {
       "dataset": "reddit_sentimiento_frameworks",
@@ -647,79 +200,20 @@
       "dataset": "reddit_temas",
       "latest_path": null,
       "latest_row_count": null,
-      "history_snapshot_count": 14,
+      "history_snapshot_count": 2,
       "snapshots": [
         {
-          "date": "2026-03-03",
-          "path": "datos/history/reddit_temas/year=2026/month=03/day=03/run=224631/reddit_temas_emergentes.csv",
+          "date": "2026-03-16",
+          "path": "datos/history/reddit_temas/year=2026/month=03/day=16/reddit_temas_emergentes.csv",
           "row_count": 10
         },
         {
-          "date": "2026-03-03",
-          "path": "datos/history/reddit_temas/year=2026/month=03/day=03/run=225655/reddit_temas_emergentes.csv",
-          "row_count": 10
-        },
-        {
-          "date": "2026-03-03",
-          "path": "datos/history/reddit_temas/year=2026/month=03/day=03/run=231504/reddit_temas_emergentes.csv",
-          "row_count": 10
-        },
-        {
-          "date": "2026-03-03",
-          "path": "datos/history/reddit_temas/year=2026/month=03/day=03/run=232531/reddit_temas_emergentes.csv",
-          "row_count": 10
-        },
-        {
-          "date": "2026-03-04",
-          "path": "datos/history/reddit_temas/year=2026/month=03/day=04/reddit_temas_emergentes.csv",
-          "row_count": 10
-        },
-        {
-          "date": "2026-03-05",
-          "path": "datos/history/reddit_temas/year=2026/month=03/day=05/reddit_temas_emergentes.csv",
-          "row_count": 10
-        },
-        {
-          "date": "2026-03-06",
-          "path": "datos/history/reddit_temas/year=2026/month=03/day=06/reddit_temas_emergentes.csv",
-          "row_count": 10
-        },
-        {
-          "date": "2026-03-07",
-          "path": "datos/history/reddit_temas/year=2026/month=03/day=07/reddit_temas_emergentes.csv",
-          "row_count": 10
-        },
-        {
-          "date": "2026-03-08",
-          "path": "datos/history/reddit_temas/year=2026/month=03/day=08/reddit_temas_emergentes.csv",
-          "row_count": 10
-        },
-        {
-          "date": "2026-03-09",
-          "path": "datos/history/reddit_temas/year=2026/month=03/day=09/reddit_temas_emergentes.csv",
-          "row_count": 10
-        },
-        {
-          "date": "2026-03-10",
-          "path": "datos/history/reddit_temas/year=2026/month=03/day=10/reddit_temas_emergentes.csv",
-          "row_count": 10
-        },
-        {
-          "date": "2026-03-11",
-          "path": "datos/history/reddit_temas/year=2026/month=03/day=11/reddit_temas_emergentes.csv",
-          "row_count": 10
-        },
-        {
-          "date": "2026-03-12",
-          "path": "datos/history/reddit_temas/year=2026/month=03/day=12/reddit_temas_emergentes.csv",
-          "row_count": 10
-        },
-        {
-          "date": "2026-03-13",
-          "path": "datos/history/reddit_temas/year=2026/month=03/day=13/reddit_temas_emergentes.csv",
+          "date": "2026-03-17",
+          "path": "datos/history/reddit_temas/year=2026/month=03/day=17/reddit_temas_emergentes.csv",
           "row_count": 10
         }
-      ]
+      ],
+      "latest_snapshot_date": "2026-03-17"
     },
     {
       "dataset": "reddit_temas_emergentes",
@@ -732,59 +226,20 @@
       "dataset": "so_aceptacion",
       "latest_path": null,
       "latest_row_count": null,
-      "history_snapshot_count": 10,
+      "history_snapshot_count": 2,
       "snapshots": [
         {
-          "date": "2026-03-04",
-          "path": "datos/history/so_aceptacion/year=2026/month=03/day=04/so_tasa_aceptacion.csv",
+          "date": "2026-03-16",
+          "path": "datos/history/so_aceptacion/year=2026/month=03/day=16/so_tasa_aceptacion.csv",
           "row_count": 5
         },
         {
-          "date": "2026-03-05",
-          "path": "datos/history/so_aceptacion/year=2026/month=03/day=05/so_tasa_aceptacion.csv",
-          "row_count": 5
-        },
-        {
-          "date": "2026-03-06",
-          "path": "datos/history/so_aceptacion/year=2026/month=03/day=06/so_tasa_aceptacion.csv",
-          "row_count": 5
-        },
-        {
-          "date": "2026-03-07",
-          "path": "datos/history/so_aceptacion/year=2026/month=03/day=07/so_tasa_aceptacion.csv",
-          "row_count": 5
-        },
-        {
-          "date": "2026-03-08",
-          "path": "datos/history/so_aceptacion/year=2026/month=03/day=08/so_tasa_aceptacion.csv",
-          "row_count": 5
-        },
-        {
-          "date": "2026-03-09",
-          "path": "datos/history/so_aceptacion/year=2026/month=03/day=09/so_tasa_aceptacion.csv",
-          "row_count": 5
-        },
-        {
-          "date": "2026-03-10",
-          "path": "datos/history/so_aceptacion/year=2026/month=03/day=10/so_tasa_aceptacion.csv",
-          "row_count": 5
-        },
-        {
-          "date": "2026-03-11",
-          "path": "datos/history/so_aceptacion/year=2026/month=03/day=11/so_tasa_aceptacion.csv",
-          "row_count": 5
-        },
-        {
-          "date": "2026-03-12",
-          "path": "datos/history/so_aceptacion/year=2026/month=03/day=12/so_tasa_aceptacion.csv",
-          "row_count": 5
-        },
-        {
-          "date": "2026-03-13",
-          "path": "datos/history/so_aceptacion/year=2026/month=03/day=13/so_tasa_aceptacion.csv",
+          "date": "2026-03-17",
+          "path": "datos/history/so_aceptacion/year=2026/month=03/day=17/so_tasa_aceptacion.csv",
           "row_count": 5
         }
-      ]
+      ],
+      "latest_snapshot_date": "2026-03-17"
     },
     {
       "dataset": "so_tasa_aceptacion",
@@ -797,59 +252,20 @@
       "dataset": "so_tendencias",
       "latest_path": null,
       "latest_row_count": null,
-      "history_snapshot_count": 10,
+      "history_snapshot_count": 2,
       "snapshots": [
         {
-          "date": "2026-03-04",
-          "path": "datos/history/so_tendencias/year=2026/month=03/day=04/so_tendencias_mensuales.csv",
+          "date": "2026-03-16",
+          "path": "datos/history/so_tendencias/year=2026/month=03/day=16/so_tendencias_mensuales.csv",
           "row_count": 12
         },
         {
-          "date": "2026-03-05",
-          "path": "datos/history/so_tendencias/year=2026/month=03/day=05/so_tendencias_mensuales.csv",
-          "row_count": 12
-        },
-        {
-          "date": "2026-03-06",
-          "path": "datos/history/so_tendencias/year=2026/month=03/day=06/so_tendencias_mensuales.csv",
-          "row_count": 12
-        },
-        {
-          "date": "2026-03-07",
-          "path": "datos/history/so_tendencias/year=2026/month=03/day=07/so_tendencias_mensuales.csv",
-          "row_count": 12
-        },
-        {
-          "date": "2026-03-08",
-          "path": "datos/history/so_tendencias/year=2026/month=03/day=08/so_tendencias_mensuales.csv",
-          "row_count": 12
-        },
-        {
-          "date": "2026-03-09",
-          "path": "datos/history/so_tendencias/year=2026/month=03/day=09/so_tendencias_mensuales.csv",
-          "row_count": 12
-        },
-        {
-          "date": "2026-03-10",
-          "path": "datos/history/so_tendencias/year=2026/month=03/day=10/so_tendencias_mensuales.csv",
-          "row_count": 12
-        },
-        {
-          "date": "2026-03-11",
-          "path": "datos/history/so_tendencias/year=2026/month=03/day=11/so_tendencias_mensuales.csv",
-          "row_count": 12
-        },
-        {
-          "date": "2026-03-12",
-          "path": "datos/history/so_tendencias/year=2026/month=03/day=12/so_tendencias_mensuales.csv",
-          "row_count": 12
-        },
-        {
-          "date": "2026-03-13",
-          "path": "datos/history/so_tendencias/year=2026/month=03/day=13/so_tendencias_mensuales.csv",
+          "date": "2026-03-17",
+          "path": "datos/history/so_tendencias/year=2026/month=03/day=17/so_tendencias_mensuales.csv",
           "row_count": 12
         }
-      ]
+      ],
+      "latest_snapshot_date": "2026-03-17"
     },
     {
       "dataset": "so_tendencias_mensuales",
@@ -862,59 +278,20 @@
       "dataset": "so_volumen",
       "latest_path": null,
       "latest_row_count": null,
-      "history_snapshot_count": 10,
+      "history_snapshot_count": 2,
       "snapshots": [
         {
-          "date": "2026-03-04",
-          "path": "datos/history/so_volumen/year=2026/month=03/day=04/so_volumen_preguntas.csv",
+          "date": "2026-03-16",
+          "path": "datos/history/so_volumen/year=2026/month=03/day=16/so_volumen_preguntas.csv",
           "row_count": 10
         },
         {
-          "date": "2026-03-05",
-          "path": "datos/history/so_volumen/year=2026/month=03/day=05/so_volumen_preguntas.csv",
-          "row_count": 10
-        },
-        {
-          "date": "2026-03-06",
-          "path": "datos/history/so_volumen/year=2026/month=03/day=06/so_volumen_preguntas.csv",
-          "row_count": 10
-        },
-        {
-          "date": "2026-03-07",
-          "path": "datos/history/so_volumen/year=2026/month=03/day=07/so_volumen_preguntas.csv",
-          "row_count": 10
-        },
-        {
-          "date": "2026-03-08",
-          "path": "datos/history/so_volumen/year=2026/month=03/day=08/so_volumen_preguntas.csv",
-          "row_count": 10
-        },
-        {
-          "date": "2026-03-09",
-          "path": "datos/history/so_volumen/year=2026/month=03/day=09/so_volumen_preguntas.csv",
-          "row_count": 10
-        },
-        {
-          "date": "2026-03-10",
-          "path": "datos/history/so_volumen/year=2026/month=03/day=10/so_volumen_preguntas.csv",
-          "row_count": 10
-        },
-        {
-          "date": "2026-03-11",
-          "path": "datos/history/so_volumen/year=2026/month=03/day=11/so_volumen_preguntas.csv",
-          "row_count": 10
-        },
-        {
-          "date": "2026-03-12",
-          "path": "datos/history/so_volumen/year=2026/month=03/day=12/so_volumen_preguntas.csv",
-          "row_count": 10
-        },
-        {
-          "date": "2026-03-13",
-          "path": "datos/history/so_volumen/year=2026/month=03/day=13/so_volumen_preguntas.csv",
+          "date": "2026-03-17",
+          "path": "datos/history/so_volumen/year=2026/month=03/day=17/so_volumen_preguntas.csv",
           "row_count": 10
         }
-      ]
+      ],
+      "latest_snapshot_date": "2026-03-17"
     },
     {
       "dataset": "so_volumen_preguntas",
@@ -927,59 +304,20 @@
       "dataset": "trend_score",
       "latest_path": "datos/latest/trend_score.csv",
       "latest_row_count": 22,
-      "history_snapshot_count": 10,
+      "history_snapshot_count": 2,
       "snapshots": [
         {
-          "date": "2026-03-04",
-          "path": "datos/history/trend_score/year=2026/month=03/day=04/trend_score.csv",
-          "row_count": 27
-        },
-        {
-          "date": "2026-03-05",
-          "path": "datos/history/trend_score/year=2026/month=03/day=05/trend_score.csv",
-          "row_count": 27
-        },
-        {
-          "date": "2026-03-06",
-          "path": "datos/history/trend_score/year=2026/month=03/day=06/trend_score.csv",
-          "row_count": 27
-        },
-        {
-          "date": "2026-03-07",
-          "path": "datos/history/trend_score/year=2026/month=03/day=07/trend_score.csv",
-          "row_count": 27
-        },
-        {
-          "date": "2026-03-08",
-          "path": "datos/history/trend_score/year=2026/month=03/day=08/trend_score.csv",
-          "row_count": 25
-        },
-        {
-          "date": "2026-03-09",
-          "path": "datos/history/trend_score/year=2026/month=03/day=09/trend_score.csv",
-          "row_count": 25
-        },
-        {
-          "date": "2026-03-10",
-          "path": "datos/history/trend_score/year=2026/month=03/day=10/trend_score.csv",
+          "date": "2026-03-16",
+          "path": "datos/history/trend_score/year=2026/month=03/day=16/trend_score.csv",
           "row_count": 22
         },
         {
-          "date": "2026-03-11",
-          "path": "datos/history/trend_score/year=2026/month=03/day=11/trend_score.csv",
-          "row_count": 22
-        },
-        {
-          "date": "2026-03-12",
-          "path": "datos/history/trend_score/year=2026/month=03/day=12/trend_score.csv",
-          "row_count": 22
-        },
-        {
-          "date": "2026-03-13",
-          "path": "datos/history/trend_score/year=2026/month=03/day=13/trend_score.csv",
+          "date": "2026-03-17",
+          "path": "datos/history/trend_score/year=2026/month=03/day=17/trend_score.csv",
           "row_count": 22
         }
-      ]
+      ],
+      "latest_snapshot_date": "2026-03-17"
     }
   ]
 }
