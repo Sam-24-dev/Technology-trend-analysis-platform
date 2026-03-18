@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: etl-pipeline
@@ -67,6 +68,16 @@ jobs:
             datos/github_ai_repos_insights.csv
             datos/github_commits_frameworks.csv
             datos/github_correlacion.csv
+            datos/latest/github_repos_2025.csv
+            datos/latest/github_lenguajes.csv
+            datos/latest/github_ai_repos_insights.csv
+            datos/latest/github_commits_frameworks.csv
+            datos/latest/github_correlacion.csv
+            datos/history/**/github_repos_2025.csv
+            datos/history/**/github_lenguajes.csv
+            datos/history/**/github_ai_repos_insights.csv
+            datos/history/**/github_commits_frameworks.csv
+            datos/history/**/github_correlacion.csv
 
   job_stackoverflow:
     name: Source - StackOverflow
@@ -104,6 +115,12 @@ jobs:
             datos/so_volumen_preguntas.csv
             datos/so_tasa_aceptacion.csv
             datos/so_tendencias_mensuales.csv
+            datos/latest/so_volumen_preguntas.csv
+            datos/latest/so_tasa_aceptacion.csv
+            datos/latest/so_tendencias_mensuales.csv
+            datos/history/**/so_volumen_preguntas.csv
+            datos/history/**/so_tasa_aceptacion.csv
+            datos/history/**/so_tendencias_mensuales.csv
 
   job_reddit:
     name: Source - Reddit
@@ -159,6 +176,12 @@ jobs:
             datos/reddit_sentimiento_frameworks.csv
             datos/reddit_temas_emergentes.csv
             datos/interseccion_github_reddit.csv
+            datos/latest/reddit_sentimiento_frameworks.csv
+            datos/latest/reddit_temas_emergentes.csv
+            datos/latest/interseccion_github_reddit.csv
+            datos/history/**/reddit_sentimiento_frameworks.csv
+            datos/history/**/reddit_temas_emergentes.csv
+            datos/history/**/interseccion_github_reddit.csv
 
   job_aggregate:
     name: Aggregate + Quality Gate
@@ -203,13 +226,44 @@ jobs:
           name: reddit-data
           path: artifacts/reddit
 
+      - name: Download previous aggregate history (latest main)
+        continue-on-error: true
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: ETL Weekly Data Refresh
+          branch: main
+          name: aggregate-data
+          path: prev_artifacts
+          workflow_conclusion: success
+          if_no_artifact_found: warn
+
+      - name: Restore previous history (if any)
+        shell: bash
+        run: |
+          if [ -d "prev_artifacts/datos/history" ]; then
+            mkdir -p datos/history
+            rsync -a prev_artifacts/datos/history/ datos/history/
+          fi
+
       - name: Materialize source outputs
         shell: bash
         run: |
-          mkdir -p datos frontend/assets/data
-          cp -f artifacts/github/*.csv datos/ 2>/dev/null || true
-          cp -f artifacts/stackoverflow/*.csv datos/ 2>/dev/null || true
-          cp -f artifacts/reddit/*.csv datos/ 2>/dev/null || true
+          mkdir -p datos datos/latest datos/history frontend/assets/data
+          if [ -d "artifacts/github/datos" ]; then
+            rsync -a artifacts/github/datos/ datos/
+          else
+            cp -f artifacts/github/*.csv datos/ 2>/dev/null || true
+          fi
+          if [ -d "artifacts/stackoverflow/datos" ]; then
+            rsync -a artifacts/stackoverflow/datos/ datos/
+          else
+            cp -f artifacts/stackoverflow/*.csv datos/ 2>/dev/null || true
+          fi
+          if [ -d "artifacts/reddit/datos" ]; then
+            rsync -a artifacts/reddit/datos/ datos/
+          else
+            cp -f artifacts/reddit/*.csv datos/ 2>/dev/null || true
+          fi
 
       - name: Verify artifact handoff
         shell: bash

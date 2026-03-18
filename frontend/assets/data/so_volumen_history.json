@@ -1,124 +1,124 @@
 {
-  "generated_at_utc": "2026-03-13T22:12:53Z",
+  "generated_at_utc": "2026-03-17T23:24:26Z",
   "dataset": "so_volumen_preguntas",
   "source_mode": "history",
-  "snapshot_count": 10,
-  "latest_snapshot_date": "2026-03-13",
-  "previous_snapshot_date": "2026-03-12",
+  "snapshot_count": 12,
+  "latest_snapshot_date": "2026-03-17",
+  "previous_snapshot_date": "2026-03-16",
   "has_historical_comparison": true,
   "item_count": 10,
   "summary": {
     "leader": {
       "lenguaje": "python",
-      "preguntas": 10500,
-      "preguntas_prev": 10656,
-      "delta_preguntas": -156,
-      "growth_pct": -1.46,
-      "trend_direction": "cayendo",
-      "share_pct": 31.48
+      "preguntas": 10810,
+      "preguntas_prev": 10396,
+      "delta_preguntas": 414,
+      "growth_pct": 3.98,
+      "trend_direction": "creciendo",
+      "share_pct": 31.53
     },
-    "highest_growth": null,
-    "largest_drop": {
+    "highest_growth": {
       "lenguaje": "python",
-      "preguntas": 10500,
-      "preguntas_prev": 10656,
-      "delta_preguntas": -156,
-      "growth_pct": -1.46,
-      "trend_direction": "cayendo",
-      "share_pct": 31.48
+      "preguntas": 10810,
+      "preguntas_prev": 10396,
+      "delta_preguntas": 414,
+      "growth_pct": 3.98,
+      "trend_direction": "creciendo",
+      "share_pct": 31.53
     },
-    "total_questions": 33356
+    "largest_drop": null,
+    "total_questions": 34287
   },
   "latest_items": [
     {
       "lenguaje": "python",
-      "preguntas": 10500,
-      "preguntas_prev": 10656,
-      "delta_preguntas": -156,
-      "growth_pct": -1.46,
-      "trend_direction": "cayendo",
-      "share_pct": 31.48
+      "preguntas": 10810,
+      "preguntas_prev": 10396,
+      "delta_preguntas": 414,
+      "growth_pct": 3.98,
+      "trend_direction": "creciendo",
+      "share_pct": 31.53
     },
     {
       "lenguaje": "javascript",
-      "preguntas": 4582,
-      "preguntas_prev": 4646,
-      "delta_preguntas": -64,
-      "growth_pct": -1.38,
-      "trend_direction": "cayendo",
-      "share_pct": 13.74
+      "preguntas": 4705,
+      "preguntas_prev": 4537,
+      "delta_preguntas": 168,
+      "growth_pct": 3.7,
+      "trend_direction": "creciendo",
+      "share_pct": 13.72
     },
     {
       "lenguaje": "java",
-      "preguntas": 4450,
-      "preguntas_prev": 4505,
-      "delta_preguntas": -55,
-      "growth_pct": -1.22,
-      "trend_direction": "cayendo",
-      "share_pct": 13.34
+      "preguntas": 4548,
+      "preguntas_prev": 4405,
+      "delta_preguntas": 143,
+      "growth_pct": 3.25,
+      "trend_direction": "creciendo",
+      "share_pct": 13.26
     },
     {
       "lenguaje": "c#",
-      "preguntas": 4380,
-      "preguntas_prev": 4443,
-      "delta_preguntas": -63,
-      "growth_pct": -1.42,
-      "trend_direction": "cayendo",
-      "share_pct": 13.13
+      "preguntas": 4507,
+      "preguntas_prev": 4345,
+      "delta_preguntas": 162,
+      "growth_pct": 3.73,
+      "trend_direction": "creciendo",
+      "share_pct": 13.14
     },
     {
       "lenguaje": "c++",
-      "preguntas": 3758,
-      "preguntas_prev": 3795,
-      "delta_preguntas": -37,
-      "growth_pct": -0.97,
-      "trend_direction": "cayendo",
-      "share_pct": 11.27
+      "preguntas": 3837,
+      "preguntas_prev": 3734,
+      "delta_preguntas": 103,
+      "growth_pct": 2.76,
+      "trend_direction": "creciendo",
+      "share_pct": 11.19
     },
     {
       "lenguaje": "typescript",
-      "preguntas": 2176,
-      "preguntas_prev": 2208,
-      "delta_preguntas": -32,
-      "growth_pct": -1.45,
-      "trend_direction": "cayendo",
-      "share_pct": 6.52
+      "preguntas": 2243,
+      "preguntas_prev": 2145,
+      "delta_preguntas": 98,
+      "growth_pct": 4.57,
+      "trend_direction": "creciendo",
+      "share_pct": 6.54
     },
     {
       "lenguaje": "php",
-      "preguntas": 1483,
-      "preguntas_prev": 1501,
-      "delta_preguntas": -18,
-      "growth_pct": -1.2,
-      "trend_direction": "cayendo",
-      "share_pct": 4.45
+      "preguntas": 1536,
+      "preguntas_prev": 1473,
+      "delta_preguntas": 63,
+      "growth_pct": 4.28,
+      "trend_direction": "creciendo",
+      "share_pct": 4.48
     },
     {
       "lenguaje": "kotlin",
-      "preguntas": 1367,
-      "preguntas_prev": 1388,
-      "delta_preguntas": -21,
-      "growth_pct": -1.51,
-      "trend_direction": "cayendo",
-      "share_pct": 4.1
+      "preguntas": 1413,
+      "preguntas_prev": 1353,
+      "delta_preguntas": 60,
+      "growth_pct": 4.43,
+      "trend_direction": "creciendo",
+      "share_pct": 4.12
     },
     {
       "lenguaje": "go",
-      "preguntas": 456,
-      "preguntas_prev": 462,
-      "delta_preguntas": -6,
-      "growth_pct": -1.3,
-      "trend_direction": "cayendo",
-      "share_pct": 1.37
+      "preguntas": 475,
+      "preguntas_prev": 452,
+      "delta_preguntas": 23,
+      "growth_pct": 5.09,
+      "trend_direction": "creciendo",
+      "share_pct": 1.39
     },
     {
       "lenguaje": "ruby",
-      "preguntas": 204,
-      "preguntas_prev": 211,
-      "delta_preguntas": -7,
-      "growth_pct": -3.32,
-      "trend_direction": "cayendo",
-      "share_pct": 0.61
+      "preguntas": 213,
+      "preguntas_prev": 202,
+      "delta_preguntas": 11,
+      "growth_pct": 5.45,
+      "trend_direction": "creciendo",
+      "share_pct": 0.62
     }
   ],
   "snapshots": [
@@ -719,6 +719,126 @@
           "lenguaje": "ruby",
           "preguntas": 204,
           "share_pct": 0.61
+        }
+      ]
+    },
+    {
+      "date": "2026-03-16",
+      "path": "datos/history/so_volumen/year=2026/month=03/day=16/so_volumen_preguntas.csv",
+      "source_type": "history",
+      "row_count": 10,
+      "item_count": 10,
+      "total_questions": 33042,
+      "items": [
+        {
+          "lenguaje": "python",
+          "preguntas": 10396,
+          "share_pct": 31.46
+        },
+        {
+          "lenguaje": "javascript",
+          "preguntas": 4537,
+          "share_pct": 13.73
+        },
+        {
+          "lenguaje": "java",
+          "preguntas": 4405,
+          "share_pct": 13.33
+        },
+        {
+          "lenguaje": "c#",
+          "preguntas": 4345,
+          "share_pct": 13.15
+        },
+        {
+          "lenguaje": "c++",
+          "preguntas": 3734,
+          "share_pct": 11.3
+        },
+        {
+          "lenguaje": "typescript",
+          "preguntas": 2145,
+          "share_pct": 6.49
+        },
+        {
+          "lenguaje": "php",
+          "preguntas": 1473,
+          "share_pct": 4.46
+        },
+        {
+          "lenguaje": "kotlin",
+          "preguntas": 1353,
+          "share_pct": 4.09
+        },
+        {
+          "lenguaje": "go",
+          "preguntas": 452,
+          "share_pct": 1.37
+        },
+        {
+          "lenguaje": "ruby",
+          "preguntas": 202,
+          "share_pct": 0.61
+        }
+      ]
+    },
+    {
+      "date": "2026-03-17",
+      "path": "datos/history/so_volumen/year=2026/month=03/day=17/so_volumen_preguntas.csv",
+      "source_type": "history",
+      "row_count": 10,
+      "item_count": 10,
+      "total_questions": 34287,
+      "items": [
+        {
+          "lenguaje": "python",
+          "preguntas": 10810,
+          "share_pct": 31.53
+        },
+        {
+          "lenguaje": "javascript",
+          "preguntas": 4705,
+          "share_pct": 13.72
+        },
+        {
+          "lenguaje": "java",
+          "preguntas": 4548,
+          "share_pct": 13.26
+        },
+        {
+          "lenguaje": "c#",
+          "preguntas": 4507,
+          "share_pct": 13.14
+        },
+        {
+          "lenguaje": "c++",
+          "preguntas": 3837,
+          "share_pct": 11.19
+        },
+        {
+          "lenguaje": "typescript",
+          "preguntas": 2243,
+          "share_pct": 6.54
+        },
+        {
+          "lenguaje": "php",
+          "preguntas": 1536,
+          "share_pct": 4.48
+        },
+        {
+          "lenguaje": "kotlin",
+          "preguntas": 1413,
+          "share_pct": 4.12
+        },
+        {
+          "lenguaje": "go",
+          "preguntas": 475,
+          "share_pct": 1.39
+        },
+        {
+          "lenguaje": "ruby",
+          "preguntas": 213,
+          "share_pct": 0.62
         }
       ]
     }

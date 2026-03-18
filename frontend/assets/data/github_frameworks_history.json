@@ -1,12 +1,12 @@
 {
-  "generated_at_utc": "2026-03-13T22:12:53Z",
+  "generated_at_utc": "2026-03-17T23:24:26Z",
   "dataset": "github_commits_frameworks",
   "scope_label": "repos oficiales frontend",
   "source_mode": "history",
-  "snapshot_count": 14,
-  "snapshot_date": "2026-03-13",
-  "latest_snapshot_date": "2026-03-13",
-  "previous_snapshot_date": "2026-03-12",
+  "snapshot_count": 16,
+  "snapshot_date": "2026-03-17",
+  "latest_snapshot_date": "2026-03-17",
+  "previous_snapshot_date": "2026-03-16",
   "item_count": 5,
   "has_historical_comparison": true,
   "latest_frameworks": [
@@ -15,75 +15,75 @@
       "repo": "vercel/next.js",
       "ranking": 1,
       "commits_2025": 5000,
-      "active_contributors": 305,
-      "merged_prs": 5016,
-      "closed_issues": 2281,
-      "releases_count": 635,
+      "active_contributors": 301,
+      "merged_prs": 5026,
+      "closed_issues": 2274,
+      "releases_count": 637,
       "commits_prev": 5000,
       "delta_commits": 0,
       "growth_pct": 0.0,
       "trend_direction": "estable",
-      "active_contributors_prev": 305,
-      "delta_active_contributors": 0,
-      "growth_active_contributors_pct": 0.0,
-      "merged_prs_prev": 5030,
-      "delta_merged_prs": -14,
-      "growth_merged_prs_pct": -0.28,
-      "closed_issues_prev": 2299,
-      "delta_closed_issues": -18,
-      "growth_closed_issues_pct": -0.78,
-      "releases_count_prev": 638,
-      "delta_releases_count": -3,
-      "growth_releases_count_pct": -0.47
+      "active_contributors_prev": 300,
+      "delta_active_contributors": 1,
+      "growth_active_contributors_pct": 0.33,
+      "merged_prs_prev": 5026,
+      "delta_merged_prs": 0,
+      "growth_merged_prs_pct": 0.0,
+      "closed_issues_prev": 2274,
+      "delta_closed_issues": 0,
+      "growth_closed_issues_pct": 0.0,
+      "releases_count_prev": 637,
+      "delta_releases_count": 0,
+      "growth_releases_count_pct": 0.0
     },
     {
       "framework": "Angular",
       "repo": "angular/angular",
       "ranking": 2,
-      "commits_2025": 4302,
-      "active_contributors": 278,
-      "merged_prs": 2062,
-      "closed_issues": 2134,
+      "commits_2025": 4334,
+      "active_contributors": 277,
+      "merged_prs": 2095,
+      "closed_issues": 2128,
       "releases_count": 146,
-      "commits_prev": 4313,
-      "delta_commits": -11,
-      "growth_pct": -0.26,
-      "trend_direction": "cayendo",
+      "commits_prev": 4302,
+      "delta_commits": 32,
+      "growth_pct": 0.74,
+      "trend_direction": "creciendo",
       "active_contributors_prev": 278,
-      "delta_active_contributors": 0,
-      "growth_active_contributors_pct": 0.0,
-      "merged_prs_prev": 2065,
-      "delta_merged_prs": -3,
-      "growth_merged_prs_pct": -0.15,
-      "closed_issues_prev": 2139,
-      "delta_closed_issues": -5,
-      "growth_closed_issues_pct": -0.23,
-      "releases_count_prev": 148,
-      "delta_releases_count": -2,
-      "growth_releases_count_pct": -1.35
+      "delta_active_contributors": -1,
+      "growth_active_contributors_pct": -0.36,
+      "merged_prs_prev": 2095,
+      "delta_merged_prs": 0,
+      "growth_merged_prs_pct": 0.0,
+      "closed_issues_prev": 2128,
+      "delta_closed_issues": 0,
+      "growth_closed_issues_pct": 0.0,
+      "releases_count_prev": 146,
+      "delta_releases_count": 0,
+      "growth_releases_count_pct": 0.0
     },
     {
       "framework": "React",
       "repo": "facebook/react",
       "ranking": 3,
-      "commits_2025": 1358,
-      "active_contributors": 88,
-      "merged_prs": 1359,
-      "closed_issues": 793,
+      "commits_2025": 1328,
+      "active_contributors": 86,
+      "merged_prs": 1329,
+      "closed_issues": 790,
       "releases_count": 15,
-      "commits_prev": 1372,
-      "delta_commits": -14,
-      "growth_pct": -1.02,
+      "commits_prev": 1358,
+      "delta_commits": -30,
+      "growth_pct": -2.21,
       "trend_direction": "cayendo",
-      "active_contributors_prev": 88,
-      "delta_active_contributors": 0,
-      "growth_active_contributors_pct": 0.0,
-      "merged_prs_prev": 1373,
-      "delta_merged_prs": -14,
-      "growth_merged_prs_pct": -1.02,
-      "closed_issues_prev": 795,
-      "delta_closed_issues": -2,
-      "growth_closed_issues_pct": -0.25,
+      "active_contributors_prev": 87,
+      "delta_active_contributors": -1,
+      "growth_active_contributors_pct": -1.15,
+      "merged_prs_prev": 1329,
+      "delta_merged_prs": 0,
+      "growth_merged_prs_pct": 0.0,
+      "closed_issues_prev": 790,
+      "delta_closed_issues": 0,
+      "growth_closed_issues_pct": 0.0,
       "releases_count_prev": 15,
       "delta_releases_count": 0,
       "growth_releases_count_pct": 0.0
@@ -92,51 +92,51 @@
       "framework": "Svelte",
       "repo": "sveltejs/svelte",
       "ranking": 4,
-      "commits_2025": 1001,
-      "active_contributors": 112,
-      "merged_prs": 1017,
-      "closed_issues": 778,
-      "releases_count": 205,
-      "commits_prev": 1002,
-      "delta_commits": -1,
-      "growth_pct": -0.1,
+      "commits_2025": 999,
+      "active_contributors": 111,
+      "merged_prs": 1015,
+      "closed_issues": 782,
+      "releases_count": 206,
+      "commits_prev": 1001,
+      "delta_commits": -2,
+      "growth_pct": -0.2,
       "trend_direction": "cayendo",
-      "active_contributors_prev": 113,
-      "delta_active_contributors": -1,
-      "growth_active_contributors_pct": -0.88,
-      "merged_prs_prev": 1016,
-      "delta_merged_prs": 1,
-      "growth_merged_prs_pct": 0.1,
-      "closed_issues_prev": 778,
+      "active_contributors_prev": 111,
+      "delta_active_contributors": 0,
+      "growth_active_contributors_pct": 0.0,
+      "merged_prs_prev": 1015,
+      "delta_merged_prs": 0,
+      "growth_merged_prs_pct": 0.0,
+      "closed_issues_prev": 782,
       "delta_closed_issues": 0,
       "growth_closed_issues_pct": 0.0,
-      "releases_count_prev": 205,
-      "delta_releases_count": 0,
-      "growth_releases_count_pct": 0.0
+      "releases_count_prev": 208,
+      "delta_releases_count": -2,
+      "growth_releases_count_pct": -0.96
     },
     {
       "framework": "Vue 3",
       "repo": "vuejs/core",
       "ranking": 5,
-      "commits_2025": 405,
+      "commits_2025": 404,
       "active_contributors": 85,
-      "merged_prs": 669,
-      "closed_issues": 414,
-      "releases_count": 31,
-      "commits_prev": 406,
+      "merged_prs": 687,
+      "closed_issues": 411,
+      "releases_count": 32,
+      "commits_prev": 405,
       "delta_commits": -1,
       "growth_pct": -0.25,
       "trend_direction": "cayendo",
       "active_contributors_prev": 85,
       "delta_active_contributors": 0,
       "growth_active_contributors_pct": 0.0,
-      "merged_prs_prev": 668,
-      "delta_merged_prs": 1,
-      "growth_merged_prs_pct": 0.15,
-      "closed_issues_prev": 414,
+      "merged_prs_prev": 687,
+      "delta_merged_prs": 0,
+      "growth_merged_prs_pct": 0.0,
+      "closed_issues_prev": 411,
       "delta_closed_issues": 0,
       "growth_closed_issues_pct": 0.0,
-      "releases_count_prev": 31,
+      "releases_count_prev": 32,
       "delta_releases_count": 0,
       "growth_releases_count_pct": 0.0
     }
@@ -155,30 +155,38 @@
       "framework": "Angular",
       "repo": "angular/angular",
       "ranking": 2,
-      "commits_2025": 4302,
-      "delta_commits": -11,
-      "growth_pct": -0.26,
-      "trend_direction": "cayendo"
+      "commits_2025": 4334,
+      "delta_commits": 32,
+      "growth_pct": 0.74,
+      "trend_direction": "creciendo"
     },
     "leader_share_pct": 41.44,
-    "leader_gap_commits": 698,
-    "highest_growth": null,
+    "leader_gap_commits": 666,
+    "highest_growth": {
+      "framework": "Angular",
+      "repo": "angular/angular",
+      "ranking": 2,
+      "commits_2025": 4334,
+      "delta_commits": 32,
+      "growth_pct": 0.74,
+      "trend_direction": "creciendo"
+    },
     "largest_drop": {
       "framework": "React",
       "repo": "facebook/react",
       "ranking": 3,
-      "commits_2025": 1358,
-      "delta_commits": -14,
-      "growth_pct": -1.02,
+      "commits_2025": 1328,
+      "delta_commits": -30,
+      "growth_pct": -2.21,
       "trend_direction": "cayendo"
     },
-    "total_commits": 12066,
+    "total_commits": 12065,
     "leader_framework": "Next.js",
     "leader_commits": 5000,
-    "max_growth_framework": "Next.js",
-    "max_growth_delta": 0,
+    "max_growth_framework": "Angular",
+    "max_growth_delta": 32,
     "max_drop_framework": "React",
-    "max_drop_delta": -14,
+    "max_drop_delta": -30,
     "missing_metrics_frameworks": 0
   },
   "snapshots": [
@@ -1147,6 +1155,164 @@
           "trend_direction": "cayendo"
         }
       ]
+    },
+    {
+      "date": "2026-03-16",
+      "path": "datos/history/github_commits/year=2026/month=03/day=16/github_commits_frameworks.csv",
+      "source_type": "history",
+      "row_count": 5,
+      "framework_count": 5,
+      "items": [
+        {
+          "framework": "Next.js",
+          "repo": "vercel/next.js",
+          "ranking": 1,
+          "commits_2025": 5000,
+          "active_contributors": 300,
+          "merged_prs": 5026,
+          "closed_issues": 2274,
+          "releases_count": 637,
+          "commits_prev": 5000,
+          "delta_commits": 0,
+          "growth_pct": 0.0,
+          "trend_direction": "estable"
+        },
+        {
+          "framework": "Angular",
+          "repo": "angular/angular",
+          "ranking": 2,
+          "commits_2025": 4352,
+          "active_contributors": 278,
+          "merged_prs": 2095,
+          "closed_issues": 2128,
+          "releases_count": 146,
+          "commits_prev": 4334,
+          "delta_commits": 18,
+          "growth_pct": 0.42,
+          "trend_direction": "creciendo"
+        },
+        {
+          "framework": "React",
+          "repo": "facebook/react",
+          "ranking": 3,
+          "commits_2025": 1330,
+          "active_contributors": 87,
+          "merged_prs": 1329,
+          "closed_issues": 790,
+          "releases_count": 15,
+          "commits_prev": 1328,
+          "delta_commits": 2,
+          "growth_pct": 0.15,
+          "trend_direction": "creciendo"
+        },
+        {
+          "framework": "Svelte",
+          "repo": "sveltejs/svelte",
+          "ranking": 4,
+          "commits_2025": 1008,
+          "active_contributors": 111,
+          "merged_prs": 1015,
+          "closed_issues": 782,
+          "releases_count": 208,
+          "commits_prev": 999,
+          "delta_commits": 9,
+          "growth_pct": 0.9,
+          "trend_direction": "creciendo"
+        },
+        {
+          "framework": "Vue 3",
+          "repo": "vuejs/core",
+          "ranking": 5,
+          "commits_2025": 404,
+          "active_contributors": 85,
+          "merged_prs": 687,
+          "closed_issues": 411,
+          "releases_count": 32,
+          "commits_prev": 404,
+          "delta_commits": 0,
+          "growth_pct": 0.0,
+          "trend_direction": "estable"
+        }
+      ]
+    },
+    {
+      "date": "2026-03-17",
+      "path": "datos/history/github_commits/year=2026/month=03/day=17/github_commits_frameworks.csv",
+      "source_type": "history",
+      "row_count": 5,
+      "framework_count": 5,
+      "items": [
+        {
+          "framework": "Next.js",
+          "repo": "vercel/next.js",
+          "ranking": 1,
+          "commits_2025": 5000,
+          "active_contributors": 301,
+          "merged_prs": 5026,
+          "closed_issues": 2274,
+          "releases_count": 637,
+          "commits_prev": 5000,
+          "delta_commits": 0,
+          "growth_pct": 0.0,
+          "trend_direction": "estable"
+        },
+        {
+          "framework": "Angular",
+          "repo": "angular/angular",
+          "ranking": 2,
+          "commits_2025": 4334,
+          "active_contributors": 277,
+          "merged_prs": 2095,
+          "closed_issues": 2128,
+          "releases_count": 146,
+          "commits_prev": 4302,
+          "delta_commits": 32,
+          "growth_pct": 0.74,
+          "trend_direction": "creciendo"
+        },
+        {
+          "framework": "React",
+          "repo": "facebook/react",
+          "ranking": 3,
+          "commits_2025": 1328,
+          "active_contributors": 86,
+          "merged_prs": 1329,
+          "closed_issues": 790,
+          "releases_count": 15,
+          "commits_prev": 1358,
+          "delta_commits": -30,
+          "growth_pct": -2.21,
+          "trend_direction": "cayendo"
+        },
+        {
+          "framework": "Svelte",
+          "repo": "sveltejs/svelte",
+          "ranking": 4,
+          "commits_2025": 999,
+          "active_contributors": 111,
+          "merged_prs": 1015,
+          "closed_issues": 782,
+          "releases_count": 206,
+          "commits_prev": 1001,
+          "delta_commits": -2,
+          "growth_pct": -0.2,
+          "trend_direction": "cayendo"
+        },
+        {
+          "framework": "Vue 3",
+          "repo": "vuejs/core",
+          "ranking": 5,
+          "commits_2025": 404,
+          "active_contributors": 85,
+          "merged_prs": 687,
+          "closed_issues": 411,
+          "releases_count": 32,
+          "commits_prev": 405,
+          "delta_commits": -1,
+          "growth_pct": -0.25,
+          "trend_direction": "cayendo"
+        }
+      ]
     }
   ],
   "series": [
@@ -1155,7 +1321,7 @@
       "points": [
         {
           "month": "2025-03",
-          "commits": 265
+          "commits": 252
         },
         {
           "month": "2025-04",
@@ -1191,7 +1357,7 @@
         },
         {
           "month": "2025-12",
-          "commits": 319
+          "commits": 320
         },
         {
           "month": "2026-01",
@@ -1199,11 +1365,11 @@
         },
         {
           "month": "2026-02",
-          "commits": 277
+          "commits": 283
         },
         {
           "month": "2026-03",
-          "commits": 128
+          "commits": 167
         }
       ]
     },
@@ -1216,7 +1382,7 @@
         },
         {
           "month": "2025-04",
-          "commits": 293
+          "commits": 231
         },
         {
           "month": "2025-05",
@@ -1260,7 +1426,7 @@
         },
         {
           "month": "2026-03",
-          "commits": 199
+          "commits": 261
         }
       ]
     },
@@ -1269,7 +1435,7 @@
       "points": [
         {
           "month": "2025-03",
-          "commits": 133
+          "commits": 103
         },
         {
           "month": "2025-04",
@@ -1326,7 +1492,7 @@
       "points": [
         {
           "month": "2025-03",
-          "commits": 54
+          "commits": 45
         },
         {
           "month": "2025-04",
@@ -1374,7 +1540,7 @@
         },
         {
           "month": "2026-03",
-          "commits": 42
+          "commits": 49
         }
       ]
     },
@@ -1383,7 +1549,7 @@
       "points": [
         {
           "month": "2025-03",
-          "commits": 26
+          "commits": 24
         },
         {
           "month": "2025-04",
@@ -1431,7 +1597,7 @@
         },
         {
           "month": "2026-03",
-          "commits": 19
+          "commits": 20
         }
       ]
     }
