@@ -1538,6 +1538,9 @@ class _SourceCard extends StatelessWidget {
         available ? const Color(0xFF64748B) : const Color(0xFF94A3B8);
     const double contextHeight = 36;
     final String contextCopy = contextText.trim();
+    final Widget? statusChip = !available
+        ? _buildStatusChip('No disponible', const Color(0xFFDC2626))
+        : (deltaLabel.isNotEmpty ? _buildStatusChip(deltaLabel, accent) : null);
 
     return Container(
       width: 330,
@@ -1558,10 +1561,12 @@ class _SourceCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Container(
                 width: 10,
                 height: 10,
+                margin: const EdgeInsets.only(top: 3),
                 decoration: BoxDecoration(
                   color: accent,
                   borderRadius: BorderRadius.circular(999),
@@ -1569,19 +1574,26 @@ class _SourceCard extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: Text(
-                  '$code · $title',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: titleColor,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      '$code · $title',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: titleColor,
+                      ),
+                    ),
+                    if (statusChip != null) ...<Widget>[
+                      const SizedBox(height: 8),
+                      statusChip,
+                    ],
+                  ],
                 ),
               ),
-              if (!available)
-                _buildStatusChip('No disponible', const Color(0xFFDC2626))
-              else if (deltaLabel.isNotEmpty)
-                _buildStatusChip(deltaLabel, accent),
             ],
           ),
           const SizedBox(height: 10),
@@ -1606,25 +1618,22 @@ class _SourceCard extends StatelessWidget {
           const SizedBox(height: 10),
           const Divider(height: 1),
           const SizedBox(height: 10),
-          Row(
+          Wrap(
+            spacing: 12,
+            runSpacing: 6,
             children: <Widget>[
-              Expanded(
-                child: Text(
-                  '$metricA: $valueA',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: subtitleColor,
-                  ),
+              Text(
+                '$metricA: $valueA',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: subtitleColor,
                 ),
               ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  '$metricB: $valueB',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: subtitleColor,
-                  ),
+              Text(
+                '$metricB: $valueB',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: subtitleColor,
                 ),
               ),
             ],
