@@ -43,12 +43,12 @@ DateTime? _resolveLastUpdatedReference(RunManifestPublic? manifest) {
     return latestDatasetUpdate;
   }
 
+  final DateTime? generatedAt = DateTime.tryParse(manifest.generatedAtUtc);
   final DateTime? sourceEnd = DateTime.tryParse(manifest.sourceWindowEndUtc);
-  if (sourceEnd != null) {
-    return sourceEnd;
+  if (generatedAt != null && sourceEnd != null) {
+    return generatedAt.isAfter(sourceEnd) ? generatedAt : sourceEnd;
   }
-
-  return DateTime.tryParse(manifest.generatedAtUtc);
+  return generatedAt ?? sourceEnd;
 }
 
 class RunManifestDatasetSummary {
