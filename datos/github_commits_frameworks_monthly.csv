@@ -1,5 +1,5 @@
 framework,repo,month,commits
-Angular,angular/angular,2025-03,252
+Angular,angular/angular,2025-03,217
 Angular,angular/angular,2025-04,252
 Angular,angular/angular,2025-05,438
 Angular,angular/angular,2025-06,300
@@ -10,10 +10,10 @@ Angular,angular/angular,2025-10,406
 Angular,angular/angular,2025-11,497
 Angular,angular/angular,2025-12,320
 Angular,angular/angular,2026-01,353
-Angular,angular/angular,2026-02,284
-Angular,angular/angular,2026-03,175
+Angular,angular/angular,2026-02,287
+Angular,angular/angular,2026-03,190
 Next.js,vercel/next.js,2025-03,0
-Next.js,vercel/next.js,2025-04,198
+Next.js,vercel/next.js,2025-04,181
 Next.js,vercel/next.js,2025-05,494
 Next.js,vercel/next.js,2025-06,545
 Next.js,vercel/next.js,2025-07,536
@@ -24,8 +24,8 @@ Next.js,vercel/next.js,2025-11,305
 Next.js,vercel/next.js,2025-12,253
 Next.js,vercel/next.js,2026-01,438
 Next.js,vercel/next.js,2026-02,435
-Next.js,vercel/next.js,2026-03,294
-React,facebook/react,2025-03,103
+Next.js,vercel/next.js,2026-03,311
+React,facebook/react,2025-03,84
 React,facebook/react,2025-04,108
 React,facebook/react,2025-05,111
 React,facebook/react,2025-06,125
@@ -37,8 +37,8 @@ React,facebook/react,2025-11,81
 React,facebook/react,2025-12,39
 React,facebook/react,2026-01,65
 React,facebook/react,2026-02,87
-React,facebook/react,2026-03,24
-Svelte,sveltejs/svelte,2025-03,43
+React,facebook/react,2026-03,25
+Svelte,sveltejs/svelte,2025-03,39
 Svelte,sveltejs/svelte,2025-04,73
 Svelte,sveltejs/svelte,2025-05,94
 Svelte,sveltejs/svelte,2025-06,71
@@ -50,8 +50,8 @@ Svelte,sveltejs/svelte,2025-11,63
 Svelte,sveltejs/svelte,2025-12,42
 Svelte,sveltejs/svelte,2026-01,96
 Svelte,sveltejs/svelte,2026-02,129
-Svelte,sveltejs/svelte,2026-03,58
-Vue 3,vuejs/core,2025-03,24
+Svelte,sveltejs/svelte,2026-03,59
+Vue 3,vuejs/core,2025-03,17
 Vue 3,vuejs/core,2025-04,17
 Vue 3,vuejs/core,2025-05,59
 Vue 3,vuejs/core,2025-06,31

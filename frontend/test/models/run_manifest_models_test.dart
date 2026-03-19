@@ -1,4 +1,4 @@
-import 'package:flutter_test/flutter_test.dart';
+﻿import 'package:flutter_test/flutter_test.dart';
 import 'package:frontend/models/run_manifest_models.dart';
 
 void main() {
@@ -71,16 +71,23 @@ void main() {
     );
   });
 
-  test('buildLastUpdatedLabel returns date only', () {
+  test('buildLastUpdatedLabel returns latest dataset update date', () {
     final manifest = RunManifestPublic.fromMap({
       'manifest_version': '1.0.0',
-      'generated_at_utc': '2026-02-27T05:11:00Z',
+      'generated_at_utc': '2026-02-28T05:11:00Z',
       'source_window_start_utc': '2025-02-27T00:00:00Z',
-      'source_window_end_utc': '2026-02-27T00:00:00Z',
+      'source_window_end_utc': '2026-02-28T00:00:00Z',
       'quality_gate_status': 'pass',
       'degraded_mode': false,
       'available_sources': [],
-      'dataset_summaries': [],
+      'dataset_summaries': [
+        {
+          'dataset': 'trend_score',
+          'row_count': 23,
+          'quality_status': 'pass',
+          'updated_at_utc': '2026-02-27T23:59:59Z',
+        },
+      ],
       'total_repos_extraidos': 0,
       'total_repos_clasificables': 0,
       'so_languages_count': 0,
@@ -89,6 +96,34 @@ void main() {
     expect(
       buildLastUpdatedLabel(manifest),
       'Última actualización (UTC): 27/02/2026',
+    );
+  });
+
+  test('buildLastUpdatedLabel falls back when dataset timestamps are missing', () {
+    final manifest = RunManifestPublic.fromMap({
+      'manifest_version': '1.0.0',
+      'generated_at_utc': '2026-03-01T05:11:00Z',
+      'source_window_start_utc': '2025-03-01T00:00:00Z',
+      'source_window_end_utc': '',
+      'quality_gate_status': 'pass',
+      'degraded_mode': false,
+      'available_sources': [],
+      'dataset_summaries': [
+        {
+          'dataset': 'trend_score',
+          'row_count': 23,
+          'quality_status': 'pass',
+          'updated_at_utc': '',
+        },
+      ],
+      'total_repos_extraidos': 0,
+      'total_repos_clasificables': 0,
+      'so_languages_count': 0,
+    });
+
+    expect(
+      buildLastUpdatedLabel(manifest),
+      'Última actualización (UTC): 01/03/2026',
     );
   });
 }
