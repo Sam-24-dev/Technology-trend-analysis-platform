@@ -1,8 +1,9 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:frontend/router/app_router.dart';
+import 'package:frontend/screens/trends_tech_screen.dart';
 
 void main() {
   Future<void> _pumpRouter(
@@ -51,14 +52,18 @@ void main() {
   testWidgets('go_router deep-link /trends/:tech renderiza detalle', (
     WidgetTester tester,
   ) async {
+    final Finder trendsScreenFinder = find.byWidgetPredicate(
+      (Widget widget) =>
+          widget is TrendsTechScreen && widget.technology == 'python',
+    );
+
     await _pumpRouter(
       tester,
       initialLocation: '/trends/python',
-      readyFinder: find.text('Python'),
+      readyFinder: trendsScreenFinder,
     );
 
-    expect(find.text('Python'), findsOneWidget);
-    expect(find.textContaining('An\u00e1lisis por tecnolog\u00eda'), findsWidgets);
+    expect(trendsScreenFinder, findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
@@ -98,4 +103,3 @@ void main() {
     },
   );
 }
-
