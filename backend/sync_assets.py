@@ -197,7 +197,7 @@ def sincronizar():
                 compact=True,
             )
             bridge_files_written = int(bridge_summary["files_written"])
-            output_location = bridge_summary["history_index_path"]
+            output_location = destino
             if bridge_output_dir is not None and bridge_output_dir.resolve() != destino.resolve():
                 remote_summary = export_bridge_assets(
                     proyecto_root,

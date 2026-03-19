@@ -14,13 +14,7 @@ String buildAnalysisPeriodLabel(RunManifestPublic? manifest) {
 }
 
 String buildLastUpdatedLabel(RunManifestPublic? manifest) {
-  final DateTime? generatedAt = DateTime.tryParse(
-    manifest?.generatedAtUtc ?? '',
-  );
-  final DateTime? sourceEnd = DateTime.tryParse(
-    manifest?.sourceWindowEndUtc ?? '',
-  );
-  final DateTime? reference = generatedAt ?? sourceEnd;
+  final DateTime? reference = _resolveLastUpdatedReference(manifest);
   if (reference == null) {
     return '\u00DAltima actualizaci\u00F3n (UTC): no disponible';
   }
@@ -28,6 +22,33 @@ String buildLastUpdatedLabel(RunManifestPublic? manifest) {
   final String day = utc.day.toString().padLeft(2, '0');
   final String month = utc.month.toString().padLeft(2, '0');
   return '\u00DAltima actualizaci\u00F3n (UTC): $day/$month/${utc.year}';
+}
+
+DateTime? _resolveLastUpdatedReference(RunManifestPublic? manifest) {
+  if (manifest == null) {
+    return null;
+  }
+
+  DateTime? latestDatasetUpdate;
+  for (final RunManifestDatasetSummary dataset in manifest.datasetSummaries) {
+    final DateTime? parsed = DateTime.tryParse(dataset.updatedAtUtc);
+    if (parsed == null) {
+      continue;
+    }
+    if (latestDatasetUpdate == null || parsed.isAfter(latestDatasetUpdate)) {
+      latestDatasetUpdate = parsed;
+    }
+  }
+  if (latestDatasetUpdate != null) {
+    return latestDatasetUpdate;
+  }
+
+  final DateTime? sourceEnd = DateTime.tryParse(manifest.sourceWindowEndUtc);
+  if (sourceEnd != null) {
+    return sourceEnd;
+  }
+
+  return DateTime.tryParse(manifest.generatedAtUtc);
 }
 
 class RunManifestDatasetSummary {

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="robots" content="noindex">
+  <title>Technology Trend Analysis Platform</title>
+  <script>
+    (function () {
+      var path = window.location.pathname || '/';
+      var lastSegment = path.split('/').pop() || '';
+      if (lastSegment.indexOf('.') !== -1) {
+        return;
+      }
+
+      var segments = path.split('/').filter(Boolean);
+      var basePath = segments.length > 0 ? '/' + segments[0] : '';
+      var targetPath = path + window.location.search + window.location.hash;
+
+      try {
+        window.sessionStorage.setItem('gh-pages-spa-path', targetPath);
+      } catch (_) {}
+
+      window.location.replace(window.location.origin + basePath + '/');
+    })();
+  </script>
+</head>
+<body>
+  <p>Redirecting...</p>
+</body>
+</html>
