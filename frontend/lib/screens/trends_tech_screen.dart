@@ -131,8 +131,10 @@ class TrendsTechScreen extends ConsumerWidget {
   }
 
   Widget _buildBreadcrumb(BuildContext context, TextTheme textTheme) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      crossAxisAlignment: WrapCrossAlignment.center,
       children: <Widget>[
         TextButton.icon(
           onPressed: () => context.go(AppRoutes.home),
@@ -153,7 +155,6 @@ class TrendsTechScreen extends ConsumerWidget {
             ),
           ),
         ),
-        const SizedBox(width: 8),
         Text(
           '> Análisis por tecnología',
           style: textTheme.labelLarge?.copyWith(
@@ -162,6 +163,49 @@ class TrendsTechScreen extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildResponsiveHeroHeader({
+    required Widget primary,
+    required Widget secondary,
+  }) {
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        final Widget scaledSecondary = FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.topRight,
+          child: secondary,
+        );
+
+        if (constraints.maxWidth < 980) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              primary,
+              const SizedBox(height: 16),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: scaledSecondary,
+              ),
+            ],
+          );
+        }
+
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Expanded(child: primary),
+            const SizedBox(width: 16),
+            Flexible(
+              child: Align(
+                alignment: Alignment.topRight,
+                child: scaledSecondary,
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -189,72 +233,68 @@ class TrendsTechScreen extends ConsumerWidget {
         _buildInsights(profile.summaryInsights);
     final bool isDegraded = manifest?.degradedMode == true;
 
-      return <Widget>[
-        _buildBreadcrumb(context, textTheme),
-      const SizedBox(height: 8),
-      Row(
+    final Widget headerBlock = _buildResponsiveHeroHeader(
+      primary: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  techName,
-                  style: textTheme.headlineMedium?.copyWith(
-                    fontSize: compact ? 28 : 32,
-                    fontWeight: FontWeight.w800,
-                    color: const Color(0xFF0F172A),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  buildAnalysisPeriodLabel(manifest),
-                  style: textTheme.bodyMedium?.copyWith(
-                    color: const Color(0xFF475569),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  buildLastUpdatedLabel(manifest),
-                  style: textTheme.bodySmall?.copyWith(
-                    color: const Color(0xFF64748B),
-                  ),
-                ),
-                if (comparisonLabel.isNotEmpty)
-                  Text(
-                    comparisonLabel,
-                    style: textTheme.bodySmall?.copyWith(
-                      color: const Color(0xFF64748B),
-                    ),
-                  ),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: <Widget>[
-                    _buildMetaChip(
-                      label: 'Ranking global #${profile.rankingActual}',
-                      color: const Color(0xFF1D4ED8),
-                    ),
-                    _buildMetaChip(
-                      label: rankingDeltaLabel,
-                      color: _rankingDeltaColor(profile.deltaRanking),
-                    ),
-                    _buildMetaChipWithInfo(
-                      label: trendDeltaLabel,
-                      color: _deltaColor(profile.deltaScore),
-                      tooltip: weightsTooltip,
-                    ),
-                  ],
-                ),
-              ],
+          Text(
+            techName,
+            style: textTheme.headlineMedium?.copyWith(
+              fontSize: compact ? 28 : 32,
+              fontWeight: FontWeight.w800,
+              color: const Color(0xFF0F172A),
             ),
           ),
-          const SizedBox(width: 16),
-          _TrendScoreChip(score: profile.trendScoreActual),
+          const SizedBox(height: 8),
+          Text(
+            buildAnalysisPeriodLabel(manifest),
+            style: textTheme.bodyMedium?.copyWith(
+              color: const Color(0xFF475569),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            buildLastUpdatedLabel(manifest),
+            style: textTheme.bodySmall?.copyWith(
+              color: const Color(0xFF64748B),
+            ),
+          ),
+          if (comparisonLabel.isNotEmpty)
+            Text(
+              comparisonLabel,
+              style: textTheme.bodySmall?.copyWith(
+                color: const Color(0xFF64748B),
+              ),
+            ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: <Widget>[
+              _buildMetaChip(
+                label: 'Ranking global #${profile.rankingActual}',
+                color: const Color(0xFF1D4ED8),
+              ),
+              _buildMetaChip(
+                label: rankingDeltaLabel,
+                color: _rankingDeltaColor(profile.deltaRanking),
+              ),
+              _buildMetaChipWithInfo(
+                label: trendDeltaLabel,
+                color: _deltaColor(profile.deltaScore),
+                tooltip: weightsTooltip,
+              ),
+            ],
+          ),
         ],
       ),
+      secondary: _TrendScoreChip(score: profile.trendScoreActual),
+    );
+
+    return <Widget>[
+        _buildBreadcrumb(context, textTheme),
+      const SizedBox(height: 8),
+      headerBlock,
       if (isDegraded)
         const DegradedStateCard(
           message:
@@ -348,45 +388,41 @@ class TrendsTechScreen extends ConsumerWidget {
     final bool showBridgeWarning =
         bridgeMessage != null && bridgeMessage.trim().isNotEmpty;
     final bool isDegraded = manifest?.degradedMode == true;
+    final Widget headerBlock = _buildResponsiveHeroHeader(
+      primary: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            techName,
+            style: textTheme.headlineMedium?.copyWith(
+              fontSize: compact ? 28 : 32,
+              fontWeight: FontWeight.w800,
+              color: const Color(0xFF0F172A),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            buildAnalysisPeriodLabel(manifest),
+            style: textTheme.bodyMedium?.copyWith(
+              color: const Color(0xFF475569),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            buildLastUpdatedLabel(manifest),
+            style: textTheme.bodySmall?.copyWith(
+              color: const Color(0xFF64748B),
+            ),
+          ),
+        ],
+      ),
+      secondary: _TrendScoreChip(score: summary.trendScore),
+    );
+
     return <Widget>[
       _buildBreadcrumb(context, textTheme),
       const SizedBox(height: 8),
-      Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  techName,
-                  style: textTheme.headlineMedium?.copyWith(
-                    fontSize: compact ? 28 : 32,
-                    fontWeight: FontWeight.w800,
-                    color: const Color(0xFF0F172A),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  buildAnalysisPeriodLabel(manifest),
-                  style: textTheme.bodyMedium?.copyWith(
-                    color: const Color(0xFF475569),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  buildLastUpdatedLabel(manifest),
-                  style: textTheme.bodySmall?.copyWith(
-                    color: const Color(0xFF64748B),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 16),
-          _TrendScoreChip(score: summary.trendScore),
-        ],
-      ),
+      headerBlock,
       if (showBridgeWarning)
         const DegradedStateCard(
           message:
@@ -671,21 +707,15 @@ class TrendsTechScreen extends ConsumerWidget {
               children: <Widget>[
                 const SkeletonLine(width: 180, height: 12),
                 const SizedBox(height: 8),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Expanded(
-                      child: Text(
-                        techName,
-                        style: textTheme.titleLarge?.copyWith(
-                          color: const Color(0xFF0F172A),
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
+                _buildResponsiveHeroHeader(
+                  primary: Text(
+                    techName,
+                    style: textTheme.titleLarge?.copyWith(
+                      color: const Color(0xFF0F172A),
+                      fontWeight: FontWeight.w700,
                     ),
-                    const SizedBox(width: 12),
-                    const SkeletonPill(width: 72, height: 32),
-                  ],
+                  ),
+                  secondary: const SkeletonPill(width: 72, height: 32),
                 ),
                 const SizedBox(height: 12),
                 Wrap(
@@ -1508,6 +1538,9 @@ class _SourceCard extends StatelessWidget {
         available ? const Color(0xFF64748B) : const Color(0xFF94A3B8);
     const double contextHeight = 36;
     final String contextCopy = contextText.trim();
+    final Widget? statusChip = !available
+        ? _buildStatusChip('No disponible', const Color(0xFFDC2626))
+        : (deltaLabel.isNotEmpty ? _buildStatusChip(deltaLabel, accent) : null);
 
     return Container(
       width: 330,
@@ -1528,10 +1561,12 @@ class _SourceCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Container(
                 width: 10,
                 height: 10,
+                margin: const EdgeInsets.only(top: 3),
                 decoration: BoxDecoration(
                   color: accent,
                   borderRadius: BorderRadius.circular(999),
@@ -1539,19 +1574,26 @@ class _SourceCard extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: Text(
-                  '$code · $title',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: titleColor,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      '$code · $title',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: titleColor,
+                      ),
+                    ),
+                    if (statusChip != null) ...<Widget>[
+                      const SizedBox(height: 8),
+                      statusChip,
+                    ],
+                  ],
                 ),
               ),
-              if (!available)
-                _buildStatusChip('No disponible', const Color(0xFFDC2626))
-              else if (deltaLabel.isNotEmpty)
-                _buildStatusChip(deltaLabel, accent),
             ],
           ),
           const SizedBox(height: 10),
@@ -1576,25 +1618,22 @@ class _SourceCard extends StatelessWidget {
           const SizedBox(height: 10),
           const Divider(height: 1),
           const SizedBox(height: 10),
-          Row(
+          Wrap(
+            spacing: 12,
+            runSpacing: 6,
             children: <Widget>[
-              Expanded(
-                child: Text(
-                  '$metricA: $valueA',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: subtitleColor,
-                  ),
+              Text(
+                '$metricA: $valueA',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: subtitleColor,
                 ),
               ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  '$metricB: $valueB',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: subtitleColor,
-                  ),
+              Text(
+                '$metricB: $valueB',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: subtitleColor,
                 ),
               ),
             ],

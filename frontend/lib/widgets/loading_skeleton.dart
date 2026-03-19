@@ -104,15 +104,18 @@ class ChartSkeletonCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Row(
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: <Widget>[
                 const SkeletonBox(
                   height: 10,
                   width: 10,
                   borderRadius: BorderRadius.all(Radius.circular(999)),
                 ),
-                const SizedBox(width: 8),
-                Expanded(
+                ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: titleWidth),
                   child: SkeletonLine(width: titleWidth, height: 16),
                 ),
                 if (showBadge) const SkeletonPill(width: 70, height: 22),
