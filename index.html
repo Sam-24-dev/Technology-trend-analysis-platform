@@ -18,21 +18,46 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="description" content="Data intelligence platform for technology trends across GitHub, StackOverflow, and Reddit.">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="frontend">
+  <meta name="apple-mobile-web-app-title" content="Tech Trends">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>frontend</title>
+  <title>Technology Trend Analysis Platform</title>
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
+  <script>
+    (function () {
+      var pendingPath = null;
+      try {
+        pendingPath = window.sessionStorage.getItem('gh-pages-spa-path');
+      } catch (_) {}
+
+      if (pendingPath) {
+        try {
+          window.sessionStorage.removeItem('gh-pages-spa-path');
+        } catch (_) {}
+        window.history.replaceState(null, '', pendingPath);
+        return;
+      }
+
+      if (window.location.hash && window.location.hash.indexOf('#/') === 0) {
+        var basePath = new URL(document.baseURI).pathname.replace(/\/$/, '');
+        window.history.replaceState(
+          null,
+          '',
+          basePath + window.location.hash.substring(1)
+        );
+      }
+    })();
+  </script>
   <script src="flutter_bootstrap.js?v=2" async></script>
 </body>
 </html>

@@ -1,10 +1,10 @@
 {
-  "generated_at_utc": "2026-03-18T00:48:40Z",
+  "generated_at_utc": "2026-03-19T00:24:43Z",
   "dataset": "interseccion_github_reddit",
   "source_mode": "history",
   "snapshot_count": 2,
-  "latest_snapshot_date": "2026-03-17",
-  "previous_snapshot_date": "2026-03-16",
+  "latest_snapshot_date": "2026-03-19",
+  "previous_snapshot_date": "2026-03-18",
   "coverage_pct": 30.0,
   "comparable_count": 3,
   "item_count": 10,
@@ -13,14 +13,14 @@
       "tecnologia": "Python",
       "tipo": "Lenguaje",
       "ranking_github": 1,
-      "ranking_reddit": 7,
-      "brecha_abs": 6,
-      "promedio_rank": 4.0,
+      "ranking_reddit": 6,
+      "brecha_abs": 5,
+      "promedio_rank": 3.5,
       "direccion": "github_favorece",
       "rank_github_prev": 1,
       "rank_reddit_prev": 7,
-      "delta_gap": 0,
-      "trend_direction": "estable"
+      "delta_gap": -1,
+      "trend_direction": "disminuyendo"
     },
     {
       "tecnologia": "TypeScript",
@@ -149,12 +149,12 @@
       "tecnologia": "Python",
       "tipo": "Lenguaje",
       "ranking_github": 1,
-      "ranking_reddit": 7,
-      "brecha_abs": 6,
-      "promedio_rank": 4.0,
+      "ranking_reddit": 6,
+      "brecha_abs": 5,
+      "promedio_rank": 3.5,
       "direccion": "github_favorece",
-      "delta_gap": 0,
-      "trend_direction": "estable"
+      "delta_gap": -1,
+      "trend_direction": "disminuyendo"
     },
     "largest_gap_item": {
       "tecnologia": "TypeScript",
@@ -172,8 +172,8 @@
   },
   "snapshots": [
     {
-      "date": "2026-03-16",
-      "path": "datos/history/interseccion/year=2026/month=03/day=16/interseccion_github_reddit.csv",
+      "date": "2026-03-18",
+      "path": "datos/history/interseccion/year=2026/month=03/day=18/interseccion_github_reddit.csv",
       "source_type": "history",
       "row_count": 10,
       "comparable_count": 3,
@@ -272,8 +272,8 @@
       ]
     },
     {
-      "date": "2026-03-17",
-      "path": "datos/history/interseccion/year=2026/month=03/day=17/interseccion_github_reddit.csv",
+      "date": "2026-03-19",
+      "path": "datos/history/interseccion/year=2026/month=03/day=19/interseccion_github_reddit.csv",
       "source_type": "history",
       "row_count": 10,
       "comparable_count": 3,
@@ -283,9 +283,9 @@
           "tecnologia": "Python",
           "tipo": "Lenguaje",
           "ranking_github": 1,
-          "ranking_reddit": 7,
-          "brecha_abs": 6,
-          "promedio_rank": 4.0,
+          "ranking_reddit": 6,
+          "brecha_abs": 5,
+          "promedio_rank": 3.5,
           "direccion": "github_favorece"
         },
         {
