@@ -153,6 +153,38 @@ def test_build_so_volume_history_adds_growth_share_and_summary(tmp_path):
     assert javascript_item["trend_direction"] == "cayendo"
 
 
+def test_compact_frontend_payload_preserves_full_so_trends_points_only():
+    so_payload = {
+        "dataset": "so_tendencias_mensuales",
+        "months": ["2025-03", "2025-04", "2025-05", "2025-06"],
+        "series": [
+            {
+                "tecnologia": "Python",
+                "points": [2056, 1659, 1374, 1022],
+            }
+        ],
+    }
+    other_payload = {
+        "dataset": "github_correlacion",
+        "series": [
+            {
+                "tecnologia": "Repo A",
+                "points": [10, 20, 30, 40],
+            }
+        ],
+    }
+
+    compact_so = export_history_json._build_compact_frontend_payload(  # pylint: disable=protected-access
+        so_payload
+    )
+    compact_other = export_history_json._build_compact_frontend_payload(  # pylint: disable=protected-access
+        other_payload
+    )
+
+    assert compact_so["series"][0]["points"] == [2056, 1659, 1374, 1022]
+    assert compact_other["series"][0]["points"] == [30, 40]
+
+
 def test_build_so_volume_history_handles_single_snapshot_cleanly(tmp_path):
     project_root = tmp_path
     history_day_1 = (
