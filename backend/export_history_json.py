@@ -3459,9 +3459,18 @@ def _limit_tail(items, limit):
     return items[-limit:]
 
 
-def _build_compact_frontend_payload(payload, *, snapshot_limit=2, point_limit=2):
+def _build_compact_frontend_payload(
+    payload,
+    *,
+    snapshot_limit=2,
+    point_limit=2,
+    preserve_points=False,
+):
     """Reduce committed frontend bridge payloads while keeping the schema valid."""
     if isinstance(payload, dict):
+        preserve_points = preserve_points or (
+            payload.get("dataset") == "so_tendencias_mensuales"
+        )
         compact = {}
         for key, value in payload.items():
             if key == "snapshots" and isinstance(value, list):
@@ -3470,19 +3479,24 @@ def _build_compact_frontend_payload(payload, *, snapshot_limit=2, point_limit=2)
                         item,
                         snapshot_limit=snapshot_limit,
                         point_limit=point_limit,
+                        preserve_points=preserve_points,
                     )
                     for item in _limit_tail(value, snapshot_limit)
                 ]
                 continue
 
             if key in {"points", "source_history"} and isinstance(value, list):
+                values = value
+                if key != "points" or not preserve_points:
+                    values = _limit_tail(value, point_limit)
                 compact[key] = [
                     _build_compact_frontend_payload(
                         item,
                         snapshot_limit=snapshot_limit,
                         point_limit=point_limit,
+                        preserve_points=preserve_points,
                     )
-                    for item in _limit_tail(value, point_limit)
+                    for item in values
                 ]
                 continue
 
@@ -3492,6 +3506,7 @@ def _build_compact_frontend_payload(payload, *, snapshot_limit=2, point_limit=2)
                         item,
                         snapshot_limit=snapshot_limit,
                         point_limit=point_limit,
+                        preserve_points=preserve_points,
                     )
                     for item in value
                 ]
@@ -3501,6 +3516,7 @@ def _build_compact_frontend_payload(payload, *, snapshot_limit=2, point_limit=2)
                 value,
                 snapshot_limit=snapshot_limit,
                 point_limit=point_limit,
+                preserve_points=preserve_points,
             )
 
         if "snapshots" in compact and "snapshot_count" in compact:
@@ -3545,6 +3561,7 @@ def _build_compact_frontend_payload(payload, *, snapshot_limit=2, point_limit=2)
                 item,
                 snapshot_limit=snapshot_limit,
                 point_limit=point_limit,
+                preserve_points=preserve_points,
             )
             for item in payload
         ]
