@@ -156,6 +156,7 @@ def test_build_so_volume_history_adds_growth_share_and_summary(tmp_path):
 def test_compact_frontend_payload_preserves_full_so_trends_points_only():
     so_payload = {
         "dataset": "so_tendencias_mensuales",
+        "snapshot_count": 15,
         "months": ["2025-03", "2025-04", "2025-05", "2025-06"],
         "series": [
             {
@@ -181,6 +182,7 @@ def test_compact_frontend_payload_preserves_full_so_trends_points_only():
         other_payload
     )
 
+    assert compact_so["snapshot_count"] == 2
     assert compact_so["series"][0]["points"] == [2056, 1659, 1374, 1022]
     assert compact_other["series"][0]["points"] == [30, 40]
 
