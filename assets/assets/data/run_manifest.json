@@ -1,8 +1,8 @@
 {
   "manifest_version": "1.0.0",
-  "generated_at_utc": "2026-03-19T00:24:45Z",
-  "source_window_start_utc": "2025-03-19T00:24:45Z",
-  "source_window_end_utc": "2026-03-19T00:24:45Z",
+  "generated_at_utc": "2026-03-22T00:20:18Z",
+  "source_window_start_utc": "2025-03-22T00:20:18Z",
+  "source_window_end_utc": "2026-03-22T00:20:18Z",
   "quality_gate_status": "pass",
   "degraded_mode": false,
   "available_sources": [
@@ -15,79 +15,79 @@
       "dataset": "github_ai_repos_insights",
       "row_count": 1,
       "quality_status": "pass",
-      "updated_at_utc": "2026-03-19T00:09:55Z"
+      "updated_at_utc": "2026-03-22T00:07:25Z"
     },
     {
       "dataset": "github_commits_frameworks",
       "row_count": 5,
       "quality_status": "pass",
-      "updated_at_utc": "2026-03-19T00:16:21Z"
+      "updated_at_utc": "2026-03-22T00:12:42Z"
     },
     {
       "dataset": "github_commits_frameworks_monthly",
       "row_count": 65,
       "quality_status": "pass",
-      "updated_at_utc": "2026-03-19T00:16:21Z"
+      "updated_at_utc": "2026-03-22T00:12:42Z"
     },
     {
       "dataset": "github_correlacion",
       "row_count": 100,
       "quality_status": "pass",
-      "updated_at_utc": "2026-03-19T00:19:25Z"
+      "updated_at_utc": "2026-03-22T00:14:54Z"
     },
     {
       "dataset": "github_lenguajes",
       "row_count": 10,
       "quality_status": "pass",
-      "updated_at_utc": "2026-03-19T00:09:55Z"
+      "updated_at_utc": "2026-03-22T00:07:25Z"
     },
     {
       "dataset": "github_repos_2025",
       "row_count": 1000,
       "quality_status": "pass",
-      "updated_at_utc": "2026-03-19T00:09:55Z"
+      "updated_at_utc": "2026-03-22T00:07:25Z"
     },
     {
       "dataset": "interseccion_github_reddit",
       "row_count": 10,
       "quality_status": "pass",
-      "updated_at_utc": "2026-03-19T00:24:01Z"
+      "updated_at_utc": "2026-03-22T00:19:43Z"
     },
     {
       "dataset": "reddit_sentimiento_frameworks",
       "row_count": 5,
       "quality_status": "pass",
-      "updated_at_utc": "2026-03-19T00:23:57Z"
+      "updated_at_utc": "2026-03-22T00:19:40Z"
     },
     {
       "dataset": "reddit_temas_emergentes",
       "row_count": 10,
       "quality_status": "pass",
-      "updated_at_utc": "2026-03-19T00:24:00Z"
+      "updated_at_utc": "2026-03-22T00:19:43Z"
     },
     {
       "dataset": "so_tasa_aceptacion",
       "row_count": 5,
       "quality_status": "pass",
-      "updated_at_utc": "2026-03-19T00:20:01Z"
+      "updated_at_utc": "2026-03-22T00:15:42Z"
     },
     {
       "dataset": "so_tendencias_mensuales",
       "row_count": 12,
       "quality_status": "pass",
-      "updated_at_utc": "2026-03-19T00:22:54Z"
+      "updated_at_utc": "2026-03-22T00:18:34Z"
     },
     {
       "dataset": "so_volumen_preguntas",
       "row_count": 10,
       "quality_status": "pass",
-      "updated_at_utc": "2026-03-19T00:19:46Z"
+      "updated_at_utc": "2026-03-22T00:15:28Z"
     },
     {
       "dataset": "trend_score",
       "row_count": 22,
       "quality_status": "pass",
-      "updated_at_utc": "2026-03-19T00:24:05Z"
+      "updated_at_utc": "2026-03-22T00:20:00Z"
     }
   ],
   "total_repos_extraidos": 1000,
