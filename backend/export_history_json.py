@@ -3533,6 +3533,14 @@ def _build_compact_frontend_payload(
             compact["topic_count"] = len(compact["latest_topics"])
         if "highlights" in compact and "highlight_count" in compact:
             compact["highlight_count"] = len(compact["highlights"])
+        if (
+            compact.get("dataset") == "so_tendencias_mensuales"
+            and "snapshot_count" in compact
+        ):
+            compact["snapshot_count"] = min(
+                _safe_int(compact.get("snapshot_count"), default=0),
+                snapshot_limit,
+            )
 
         snapshots = compact.get("snapshots")
         if isinstance(snapshots, list):
