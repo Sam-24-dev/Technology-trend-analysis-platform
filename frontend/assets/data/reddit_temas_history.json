@@ -1,70 +1,78 @@
 {
-  "generated_at_utc": "2026-03-19T00:24:43Z",
+  "generated_at_utc": "2026-03-22T00:20:09Z",
   "dataset": "reddit_temas_emergentes",
   "source_mode": "history",
   "snapshot_count": 2,
-  "latest_snapshot_date": "2026-03-19",
-  "previous_snapshot_date": "2026-03-18",
+  "latest_snapshot_date": "2026-03-22",
+  "previous_snapshot_date": "2026-03-19",
   "topic_count": 10,
   "summary": {
     "leader_topic": {
       "tema": "IA/Machine Learning",
-      "menciones": 130,
-      "menciones_previas": 119,
-      "delta_menciones": 11,
-      "growth_pct": 9.24,
+      "menciones": 131,
+      "menciones_previas": 130,
+      "delta_menciones": 1,
+      "growth_pct": 0.77,
       "trend_direction": "creciendo"
     },
     "highest_growth_topic": {
-      "tema": "IA/Machine Learning",
-      "menciones": 130,
-      "menciones_previas": 119,
-      "delta_menciones": 11,
-      "growth_pct": 9.24,
+      "tema": "Python",
+      "menciones": 27,
+      "menciones_previas": 23,
+      "delta_menciones": 4,
+      "growth_pct": 17.39,
       "trend_direction": "creciendo"
     },
     "largest_drop_topic": {
       "tema": "Seguridad",
-      "menciones": 38,
-      "menciones_previas": 42,
-      "delta_menciones": -4,
-      "growth_pct": -9.52,
+      "menciones": 33,
+      "menciones_previas": 38,
+      "delta_menciones": -5,
+      "growth_pct": -13.16,
       "trend_direction": "cayendo"
     },
-    "total_menciones": 356,
+    "total_menciones": 350,
     "topic_count": 10
   },
   "latest_topics": [
     {
       "tema": "IA/Machine Learning",
-      "menciones": 130,
-      "menciones_previas": 119,
-      "delta_menciones": 11,
-      "growth_pct": 9.24,
+      "menciones": 131,
+      "menciones_previas": 130,
+      "delta_menciones": 1,
+      "growth_pct": 0.77,
       "trend_direction": "creciendo"
     },
     {
       "tema": "Performance",
-      "menciones": 56,
-      "menciones_previas": 59,
+      "menciones": 53,
+      "menciones_previas": 56,
       "delta_menciones": -3,
-      "growth_pct": -5.08,
-      "trend_direction": "cayendo"
-    },
-    {
-      "tema": "Seguridad",
-      "menciones": 38,
-      "menciones_previas": 42,
-      "delta_menciones": -4,
-      "growth_pct": -9.52,
+      "growth_pct": -5.36,
       "trend_direction": "cayendo"
     },
     {
       "tema": "DevOps",
-      "menciones": 34,
-      "menciones_previas": 33,
-      "delta_menciones": 1,
-      "growth_pct": 3.03,
+      "menciones": 33,
+      "menciones_previas": 34,
+      "delta_menciones": -1,
+      "growth_pct": -2.94,
+      "trend_direction": "cayendo"
+    },
+    {
+      "tema": "Seguridad",
+      "menciones": 33,
+      "menciones_previas": 38,
+      "delta_menciones": -5,
+      "growth_pct": -13.16,
+      "trend_direction": "cayendo"
+    },
+    {
+      "tema": "Python",
+      "menciones": 27,
+      "menciones_previas": 23,
+      "delta_menciones": 4,
+      "growth_pct": 17.39,
       "trend_direction": "creciendo"
     },
     {
@@ -76,106 +84,39 @@
       "trend_direction": "estable"
     },
     {
-      "tema": "Python",
-      "menciones": 23,
-      "menciones_previas": 23,
-      "delta_menciones": 0,
-      "growth_pct": 0.0,
-      "trend_direction": "estable"
+      "tema": "TypeScript",
+      "menciones": 22,
+      "menciones_previas": 19,
+      "delta_menciones": 3,
+      "growth_pct": 15.79,
+      "trend_direction": "creciendo"
     },
     {
       "tema": "Testing",
-      "menciones": 23,
-      "menciones_previas": 25,
-      "delta_menciones": -2,
-      "growth_pct": -8.0,
-      "trend_direction": "cayendo"
-    },
-    {
-      "tema": "TypeScript",
-      "menciones": 19,
-      "menciones_previas": 20,
-      "delta_menciones": -1,
-      "growth_pct": -5.0,
+      "menciones": 20,
+      "menciones_previas": 23,
+      "delta_menciones": -3,
+      "growth_pct": -13.04,
       "trend_direction": "cayendo"
     },
     {
       "tema": "Microservicios",
-      "menciones": 7,
-      "menciones_previas": 8,
+      "menciones": 6,
+      "menciones_previas": 7,
       "delta_menciones": -1,
-      "growth_pct": -12.5,
+      "growth_pct": -14.29,
       "trend_direction": "cayendo"
     },
     {
       "tema": "Web3/Blockchain",
-      "menciones": 2,
-      "menciones_previas": 3,
+      "menciones": 1,
+      "menciones_previas": 2,
       "delta_menciones": -1,
-      "growth_pct": -33.33,
+      "growth_pct": -50.0,
       "trend_direction": "cayendo"
     }
   ],
   "snapshots": [
-    {
-      "date": "2026-03-18",
-      "path": "datos/history/reddit_temas/year=2026/month=03/day=18/reddit_temas_emergentes.csv",
-      "source_type": "history",
-      "row_count": 10,
-      "total_menciones": 356,
-      "top_topics": [
-        {
-          "tema": "IA/Machine Learning",
-          "menciones": 119,
-          "participacion_pct": 33.43
-        },
-        {
-          "tema": "Performance",
-          "menciones": 59,
-          "participacion_pct": 16.57
-        },
-        {
-          "tema": "Seguridad",
-          "menciones": 42,
-          "participacion_pct": 11.8
-        },
-        {
-          "tema": "DevOps",
-          "menciones": 33,
-          "participacion_pct": 9.27
-        },
-        {
-          "tema": "Testing",
-          "menciones": 25,
-          "participacion_pct": 7.02
-        },
-        {
-          "tema": "Cloud",
-          "menciones": 24,
-          "participacion_pct": 6.74
-        },
-        {
-          "tema": "Python",
-          "menciones": 23,
-          "participacion_pct": 6.46
-        },
-        {
-          "tema": "TypeScript",
-          "menciones": 20,
-          "participacion_pct": 5.62
-        },
-        {
-          "tema": "Microservicios",
-          "menciones": 8,
-          "participacion_pct": 2.25
-        },
-        {
-          "tema": "Web3/Blockchain",
-          "menciones": 3,
-          "participacion_pct": 0.84
-        }
-      ]
-    },
     {
       "date": "2026-03-19",
       "path": "datos/history/reddit_temas/year=2026/month=03/day=19/reddit_temas_emergentes.csv",
@@ -234,6 +175,65 @@
           "participacion_pct": 0.56
         }
       ]
+    },
+    {
+      "date": "2026-03-22",
+      "path": "datos/history/reddit_temas/year=2026/month=03/day=22/reddit_temas_emergentes.csv",
+      "source_type": "history",
+      "row_count": 10,
+      "total_menciones": 350,
+      "top_topics": [
+        {
+          "tema": "IA/Machine Learning",
+          "menciones": 131,
+          "participacion_pct": 37.43
+        },
+        {
+          "tema": "Performance",
+          "menciones": 53,
+          "participacion_pct": 15.14
+        },
+        {
+          "tema": "DevOps",
+          "menciones": 33,
+          "participacion_pct": 9.43
+        },
+        {
+          "tema": "Seguridad",
+          "menciones": 33,
+          "participacion_pct": 9.43
+        },
+        {
+          "tema": "Python",
+          "menciones": 27,
+          "participacion_pct": 7.71
+        },
+        {
+          "tema": "Cloud",
+          "menciones": 24,
+          "participacion_pct": 6.86
+        },
+        {
+          "tema": "TypeScript",
+          "menciones": 22,
+          "participacion_pct": 6.29
+        },
+        {
+          "tema": "Testing",
+          "menciones": 20,
+          "participacion_pct": 5.71
+        },
+        {
+          "tema": "Microservicios",
+          "menciones": 6,
+          "participacion_pct": 1.71
+        },
+        {
+          "tema": "Web3/Blockchain",
+          "menciones": 1,
+          "participacion_pct": 0.29
+        }
+      ]
     }
   ],
   "series": [
@@ -241,14 +241,14 @@
       "tema": "IA/Machine Learning",
       "points": [
         {
-          "date": "2026-03-18",
-          "menciones": 119,
-          "participacion_pct": 33.43
-        },
-        {
           "date": "2026-03-19",
           "menciones": 130,
           "participacion_pct": 36.52
+        },
+        {
+          "date": "2026-03-22",
+          "menciones": 131,
+          "participacion_pct": 37.43
         }
       ]
     },
@@ -256,29 +256,14 @@
       "tema": "Performance",
       "points": [
         {
-          "date": "2026-03-18",
-          "menciones": 59,
-          "participacion_pct": 16.57
-        },
-        {
           "date": "2026-03-19",
           "menciones": 56,
           "participacion_pct": 15.73
-        }
-      ]
-    },
-    {
-      "tema": "Seguridad",
-      "points": [
-        {
-          "date": "2026-03-18",
-          "menciones": 42,
-          "participacion_pct": 11.8
         },
         {
-          "date": "2026-03-19",
-          "menciones": 38,
-          "participacion_pct": 10.67
+          "date": "2026-03-22",
+          "menciones": 53,
+          "participacion_pct": 15.14
         }
       ]
     },
@@ -286,29 +271,29 @@
       "tema": "DevOps",
       "points": [
         {
-          "date": "2026-03-18",
-          "menciones": 33,
-          "participacion_pct": 9.27
-        },
-        {
           "date": "2026-03-19",
           "menciones": 34,
           "participacion_pct": 9.55
+        },
+        {
+          "date": "2026-03-22",
+          "menciones": 33,
+          "participacion_pct": 9.43
         }
       ]
     },
     {
-      "tema": "Cloud",
+      "tema": "Seguridad",
       "points": [
         {
-          "date": "2026-03-18",
-          "menciones": 24,
-          "participacion_pct": 6.74
+          "date": "2026-03-19",
+          "menciones": 38,
+          "participacion_pct": 10.67
         },
         {
-          "date": "2026-03-19",
-          "menciones": 24,
-          "participacion_pct": 6.74
+          "date": "2026-03-22",
+          "menciones": 33,
+          "participacion_pct": 9.43
         }
       ]
     },
@@ -316,29 +301,29 @@
       "tema": "Python",
       "points": [
         {
-          "date": "2026-03-18",
+          "date": "2026-03-19",
           "menciones": 23,
           "participacion_pct": 6.46
         },
         {
-          "date": "2026-03-19",
-          "menciones": 23,
-          "participacion_pct": 6.46
+          "date": "2026-03-22",
+          "menciones": 27,
+          "participacion_pct": 7.71
         }
       ]
     },
     {
-      "tema": "Testing",
+      "tema": "Cloud",
       "points": [
         {
-          "date": "2026-03-18",
-          "menciones": 25,
-          "participacion_pct": 7.02
+          "date": "2026-03-19",
+          "menciones": 24,
+          "participacion_pct": 6.74
         },
         {
-          "date": "2026-03-19",
-          "menciones": 23,
-          "participacion_pct": 6.46
+          "date": "2026-03-22",
+          "menciones": 24,
+          "participacion_pct": 6.86
         }
       ]
     },
@@ -346,14 +331,29 @@
       "tema": "TypeScript",
       "points": [
         {
-          "date": "2026-03-18",
-          "menciones": 20,
-          "participacion_pct": 5.62
-        },
-        {
           "date": "2026-03-19",
           "menciones": 19,
           "participacion_pct": 5.34
+        },
+        {
+          "date": "2026-03-22",
+          "menciones": 22,
+          "participacion_pct": 6.29
+        }
+      ]
+    },
+    {
+      "tema": "Testing",
+      "points": [
+        {
+          "date": "2026-03-19",
+          "menciones": 23,
+          "participacion_pct": 6.46
+        },
+        {
+          "date": "2026-03-22",
+          "menciones": 20,
+          "participacion_pct": 5.71
         }
       ]
     },
@@ -361,14 +361,14 @@
       "tema": "Microservicios",
       "points": [
         {
-          "date": "2026-03-18",
-          "menciones": 8,
-          "participacion_pct": 2.25
-        },
-        {
           "date": "2026-03-19",
           "menciones": 7,
           "participacion_pct": 1.97
+        },
+        {
+          "date": "2026-03-22",
+          "menciones": 6,
+          "participacion_pct": 1.71
         }
       ]
     },
@@ -376,14 +376,14 @@
       "tema": "Web3/Blockchain",
       "points": [
         {
-          "date": "2026-03-18",
-          "menciones": 3,
-          "participacion_pct": 0.84
-        },
-        {
           "date": "2026-03-19",
           "menciones": 2,
           "participacion_pct": 0.56
+        },
+        {
+          "date": "2026-03-22",
+          "menciones": 1,
+          "participacion_pct": 0.29
         }
       ]
     }
