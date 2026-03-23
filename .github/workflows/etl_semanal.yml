@@ -47,10 +47,6 @@ jobs:
           pip install --upgrade pip
           pip install -r backend/requirements.txt
 
-      - name: Download NLTK data
-        run: |
-          python -c "import nltk; nltk.download('vader_lexicon'); nltk.download('stopwords')"
-
       - name: Run GitHub ETL
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
@@ -145,10 +141,6 @@ jobs:
           pip install --upgrade pip
           pip install -r backend/requirements.txt
 
-      - name: Download NLTK data
-        run: |
-          python -c "import nltk; nltk.download('vader_lexicon'); nltk.download('stopwords')"
-
       - name: Run Reddit ETL (non-blocking)
         id: reddit_run
         env:
@@ -237,33 +229,27 @@ jobs:
           workflow_conclusion: success
           if_no_artifact_found: warn
 
-      - name: Restore previous history (if any)
+      - name: Detect previous aggregate snapshot
+        id: previous_history
         shell: bash
         run: |
-          if [ -d "prev_artifacts/datos/history" ]; then
-            mkdir -p datos/history
-            rsync -a prev_artifacts/datos/history/ datos/history/
+          if [ -d "prev_artifacts/datos/history" ] || [ -d "prev_artifacts/history" ]; then
+            echo "expect_previous_history=1" >> "$GITHUB_OUTPUT"
+          else
+            echo "expect_previous_history=0" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Restore previous aggregate outputs (if any)
+        shell: bash
+        run: |
+          if [ -d "prev_artifacts" ]; then
+            python scripts/materialize_etl_artifacts.py --project-root . prev_artifacts
           fi
 
       - name: Materialize source outputs
         shell: bash
         run: |
-          mkdir -p datos datos/latest datos/history frontend/assets/data
-          if [ -d "artifacts/github/datos" ]; then
-            rsync -a artifacts/github/datos/ datos/
-          else
-            cp -f artifacts/github/*.csv datos/ 2>/dev/null || true
-          fi
-          if [ -d "artifacts/stackoverflow/datos" ]; then
-            rsync -a artifacts/stackoverflow/datos/ datos/
-          else
-            cp -f artifacts/stackoverflow/*.csv datos/ 2>/dev/null || true
-          fi
-          if [ -d "artifacts/reddit/datos" ]; then
-            rsync -a artifacts/reddit/datos/ datos/
-          else
-            cp -f artifacts/reddit/*.csv datos/ 2>/dev/null || true
-          fi
+          python scripts/materialize_etl_artifacts.py --project-root . artifacts/github artifacts/stackoverflow artifacts/reddit
 
       - name: Verify artifact handoff
         shell: bash
@@ -281,6 +267,10 @@ jobs:
               echo "::error::Missing required artifact file datos/${required}"
               missing=1
             fi
+            if [ ! -f "datos/latest/${required}" ]; then
+              echo "::error::Missing required artifact file datos/latest/${required}"
+              missing=1
+            fi
           done
           for optional in \
             reddit_sentimiento_frameworks.csv \
@@ -288,6 +278,9 @@ jobs:
             interseccion_github_reddit.csv; do
             if [ ! -f "datos/${optional}" ]; then
               echo "::warning::Optional artifact missing (degraded mode may continue): datos/${optional}"
+            fi
+            if [ ! -f "datos/latest/${optional}" ]; then
+              echo "::warning::Optional artifact missing (degraded mode may continue): datos/latest/${optional}"
             fi
           done
           if [ "$missing" -ne 0 ]; then
@@ -349,6 +342,12 @@ jobs:
       - name: Enforce frontend assets policy (strict)
         run: python scripts/check_frontend_assets.py --mode strict --root .
 
+      - name: Enforce bridge integrity gate
+        run: |
+          python scripts/check_bridge_integrity.py \
+            --project-root . \
+            --expect-previous-history "${{ steps.previous_history.outputs.expect_previous_history }}"
+
       - name: Upload aggregate artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -396,15 +395,7 @@ jobs:
       - name: Restore aggregated files into workspace
         shell: bash
         run: |
-          mkdir -p datos datos/latest datos/history datos/metadata frontend/assets/data
-          cp -f artifact_payload/datos/*.csv datos/ 2>/dev/null || true
-          cp -f artifact_payload/datos/latest/*.csv datos/latest/ 2>/dev/null || true
-          cp -f artifact_payload/datos/metadata/*.json datos/metadata/ 2>/dev/null || true
-          cp -f artifact_payload/frontend/assets/data/*.json frontend/assets/data/ 2>/dev/null || true
-          cp -f artifact_payload/frontend/assets/data/*.csv frontend/assets/data/ 2>/dev/null || true
-          if [ -d artifact_payload/datos/history ]; then
-            rsync -a artifact_payload/datos/history/ datos/history/
-          fi
+          python scripts/materialize_etl_artifacts.py --project-root . artifact_payload
 
       - name: Commit updated data
         id: commit_data

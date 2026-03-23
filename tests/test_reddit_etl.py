@@ -50,12 +50,12 @@ class TestDefinirPasos:
 
     def test_returns_five_steps(self, etl):
         pasos = etl.definir_pasos()
-        assert len(pasos) == 6
+        assert len(pasos) == 5
 
     def test_step_names(self, etl):
         pasos = etl.definir_pasos()
         nombres = [n for n, _ in pasos]
-        assert "Preparar recursos NLTK" in nombres
+        assert "Preparar recursos NLTK" not in nombres
         assert "Autenticacion OAuth" in nombres
         assert "Sentimiento de frameworks" in nombres
         assert "Temas emergentes" in nombres
