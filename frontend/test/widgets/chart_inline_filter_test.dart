@@ -14,17 +14,17 @@ void main() {
           body: Center(
             child: ChartInlineFilter<String>(
               key: const ValueKey<String>('shared-inline-filter'),
-              label: 'Metrica',
+              label: 'Métrica',
               value: selectedLabel,
               selectedLabel: selectedLabel,
               items: const <DropdownMenuItem<String>>[
                 DropdownMenuItem<String>(
-                  value: 'Tasa de aceptacion',
-                  child: Text('Tasa de aceptacion'),
+                  value: 'Tasa de aceptación',
+                  child: Text('Tasa de aceptación'),
                 ),
                 DropdownMenuItem<String>(
-                  value: 'Variacion',
-                  child: Text('Variacion'),
+                  value: 'Variación',
+                  child: Text('Variación'),
                 ),
               ],
               onChanged: onChanged,
@@ -41,7 +41,7 @@ void main() {
   ) async {
     await pumpFilter(
       tester,
-      selectedLabel: 'Tasa de aceptacion',
+      selectedLabel: 'Tasa de aceptación',
       onChanged: (_) {},
     );
 
@@ -49,8 +49,8 @@ void main() {
       const ValueKey<String>('shared-inline-filter'),
     );
     expect(filter, findsOneWidget);
-    expect(find.textContaining('Metrica:'), findsOneWidget);
-    expect(find.text('Tasa de aceptacion'), findsAtLeastNWidgets(1));
+    expect(find.textContaining('Métrica:'), findsOneWidget);
+    expect(find.text('Tasa de aceptación'), findsAtLeastNWidgets(1));
 
     final Size size = tester.getSize(filter);
     expect(size.height, lessThan(44));
@@ -59,7 +59,7 @@ void main() {
   testWidgets('ChartInlineFilter propagates selection changes', (
     WidgetTester tester,
   ) async {
-    String selected = 'Tasa de aceptacion';
+    String selected = 'Tasa de aceptación';
 
     await pumpFilter(
       tester,
@@ -73,10 +73,10 @@ void main() {
 
     await tester.tap(find.byType(DropdownButton<String>));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Variacion').last);
+    await tester.tap(find.text('Variación').last);
     await tester.pumpAndSettle();
 
-    expect(selected, 'Variacion');
+    expect(selected, 'Variación');
   });
 
   testWidgets('ChartInlineFilter wraps cleanly on narrow widths', (

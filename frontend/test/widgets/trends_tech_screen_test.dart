@@ -116,8 +116,8 @@ void main() {
                   : const <String>['github', 'stackoverflow'],
           label:
               redditAvailable
-                  ? 'SeÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â±al combinada en GitHub, StackOverflow y Reddit.'
-                  : 'SeÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â±al disponible en GitHub y StackOverflow.',
+                  ? 'Señal combinada en GitHub, StackOverflow y Reddit.'
+                  : 'Señal disponible en GitHub y StackOverflow.',
         ),
         momentum: const TechnologyMomentumInsight(
           rankingActual: 1,
@@ -125,7 +125,7 @@ void main() {
           deltaRanking: 1,
           scoreActual: 80.0,
           scorePrev: 78.0,
-          label: 'Python sube 1 posiciÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³n frente a la corrida previa.',
+          label: 'Python sube 1 posición frente a la corrida previa.',
         ),
       ),
     );
