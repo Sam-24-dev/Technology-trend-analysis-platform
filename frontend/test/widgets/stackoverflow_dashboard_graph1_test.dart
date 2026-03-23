@@ -216,6 +216,68 @@ void main() {
     });
   }
 
+  StackOverflowVolumeHistoryModel historyWithNonContiguousDates() {
+    return StackOverflowVolumeHistoryModel.fromMap(<String, dynamic>{
+      'source_mode': 'history',
+      'snapshot_count': 2,
+      'latest_snapshot_date': '2026-03-22',
+      'previous_snapshot_date': '2026-03-19',
+      'has_historical_comparison': true,
+      'item_count': 2,
+      'summary': {
+        'leader': {
+          'lenguaje': 'python',
+          'preguntas': 120,
+          'preguntas_prev': 100,
+          'delta_preguntas': 20,
+          'growth_pct': 20.0,
+          'trend_direction': 'creciendo',
+          'share_pct': 54.5,
+        },
+        'highest_growth': {
+          'lenguaje': 'python',
+          'preguntas': 120,
+          'preguntas_prev': 100,
+          'delta_preguntas': 20,
+          'growth_pct': 20.0,
+          'trend_direction': 'creciendo',
+          'share_pct': 54.5,
+        },
+        'largest_drop': {
+          'lenguaje': 'java',
+          'preguntas': 100,
+          'preguntas_prev': 110,
+          'delta_preguntas': -10,
+          'growth_pct': -9.09,
+          'trend_direction': 'cayendo',
+          'share_pct': 45.5,
+        },
+        'total_questions': 220,
+      },
+      'latest_items': [
+        {
+          'lenguaje': 'python',
+          'preguntas': 120,
+          'preguntas_prev': 100,
+          'delta_preguntas': 20,
+          'growth_pct': 20.0,
+          'trend_direction': 'creciendo',
+          'share_pct': 54.5,
+        },
+        {
+          'lenguaje': 'java',
+          'preguntas': 100,
+          'preguntas_prev': 110,
+          'delta_preguntas': -10,
+          'growth_pct': -9.09,
+          'trend_direction': 'cayendo',
+          'share_pct': 45.5,
+        },
+      ],
+      'snapshots': [],
+    });
+  }
+
   StackOverflowDashboardData dashboardData(
     StackOverflowVolumeHistoryModel history,
   ) {
@@ -463,6 +525,23 @@ void main() {
     expect(find.textContaining('Mayor particip'), findsNothing);
     expect(find.textContaining('Mayor crecimiento: Ruby (+3)'), findsOneWidget);
     expect(find.textContaining('Mayor caída: Python (-96)'), findsOneWidget);
+  });
+
+  testWidgets('graph 1 subtitle hides missing snapshot note', (
+    WidgetTester tester,
+  ) async {
+    await pumpDashboard(
+      tester,
+      history: historyWithNonContiguousDates(),
+      size: const Size(390, 844),
+    );
+
+    expect(
+      find.textContaining('Comparado (UTC): 19/03/2026 -> 22/03/2026'),
+      findsOneWidget,
+    );
+    expect(find.textContaining('faltan'), findsNothing);
+    expect(find.textContaining('falta snapshot'), findsNothing);
   });
 
   testWidgets('graph 1 stays stable across responsive breakpoints', (
