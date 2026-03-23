@@ -2462,7 +2462,7 @@ class _RedditDashboardState extends ConsumerState<RedditDashboard> {
         ],
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Container(
             width: 48,
@@ -2493,6 +2493,7 @@ class _RedditDashboardState extends ConsumerState<RedditDashboard> {
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
                     color: card.iconColor,
+                    height: 1.25,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -2503,8 +2504,6 @@ class _RedditDashboardState extends ConsumerState<RedditDashboard> {
                     color: Color(0xFF475569),
                     height: 1.35,
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),

@@ -454,6 +454,15 @@ void main() {
       ),
       findsOneWidget,
     );
+    final Finder frameworkDescriptionFinder = find.textContaining(
+      '5,000 commits en el periodo actual.',
+    );
+    expect(frameworkDescriptionFinder, findsOneWidget);
+    final Text frameworkDescriptionText = tester.widget<Text>(
+      frameworkDescriptionFinder,
+    );
+    expect(frameworkDescriptionText.maxLines, isNull);
+    expect(frameworkDescriptionText.overflow, isNull);
     expect(tester.takeException(), isNull);
   });
 

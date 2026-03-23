@@ -3532,7 +3532,7 @@ class _GithubDashboardState extends ConsumerState<GithubDashboard> {
         ],
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             width: 48,
@@ -3559,6 +3559,7 @@ class _GithubDashboardState extends ConsumerState<GithubDashboard> {
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
                     color: accentColor,
+                    height: 1.25,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -3567,9 +3568,8 @@ class _GithubDashboardState extends ConsumerState<GithubDashboard> {
                   style: const TextStyle(
                     fontSize: 13,
                     color: Color(0xFF475569),
+                    height: 1.35,
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),

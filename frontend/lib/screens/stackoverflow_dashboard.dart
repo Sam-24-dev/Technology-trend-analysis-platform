@@ -3016,8 +3016,6 @@ class _InsightCard extends StatelessWidget {
                     height: 1.45,
                     fontWeight: FontWeight.w500,
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
