@@ -13,121 +13,144 @@ void main() {
   testWidgets('home usa highlights globales canónicos del bridge', (
     WidgetTester tester,
   ) async {
-    tester.view.physicalSize = const Size(1400, 1800);
-    tester.view.devicePixelRatio = 1.0;
+    const List<Size> viewports = <Size>[
+      Size(390, 844),
+      Size(844, 390),
+      Size(768, 1024),
+      Size(1024, 768),
+      Size(1400, 1800),
+    ];
+
     addTearDown(() {
       tester.view.resetPhysicalSize();
       tester.view.resetDevicePixelRatio();
     });
 
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          homeHighlightsProvider.overrideWith(
-            (ref) async => DataLoadState.data(
-              HomeHighlightsPayloadModel.fromMap({
-                'generated_at_utc': '2026-03-09T05:56:39Z',
-                'dataset': 'home_highlights',
-                'source_mode': 'bridges',
-                'candidate_count': 3,
-                'highlights': [
-                  {
-                    'dashboard': 'github',
-                    'graph': 2,
-                    'signal': 'leader',
-                    'source': 'github_frameworks_history.summary.leader',
-                    'entity': 'Next.js',
-                    'entity_key': 'nextjs',
-                    'score': 251.61,
-                    'payload': {'framework': 'Next.js', 'commits_2025': 5000},
-                  },
-                  {
-                    'dashboard': 'stackoverflow',
-                    'graph': 1,
-                    'signal': 'leader',
-                    'source': 'so_volumen_history.summary.leader',
-                    'entity': 'python',
-                    'entity_key': 'python',
-                    'score': 234.22,
-                    'payload': {
-                      'lenguaje': 'python',
-                      'preguntas': 10810,
-                      'share_pct': 31.53,
+    for (final Size size in viewports) {
+      tester.view.physicalSize = size;
+      tester.view.devicePixelRatio = 1.0;
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            homeHighlightsProvider.overrideWith(
+              (ref) async => DataLoadState.data(
+                HomeHighlightsPayloadModel.fromMap({
+                  'generated_at_utc': '2026-03-09T05:56:39Z',
+                  'dataset': 'home_highlights',
+                  'source_mode': 'bridges',
+                  'candidate_count': 3,
+                  'highlights': [
+                    {
+                      'dashboard': 'github',
+                      'graph': 2,
+                      'signal': 'leader',
+                      'source': 'github_frameworks_history.summary.leader',
+                      'entity': 'Next.js',
+                      'entity_key': 'nextjs',
+                      'score': 251.61,
+                      'payload': {
+                        'framework': 'Next.js',
+                        'commits_2025': 5000,
+                      },
                     },
-                  },
-                  {
-                    'dashboard': 'reddit',
-                    'graph': 2,
-                    'signal': 'leader_topic',
-                    'source': 'reddit_temas_history.summary.leader_topic',
-                    'entity': 'IA/Machine Learning',
-                    'entity_key': 'iamachinelearning',
-                    'score': 145.0,
-                    'payload': {
-                      'tema': 'IA/Machine Learning',
-                      'menciones': 142,
-                      'growth_pct': 0.71,
-                      'trend_direction': 'creciendo',
+                    {
+                      'dashboard': 'stackoverflow',
+                      'graph': 1,
+                      'signal': 'leader',
+                      'source': 'so_volumen_history.summary.leader',
+                      'entity': 'python',
+                      'entity_key': 'python',
+                      'score': 234.22,
+                      'payload': {
+                        'lenguaje': 'python',
+                        'preguntas': 10810,
+                        'share_pct': 31.53,
+                      },
                     },
-                  },
-                ],
-              }),
-            ),
-          ),
-          trendTemporalProvider.overrideWith(
-            (ref) async => DataLoadState.data(
-              const TrendTemporalViewData(
-                source: 'bridge_json',
-                snapshotCount: 1,
-                items: <TrendTopEntry>[],
+                    {
+                      'dashboard': 'reddit',
+                      'graph': 2,
+                      'signal': 'leader_topic',
+                      'source': 'reddit_temas_history.summary.leader_topic',
+                      'entity': 'IA/Machine Learning',
+                      'entity_key': 'iamachinelearning',
+                      'score': 145.0,
+                      'payload': {
+                        'tema': 'IA/Machine Learning',
+                        'menciones': 142,
+                        'growth_pct': 0.71,
+                        'trend_direction': 'creciendo',
+                      },
+                    },
+                  ],
+                }),
               ),
             ),
-          ),
-          runManifestProvider.overrideWith(
-            (ref) async => DataLoadState.data(
-              const RunManifestPublic(
-                manifestVersion: '1.0.0',
-                generatedAtUtc: '2026-03-09T05:56:39Z',
-                sourceWindowStartUtc: '2025-03-01T00:00:00Z',
-                sourceWindowEndUtc: '2026-03-09T00:00:00Z',
-                qualityGateStatus: 'pass',
-                degradedMode: false,
-                availableSources: <String>['github', 'stackoverflow', 'reddit'],
-                datasetSummaries: <RunManifestDatasetSummary>[],
-                totalReposExtraidos: 0,
-                totalReposClasificables: 0,
-                soLanguagesCount: 0,
-                notes: 'ok',
+            trendTemporalProvider.overrideWith(
+              (ref) async => DataLoadState.data(
+                const TrendTemporalViewData(
+                  source: 'bridge_json',
+                  snapshotCount: 1,
+                  items: <TrendTopEntry>[],
+                ),
               ),
             ),
+            runManifestProvider.overrideWith(
+              (ref) async => DataLoadState.data(
+                const RunManifestPublic(
+                  manifestVersion: '1.0.0',
+                  generatedAtUtc: '2026-03-09T05:56:39Z',
+                  sourceWindowStartUtc: '2025-03-01T00:00:00Z',
+                  sourceWindowEndUtc: '2026-03-09T00:00:00Z',
+                  qualityGateStatus: 'pass',
+                  degradedMode: false,
+                  availableSources: <String>[
+                    'github',
+                    'stackoverflow',
+                    'reddit',
+                  ],
+                  datasetSummaries: <RunManifestDatasetSummary>[],
+                  totalReposExtraidos: 0,
+                  totalReposClasificables: 0,
+                  soLanguagesCount: 0,
+                  notes: 'ok',
+                ),
+              ),
+            ),
+          ],
+          child: const MaterialApp(
+            home: Scaffold(body: SingleChildScrollView(child: HomeScreen())),
           ),
-        ],
-        child: const MaterialApp(
-          home: Scaffold(body: SingleChildScrollView(child: HomeScreen())),
         ),
-      ),
-    );
+      );
 
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
-    await tester.pump(const Duration(milliseconds: 300));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pump(const Duration(milliseconds: 300));
 
-    expect(
-      find.text('Next.js lidera los commits frontend en GitHub'),
-      findsOneWidget,
-    );
-    expect(
-      find.text('Python lidera el volumen en StackOverflow'),
-      findsOneWidget,
-    );
-    expect(find.text('AI/ML lidera la conversación en Reddit'), findsOneWidget);
-    expect(find.text('Python domina GitHub y StackOverflow'), findsNothing);
-    final Finder descriptionFinder = find.textContaining(
-      '10,810 preguntas nuevas',
-    );
-    expect(descriptionFinder, findsOneWidget);
-    final Text descriptionText = tester.widget<Text>(descriptionFinder);
-    expect(descriptionText.maxLines, isNull);
-    expect(descriptionText.overflow, isNull);
+      expect(
+        find.text('Next.js lidera los commits frontend en GitHub'),
+        findsOneWidget,
+      );
+      expect(
+        find.text('Python lidera el volumen en StackOverflow'),
+        findsOneWidget,
+      );
+      expect(find.text('AI/ML lidera la conversación en Reddit'), findsOneWidget);
+      expect(find.text('Python domina GitHub y StackOverflow'), findsNothing);
+      final Finder descriptionFinder = find.textContaining(
+        '10,810 preguntas nuevas',
+      );
+      expect(descriptionFinder, findsOneWidget);
+      final Text descriptionText = tester.widget<Text>(descriptionFinder);
+      expect(descriptionText.maxLines, isNull);
+      expect(descriptionText.overflow, isNull);
+      expect(
+        tester.takeException(),
+        isNull,
+        reason: 'Unexpected layout exception at viewport $size',
+      );
+    }
   });
 }

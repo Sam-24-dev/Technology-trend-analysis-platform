@@ -3531,38 +3531,47 @@ class _GithubDashboardState extends ConsumerState<GithubDashboard> {
           ),
         ],
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: accentColor.withValues(alpha: 0.1),
-            ),
-            child: imagePath == null
-                ? Icon(fallbackIcon, color: accentColor, size: 26)
-                : ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.asset(imagePath, fit: BoxFit.contain),
-                  ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                    color: accentColor,
-                    height: 1.25,
-                  ),
+      child: LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          final bool compact = constraints.maxWidth < 420;
+          if (compact) {
+            return SizedBox(
+              width: constraints.maxWidth,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: accentColor.withValues(alpha: 0.1),
+                      ),
+                      child: imagePath == null
+                          ? Icon(fallbackIcon, color: accentColor, size: 26)
+                          : ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.asset(imagePath, fit: BoxFit.contain),
+                            ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: accentColor,
+                          height: 1.25,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 12),
                 Text(
                   description,
                   style: const TextStyle(
@@ -3571,10 +3580,56 @@ class _GithubDashboardState extends ConsumerState<GithubDashboard> {
                     height: 1.35,
                   ),
                 ),
-              ],
-            ),
-          ),
-        ],
+                ],
+              ),
+            );
+          }
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: accentColor.withValues(alpha: 0.1),
+                ),
+                child: imagePath == null
+                    ? Icon(fallbackIcon, color: accentColor, size: 26)
+                    : ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.asset(imagePath, fit: BoxFit.contain),
+                      ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: accentColor,
+                        height: 1.25,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      description,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: Color(0xFF475569),
+                        height: 1.35,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

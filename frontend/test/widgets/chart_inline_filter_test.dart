@@ -14,17 +14,17 @@ void main() {
           body: Center(
             child: ChartInlineFilter<String>(
               key: const ValueKey<String>('shared-inline-filter'),
-              label: 'Métrica',
+              label: 'Metrica',
               value: selectedLabel,
               selectedLabel: selectedLabel,
               items: const <DropdownMenuItem<String>>[
                 DropdownMenuItem<String>(
-                  value: 'Tasa de aceptación',
-                  child: Text('Tasa de aceptación'),
+                  value: 'Tasa de aceptacion',
+                  child: Text('Tasa de aceptacion'),
                 ),
                 DropdownMenuItem<String>(
-                  value: 'Variación',
-                  child: Text('Variación'),
+                  value: 'Variacion',
+                  child: Text('Variacion'),
                 ),
               ],
               onChanged: onChanged,
@@ -41,7 +41,7 @@ void main() {
   ) async {
     await pumpFilter(
       tester,
-      selectedLabel: 'Tasa de aceptación',
+      selectedLabel: 'Tasa de aceptacion',
       onChanged: (_) {},
     );
 
@@ -49,8 +49,8 @@ void main() {
       const ValueKey<String>('shared-inline-filter'),
     );
     expect(filter, findsOneWidget);
-    expect(find.textContaining('Métrica:'), findsOneWidget);
-    expect(find.text('Tasa de aceptación'), findsAtLeastNWidgets(1));
+    expect(find.textContaining('Metrica:'), findsOneWidget);
+    expect(find.text('Tasa de aceptacion'), findsAtLeastNWidgets(1));
 
     final Size size = tester.getSize(filter);
     expect(size.height, lessThan(44));
@@ -59,7 +59,7 @@ void main() {
   testWidgets('ChartInlineFilter propagates selection changes', (
     WidgetTester tester,
   ) async {
-    String selected = 'Tasa de aceptación';
+    String selected = 'Tasa de aceptacion';
 
     await pumpFilter(
       tester,
@@ -73,9 +73,69 @@ void main() {
 
     await tester.tap(find.byType(DropdownButton<String>));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Variación').last);
+    await tester.tap(find.text('Variacion').last);
     await tester.pumpAndSettle();
 
-    expect(selected, 'Variación');
+    expect(selected, 'Variacion');
+  });
+
+  testWidgets('ChartInlineFilter wraps cleanly on narrow widths', (
+    WidgetTester tester,
+  ) async {
+    const List<Size> viewports = <Size>[
+      Size(220, 120),
+      Size(280, 120),
+      Size(390, 120),
+      Size(768, 120),
+      Size(1280, 120),
+    ];
+
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    for (final Size size in viewports) {
+      tester.view.physicalSize = size;
+      tester.view.devicePixelRatio = 1.0;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Align(
+              alignment: Alignment.topLeft,
+              child: SizedBox(
+                width: size.width < 300 ? size.width - 16 : 280,
+                child: ChartInlineFilter<String>(
+                  key: const ValueKey<String>('shared-inline-filter'),
+                  label: 'Vista',
+                  value: 'Solo multi-fuente',
+                  selectedLabel: 'Solo multi-fuente',
+                  items: const <DropdownMenuItem<String>>[
+                    DropdownMenuItem<String>(
+                      value: 'Top recomendado',
+                      child: Text('Top recomendado'),
+                    ),
+                    DropdownMenuItem<String>(
+                      value: 'Solo multi-fuente',
+                      child: Text('Solo multi-fuente'),
+                    ),
+                  ],
+                  onChanged: (_) {},
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(
+        tester.takeException(),
+        isNull,
+        reason: 'ChartInlineFilter overflowed at viewport $size',
+      );
+    }
   });
 }

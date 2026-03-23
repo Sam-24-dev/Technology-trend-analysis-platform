@@ -336,7 +336,6 @@ class HomeScreen extends ConsumerWidget {
               Expanded(
                 child: Text(
                   title,
-                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -382,27 +381,55 @@ class HomeScreen extends ConsumerWidget {
   ) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        children: [
-          CircleAvatar(
-            backgroundColor: color.withValues(alpha: 0.15),
-            child: FaIcon(icon, color: color, size: 18),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
+      child: LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          final bool compact = constraints.maxWidth < 420;
+          if (compact) {
+            return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
+              children: <Widget>[
+                CircleAvatar(
+                  backgroundColor: color.withValues(alpha: 0.15),
+                  child: FaIcon(icon, color: color, size: 18),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  name,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 4),
                 Text(
                   role,
                   style: const TextStyle(color: Color(0xFF475569)),
-                  overflow: TextOverflow.ellipsis,
+                  softWrap: true,
                 ),
               ],
-            ),
-          ),
-        ],
+            );
+          }
+
+          return Row(
+            children: [
+              CircleAvatar(
+                backgroundColor: color.withValues(alpha: 0.15),
+                child: FaIcon(icon, color: color, size: 18),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                    Text(
+                      role,
+                      style: const TextStyle(color: Color(0xFF475569)),
+                      softWrap: true,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -1293,65 +1320,115 @@ class _HomeInsightTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: item.color.withValues(alpha: 0.3), width: 2),
-        boxShadow: <BoxShadow>[
-          BoxShadow(
-            color: item.color.withValues(alpha: 0.08),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        final double viewportWidth = MediaQuery.sizeOf(context).width;
+        final bool compact =
+            viewportWidth < 520 || constraints.maxWidth < 420;
+        return Container(
+          width: compact ? constraints.maxWidth : null,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: item.color.withValues(alpha: 0.3), width: 2),
+            boxShadow: <BoxShadow>[
+              BoxShadow(
+                color: item.color.withValues(alpha: 0.08),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: item.color.withValues(alpha: 0.1),
-            ),
-            child: item.assetPath != null
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.asset(item.assetPath!, fit: BoxFit.contain),
-                  )
-                : Icon(item.fallbackIcon, color: item.color, size: 24),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  item.title,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: item.color,
-                    height: 1.25,
-                  ),
+          child: compact
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: item.color.withValues(alpha: 0.1),
+                      ),
+                      child: item.assetPath != null
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.asset(
+                                item.assetPath!,
+                                fit: BoxFit.contain,
+                              ),
+                            )
+                          : Icon(item.fallbackIcon, color: item.color, size: 24),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      item.title,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: item.color,
+                        height: 1.25,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      item.description,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Color(0xFF475569),
+                        height: 1.35,
+                      ),
+                    ),
+                  ],
+                )
+              : Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: item.color.withValues(alpha: 0.1),
+                      ),
+                      child: item.assetPath != null
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.asset(item.assetPath!, fit: BoxFit.contain),
+                            )
+                          : Icon(item.fallbackIcon, color: item.color, size: 24),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            item.title,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: item.color,
+                              height: 1.25,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            item.description,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Color(0xFF475569),
+                              height: 1.35,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 6),
-                Text(
-                  item.description,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Color(0xFF475569),
-                    height: 1.35,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
@@ -1473,20 +1550,18 @@ class _TrendTemporalBridgeCardState
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Wrap(
-                spacing: 10,
-                runSpacing: 8,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  const Text(
+              LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints constraints) {
+                  final bool compactHeader = constraints.maxWidth < 520;
+                  final Widget title = const Text(
                     'Ranking actual de tendencias tecnologicas',
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF1F2937),
                     ),
-                  ),
-                  Container(
+                  );
+                  final Widget topChip = Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,
                       vertical: 4,
@@ -1503,8 +1578,8 @@ class _TrendTemporalBridgeCardState
                         color: Color(0xFF1D4ED8),
                       ),
                     ),
-                  ),
-                  ChartInlineFilter<_HomeRankingView>(
+                  );
+                  final Widget filter = ChartInlineFilter<_HomeRankingView>(
                     label: 'Vista',
                     value: _selectedView,
                     selectedLabel: _viewLabel(_selectedView),
@@ -1515,8 +1590,31 @@ class _TrendTemporalBridgeCardState
                       }
                       setState(() => _selectedView = value);
                     },
-                  ),
-                ],
+                  );
+
+                  if (compactHeader) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        title,
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 10,
+                          runSpacing: 8,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: <Widget>[topChip, filter],
+                        ),
+                      ],
+                    );
+                  }
+
+                  return Wrap(
+                    spacing: 10,
+                    runSpacing: 8,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: <Widget>[title, topChip, filter],
+                  );
+                },
               ),
               const SizedBox(height: 8),
               const Text(
@@ -1528,23 +1626,48 @@ class _TrendTemporalBridgeCardState
                 ),
               ),
               const SizedBox(height: 6),
-              Wrap(
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 6,
-                children: [
-                  const Text(
+              LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints constraints) {
+                  final bool compactNote = constraints.maxWidth < 520;
+                  final Widget noteText = const Text(
                     'Ranking calculado con datos combinados de GitHub, StackOverflow y Reddit.',
                     style: TextStyle(fontSize: 13, color: Color(0xFF475569)),
-                  ),
-                    _buildTapTooltip(
-                      message: 'Puntaje total = GH 40% · SO 35% · RD 25%.',
-                      child: Icon(
-                        Icons.info_outline_rounded,
-                        size: 14,
-                        color: Color(0xFF64748B),
-                      ),
+                  );
+                  final Widget info = _buildTapTooltip(
+                    message: 'Puntaje total = GH 40% · SO 35% · RD 25%.',
+                    child: const Icon(
+                      Icons.info_outline_rounded,
+                      size: 14,
+                      color: Color(0xFF64748B),
                     ),
-                ],
+                  );
+
+                  if (compactNote) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        noteText,
+                        const SizedBox(height: 4),
+                        info,
+                      ],
+                    );
+                  }
+
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      const Expanded(
+                        child: Text(
+                          'Ranking calculado con datos combinados de GitHub, StackOverflow y Reddit.',
+                          style:
+                              TextStyle(fontSize: 13, color: Color(0xFF475569)),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      info,
+                    ],
+                  );
+                },
               ),
               const SizedBox(height: 4),
               const Text(
@@ -1588,7 +1711,9 @@ class _TrendTemporalBridgeCardState
                     final double maxWidth = constraints.maxWidth;
                     double cardWidth = 220;
 
-                    if (maxWidth < 760) {
+                    if (maxWidth < 620) {
+                      cardWidth = maxWidth;
+                    } else if (maxWidth < 760) {
                       cardWidth = (maxWidth - spacing) / 2;
                       if (cardWidth < 150) {
                         cardWidth = maxWidth;
@@ -1844,50 +1969,44 @@ class _TrendTopEntryCardState extends State<_TrendTopEntryCard> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Expanded(
-                              child: Text(
-                                widget.item.tecnologia,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                  color: Color(0xFF111827),
+                        Text(
+                          widget.item.tecnologia,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF111827),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Container(
+                            constraints: const BoxConstraints(minWidth: 40),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: badgeBackground,
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: badgeBorder),
+                              boxShadow: <BoxShadow>[
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.10),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 2),
                                 ),
+                              ],
+                            ),
+                            child: Text(
+                              '#${widget.displayRank ?? widget.item.ranking}',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFFF8FAFC),
                               ),
                             ),
-                            const SizedBox(width: 8),
-                            Container(
-                              constraints: const BoxConstraints(minWidth: 40),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: badgeBackground,
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(color: badgeBorder),
-                                boxShadow: <BoxShadow>[
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.10),
-                                    blurRadius: 6,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: Text(
-                                '#${widget.displayRank ?? widget.item.ranking}',
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                  color: Color(0xFFF8FAFC),
-                                ),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                         const SizedBox(height: 12),
                         Text(
@@ -1962,33 +2081,34 @@ class _TrendTopEntryCardState extends State<_TrendTopEntryCard> {
     required String label,
     required Color color,
   }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: color.withValues(alpha: 0.4)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14, color: color),
-          const SizedBox(width: 6),
-          Flexible(
-            child: Text(
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 240),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: color.withValues(alpha: 0.4)),
+        ),
+        child: Wrap(
+          spacing: 6,
+          runSpacing: 2,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            Icon(icon, size: 14, color: color),
+            Text(
               label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+              softWrap: true,
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: Color(0xFF0F172A),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-      );
+    );
     }
 
     String _rankingChangeLabel() {
