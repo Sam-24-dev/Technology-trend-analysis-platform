@@ -1,197 +1,10 @@
 {
-  "generated_at_utc": "2026-03-22T00:20:08Z",
-  "snapshot_count": 2,
+  "generated_at_utc": "2026-03-23T09:06:46Z",
+  "snapshot_count": 1,
   "snapshots": [
     {
-      "date": "2026-03-19",
-      "path": "datos/history/trend_score/year=2026/month=03/day=19/trend_score.csv",
-      "source_type": "history",
-      "row_count": 22,
-      "top_10": [
-        {
-          "ranking": 1,
-          "tecnologia": "Python",
-          "slug": "python",
-          "github_score": 100.0,
-          "so_score": 100.0,
-          "reddit_score": 16.41,
-          "trend_score": 79.1,
-          "fuentes": 3,
-          "available_source_codes": [
-            "GH",
-            "SO",
-            "RD"
-          ],
-          "score_prev": 79.31,
-          "delta_score": -0.21,
-          "ranking_prev": 1,
-          "delta_ranking": 0
-        },
-        {
-          "ranking": 2,
-          "tecnologia": "TypeScript",
-          "slug": "typescript",
-          "github_score": 77.85,
-          "so_score": 18.93,
-          "reddit_score": 13.28,
-          "trend_score": 41.09,
-          "fuentes": 3,
-          "available_source_codes": [
-            "GH",
-            "SO",
-            "RD"
-          ],
-          "score_prev": 41.78,
-          "delta_score": -0.69,
-          "ranking_prev": 2,
-          "delta_ranking": 0
-        },
-        {
-          "ranking": 3,
-          "tecnologia": "AI/ML",
-          "slug": "ai-ml",
-          "github_score": 0.0,
-          "so_score": 0.0,
-          "reddit_score": 100.0,
-          "trend_score": 25.0,
-          "fuentes": 1,
-          "available_source_codes": [
-            "RD"
-          ],
-          "score_prev": 25.0,
-          "delta_score": 0.0,
-          "ranking_prev": 3,
-          "delta_ranking": 0
-        },
-        {
-          "ranking": 4,
-          "tecnologia": "JavaScript",
-          "slug": "javascript",
-          "github_score": 18.99,
-          "so_score": 42.28,
-          "reddit_score": 0.0,
-          "trend_score": 22.39,
-          "fuentes": 2,
-          "available_source_codes": [
-            "GH",
-            "SO"
-          ],
-          "score_prev": 22.19,
-          "delta_score": 0.2,
-          "ranking_prev": 4,
-          "delta_ranking": 0
-        },
-        {
-          "ranking": 5,
-          "tecnologia": "Java",
-          "slug": "java",
-          "github_score": 2.22,
-          "so_score": 41.35,
-          "reddit_score": 0.0,
-          "trend_score": 15.36,
-          "fuentes": 2,
-          "available_source_codes": [
-            "GH",
-            "SO"
-          ],
-          "score_prev": 15.21,
-          "delta_score": 0.15,
-          "ranking_prev": 5,
-          "delta_ranking": 0
-        },
-        {
-          "ranking": 6,
-          "tecnologia": "C#",
-          "slug": "c-sharp",
-          "github_score": 1.27,
-          "so_score": 40.73,
-          "reddit_score": 0.0,
-          "trend_score": 14.76,
-          "fuentes": 2,
-          "available_source_codes": [
-            "GH",
-            "SO"
-          ],
-          "score_prev": 15.03,
-          "delta_score": -0.27,
-          "ranking_prev": 6,
-          "delta_ranking": 0
-        },
-        {
-          "ranking": 7,
-          "tecnologia": "C++",
-          "slug": "c-plus-plus",
-          "github_score": 4.43,
-          "so_score": 34.88,
-          "reddit_score": 0.0,
-          "trend_score": 13.98,
-          "fuentes": 2,
-          "available_source_codes": [
-            "GH",
-            "SO"
-          ],
-          "score_prev": 13.96,
-          "delta_score": 0.02,
-          "ranking_prev": 7,
-          "delta_ranking": 0
-        },
-        {
-          "ranking": 8,
-          "tecnologia": "Performance",
-          "slug": "performance",
-          "github_score": 0.0,
-          "so_score": 0.0,
-          "reddit_score": 42.19,
-          "trend_score": 10.55,
-          "fuentes": 1,
-          "available_source_codes": [
-            "RD"
-          ],
-          "score_prev": 12.07,
-          "delta_score": -1.52,
-          "ranking_prev": 8,
-          "delta_ranking": 0
-        },
-        {
-          "ranking": 9,
-          "tecnologia": "Go",
-          "slug": "go",
-          "github_score": 15.82,
-          "so_score": 2.51,
-          "reddit_score": 0.0,
-          "trend_score": 7.21,
-          "fuentes": 2,
-          "available_source_codes": [
-            "GH",
-            "SO"
-          ],
-          "score_prev": 7.23,
-          "delta_score": -0.02,
-          "ranking_prev": 10,
-          "delta_ranking": 1
-        },
-        {
-          "ranking": 10,
-          "tecnologia": "Security",
-          "slug": "security",
-          "github_score": 0.0,
-          "so_score": 0.0,
-          "reddit_score": 28.12,
-          "trend_score": 7.03,
-          "fuentes": 1,
-          "available_source_codes": [
-            "RD"
-          ],
-          "score_prev": 8.4,
-          "delta_score": -1.37,
-          "ranking_prev": 9,
-          "delta_ranking": -1
-        }
-      ]
-    },
-    {
-      "date": "2026-03-22",
-      "path": "datos/history/trend_score/year=2026/month=03/day=22/trend_score.csv",
+      "date": "2026-03-23",
+      "path": "datos/history/trend_score/year=2026/month=03/day=23/trend_score.csv",
       "source_type": "history",
       "row_count": 22,
       "top_10": [
@@ -209,29 +22,29 @@
             "SO",
             "RD"
           ],
-          "score_prev": 79.1,
-          "delta_score": 0.9,
-          "ranking_prev": 1,
-          "delta_ranking": 0
+          "score_prev": null,
+          "delta_score": null,
+          "ranking_prev": null,
+          "delta_ranking": null
         },
         {
           "ranking": 2,
           "tecnologia": "TypeScript",
           "slug": "typescript",
-          "github_score": 79.62,
-          "so_score": 19.02,
+          "github_score": 80.77,
+          "so_score": 19.05,
           "reddit_score": 16.15,
-          "trend_score": 42.54,
+          "trend_score": 43.01,
           "fuentes": 3,
           "available_source_codes": [
             "GH",
             "SO",
             "RD"
           ],
-          "score_prev": 41.09,
-          "delta_score": 1.45,
-          "ranking_prev": 2,
-          "delta_ranking": 0
+          "score_prev": null,
+          "delta_score": null,
+          "ranking_prev": null,
+          "delta_ranking": null
         },
         {
           "ranking": 3,
@@ -245,82 +58,82 @@
           "available_source_codes": [
             "RD"
           ],
-          "score_prev": 25.0,
-          "delta_score": 0.0,
-          "ranking_prev": 3,
-          "delta_ranking": 0
+          "score_prev": null,
+          "delta_score": null,
+          "ranking_prev": null,
+          "delta_ranking": null
         },
         {
           "ranking": 4,
           "tecnologia": "JavaScript",
           "slug": "javascript",
-          "github_score": 18.79,
-          "so_score": 42.26,
+          "github_score": 18.59,
+          "so_score": 42.22,
           "reddit_score": 0.0,
-          "trend_score": 22.31,
+          "trend_score": 22.21,
           "fuentes": 2,
           "available_source_codes": [
             "GH",
             "SO"
           ],
-          "score_prev": 22.39,
-          "delta_score": -0.08,
-          "ranking_prev": 4,
-          "delta_ranking": 0
+          "score_prev": null,
+          "delta_score": null,
+          "ranking_prev": null,
+          "delta_ranking": null
         },
         {
           "ranking": 5,
           "tecnologia": "Java",
           "slug": "java",
-          "github_score": 2.55,
-          "so_score": 41.63,
+          "github_score": 2.56,
+          "so_score": 41.77,
           "reddit_score": 0.0,
-          "trend_score": 15.59,
+          "trend_score": 15.64,
           "fuentes": 2,
           "available_source_codes": [
             "GH",
             "SO"
           ],
-          "score_prev": 15.36,
-          "delta_score": 0.23,
-          "ranking_prev": 5,
-          "delta_ranking": 0
+          "score_prev": null,
+          "delta_score": null,
+          "ranking_prev": null,
+          "delta_ranking": null
         },
         {
           "ranking": 6,
           "tecnologia": "C#",
           "slug": "c-sharp",
-          "github_score": 1.27,
-          "so_score": 40.62,
+          "github_score": 1.6,
+          "so_score": 40.78,
           "reddit_score": 0.0,
-          "trend_score": 14.72,
+          "trend_score": 14.91,
           "fuentes": 2,
           "available_source_codes": [
             "GH",
             "SO"
           ],
-          "score_prev": 14.76,
-          "delta_score": -0.04,
-          "ranking_prev": 6,
-          "delta_ranking": 0
+          "score_prev": null,
+          "delta_score": null,
+          "ranking_prev": null,
+          "delta_ranking": null
         },
         {
           "ranking": 7,
           "tecnologia": "C++",
           "slug": "c-plus-plus",
-          "github_score": 4.78,
-          "so_score": 35.19,
+          "github_score": 4.81,
+          "so_score": 35.23,
           "reddit_score": 0.0,
-          "trend_score": 14.23,
+          "trend_score": 14.25,
           "fuentes": 2,
           "available_source_codes": [
             "GH",
             "SO"
           ],
-          "score_prev": 13.98,
-          "delta_score": 0.25,
-          "ranking_prev": 7,
-          "delta_ranking": 0
+          "score_prev": null,
+          "delta_score": null,
+          "ranking_prev": null,
+          "delta_ranking": null
         },
         {
           "ranking": 8,
@@ -334,28 +147,28 @@
           "available_source_codes": [
             "RD"
           ],
-          "score_prev": 10.55,
-          "delta_score": -0.55,
-          "ranking_prev": 8,
-          "delta_ranking": 0
+          "score_prev": null,
+          "delta_score": null,
+          "ranking_prev": null,
+          "delta_ranking": null
         },
         {
           "ranking": 9,
           "tecnologia": "Go",
           "slug": "go",
-          "github_score": 15.29,
+          "github_score": 15.38,
           "so_score": 2.55,
           "reddit_score": 0.0,
-          "trend_score": 7.01,
+          "trend_score": 7.04,
           "fuentes": 2,
           "available_source_codes": [
             "GH",
             "SO"
           ],
-          "score_prev": 7.21,
-          "delta_score": -0.2,
-          "ranking_prev": 9,
-          "delta_ranking": 0
+          "score_prev": null,
+          "delta_score": null,
+          "ranking_prev": null,
+          "delta_ranking": null
         },
         {
           "ranking": 10,
@@ -369,10 +182,10 @@
           "available_source_codes": [
             "RD"
           ],
-          "score_prev": 6.25,
-          "delta_score": -0.09,
-          "ranking_prev": 11,
-          "delta_ranking": 1
+          "score_prev": null,
+          "delta_score": null,
+          "ranking_prev": null,
+          "delta_ranking": null
         }
       ]
     }
@@ -383,21 +196,7 @@
       "slug": "python",
       "points": [
         {
-          "date": "2026-03-19",
-          "ranking": 1,
-          "github_score": 100.0,
-          "so_score": 100.0,
-          "reddit_score": 16.41,
-          "trend_score": 79.1,
-          "fuentes": 3,
-          "available_source_codes": [
-            "GH",
-            "SO",
-            "RD"
-          ]
-        },
-        {
-          "date": "2026-03-22",
+          "date": "2026-03-23",
           "ranking": 1,
           "github_score": 100.0,
           "so_score": 100.0,
@@ -417,26 +216,12 @@
       "slug": "typescript",
       "points": [
         {
-          "date": "2026-03-19",
+          "date": "2026-03-23",
           "ranking": 2,
-          "github_score": 77.85,
-          "so_score": 18.93,
-          "reddit_score": 13.28,
-          "trend_score": 41.09,
-          "fuentes": 3,
-          "available_source_codes": [
-            "GH",
-            "SO",
-            "RD"
-          ]
-        },
-        {
-          "date": "2026-03-22",
-          "ranking": 2,
-          "github_score": 79.62,
-          "so_score": 19.02,
+          "github_score": 80.77,
+          "so_score": 19.05,
           "reddit_score": 16.15,
-          "trend_score": 42.54,
+          "trend_score": 43.01,
           "fuentes": 3,
           "available_source_codes": [
             "GH",
@@ -451,19 +236,7 @@
       "slug": "ai-ml",
       "points": [
         {
-          "date": "2026-03-19",
-          "ranking": 3,
-          "github_score": 0.0,
-          "so_score": 0.0,
-          "reddit_score": 100.0,
-          "trend_score": 25.0,
-          "fuentes": 1,
-          "available_source_codes": [
-            "RD"
-          ]
-        },
-        {
-          "date": "2026-03-22",
+          "date": "2026-03-23",
           "ranking": 3,
           "github_score": 0.0,
           "so_score": 0.0,
@@ -481,25 +254,12 @@
       "slug": "javascript",
       "points": [
         {
-          "date": "2026-03-19",
+          "date": "2026-03-23",
           "ranking": 4,
-          "github_score": 18.99,
-          "so_score": 42.28,
+          "github_score": 18.59,
+          "so_score": 42.22,
           "reddit_score": 0.0,
-          "trend_score": 22.39,
-          "fuentes": 2,
-          "available_source_codes": [
-            "GH",
-            "SO"
-          ]
-        },
-        {
-          "date": "2026-03-22",
-          "ranking": 4,
-          "github_score": 18.79,
-          "so_score": 42.26,
-          "reddit_score": 0.0,
-          "trend_score": 22.31,
+          "trend_score": 22.21,
           "fuentes": 2,
           "available_source_codes": [
             "GH",
@@ -513,25 +273,12 @@
       "slug": "java",
       "points": [
         {
-          "date": "2026-03-19",
+          "date": "2026-03-23",
           "ranking": 5,
-          "github_score": 2.22,
-          "so_score": 41.35,
+          "github_score": 2.56,
+          "so_score": 41.77,
           "reddit_score": 0.0,
-          "trend_score": 15.36,
-          "fuentes": 2,
-          "available_source_codes": [
-            "GH",
-            "SO"
-          ]
-        },
-        {
-          "date": "2026-03-22",
-          "ranking": 5,
-          "github_score": 2.55,
-          "so_score": 41.63,
-          "reddit_score": 0.0,
-          "trend_score": 15.59,
+          "trend_score": 15.64,
           "fuentes": 2,
           "available_source_codes": [
             "GH",
@@ -545,25 +292,12 @@
       "slug": "c-sharp",
       "points": [
         {
-          "date": "2026-03-19",
+          "date": "2026-03-23",
           "ranking": 6,
-          "github_score": 1.27,
-          "so_score": 40.73,
+          "github_score": 1.6,
+          "so_score": 40.78,
           "reddit_score": 0.0,
-          "trend_score": 14.76,
-          "fuentes": 2,
-          "available_source_codes": [
-            "GH",
-            "SO"
-          ]
-        },
-        {
-          "date": "2026-03-22",
-          "ranking": 6,
-          "github_score": 1.27,
-          "so_score": 40.62,
-          "reddit_score": 0.0,
-          "trend_score": 14.72,
+          "trend_score": 14.91,
           "fuentes": 2,
           "available_source_codes": [
             "GH",
@@ -577,25 +311,12 @@
       "slug": "c-plus-plus",
       "points": [
         {
-          "date": "2026-03-19",
+          "date": "2026-03-23",
           "ranking": 7,
-          "github_score": 4.43,
-          "so_score": 34.88,
+          "github_score": 4.81,
+          "so_score": 35.23,
           "reddit_score": 0.0,
-          "trend_score": 13.98,
-          "fuentes": 2,
-          "available_source_codes": [
-            "GH",
-            "SO"
-          ]
-        },
-        {
-          "date": "2026-03-22",
-          "ranking": 7,
-          "github_score": 4.78,
-          "so_score": 35.19,
-          "reddit_score": 0.0,
-          "trend_score": 14.23,
+          "trend_score": 14.25,
           "fuentes": 2,
           "available_source_codes": [
             "GH",
@@ -609,19 +330,7 @@
       "slug": "performance",
       "points": [
         {
-          "date": "2026-03-19",
-          "ranking": 8,
-          "github_score": 0.0,
-          "so_score": 0.0,
-          "reddit_score": 42.19,
-          "trend_score": 10.55,
-          "fuentes": 1,
-          "available_source_codes": [
-            "RD"
-          ]
-        },
-        {
-          "date": "2026-03-22",
+          "date": "2026-03-23",
           "ranking": 8,
           "github_score": 0.0,
           "so_score": 0.0,
@@ -639,25 +348,12 @@
       "slug": "go",
       "points": [
         {
-          "date": "2026-03-19",
+          "date": "2026-03-23",
           "ranking": 9,
-          "github_score": 15.82,
-          "so_score": 2.51,
-          "reddit_score": 0.0,
-          "trend_score": 7.21,
-          "fuentes": 2,
-          "available_source_codes": [
-            "GH",
-            "SO"
-          ]
-        },
-        {
-          "date": "2026-03-22",
-          "ranking": 9,
-          "github_score": 15.29,
+          "github_score": 15.38,
           "so_score": 2.55,
           "reddit_score": 0.0,
-          "trend_score": 7.01,
+          "trend_score": 7.04,
           "fuentes": 2,
           "available_source_codes": [
             "GH",
@@ -671,19 +367,7 @@
       "slug": "devops",
       "points": [
         {
-          "date": "2026-03-19",
-          "ranking": 11,
-          "github_score": 0.0,
-          "so_score": 0.0,
-          "reddit_score": 25.0,
-          "trend_score": 6.25,
-          "fuentes": 1,
-          "available_source_codes": [
-            "RD"
-          ]
-        },
-        {
-          "date": "2026-03-22",
+          "date": "2026-03-23",
           "ranking": 10,
           "github_score": 0.0,
           "so_score": 0.0,
@@ -701,19 +385,7 @@
       "slug": "security",
       "points": [
         {
-          "date": "2026-03-19",
-          "ranking": 10,
-          "github_score": 0.0,
-          "so_score": 0.0,
-          "reddit_score": 28.12,
-          "trend_score": 7.03,
-          "fuentes": 1,
-          "available_source_codes": [
-            "RD"
-          ]
-        },
-        {
-          "date": "2026-03-22",
+          "date": "2026-03-23",
           "ranking": 11,
           "github_score": 0.0,
           "so_score": 0.0,
@@ -731,25 +403,12 @@
       "slug": "kotlin",
       "points": [
         {
-          "date": "2026-03-19",
+          "date": "2026-03-23",
           "ranking": 12,
-          "github_score": 2.85,
-          "so_score": 11.3,
+          "github_score": 2.88,
+          "so_score": 11.32,
           "reddit_score": 0.0,
-          "trend_score": 5.1,
-          "fuentes": 2,
-          "available_source_codes": [
-            "GH",
-            "SO"
-          ]
-        },
-        {
-          "date": "2026-03-22",
-          "ranking": 12,
-          "github_score": 2.87,
-          "so_score": 11.34,
-          "reddit_score": 0.0,
-          "trend_score": 5.12,
+          "trend_score": 5.11,
           "fuentes": 2,
           "available_source_codes": [
             "GH",
@@ -763,24 +422,12 @@
       "slug": "rust",
       "points": [
         {
-          "date": "2026-03-19",
+          "date": "2026-03-23",
           "ranking": 13,
-          "github_score": 11.08,
+          "github_score": 11.22,
           "so_score": 0.0,
           "reddit_score": 0.0,
-          "trend_score": 4.43,
-          "fuentes": 1,
-          "available_source_codes": [
-            "GH"
-          ]
-        },
-        {
-          "date": "2026-03-22",
-          "ranking": 13,
-          "github_score": 11.46,
-          "so_score": 0.0,
-          "reddit_score": 0.0,
-          "trend_score": 4.58,
+          "trend_score": 4.49,
           "fuentes": 1,
           "available_source_codes": [
             "GH"
@@ -793,19 +440,7 @@
       "slug": "cloud",
       "points": [
         {
-          "date": "2026-03-19",
-          "ranking": 15,
-          "github_score": 0.0,
-          "so_score": 0.0,
-          "reddit_score": 17.19,
-          "trend_score": 4.3,
-          "fuentes": 1,
-          "available_source_codes": [
-            "RD"
-          ]
-        },
-        {
-          "date": "2026-03-22",
+          "date": "2026-03-23",
           "ranking": 14,
           "github_score": 0.0,
           "so_score": 0.0,
@@ -823,27 +458,33 @@
       "slug": "php",
       "points": [
         {
-          "date": "2026-03-19",
-          "ranking": 14,
+          "date": "2026-03-23",
+          "ranking": 15,
           "github_score": 0.0,
-          "so_score": 12.45,
+          "so_score": 12.56,
           "reddit_score": 0.0,
-          "trend_score": 4.36,
+          "trend_score": 4.4,
           "fuentes": 1,
           "available_source_codes": [
             "SO"
           ]
-        },
+        }
+      ]
+    },
+    {
+      "tecnologia": "Shell",
+      "slug": "shell",
+      "points": [
         {
-          "date": "2026-03-22",
-          "ranking": 15,
-          "github_score": 0.0,
-          "so_score": 12.52,
+          "date": "2026-03-23",
+          "ranking": 16,
+          "github_score": 9.29,
+          "so_score": 0.0,
           "reddit_score": 0.0,
-          "trend_score": 4.38,
+          "trend_score": 3.72,
           "fuentes": 1,
           "available_source_codes": [
-            "SO"
+            "GH"
           ]
         }
       ]
@@ -853,20 +494,8 @@
       "slug": "testing",
       "points": [
         {
-          "date": "2026-03-19",
-          "ranking": 16,
-          "github_score": 0.0,
-          "so_score": 0.0,
-          "reddit_score": 16.41,
-          "trend_score": 4.1,
-          "fuentes": 1,
-          "available_source_codes": [
-            "RD"
-          ]
-        },
-        {
-          "date": "2026-03-22",
-          "ranking": 16,
+          "date": "2026-03-23",
+          "ranking": 17,
           "github_score": 0.0,
           "so_score": 0.0,
           "reddit_score": 14.62,
@@ -879,58 +508,16 @@
       ]
     },
     {
-      "tecnologia": "Shell",
-      "slug": "shell",
-      "points": [
-        {
-          "date": "2026-03-19",
-          "ranking": 17,
-          "github_score": 8.86,
-          "so_score": 0.0,
-          "reddit_score": 0.0,
-          "trend_score": 3.54,
-          "fuentes": 1,
-          "available_source_codes": [
-            "GH"
-          ]
-        },
-        {
-          "date": "2026-03-22",
-          "ranking": 17,
-          "github_score": 8.92,
-          "so_score": 0.0,
-          "reddit_score": 0.0,
-          "trend_score": 3.57,
-          "fuentes": 1,
-          "available_source_codes": [
-            "GH"
-          ]
-        }
-      ]
-    },
-    {
       "tecnologia": "Swift",
       "slug": "swift",
       "points": [
         {
-          "date": "2026-03-19",
+          "date": "2026-03-23",
           "ranking": 18,
-          "github_score": 4.43,
+          "github_score": 5.13,
           "so_score": 0.0,
           "reddit_score": 0.0,
-          "trend_score": 1.77,
-          "fuentes": 1,
-          "available_source_codes": [
-            "GH"
-          ]
-        },
-        {
-          "date": "2026-03-22",
-          "ranking": 18,
-          "github_score": 4.78,
-          "so_score": 0.0,
-          "reddit_score": 0.0,
-          "trend_score": 1.91,
+          "trend_score": 2.05,
           "fuentes": 1,
           "available_source_codes": [
             "GH"
@@ -943,24 +530,12 @@
       "slug": "html",
       "points": [
         {
-          "date": "2026-03-19",
-          "ranking": 20,
-          "github_score": 3.8,
-          "so_score": 0.0,
-          "reddit_score": 0.0,
-          "trend_score": 1.52,
-          "fuentes": 1,
-          "available_source_codes": [
-            "GH"
-          ]
-        },
-        {
-          "date": "2026-03-22",
+          "date": "2026-03-23",
           "ranking": 19,
-          "github_score": 4.14,
+          "github_score": 4.17,
           "so_score": 0.0,
           "reddit_score": 0.0,
-          "trend_score": 1.66,
+          "trend_score": 1.67,
           "fuentes": 1,
           "available_source_codes": [
             "GH"
@@ -973,54 +548,12 @@
       "slug": "jupyter-notebook",
       "points": [
         {
-          "date": "2026-03-19",
-          "ranking": 19,
-          "github_score": 3.8,
-          "so_score": 0.0,
-          "reddit_score": 0.0,
-          "trend_score": 1.52,
-          "fuentes": 1,
-          "available_source_codes": [
-            "GH"
-          ]
-        },
-        {
-          "date": "2026-03-22",
+          "date": "2026-03-23",
           "ranking": 20,
-          "github_score": 3.82,
+          "github_score": 3.53,
           "so_score": 0.0,
           "reddit_score": 0.0,
-          "trend_score": 1.53,
-          "fuentes": 1,
-          "available_source_codes": [
-            "GH"
-          ]
-        }
-      ]
-    },
-    {
-      "tecnologia": "C",
-      "slug": "c",
-      "points": [
-        {
-          "date": "2026-03-19",
-          "ranking": 21,
-          "github_score": 2.53,
-          "so_score": 0.0,
-          "reddit_score": 0.0,
-          "trend_score": 1.01,
-          "fuentes": 1,
-          "available_source_codes": [
-            "GH"
-          ]
-        },
-        {
-          "date": "2026-03-22",
-          "ranking": 21,
-          "github_score": 2.55,
-          "so_score": 0.0,
-          "reddit_score": 0.0,
-          "trend_score": 1.02,
+          "trend_score": 1.41,
           "fuentes": 1,
           "available_source_codes": [
             "GH"
@@ -1033,20 +566,8 @@
       "slug": "microservices",
       "points": [
         {
-          "date": "2026-03-19",
-          "ranking": 22,
-          "github_score": 0.0,
-          "so_score": 0.0,
-          "reddit_score": 3.91,
-          "trend_score": 0.98,
-          "fuentes": 1,
-          "available_source_codes": [
-            "RD"
-          ]
-        },
-        {
-          "date": "2026-03-22",
-          "ranking": 22,
+          "date": "2026-03-23",
+          "ranking": 21,
           "github_score": 0.0,
           "so_score": 0.0,
           "reddit_score": 3.85,
@@ -1059,161 +580,23 @@
       ]
     },
     {
-      "tecnologia": "Csharp",
-      "slug": "csharp",
+      "tecnologia": "C",
+      "slug": "c",
       "points": [
         {
-          "date": "2026-03-06",
-          "ranking": 25,
-          "github_score": 0.0,
+          "date": "2026-03-23",
+          "ranking": 22,
+          "github_score": 2.24,
           "so_score": 0.0,
           "reddit_score": 0.0,
-          "trend_score": 0.0,
-          "fuentes": 0,
-          "available_source_codes": []
-        },
-        {
-          "date": "2026-03-07",
-          "ranking": 23,
-          "github_score": 0.0,
-          "so_score": 0.0,
-          "reddit_score": 0.0,
-          "trend_score": 0.0,
-          "fuentes": 0,
-          "available_source_codes": []
-        }
-      ]
-    },
-    {
-      "tecnologia": "Lua",
-      "slug": "lua",
-      "points": [
-        {
-          "date": "2026-03-04",
-          "ranking": 26,
-          "github_score": 0.0,
-          "so_score": 0.0,
-          "reddit_score": 0.0,
-          "trend_score": 0.0,
-          "fuentes": 0,
-          "available_source_codes": []
-        },
-        {
-          "date": "2026-03-09",
-          "ranking": 23,
-          "github_score": 0.0,
-          "so_score": 0.0,
-          "reddit_score": 0.0,
-          "trend_score": 0.0,
-          "fuentes": 0,
-          "available_source_codes": []
-        }
-      ]
-    },
-    {
-      "tecnologia": "Cpp",
-      "slug": "cpp",
-      "points": [
-        {
-          "date": "2026-03-06",
-          "ranking": 24,
-          "github_score": 0.0,
-          "so_score": 0.0,
-          "reddit_score": 0.0,
-          "trend_score": 0.0,
-          "fuentes": 0,
-          "available_source_codes": []
-        },
-        {
-          "date": "2026-03-07",
-          "ranking": 24,
-          "github_score": 0.0,
-          "so_score": 0.0,
-          "reddit_score": 0.0,
-          "trend_score": 0.0,
-          "fuentes": 0,
-          "available_source_codes": []
-        }
-      ]
-    },
-    {
-      "tecnologia": "Ruby",
-      "slug": "ruby",
-      "points": [
-        {
-          "date": "2026-03-08",
-          "ranking": 23,
-          "github_score": 0.0,
-          "so_score": 0.0,
-          "reddit_score": 0.0,
-          "trend_score": 0.0,
-          "fuentes": 0,
-          "available_source_codes": []
-        },
-        {
-          "date": "2026-03-09",
-          "ranking": 24,
-          "github_score": 0.0,
-          "so_score": 0.0,
-          "reddit_score": 0.0,
-          "trend_score": 0.0,
-          "fuentes": 0,
-          "available_source_codes": []
-        }
-      ]
-    },
-    {
-      "tecnologia": "Vue",
-      "slug": "vue",
-      "points": [
-        {
-          "date": "2026-03-07",
-          "ranking": 26,
-          "github_score": 0.0,
-          "so_score": 0.0,
-          "reddit_score": 0.0,
-          "trend_score": 0.0,
-          "fuentes": 0,
-          "available_source_codes": []
-        },
-        {
-          "date": "2026-03-08",
-          "ranking": 24,
-          "github_score": 0.0,
-          "so_score": 0.0,
-          "reddit_score": 0.0,
-          "trend_score": 0.0,
-          "fuentes": 0,
-          "available_source_codes": []
-        }
-      ]
-    },
-    {
-      "tecnologia": "Web3",
-      "slug": "web3",
-      "points": [
-        {
-          "date": "2026-03-08",
-          "ranking": 25,
-          "github_score": 0.0,
-          "so_score": 0.0,
-          "reddit_score": 0.0,
-          "trend_score": 0.0,
-          "fuentes": 0,
-          "available_source_codes": []
-        },
-        {
-          "date": "2026-03-09",
-          "ranking": 25,
-          "github_score": 0.0,
-          "so_score": 0.0,
-          "reddit_score": 0.0,
-          "trend_score": 0.0,
-          "fuentes": 0,
-          "available_source_codes": []
+          "trend_score": 0.9,
+          "fuentes": 1,
+          "available_source_codes": [
+            "GH"
+          ]
         }
       ]
     }
   ],
-  "latest_snapshot_date": "2026-03-22"
+  "latest_snapshot_date": "2026-03-23"
 }

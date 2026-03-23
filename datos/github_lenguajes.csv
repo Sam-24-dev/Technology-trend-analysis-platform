@@ -1,11 +1,11 @@
 lenguaje,repos_count,porcentaje
-Python,319,34.34
-TypeScript,255,27.45
-JavaScript,64,6.89
+Python,317,34.16
+TypeScript,257,27.69
+JavaScript,63,6.79
 Go,53,5.71
-Rust,41,4.41
-Shell,33,3.55
-Swift,20,2.15
-C++,20,2.15
+Rust,40,4.31
+Shell,34,3.66
+Swift,21,2.26
+C++,20,2.16
 HTML,18,1.94
-Jupyter Notebook,17,1.83
+Jupyter Notebook,16,1.72
