@@ -341,6 +341,127 @@ void main() {
     });
   }
 
+  StackOverflowAcceptanceHistoryModel acceptanceHistoryWithNonContiguousDates() {
+    return StackOverflowAcceptanceHistoryModel.fromMap(<String, dynamic>{
+      'source_mode': 'history',
+      'snapshot_count': 2,
+      'latest_snapshot_date': '2026-03-22',
+      'previous_snapshot_date': '2026-03-19',
+      'has_historical_comparison': true,
+      'item_count': 2,
+      'summary': {
+        'raw_leader': {
+          'tecnologia': 'svelte',
+          'total_preguntas': 150,
+          'respuestas_aceptadas': 54,
+          'tasa_aceptacion_pct': 36.0,
+          'total_preguntas_prev': 145,
+          'respuestas_aceptadas_prev': 51,
+          'tasa_aceptacion_prev_pct': 35.17,
+          'delta_tasa_pct': 0.83,
+          'delta_preguntas': 5,
+          'sample_bucket': 'baja',
+          'confidence_score': 0.28,
+          'raw_rank': 1,
+          'confidence_rank': 1,
+        },
+        'confidence_leader': {
+          'tecnologia': 'svelte',
+          'total_preguntas': 150,
+          'respuestas_aceptadas': 54,
+          'tasa_aceptacion_pct': 36.0,
+          'total_preguntas_prev': 145,
+          'respuestas_aceptadas_prev': 51,
+          'tasa_aceptacion_prev_pct': 35.17,
+          'delta_tasa_pct': 0.83,
+          'delta_preguntas': 5,
+          'sample_bucket': 'baja',
+          'confidence_score': 0.28,
+          'raw_rank': 1,
+          'confidence_rank': 1,
+        },
+        'highest_improvement': {
+          'tecnologia': 'svelte',
+          'total_preguntas': 150,
+          'respuestas_aceptadas': 54,
+          'tasa_aceptacion_pct': 36.0,
+          'total_preguntas_prev': 145,
+          'respuestas_aceptadas_prev': 51,
+          'tasa_aceptacion_prev_pct': 35.17,
+          'delta_tasa_pct': 0.83,
+          'delta_preguntas': 5,
+          'sample_bucket': 'baja',
+          'confidence_score': 0.28,
+          'raw_rank': 1,
+          'confidence_rank': 1,
+        },
+        'largest_drop': {
+          'tecnologia': 'angular',
+          'total_preguntas': 1600,
+          'respuestas_aceptadas': 470,
+          'tasa_aceptacion_pct': 29.4,
+          'total_preguntas_prev': 1620,
+          'respuestas_aceptadas_prev': 480,
+          'tasa_aceptacion_prev_pct': 29.63,
+          'delta_tasa_pct': -0.23,
+          'delta_preguntas': -20,
+          'sample_bucket': 'alta',
+          'confidence_score': 0.27,
+          'raw_rank': 2,
+          'confidence_rank': 2,
+        },
+        'largest_sample': {
+          'tecnologia': 'angular',
+          'total_preguntas': 1600,
+          'respuestas_aceptadas': 470,
+          'tasa_aceptacion_pct': 29.4,
+          'total_preguntas_prev': 1620,
+          'respuestas_aceptadas_prev': 480,
+          'tasa_aceptacion_prev_pct': 29.63,
+          'delta_tasa_pct': -0.23,
+          'delta_preguntas': -20,
+          'sample_bucket': 'alta',
+          'confidence_score': 0.27,
+          'raw_rank': 2,
+          'confidence_rank': 2,
+        },
+      },
+      'latest_items': [
+        {
+          'tecnologia': 'svelte',
+          'total_preguntas': 150,
+          'respuestas_aceptadas': 54,
+          'tasa_aceptacion_pct': 36.0,
+          'total_preguntas_prev': 145,
+          'respuestas_aceptadas_prev': 51,
+          'tasa_aceptacion_prev_pct': 35.17,
+          'delta_tasa_pct': 0.83,
+          'delta_preguntas': 5,
+          'sample_bucket': 'baja',
+          'confidence_score': 0.28,
+          'raw_rank': 1,
+          'confidence_rank': 1,
+        },
+        {
+          'tecnologia': 'angular',
+          'total_preguntas': 1600,
+          'respuestas_aceptadas': 470,
+          'tasa_aceptacion_pct': 29.4,
+          'total_preguntas_prev': 1620,
+          'respuestas_aceptadas_prev': 480,
+          'tasa_aceptacion_prev_pct': 29.63,
+          'delta_tasa_pct': -0.23,
+          'delta_preguntas': -20,
+          'sample_bucket': 'alta',
+          'confidence_score': 0.27,
+          'raw_rank': 2,
+          'confidence_rank': 2,
+        },
+      ],
+      'snapshots': [],
+    });
+  }
+
   StackOverflowDashboardData dashboardData({
     required StackOverflowAcceptanceHistoryModel acceptanceHistory,
   }) {
@@ -462,6 +583,26 @@ void main() {
     expect(find.text('Preguntas totales'), findsNothing);
     expect(find.text('Variaci\u00F3n'), findsNothing);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('graph 2 subtitle hides missing snapshot note', (
+    WidgetTester tester,
+  ) async {
+    await pumpDashboard(
+      tester,
+      acceptanceHistory: acceptanceHistoryWithNonContiguousDates(),
+      size: const Size(390, 844),
+    );
+
+    expect(
+      find.text(
+        'M\u00E9trica: Tasa de aceptaci\u00F3n   Orden: Mayor tasa\n'
+        'Comparado (UTC): 19/03/2026 -> 22/03/2026',
+      ),
+      findsOneWidget,
+    );
+    expect(find.textContaining('faltan'), findsNothing);
+    expect(find.textContaining('falta snapshot'), findsNothing);
   });
 
   testWidgets('graph 2 badges follow only the active metric', (

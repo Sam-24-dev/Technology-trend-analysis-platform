@@ -847,11 +847,10 @@ class _StackOverflowDashboardState
     final String? latestRaw = volumenHistory?.latestSnapshotDate;
     final String previous = _formatUtcDate(previousRaw);
     final String latest = _formatUtcDate(latestRaw);
-    final String gapNote = _buildHistoryGapNote(previousRaw, latestRaw);
     return 'Top: ${_volumeTopLabel(_effectiveVolumeTopN())}   '
         'Orden: ${_volumeSortLabel(_effectiveVolumeSort())}   '
         'M\u00E9trica: ${_volumeMetricLabel(_effectiveVolumeMetric())}\n'
-        'Comparado (UTC): $previous -> $latest$gapNote';
+        'Comparado (UTC): $previous -> $latest';
   }
 
   String _acceptanceMetricLabel(_StackAcceptanceMetric value) {
@@ -977,10 +976,9 @@ class _StackOverflowDashboardState
     final String? latestRaw = aceptacionHistory?.latestSnapshotDate;
     final String previous = _formatUtcDate(previousRaw);
     final String latest = _formatUtcDate(latestRaw);
-    final String gapNote = _buildHistoryGapNote(previousRaw, latestRaw);
     return 'M\u00E9trica: ${_acceptanceMetricLabel(metric)}   '
         'Orden: ${_acceptanceSortLabel(sort)}\n'
-        'Comparado (UTC): $previous -> $latest$gapNote';
+        'Comparado (UTC): $previous -> $latest';
   }
 
   String _trendViewLabel(_StackTrendView value) {
@@ -1058,43 +1056,6 @@ class _StackOverflowDashboardState
       return raw.trim();
     }
     return '${parts[2]}/${parts[1]}/${parts[0]}';
-  }
-
-  DateTime? _parseUtcDate(String? raw) {
-    if (raw == null || raw.trim().isEmpty) {
-      return null;
-    }
-    try {
-      return DateTime.parse('${raw.trim()}T00:00:00Z');
-    } catch (_) {
-      return null;
-    }
-  }
-
-  int? _computeUtcGapDays(String? previous, String? latest) {
-    final DateTime? prevDate = _parseUtcDate(previous);
-    final DateTime? latestDate = _parseUtcDate(latest);
-    if (prevDate == null || latestDate == null) {
-      return null;
-    }
-    return latestDate.difference(prevDate).inDays;
-  }
-
-  String _buildHistoryGapNote(String? previous, String? latest) {
-    final int? gapDays = _computeUtcGapDays(previous, latest);
-    if (gapDays == null || gapDays <= 1) {
-      return '';
-    }
-    if (gapDays == 2) {
-      final DateTime? prevDate = _parseUtcDate(previous);
-      if (prevDate != null) {
-        final String missing = _formatUtcDate(
-          prevDate.add(const Duration(days: 1)).toIso8601String().substring(0, 10),
-        );
-        return ' (falta snapshot $missing)';
-      }
-    }
-    return ' (faltan ${gapDays - 1} snapshots)';
   }
 
   List<VolumenPreguntasModel> _visibleVolumenData() {
