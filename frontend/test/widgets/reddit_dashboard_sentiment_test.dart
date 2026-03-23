@@ -248,6 +248,13 @@ void main() {
       find.textContaining('Cobertura: 30.0% (3 tecnologías).'),
       findsOneWidget,
     );
+    final Finder descriptionFinder = find.textContaining(
+      'Mayor muestra: Laravel (21).',
+    );
+    expect(descriptionFinder, findsOneWidget);
+    final Text descriptionText = tester.widget<Text>(descriptionFinder);
+    expect(descriptionText.maxLines, isNull);
+    expect(descriptionText.overflow, isNull);
   });
 
   testWidgets('filters handle larger dynamic framework datasets', (

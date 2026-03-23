@@ -1308,7 +1308,7 @@ class _HomeInsightTile extends StatelessWidget {
         ],
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Container(
             width: 48,
@@ -1335,6 +1335,7 @@ class _HomeInsightTile extends StatelessWidget {
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: item.color,
+                    height: 1.25,
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -1343,9 +1344,8 @@ class _HomeInsightTile extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 14,
                     color: Color(0xFF475569),
+                    height: 1.35,
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),

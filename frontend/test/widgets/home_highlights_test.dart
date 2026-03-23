@@ -122,5 +122,12 @@ void main() {
     );
     expect(find.text('AI/ML lidera la conversación en Reddit'), findsOneWidget);
     expect(find.text('Python domina GitHub y StackOverflow'), findsNothing);
+    final Finder descriptionFinder = find.textContaining(
+      '10,810 preguntas nuevas',
+    );
+    expect(descriptionFinder, findsOneWidget);
+    final Text descriptionText = tester.widget<Text>(descriptionFinder);
+    expect(descriptionText.maxLines, isNull);
+    expect(descriptionText.overflow, isNull);
   });
 }

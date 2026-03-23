@@ -262,6 +262,13 @@ void main() {
     expect(find.text('Evolución del aporte por fuente'), findsOneWidget);
     expect(find.text('Hallazgos principales'), findsOneWidget);
     expect(find.text('PUNTAJE DE TENDENCIA'), findsOneWidget);
+    final Finder insightFinder = find.text(
+      'GitHub aporta la mayor parte del score actual.',
+    );
+    expect(insightFinder, findsOneWidget);
+    final Text insightText = tester.widget<Text>(insightFinder);
+    expect(insightText.maxLines, isNull);
+    expect(insightText.overflow, isNull);
     expect(find.byType(DegradedStateCard), findsNothing);
     expect(find.textContaining('Bridge no disponible'), findsNothing);
   });

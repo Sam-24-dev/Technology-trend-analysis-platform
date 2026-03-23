@@ -448,6 +448,13 @@ void main() {
         find.textContaining('Mayor participación: JavaScript (42.9%)'),
         findsOneWidget,
       );
+      final Finder descriptionFinder = find.textContaining(
+        '120 preguntas nuevas, 42.9% del total.',
+      );
+      expect(descriptionFinder, findsOneWidget);
+      final Text descriptionText = tester.widget<Text>(descriptionFinder);
+      expect(descriptionText.maxLines, isNull);
+      expect(descriptionText.overflow, isNull);
       expect(tester.takeException(), isNull);
     },
   );

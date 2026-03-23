@@ -1536,7 +1536,6 @@ class _SourceCard extends StatelessWidget {
         available ? const Color(0xFF0F172A) : const Color(0xFF64748B);
     final Color subtitleColor =
         available ? const Color(0xFF64748B) : const Color(0xFF94A3B8);
-    const double contextHeight = 36;
     final String contextCopy = contextText.trim();
     final Widget? statusChip = !available
         ? _buildStatusChip('No disponible', const Color(0xFFDC2626))
@@ -1579,12 +1578,11 @@ class _SourceCard extends StatelessWidget {
                   children: <Widget>[
                     Text(
                       '$code · $title',
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
                         color: titleColor,
+                        height: 1.3,
                       ),
                     ),
                     if (statusChip != null) ...<Widget>[
@@ -1606,13 +1604,15 @@ class _SourceCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 6),
-          SizedBox(
-            height: contextHeight,
+          ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 36),
             child: Text(
               contextCopy.isEmpty ? ' ' : contextCopy,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: 13, color: subtitleColor),
+              style: TextStyle(
+                fontSize: 13,
+                color: subtitleColor,
+                height: 1.35,
+              ),
             ),
           ),
           const SizedBox(height: 10),
@@ -1724,8 +1724,6 @@ class _InsightPanel extends StatelessWidget {
                                   color: const Color(0xFF475569),
                                   height: 1.3,
                                 ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
                               ),
                             ],
                           ),
