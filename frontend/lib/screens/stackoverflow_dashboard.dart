@@ -2972,42 +2972,54 @@ class _InsightCard extends StatelessWidget {
           width: 1.5,
         ),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: card.iconColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: card.iconAsset != null
-                ? Padding(
-                    padding: const EdgeInsets.all(6),
-                    child: Image.asset(card.iconAsset!, fit: BoxFit.contain),
-                  )
-                : Icon(
-                    card.iconData ?? Icons.extension_rounded,
-                    color: card.iconColor,
-                    size: 28,
-                  ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  card.title,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: card.iconColor,
-                    height: 1.25,
-                  ),
+      child: LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          final bool compact = constraints.maxWidth < 420;
+          if (compact) {
+            return SizedBox(
+              width: constraints.maxWidth,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: card.iconColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: card.iconAsset != null
+                          ? Padding(
+                              padding: const EdgeInsets.all(6),
+                              child: Image.asset(
+                                card.iconAsset!,
+                                fit: BoxFit.contain,
+                              ),
+                            )
+                          : Icon(
+                              card.iconData ?? Icons.extension_rounded,
+                              color: card.iconColor,
+                              size: 28,
+                            ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        card.title,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: card.iconColor,
+                          height: 1.25,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 12),
                 Text(
                   card.description,
                   style: const TextStyle(
@@ -3017,10 +3029,61 @@ class _InsightCard extends StatelessWidget {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-              ],
-            ),
-          ),
-        ],
+                ],
+              ),
+            );
+          }
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: card.iconColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: card.iconAsset != null
+                    ? Padding(
+                        padding: const EdgeInsets.all(6),
+                        child: Image.asset(card.iconAsset!, fit: BoxFit.contain),
+                      )
+                    : Icon(
+                        card.iconData ?? Icons.extension_rounded,
+                        color: card.iconColor,
+                        size: 28,
+                      ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      card.title,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: card.iconColor,
+                        height: 1.25,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      card.description,
+                      style: const TextStyle(
+                        fontSize: 13.5,
+                        color: kBodyColor,
+                        height: 1.45,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

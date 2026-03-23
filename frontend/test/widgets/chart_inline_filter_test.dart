@@ -78,4 +78,64 @@ void main() {
 
     expect(selected, 'Variación');
   });
+
+  testWidgets('ChartInlineFilter wraps cleanly on narrow widths', (
+    WidgetTester tester,
+  ) async {
+    const List<Size> viewports = <Size>[
+      Size(220, 120),
+      Size(280, 120),
+      Size(390, 120),
+      Size(768, 120),
+      Size(1280, 120),
+    ];
+
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    for (final Size size in viewports) {
+      tester.view.physicalSize = size;
+      tester.view.devicePixelRatio = 1.0;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Align(
+              alignment: Alignment.topLeft,
+              child: SizedBox(
+                width: size.width < 300 ? size.width - 16 : 280,
+                child: ChartInlineFilter<String>(
+                  key: const ValueKey<String>('shared-inline-filter'),
+                  label: 'Vista',
+                  value: 'Solo multi-fuente',
+                  selectedLabel: 'Solo multi-fuente',
+                  items: const <DropdownMenuItem<String>>[
+                    DropdownMenuItem<String>(
+                      value: 'Top recomendado',
+                      child: Text('Top recomendado'),
+                    ),
+                    DropdownMenuItem<String>(
+                      value: 'Solo multi-fuente',
+                      child: Text('Solo multi-fuente'),
+                    ),
+                  ],
+                  onChanged: (_) {},
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(
+        tester.takeException(),
+        isNull,
+        reason: 'ChartInlineFilter overflowed at viewport $size',
+      );
+    }
+  });
 }

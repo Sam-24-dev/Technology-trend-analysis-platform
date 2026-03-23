@@ -1,4 +1,5 @@
-﻿import 'dart:convert';
+import 'dart:math' as math;
+import 'dart:convert';
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -1036,19 +1037,23 @@ class TrendsTechScreen extends ConsumerWidget {
   }
 
   Widget _buildMetaChip({required String label, required Color color}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: color.withValues(alpha: 0.35)),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w700,
-          color: color,
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 240),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: color.withValues(alpha: 0.35)),
+        ),
+        child: Text(
+          label,
+          softWrap: true,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            color: color,
+          ),
         ),
       ),
     );
@@ -1059,25 +1064,29 @@ class TrendsTechScreen extends ConsumerWidget {
     required Color color,
     required String tooltip,
   }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: color.withValues(alpha: 0.35)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: color,
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 260),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: color.withValues(alpha: 0.35)),
+        ),
+        child: Wrap(
+          spacing: 6,
+          runSpacing: 2,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: <Widget>[
+            Text(
+              label,
+              softWrap: true,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: color,
+              ),
             ),
-          ),
-          const SizedBox(width: 6),
             _buildTapTooltip(
               message: tooltip,
               child: Icon(
@@ -1088,7 +1097,8 @@ class TrendsTechScreen extends ConsumerWidget {
             ),
           ],
         ),
-      );
+      ),
+    );
     }
 
     Widget _buildTapTooltip({required String message, required Widget child}) {
@@ -1541,105 +1551,112 @@ class _SourceCard extends StatelessWidget {
         ? _buildStatusChip('No disponible', const Color(0xFFDC2626))
         : (deltaLabel.isNotEmpty ? _buildStatusChip(deltaLabel, accent) : null);
 
-    return Container(
-      width: 330,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border(left: BorderSide(color: accent, width: 4)),
-        boxShadow: <BoxShadow>[
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        final double cardWidth = constraints.maxWidth.isFinite
+            ? math.min(constraints.maxWidth, 330)
+            : 330;
+        return Container(
+          width: cardWidth,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border(left: BorderSide(color: accent, width: 4)),
+            boxShadow: <BoxShadow>[
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 10,
+                offset: const Offset(0, 5),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Row(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Container(
-                width: 10,
-                height: 10,
-                margin: const EdgeInsets.only(top: 3),
-                decoration: BoxDecoration(
-                  color: accent,
-                  borderRadius: BorderRadius.circular(999),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      '$code · $title',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: titleColor,
-                        height: 1.3,
-                      ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Container(
+                    width: 10,
+                    height: 10,
+                    margin: const EdgeInsets.only(top: 3),
+                    decoration: BoxDecoration(
+                      color: accent,
+                      borderRadius: BorderRadius.circular(999),
                     ),
-                    if (statusChip != null) ...<Widget>[
-                      const SizedBox(height: 8),
-                      statusChip,
-                    ],
-                  ],
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          '$code · $title',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: titleColor,
+                            height: 1.3,
+                          ),
+                        ),
+                        if (statusChip != null) ...<Widget>[
+                          const SizedBox(height: 8),
+                          statusChip,
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Text(
+                available ? mainValue : '—',
+                style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.w800,
+                  color: titleColor,
                 ),
+              ),
+              const SizedBox(height: 6),
+              ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 36),
+                child: Text(
+                  contextCopy.isEmpty ? ' ' : contextCopy,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: subtitleColor,
+                    height: 1.35,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              const Divider(height: 1),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 12,
+                runSpacing: 6,
+                children: <Widget>[
+                  Text(
+                    '$metricA: $valueA',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: subtitleColor,
+                    ),
+                  ),
+                  Text(
+                    '$metricB: $valueB',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: subtitleColor,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-          const SizedBox(height: 10),
-          Text(
-            available ? mainValue : '—',
-            style: TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.w800,
-              color: titleColor,
-            ),
-          ),
-          const SizedBox(height: 6),
-          ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 36),
-            child: Text(
-              contextCopy.isEmpty ? ' ' : contextCopy,
-              style: TextStyle(
-                fontSize: 13,
-                color: subtitleColor,
-                height: 1.35,
-              ),
-            ),
-          ),
-          const SizedBox(height: 10),
-          const Divider(height: 1),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 12,
-            runSpacing: 6,
-            children: <Widget>[
-              Text(
-                '$metricA: $valueA',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: subtitleColor,
-                ),
-              ),
-              Text(
-                '$metricB: $valueB',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: subtitleColor,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 

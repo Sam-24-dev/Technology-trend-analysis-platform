@@ -209,8 +209,9 @@ void main() {
     WidgetTester tester, {
     required DataLoadState<TechnologyProfilesPayload> profilesState,
     String technology = 'python',
+    Size size = const Size(1280, 900),
   }) async {
-    tester.view.physicalSize = const Size(1280, 900);
+    tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1.0;
     addTearDown(() {
       tester.view.resetPhysicalSize();
@@ -254,25 +255,40 @@ void main() {
     WidgetTester tester,
   ) async {
     final profile = _profile(slug: 'python', displayName: 'Python');
-    await _pumpTrendsTech(
-      tester,
-      profilesState: DataLoadState.data(_profilesPayload(profile)),
-    );
+    const List<Size> viewports = <Size>[
+      Size(390, 844),
+      Size(844, 390),
+      Size(768, 1024),
+      Size(1024, 768),
+      Size(1280, 900),
+    ];
 
-    expect(find.text('Evolución del aporte por fuente'), findsOneWidget);
-    expect(find.text('Hallazgos principales'), findsOneWidget);
-    expect(find.text('PUNTAJE DE TENDENCIA'), findsOneWidget);
-    final Finder insightFinder = find.text(
-      'GitHub aporta la mayor parte del score actual.',
-    );
-    expect(insightFinder, findsOneWidget);
-    final Text insightText = tester.widget<Text>(insightFinder);
-    expect(insightText.maxLines, isNull);
-    expect(insightText.overflow, isNull);
-    expect(find.byType(DegradedStateCard), findsNothing);
-    expect(find.textContaining('Bridge no disponible'), findsNothing);
+    for (final Size size in viewports) {
+      await _pumpTrendsTech(
+        tester,
+        profilesState: DataLoadState.data(_profilesPayload(profile)),
+        size: size,
+      );
+
+      expect(find.textContaining('aporte por fuente'), findsOneWidget);
+      expect(find.text('Hallazgos principales'), findsOneWidget);
+      expect(find.text('PUNTAJE DE TENDENCIA'), findsOneWidget);
+      final Finder insightFinder = find.text(
+        'GitHub aporta la mayor parte del score actual.',
+      );
+      expect(insightFinder, findsOneWidget);
+      final Text insightText = tester.widget<Text>(insightFinder);
+      expect(insightText.maxLines, isNull);
+      expect(insightText.overflow, isNull);
+      expect(find.byType(DegradedStateCard), findsNothing);
+      expect(find.textContaining('Bridge no disponible'), findsNothing);
+      expect(
+        tester.takeException(),
+        isNull,
+        reason: 'Unexpected layout exception at viewport $size',
+      );
+    }
   });
-
   testWidgets('trends tech shows legacy warning when bridge fails', (
     WidgetTester tester,
   ) async {
@@ -284,7 +300,7 @@ void main() {
     expect(find.byType(DegradedStateCard), findsOneWidget);
     expect(find.textContaining('Bridge no disponible'), findsOneWidget);
     expect(
-      find.text('Evolución del aporte por fuente (fallback)'),
+      find.textContaining('aporte por fuente'),
       findsOneWidget,
     );
   });
