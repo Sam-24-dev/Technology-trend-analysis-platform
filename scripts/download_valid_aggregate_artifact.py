@@ -1,4 +1,4 @@
-"""Descarga el ultimo aggregate-data valido desde GitHub Actions."""
+﻿"""Descarga el ultimo aggregate-data valido desde GitHub Actions."""
 
 from __future__ import annotations
 
