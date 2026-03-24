@@ -297,6 +297,11 @@ jobs:
             python scripts/materialize_etl_artifacts.py --project-root . prev_artifacts
           fi
 
+      - name: Hydrate previous aggregate history seed
+        shell: bash
+        run: |
+          python scripts/hydrate_aggregate_history_seed.py --project-root .
+
       - name: Materialize source outputs
         shell: bash
         run: |
@@ -343,6 +348,20 @@ jobs:
 
       - name: Sync CSVs to frontend assets
         run: python backend/sync_assets.py
+
+      - name: Restore previous Reddit bridges on source fallback
+        if: ${{ always() && needs.job_reddit.outputs.status == 'failed' }}
+        shell: bash
+        run: |
+          if [ -d "prev_artifacts/frontend/assets/data" ]; then
+            for bridge_file in \
+              reddit_temas_history.json \
+              reddit_interseccion_history.json; do
+              if [ -f "prev_artifacts/frontend/assets/data/${bridge_file}" ]; then
+                cp "prev_artifacts/frontend/assets/data/${bridge_file}" "frontend/assets/data/${bridge_file}"
+              fi
+            done
+          fi
 
       - name: Validate CSV contract headers
         run: python backend/validate_csv_contract.py

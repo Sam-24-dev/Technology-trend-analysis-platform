@@ -20,6 +20,10 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from scripts.check_bridge_integrity import check_bridge_integrity  # noqa: E402
+from scripts.hydrate_aggregate_history_seed import (  # noqa: E402
+    REQUIRED_HISTORY_SEED_DATASETS,
+    hydrate_aggregate_history_seed,
+)
 from scripts.materialize_etl_artifacts import materialize_artifacts  # noqa: E402
 
 
@@ -91,14 +95,30 @@ def _replace_output_dir(source_root: Path, output_dir: Path) -> None:
     shutil.copytree(source_root, output_dir)
 
 
+def _validate_history_seed(workspace_root: Path) -> tuple[bool, str | None]:
+    missing = []
+    for dataset in REQUIRED_HISTORY_SEED_DATASETS:
+        dataset_dir = workspace_root / "datos" / "history" / dataset
+        if not list(dataset_dir.rglob("*.csv")):
+            missing.append(dataset)
+
+    if missing:
+        return False, "seed history missing datasets: " + ", ".join(sorted(missing))
+    return True, None
+
+
 def _validate_candidate(candidate_root: Path) -> tuple[bool, str | None]:
     with tempfile.TemporaryDirectory() as tmp_dir:
         workspace_root = Path(tmp_dir) / "workspace"
         materialize_artifacts(workspace_root, [candidate_root])
+        hydrate_aggregate_history_seed(workspace_root)
         try:
             check_bridge_integrity(workspace_root, expect_previous_history=False)
         except Exception as exc:
             return False, str(exc)
+        is_seed_ready, reason = _validate_history_seed(workspace_root)
+        if not is_seed_ready:
+            return False, reason
     return True, None
 
 

@@ -1,4 +1,4 @@
-﻿import io
+import io
 import subprocess
 import sys
 import zipfile
@@ -7,6 +7,7 @@ from pathlib import Path
 from scripts.download_valid_aggregate_artifact import (
     _ensure_safe_output_dir,
     _extract_zip,
+    _validate_candidate,
     download_latest_valid_aggregate_artifact,
 )
 
@@ -232,6 +233,7 @@ def test_download_latest_valid_aggregate_artifact_continues_after_candidate_exce
     assert summary["tested_runs"][0]["valid"] is False
     assert "artifact download failed" in summary["tested_runs"][0]["reason"]
 
+
 def test_download_latest_valid_aggregate_artifact_raises_when_output_write_fails(
     tmp_path,
     monkeypatch,
@@ -291,61 +293,27 @@ def test_download_latest_valid_aggregate_artifact_raises_when_output_write_fails
         raise AssertionError("Expected output write failure to be fatal")
 
 
-def test_download_latest_valid_aggregate_artifact_raises_when_output_write_fails(
-    tmp_path,
-    monkeypatch,
-):
-    valid_zip = _build_zip({"marker.txt": "valid"})
-
-    def fake_api_get_json(_session, url):
-        if "workflows/etl_semanal.yml/runs" in url:
-            return {"workflow_runs": [{"id": 201, "created_at": "2026-03-23T08:00:00Z"}]}
-        if "/actions/runs/201/artifacts" in url:
-            return {
-                "artifacts": [
-                    {
-                        "id": 301,
-                        "name": "aggregate-data",
-                        "expired": False,
-                        "archive_download_url": "https://example.test/301",
-                    }
-                ]
-            }
-        raise AssertionError(f"Unexpected URL {url}")
+def test_validate_candidate_requires_hydrated_history_seed(tmp_path, monkeypatch):
+    candidate_root = tmp_path / "candidate"
+    candidate_root.mkdir(parents=True, exist_ok=True)
 
     monkeypatch.setattr(
-        "scripts.download_valid_aggregate_artifact._api_get_json",
-        fake_api_get_json,
+        "scripts.download_valid_aggregate_artifact.materialize_artifacts",
+        lambda workspace_root, roots: None,
     )
     monkeypatch.setattr(
-        "scripts.download_valid_aggregate_artifact._download_artifact_zip",
-        lambda _session, _url: valid_zip,
+        "scripts.download_valid_aggregate_artifact.hydrate_aggregate_history_seed",
+        lambda workspace_root: {"seeded_history_files": 0},
     )
     monkeypatch.setattr(
-        "scripts.download_valid_aggregate_artifact._validate_candidate",
-        lambda _candidate_root: (True, None),
-    )
-    monkeypatch.setattr(
-        "scripts.download_valid_aggregate_artifact._replace_output_dir",
-        lambda _source_root, _output_dir: (_ for _ in ()).throw(
-            OSError("copy failed")
-        ),
+        "scripts.download_valid_aggregate_artifact.check_bridge_integrity",
+        lambda workspace_root, expect_previous_history=False: {"status": "ok"},
     )
 
-    try:
-        download_latest_valid_aggregate_artifact(
-            repo="owner/repo",
-            workflow="etl_semanal.yml",
-            branch="main",
-            artifact_name="aggregate-data",
-            output_dir=tmp_path / "out",
-            token="token",
-            max_runs=5,
-        )
-    except OSError as exc:
-        assert "copy failed" in str(exc)
-    else:
-        raise AssertionError("Expected output write failure to be fatal")
+    is_valid, reason = _validate_candidate(candidate_root)
+
+    assert is_valid is False
+    assert "seed history missing datasets" in reason
 
 
 def test_extract_zip_rejects_path_traversal(tmp_path):
