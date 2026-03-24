@@ -7,14 +7,20 @@ import io
 import json
 import os
 import shutil
+import sys
 import tempfile
 import zipfile
 from pathlib import Path
 
 import requests
 
-from scripts.check_bridge_integrity import check_bridge_integrity
-from scripts.materialize_etl_artifacts import materialize_artifacts
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from scripts.check_bridge_integrity import check_bridge_integrity  # noqa: E402
+from scripts.materialize_etl_artifacts import materialize_artifacts  # noqa: E402
 
 
 def _api_get_json(session: requests.Session, url: str) -> dict:
@@ -91,7 +97,7 @@ def _validate_candidate(candidate_root: Path) -> tuple[bool, str | None]:
         materialize_artifacts(workspace_root, [candidate_root])
         try:
             check_bridge_integrity(workspace_root, expect_previous_history=False)
-        except Exception as exc:  # pragma: no cover - exercised in tests via result string
+        except Exception as exc:
             return False, str(exc)
     return True, None
 
@@ -163,7 +169,7 @@ def download_latest_valid_aggregate_artifact(
                 )
                 _extract_zip(zip_bytes, candidate_root)
                 is_valid, reason = _validate_candidate(candidate_root)
-            except Exception as exc:  # covered through behavior tests
+            except Exception as exc:
                 tested_runs.append(
                     {
                         "run_id": run_id,

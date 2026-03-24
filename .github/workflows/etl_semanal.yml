@@ -141,6 +141,21 @@ jobs:
           pip install --upgrade pip
           pip install -r backend/requirements.txt
 
+      - name: Reset Reddit workspace outputs
+        shell: bash
+        run: |
+          rm -f \
+            datos/reddit_sentimiento_frameworks.csv \
+            datos/reddit_temas_emergentes.csv \
+            datos/interseccion_github_reddit.csv \
+            datos/latest/reddit_sentimiento_frameworks.csv \
+            datos/latest/reddit_temas_emergentes.csv \
+            datos/latest/interseccion_github_reddit.csv
+          rm -rf \
+            datos/history/reddit_sentimiento \
+            datos/history/reddit_temas \
+            datos/history/interseccion
+
       - name: Run Reddit ETL (non-blocking)
         id: reddit_run
         env:
@@ -156,24 +171,57 @@ jobs:
             echo "Reddit ETL failed (non-critical); aggregate will continue with existing data fallback." >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
+          missing=0
+          for expected in \
+            datos/latest/reddit_sentimiento_frameworks.csv \
+            datos/latest/reddit_temas_emergentes.csv \
+            datos/latest/interseccion_github_reddit.csv; do
+            if [ ! -f "$expected" ]; then
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            echo "status=failed" >> "$GITHUB_OUTPUT"
+            echo "Reddit ETL produced no fresh latest/history outputs; aggregate will continue with previous aggregate fallback." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
           echo "status=ok" >> "$GITHUB_OUTPUT"
+
+      - name: Stage Reddit artifact payload
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p artifact_payload/reddit
+          printf '{"status":"%s"}\n' "${{ steps.reddit_run.outputs.status || 'unknown' }}" > artifact_payload/reddit/reddit_status.json
+          for file in \
+            datos/reddit_sentimiento_frameworks.csv \
+            datos/reddit_temas_emergentes.csv \
+            datos/interseccion_github_reddit.csv \
+            datos/latest/reddit_sentimiento_frameworks.csv \
+            datos/latest/reddit_temas_emergentes.csv \
+            datos/latest/interseccion_github_reddit.csv; do
+            if [ -f "$file" ]; then
+              mkdir -p "artifact_payload/reddit/$(dirname "$file")"
+              cp "$file" "artifact_payload/reddit/$file"
+            fi
+          done
+          for dir in \
+            datos/history/reddit_sentimiento \
+            datos/history/reddit_temas \
+            datos/history/interseccion; do
+            if [ -d "$dir" ]; then
+              mkdir -p "artifact_payload/reddit/$(dirname "$dir")"
+              cp -R "$dir" "artifact_payload/reddit/$dir"
+            fi
+          done
 
       - name: Upload Reddit artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: reddit-data
-          if-no-files-found: warn
-          path: |
-            datos/reddit_sentimiento_frameworks.csv
-            datos/reddit_temas_emergentes.csv
-            datos/interseccion_github_reddit.csv
-            datos/latest/reddit_sentimiento_frameworks.csv
-            datos/latest/reddit_temas_emergentes.csv
-            datos/latest/interseccion_github_reddit.csv
-            datos/history/**/reddit_sentimiento_frameworks.csv
-            datos/history/**/reddit_temas_emergentes.csv
-            datos/history/**/interseccion_github_reddit.csv
+          if-no-files-found: error
+          path: artifact_payload/reddit
 
   job_aggregate:
     name: Aggregate + Quality Gate
