@@ -19,8 +19,8 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from scripts.check_bridge_integrity import check_bridge_integrity
-from scripts.materialize_etl_artifacts import materialize_artifacts
+from scripts.check_bridge_integrity import check_bridge_integrity  # noqa: E402
+from scripts.materialize_etl_artifacts import materialize_artifacts  # noqa: E402
 
 
 def _api_get_json(session: requests.Session, url: str) -> dict:
