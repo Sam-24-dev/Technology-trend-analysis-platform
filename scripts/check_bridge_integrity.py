@@ -29,6 +29,10 @@ REQUIRED_HISTORY_BRIDGES = (
     "reddit_interseccion_history.json",
 )
 
+BRIDGES_WITH_OPTIONAL_LATEST_DATE = {
+    "so_tendencias_history.json",
+}
+
 
 def _load_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
@@ -88,8 +92,18 @@ def check_bridge_integrity(
         source_mode = str(payload.get("source_mode", "")).strip().lower()
         if source_mode in {"", "missing", "none"}:
             errors.append(f"{bridge_name} source_mode={source_mode or 'missing'}")
-        if not payload.get("latest_snapshot_date"):
+        if (
+            bridge_name not in BRIDGES_WITH_OPTIONAL_LATEST_DATE
+            and not payload.get("latest_snapshot_date")
+        ):
             errors.append(f"{bridge_name} latest_snapshot_date missing")
+        if bridge_name in BRIDGES_WITH_OPTIONAL_LATEST_DATE:
+            months = payload.get("months")
+            series = payload.get("series")
+            if not isinstance(months, list) or not months:
+                errors.append(f"{bridge_name} months missing")
+            if not isinstance(series, list) or not series:
+                errors.append(f"{bridge_name} series missing")
         if expect_previous_history and not payload.get("previous_snapshot_date"):
             errors.append(f"{bridge_name} previous_snapshot_date missing")
 

@@ -220,11 +220,13 @@ jobs:
 
       - name: Download previous aggregate history (latest main)
         continue-on-error: true
-        uses: dawidd6/action-download-artifact@v2
+        uses: dawidd6/action-download-artifact@v11
         with:
-          workflow: ETL Weekly Data Refresh
+          github_token: ${{ github.token }}
+          workflow: etl_semanal.yml
           branch: main
           name: aggregate-data
+          search_artifacts: true
           path: prev_artifacts
           workflow_conclusion: success
           if_no_artifact_found: warn

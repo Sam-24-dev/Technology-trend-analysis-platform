@@ -57,7 +57,6 @@ def _write_healthy_bridge_set(root, *, previous_snapshot_date="2026-03-19"):
         "github_correlacion_history.json",
         "so_volumen_history.json",
         "so_aceptacion_history.json",
-        "so_tendencias_history.json",
         "reddit_temas_history.json",
         "reddit_interseccion_history.json",
     ):
@@ -69,6 +68,21 @@ def _write_healthy_bridge_set(root, *, previous_snapshot_date="2026-03-19"):
                 "previous_snapshot_date": previous_snapshot_date,
             },
         )
+
+    _write_json(
+        assets_dir / "so_tendencias_history.json",
+        {
+            "source_mode": "history",
+            "previous_snapshot_date": previous_snapshot_date,
+            "months": ["2026-02", "2026-03"],
+            "series": [
+                {
+                    "technology": "Python",
+                    "points": [377, 412],
+                }
+            ],
+        },
+    )
 
 
 def test_bridge_integrity_passes_for_healthy_history(tmp_path):
@@ -125,7 +139,6 @@ def test_bridge_integrity_allows_bootstrap_without_previous_snapshot(tmp_path):
         "github_correlacion_history.json",
         "so_volumen_history.json",
         "so_aceptacion_history.json",
-        "so_tendencias_history.json",
         "reddit_temas_history.json",
         "reddit_interseccion_history.json",
     ):
@@ -137,6 +150,21 @@ def test_bridge_integrity_allows_bootstrap_without_previous_snapshot(tmp_path):
                 "previous_snapshot_date": None,
             },
         )
+
+    _write_json(
+        assets_dir / "so_tendencias_history.json",
+        {
+            "source_mode": "history",
+            "previous_snapshot_date": None,
+            "months": ["2026-03"],
+            "series": [
+                {
+                    "technology": "Python",
+                    "points": [377],
+                }
+            ],
+        },
+    )
 
     summary = check_bridge_integrity(tmp_path, expect_previous_history=False)
 
