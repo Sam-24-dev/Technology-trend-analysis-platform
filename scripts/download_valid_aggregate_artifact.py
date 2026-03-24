@@ -79,6 +79,12 @@ def _ensure_safe_output_dir(output_dir: Path) -> None:
         raise ValueError(f"Refusing unsafe output_dir: {output_dir}")
 
 
+def _replace_output_dir(source_root: Path, output_dir: Path) -> None:
+    if output_dir.exists():
+        shutil.rmtree(output_dir)
+    shutil.copytree(source_root, output_dir)
+
+
 def _validate_candidate(candidate_root: Path) -> tuple[bool, str | None]:
     with tempfile.TemporaryDirectory() as tmp_dir:
         workspace_root = Path(tmp_dir) / "workspace"
@@ -134,35 +140,7 @@ def download_latest_valid_aggregate_artifact(
                 for artifact in artifacts_payload.get("artifacts", [])
                 if artifact.get("name") == artifact_name and not artifact.get("expired")
             ]
-            if not artifacts:
-                continue
-
-            artifact = artifacts[0]
-            with tempfile.TemporaryDirectory() as tmp_dir:
-                candidate_root = Path(tmp_dir) / "artifact"
-                zip_bytes = _download_artifact_zip(
-                    session, artifact["archive_download_url"]
-                )
-                _extract_zip(zip_bytes, candidate_root)
-                is_valid, reason = _validate_candidate(candidate_root)
-                tested_runs.append(
-                    {
-                        "run_id": run_id,
-                        "created_at": run.get("created_at"),
-                        "valid": is_valid,
-                        "reason": reason,
-                    }
-                )
-                if is_valid:
-                    shutil.rmtree(output_dir)
-                    shutil.copytree(candidate_root, output_dir)
-                    return {
-                        "status": "ok",
-                        "selected_run_id": run_id,
-                        "selected_artifact_id": artifact["id"],
-                        "tested_runs": tested_runs,
-                    }
-        except Exception as exc:  # pragma: no cover - covered through behavior tests
+        except Exception as exc:
             tested_runs.append(
                 {
                     "run_id": run_id,
@@ -172,6 +150,47 @@ def download_latest_valid_aggregate_artifact(
                 }
             )
             continue
+
+        if not artifacts:
+            continue
+
+        artifact = artifacts[0]
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            candidate_root = Path(tmp_dir) / "artifact"
+            try:
+                zip_bytes = _download_artifact_zip(
+                    session, artifact["archive_download_url"]
+                )
+                _extract_zip(zip_bytes, candidate_root)
+                is_valid, reason = _validate_candidate(candidate_root)
+            except Exception as exc:  # covered through behavior tests
+                tested_runs.append(
+                    {
+                        "run_id": run_id,
+                        "created_at": run.get("created_at"),
+                        "valid": False,
+                        "reason": str(exc),
+                    }
+                )
+                continue
+
+            tested_runs.append(
+                {
+                    "run_id": run_id,
+                    "created_at": run.get("created_at"),
+                    "valid": is_valid,
+                    "reason": reason,
+                }
+            )
+            if not is_valid:
+                continue
+            _replace_output_dir(candidate_root, output_dir)
+            return {
+                "status": "ok",
+                "selected_run_id": run_id,
+                "selected_artifact_id": artifact["id"],
+                "tested_runs": tested_runs,
+            }
 
     return {
         "status": "missing",
