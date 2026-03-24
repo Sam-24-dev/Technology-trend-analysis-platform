@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import io
 import json
+import os
 import shutil
 import tempfile
 import zipfile
@@ -33,10 +34,49 @@ def _download_artifact_zip(session: requests.Session, url: str) -> bytes:
     return response.content
 
 
+def _is_zip_symlink(member: zipfile.ZipInfo) -> bool:
+    unix_mode = (member.external_attr >> 16) & 0o170000
+    return unix_mode == 0o120000
+
+
+def _resolve_member_path(destination: Path, member_name: str) -> Path:
+    target_path = (destination / member_name).resolve()
+    try:
+        target_path.relative_to(destination.resolve())
+    except ValueError as exc:
+        raise ValueError(f"Unsafe zip member path: {member_name}") from exc
+    return target_path
+
+
 def _extract_zip(content: bytes, destination: Path) -> None:
     destination.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(io.BytesIO(content)) as archive:
-        archive.extractall(destination)
+        for member in archive.infolist():
+            if not member.filename or member.filename.endswith("/"):
+                continue
+            if _is_zip_symlink(member):
+                raise ValueError(
+                    f"Refusing symlink in artifact archive: {member.filename}"
+                )
+            safe_target = _resolve_member_path(destination, member.filename)
+            safe_target.parent.mkdir(parents=True, exist_ok=True)
+            with archive.open(member) as source, safe_target.open("wb") as target:
+                shutil.copyfileobj(source, target)
+
+
+def _ensure_safe_output_dir(output_dir: Path) -> None:
+    resolved = output_dir.resolve()
+    forbidden = {
+        Path(resolved.anchor).resolve(),
+        Path.cwd().resolve(),
+        Path.home().resolve(),
+    }
+    if resolved in forbidden:
+        raise ValueError(f"Refusing unsafe output_dir: {output_dir}")
+    if output_dir.exists() and not output_dir.is_dir():
+        raise ValueError(f"output_dir must be a directory path: {output_dir}")
+    if not output_dir.name:
+        raise ValueError(f"Refusing unsafe output_dir: {output_dir}")
 
 
 def _validate_candidate(candidate_root: Path) -> tuple[bool, str | None]:
@@ -61,6 +101,7 @@ def download_latest_valid_aggregate_artifact(
     max_runs: int = 20,
 ) -> dict[str, object]:
     output_dir = Path(output_dir)
+    _ensure_safe_output_dir(output_dir)
     if output_dir.exists():
         shutil.rmtree(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -142,7 +183,7 @@ def main() -> int:
 
     token = args.token
     if not token:
-        token = str(__import__("os").environ.get("GITHUB_TOKEN", "")).strip()
+        token = str(os.environ.get("GITHUB_TOKEN", "")).strip()
     if not token:
         raise SystemExit("Missing GitHub token. Provide --token or set GITHUB_TOKEN.")
 

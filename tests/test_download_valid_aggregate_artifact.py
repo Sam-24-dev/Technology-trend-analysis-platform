@@ -2,6 +2,8 @@ import io
 import zipfile
 
 from scripts.download_valid_aggregate_artifact import (
+    _ensure_safe_output_dir,
+    _extract_zip,
     download_latest_valid_aggregate_artifact,
 )
 
@@ -141,3 +143,27 @@ def test_download_latest_valid_aggregate_artifact_returns_missing_when_none_vali
     assert summary["status"] == "missing"
     assert summary["selected_run_id"] is None
     assert summary["tested_runs"][0]["reason"] == "broken aggregate"
+
+
+def test_extract_zip_rejects_path_traversal(tmp_path):
+    malicious_zip = _build_zip({"../escape.txt": "boom"})
+
+    try:
+        _extract_zip(malicious_zip, tmp_path / "out")
+    except ValueError as exc:
+        assert "Unsafe zip member path" in str(exc)
+    else:
+        raise AssertionError("Expected path traversal zip to be rejected")
+
+    assert not (tmp_path / "escape.txt").exists()
+
+
+def test_ensure_safe_output_dir_rejects_current_working_directory(monkeypatch, tmp_path):
+    monkeypatch.chdir(tmp_path)
+
+    try:
+        _ensure_safe_output_dir(tmp_path)
+    except ValueError as exc:
+        assert "Refusing unsafe output_dir" in str(exc)
+    else:
+        raise AssertionError("Expected unsafe output_dir to be rejected")
