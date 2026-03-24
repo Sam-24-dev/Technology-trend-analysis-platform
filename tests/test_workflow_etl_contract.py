@@ -39,6 +39,8 @@ def test_workflow_artifact_handoff_contract_is_defined():
     assert "if-no-files-found: error" in content
     assert "python scripts/materialize_etl_artifacts.py" in content
     assert "python scripts/check_bridge_integrity.py" in content
+    assert "python scripts/download_valid_aggregate_artifact.py" in content
+    assert "dawidd6/action-download-artifact" not in content
 
 
 def test_workflow_publish_gate_and_bridge_asset_paths():
