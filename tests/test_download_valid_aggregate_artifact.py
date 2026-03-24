@@ -162,7 +162,6 @@ def test_download_latest_valid_aggregate_artifact_continues_after_candidate_exce
     monkeypatch,
 ):
     valid_zip = _build_zip({"marker.txt": "valid"})
-
     def fake_api_get_json(_session, url):
         if "workflows/etl_semanal.yml/runs" in url:
             return {
@@ -231,7 +230,6 @@ def test_download_latest_valid_aggregate_artifact_continues_after_candidate_exce
     assert summary["selected_run_id"] == 201
     assert summary["tested_runs"][0]["valid"] is False
     assert "artifact download failed" in summary["tested_runs"][0]["reason"]
-
 
 def test_download_latest_valid_aggregate_artifact_raises_when_output_write_fails(
     tmp_path,
