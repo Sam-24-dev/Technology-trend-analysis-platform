@@ -104,7 +104,11 @@ def check_bridge_integrity(
                 errors.append(f"{bridge_name} months missing")
             if not isinstance(series, list) or not series:
                 errors.append(f"{bridge_name} series missing")
-        if expect_previous_history and not payload.get("previous_snapshot_date"):
+            if expect_previous_history and (not isinstance(months, list) or len(months) < 2):
+                errors.append(
+                    f"{bridge_name} months must contain at least 2 entries when previous history is required"
+                )
+        elif expect_previous_history and not payload.get("previous_snapshot_date"):
             errors.append(f"{bridge_name} previous_snapshot_date missing")
 
     if errors:

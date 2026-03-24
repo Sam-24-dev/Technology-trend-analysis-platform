@@ -73,7 +73,6 @@ def _write_healthy_bridge_set(root, *, previous_snapshot_date="2026-03-19"):
         assets_dir / "so_tendencias_history.json",
         {
             "source_mode": "history",
-            "previous_snapshot_date": previous_snapshot_date,
             "months": ["2026-02", "2026-03"],
             "series": [
                 {
@@ -155,7 +154,6 @@ def test_bridge_integrity_allows_bootstrap_without_previous_snapshot(tmp_path):
         assets_dir / "so_tendencias_history.json",
         {
             "source_mode": "history",
-            "previous_snapshot_date": None,
             "months": ["2026-03"],
             "series": [
                 {
@@ -169,3 +167,26 @@ def test_bridge_integrity_allows_bootstrap_without_previous_snapshot(tmp_path):
     summary = check_bridge_integrity(tmp_path, expect_previous_history=False)
 
     assert summary["status"] == "ok"
+
+
+def test_bridge_integrity_requires_multiple_so_trend_months_when_previous_history_expected(
+    tmp_path,
+):
+    _write_healthy_bridge_set(tmp_path)
+    assets_dir = tmp_path / "frontend" / "assets" / "data"
+    _write_json(
+        assets_dir / "so_tendencias_history.json",
+        {
+            "source_mode": "history",
+            "months": ["2026-03"],
+            "series": [
+                {
+                    "technology": "Python",
+                    "points": [377],
+                }
+            ],
+        },
+    )
+
+    with pytest.raises(ValueError, match="so_tendencias_history.json months must contain at least 2 entries"):
+        check_bridge_integrity(tmp_path, expect_previous_history=True)
