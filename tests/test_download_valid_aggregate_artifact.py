@@ -7,6 +7,8 @@ from pathlib import Path
 from scripts.download_valid_aggregate_artifact import (
     _ensure_safe_output_dir,
     _extract_zip,
+    _validate_history_seed,
+    _validate_candidate,
     download_latest_valid_aggregate_artifact,
 )
 
@@ -232,6 +234,7 @@ def test_download_latest_valid_aggregate_artifact_continues_after_candidate_exce
     assert summary["tested_runs"][0]["valid"] is False
     assert "artifact download failed" in summary["tested_runs"][0]["reason"]
 
+
 def test_download_latest_valid_aggregate_artifact_raises_when_output_write_fails(
     tmp_path,
     monkeypatch,
@@ -289,6 +292,54 @@ def test_download_latest_valid_aggregate_artifact_raises_when_output_write_fails
         assert "copy failed" in str(exc)
     else:
         raise AssertionError("Expected output write failure to be fatal")
+
+
+def test_validate_candidate_requires_hydrated_history_seed(tmp_path, monkeypatch):
+    candidate_root = tmp_path / "candidate"
+    candidate_root.mkdir(parents=True, exist_ok=True)
+
+    monkeypatch.setattr(
+        "scripts.download_valid_aggregate_artifact.materialize_artifacts",
+        lambda workspace_root, roots: None,
+    )
+    monkeypatch.setattr(
+        "scripts.download_valid_aggregate_artifact.hydrate_aggregate_history_seed",
+        lambda workspace_root: {"seeded_history_files": 0},
+    )
+    monkeypatch.setattr(
+        "scripts.download_valid_aggregate_artifact.check_bridge_integrity",
+        lambda workspace_root, expect_previous_history=False: {"status": "ok"},
+    )
+
+    is_valid, reason = _validate_candidate(candidate_root)
+
+    assert is_valid is False
+    assert "seed history missing datasets" in reason
+
+
+def test_validate_history_seed_allows_so_trends_metadata_fallback(tmp_path):
+    workspace_root = tmp_path / "workspace"
+    for dataset in (
+        "trend_score",
+        "github_commits",
+        "github_correlacion",
+        "so_volumen",
+        "so_aceptacion",
+        "reddit_temas",
+        "interseccion",
+    ):
+        dataset_dir = workspace_root / "datos" / "history" / dataset / "year=2026" / "month=03" / "day=16"
+        dataset_dir.mkdir(parents=True, exist_ok=True)
+        (dataset_dir / f"{dataset}.csv").write_text("col\n1\n", encoding="utf-8")
+
+    metadata_path = workspace_root / "datos" / "metadata" / "so_tendencias_series.json"
+    metadata_path.parent.mkdir(parents=True, exist_ok=True)
+    metadata_path.write_text('{"months":["2026-02","2026-03"],"series":[]}', encoding="utf-8")
+
+    is_valid, reason = _validate_history_seed(workspace_root)
+
+    assert is_valid is True
+    assert reason is None
 
 
 def test_extract_zip_rejects_path_traversal(tmp_path):

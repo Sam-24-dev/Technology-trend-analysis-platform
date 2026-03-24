@@ -40,6 +40,8 @@ def test_workflow_artifact_handoff_contract_is_defined():
     assert "python scripts/materialize_etl_artifacts.py" in content
     assert "python scripts/check_bridge_integrity.py" in content
     assert "python scripts/download_valid_aggregate_artifact.py" in content
+    assert "python scripts/hydrate_aggregate_history_seed.py --project-root ." in content
+    assert "steps.previous_history.outputs.expect_previous_history == '1'" in content
     assert "dawidd6/action-download-artifact" not in content
     assert "Stage Reddit artifact payload" in content
     assert "artifact_payload/reddit" in content
@@ -97,3 +99,6 @@ def test_workflow_reddit_job_resets_stale_outputs_and_requires_fresh_latest_file
     assert "datos/latest/reddit_sentimiento_frameworks.csv" in content
     assert "datos/latest/reddit_temas_emergentes.csv" in content
     assert "datos/latest/interseccion_github_reddit.csv" in content
+    assert "Restore previous Reddit bridges on source fallback" in content
+    assert "reddit_temas_history.json" in content
+    assert "reddit_interseccion_history.json" in content
