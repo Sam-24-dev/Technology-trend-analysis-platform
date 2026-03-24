@@ -1,10 +1,20 @@
 import io
+import subprocess
+import sys
 import zipfile
+from pathlib import Path
 
 from scripts.download_valid_aggregate_artifact import (
     _ensure_safe_output_dir,
     _extract_zip,
     download_latest_valid_aggregate_artifact,
+)
+
+
+SCRIPT_PATH = (
+    Path(__file__).resolve().parent.parent
+    / "scripts"
+    / "download_valid_aggregate_artifact.py"
 )
 
 
@@ -103,7 +113,9 @@ def test_download_latest_valid_aggregate_artifact_returns_missing_when_none_vali
 
     def fake_api_get_json(_session, url):
         if "workflows/etl_semanal.yml/runs" in url:
-            return {"workflow_runs": [{"id": 201, "created_at": "2026-03-23T08:00:00Z"}]}
+            return {
+                "workflow_runs": [{"id": 201, "created_at": "2026-03-23T08:00:00Z"}]
+            }
         if "/actions/runs/201/artifacts" in url:
             return {
                 "artifacts": [
@@ -221,7 +233,6 @@ def test_download_latest_valid_aggregate_artifact_continues_after_candidate_exce
     assert "artifact download failed" in summary["tested_runs"][0]["reason"]
 
 
-<<<<<<< HEAD
 def test_download_latest_valid_aggregate_artifact_raises_when_output_write_fails(
     tmp_path,
     monkeypatch,
@@ -230,7 +241,9 @@ def test_download_latest_valid_aggregate_artifact_raises_when_output_write_fails
 
     def fake_api_get_json(_session, url):
         if "workflows/etl_semanal.yml/runs" in url:
-            return {"workflow_runs": [{"id": 201, "created_at": "2026-03-23T08:00:00Z"}]}
+            return {
+                "workflow_runs": [{"id": 201, "created_at": "2026-03-23T08:00:00Z"}]
+            }
         if "/actions/runs/201/artifacts" in url:
             return {
                 "artifacts": [
@@ -279,8 +292,6 @@ def test_download_latest_valid_aggregate_artifact_raises_when_output_write_fails
         raise AssertionError("Expected output write failure to be fatal")
 
 
-=======
->>>>>>> adfabbe (fix(ci): restore last valid aggregate artifact)
 def test_extract_zip_rejects_path_traversal(tmp_path):
     malicious_zip = _build_zip({"../escape.txt": "boom"})
 
@@ -294,7 +305,9 @@ def test_extract_zip_rejects_path_traversal(tmp_path):
     assert not (tmp_path / "escape.txt").exists()
 
 
-def test_ensure_safe_output_dir_rejects_current_working_directory(monkeypatch, tmp_path):
+def test_ensure_safe_output_dir_rejects_current_working_directory(
+    monkeypatch, tmp_path
+):
     monkeypatch.chdir(tmp_path)
 
     try:
@@ -303,3 +316,15 @@ def test_ensure_safe_output_dir_rejects_current_working_directory(monkeypatch, t
         assert "Refusing unsafe output_dir" in str(exc)
     else:
         raise AssertionError("Expected unsafe output_dir to be rejected")
+
+
+def test_script_can_run_as_file_for_help():
+    result = subprocess.run(
+        [sys.executable, str(SCRIPT_PATH), "--help"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0
+    assert "--workflow" in result.stdout
