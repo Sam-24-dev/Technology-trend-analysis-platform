@@ -144,7 +144,6 @@ def test_download_latest_valid_aggregate_artifact_returns_missing_when_none_vali
     assert summary["selected_run_id"] is None
     assert summary["tested_runs"][0]["reason"] == "broken aggregate"
 
-
 def test_download_latest_valid_aggregate_artifact_continues_after_candidate_exception(
     tmp_path,
     monkeypatch,
@@ -219,8 +218,6 @@ def test_download_latest_valid_aggregate_artifact_continues_after_candidate_exce
     assert summary["selected_run_id"] == 201
     assert summary["tested_runs"][0]["valid"] is False
     assert "artifact download failed" in summary["tested_runs"][0]["reason"]
-
-
 def test_extract_zip_rejects_path_traversal(tmp_path):
     malicious_zip = _build_zip({"../escape.txt": "boom"})
 
