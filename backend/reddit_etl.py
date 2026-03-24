@@ -10,11 +10,10 @@ Autor: Mateo Mayorga
 import pandas as pd
 from datetime import datetime
 import requests
-import nltk
-from nltk.sentiment import SentimentIntensityAnalyzer
 import warnings
 import time
 import re
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 from config.settings import (
     ARCHIVOS_SALIDA, REDDIT_SUBREDDIT, REDDIT_LIMIT,
@@ -109,7 +108,6 @@ class RedditETL(BaseETL):
     def definir_pasos(self):
         """Define los pasos ETL de Reddit."""
         return [
-            ("Preparar recursos NLTK", self._ensure_nltk_resources),
             ("Autenticacion OAuth", self._obtener_token_oauth),
             ("Extraccion de posts", self.extraer_posts),
             ("Sentimiento de frameworks", self.analizar_sentimiento_frameworks),
@@ -135,23 +133,6 @@ class RedditETL(BaseETL):
                 "Credenciales OAuth de Reddit no configuradas. "
                 "Se ejecutara en modo degradado (API publica)."
             )
-
-    def _ensure_nltk_resources(self):
-        """Asegura que recursos NLTK requeridos esten disponibles en runtime.
-
-        Evita side effects durante import del modulo.
-        """
-        try:
-            nltk.data.find('sentiment/vader_lexicon')
-        except LookupError:
-            self.logger.info("Descargando recurso NLTK: vader_lexicon")
-            nltk.download('vader_lexicon', quiet=True)
-
-        try:
-            nltk.data.find('corpora/stopwords')
-        except LookupError:
-            self.logger.info("Descargando recurso NLTK: stopwords")
-            nltk.download('stopwords', quiet=True)
 
     def extraer_posts(self, subreddit_name=REDDIT_SUBREDDIT, limit=REDDIT_LIMIT):
         """Extrae posts de un subreddit usando la API JSON publica de Reddit.

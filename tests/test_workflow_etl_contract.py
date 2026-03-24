@@ -37,8 +37,8 @@ def test_workflow_artifact_handoff_contract_is_defined():
     assert "Download Reddit artifacts" in content
     assert "Download aggregate artifacts" in content
     assert "if-no-files-found: error" in content
-    assert "Missing required artifact file" in content
-    assert "Optional artifact missing (degraded mode may continue)" in content
+    assert "python scripts/materialize_etl_artifacts.py" in content
+    assert "python scripts/check_bridge_integrity.py" in content
 
 
 def test_workflow_publish_gate_and_bridge_asset_paths():
@@ -48,7 +48,7 @@ def test_workflow_publish_gate_and_bridge_asset_paths():
     assert "Enforce frontend assets policy (strict)" in content
     assert "python scripts/check_frontend_assets.py --mode strict --root ." in content
     assert "frontend/assets/data/*.json" in content
-    assert "artifact_payload/frontend/assets/data/*.json" in content
+    assert "python scripts/materialize_etl_artifacts.py --project-root . artifact_payload" in content
     assert "frontend/assets/data/github_lenguajes.csv" in content
     assert "frontend/assets/data/so_volumen_preguntas.csv" in content
     assert "frontend/assets/data/reddit_temas_emergentes.csv" in content
@@ -74,3 +74,9 @@ def test_workflow_generates_public_run_manifest_via_sync_assets():
     assert "Sync CSVs to frontend assets" in content
     assert "python backend/sync_assets.py" in content
     assert "Generate/validate public run manifest" not in content
+
+
+def test_workflow_no_longer_downloads_nltk_data():
+    content = _load_workflow_text()
+
+    assert "Download NLTK data" not in content
