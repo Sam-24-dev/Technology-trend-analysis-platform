@@ -41,6 +41,7 @@ def test_workflow_artifact_handoff_contract_is_defined():
     assert "python scripts/check_bridge_integrity.py" in content
     assert "python scripts/download_valid_aggregate_artifact.py" in content
     assert "python scripts/hydrate_aggregate_history_seed.py --project-root ." in content
+    assert "steps.previous_history.outputs.expect_previous_history == '1'" in content
     assert "dawidd6/action-download-artifact" not in content
     assert "Stage Reddit artifact payload" in content
     assert "artifact_payload/reddit" in content

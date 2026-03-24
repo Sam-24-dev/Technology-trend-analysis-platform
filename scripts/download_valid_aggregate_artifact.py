@@ -1,4 +1,4 @@
-﻿"""Descarga el ultimo aggregate-data valido desde GitHub Actions."""
+"""Descarga el ultimo aggregate-data valido desde GitHub Actions."""
 
 from __future__ import annotations
 
@@ -95,11 +95,22 @@ def _replace_output_dir(source_root: Path, output_dir: Path) -> None:
     shutil.copytree(source_root, output_dir)
 
 
+def _has_history_seed(workspace_root: Path, dataset: str) -> bool:
+    dataset_dir = workspace_root / "datos" / "history" / dataset
+    if list(dataset_dir.rglob("*.csv")):
+        return True
+
+    if dataset == "so_tendencias":
+        metadata_path = workspace_root / "datos" / "metadata" / "so_tendencias_series.json"
+        return metadata_path.exists()
+
+    return False
+
+
 def _validate_history_seed(workspace_root: Path) -> tuple[bool, str | None]:
     missing = []
     for dataset in REQUIRED_HISTORY_SEED_DATASETS:
-        dataset_dir = workspace_root / "datos" / "history" / dataset
-        if not list(dataset_dir.rglob("*.csv")):
+        if not _has_history_seed(workspace_root, dataset):
             missing.append(dataset)
 
     if missing:

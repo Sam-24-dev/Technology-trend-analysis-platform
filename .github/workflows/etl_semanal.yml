@@ -298,6 +298,7 @@ jobs:
           fi
 
       - name: Hydrate previous aggregate history seed
+        if: ${{ steps.previous_history.outputs.expect_previous_history == '1' }}
         shell: bash
         run: |
           python scripts/hydrate_aggregate_history_seed.py --project-root .
