@@ -90,6 +90,8 @@ def test_workflow_reddit_job_resets_stale_outputs_and_requires_fresh_latest_file
     content = _load_workflow_text()
 
     assert "Reset Reddit workspace outputs" in content
+    assert "Stage Reddit artifact payload" in content
+    assert "if: always()" in content
     assert "Reddit ETL produced no fresh latest/history outputs" in content
     assert "reddit_status.json" in content
     assert "datos/latest/reddit_sentimiento_frameworks.csv" in content

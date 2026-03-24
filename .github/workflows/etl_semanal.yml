@@ -188,6 +188,7 @@ jobs:
           echo "status=ok" >> "$GITHUB_OUTPUT"
 
       - name: Stage Reddit artifact payload
+        if: always()
         shell: bash
         run: |
           mkdir -p artifact_payload/reddit
