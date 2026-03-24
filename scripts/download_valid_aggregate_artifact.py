@@ -124,39 +124,54 @@ def download_latest_valid_aggregate_artifact(
 
     for run in runs_payload.get("workflow_runs", []):
         run_id = run["id"]
-        artifacts_url = f"https://api.github.com/repos/{repo}/actions/runs/{run_id}/artifacts"
-        artifacts_payload = _api_get_json(session, artifacts_url)
-        artifacts = [
-            artifact
-            for artifact in artifacts_payload.get("artifacts", [])
-            if artifact.get("name") == artifact_name and not artifact.get("expired")
-        ]
-        if not artifacts:
-            continue
+        try:
+            artifacts_url = (
+                f"https://api.github.com/repos/{repo}/actions/runs/{run_id}/artifacts"
+            )
+            artifacts_payload = _api_get_json(session, artifacts_url)
+            artifacts = [
+                artifact
+                for artifact in artifacts_payload.get("artifacts", [])
+                if artifact.get("name") == artifact_name and not artifact.get("expired")
+            ]
+            if not artifacts:
+                continue
 
-        artifact = artifacts[0]
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            candidate_root = Path(tmp_dir) / "artifact"
-            zip_bytes = _download_artifact_zip(session, artifact["archive_download_url"])
-            _extract_zip(zip_bytes, candidate_root)
-            is_valid, reason = _validate_candidate(candidate_root)
+            artifact = artifacts[0]
+            with tempfile.TemporaryDirectory() as tmp_dir:
+                candidate_root = Path(tmp_dir) / "artifact"
+                zip_bytes = _download_artifact_zip(
+                    session, artifact["archive_download_url"]
+                )
+                _extract_zip(zip_bytes, candidate_root)
+                is_valid, reason = _validate_candidate(candidate_root)
+                tested_runs.append(
+                    {
+                        "run_id": run_id,
+                        "created_at": run.get("created_at"),
+                        "valid": is_valid,
+                        "reason": reason,
+                    }
+                )
+                if is_valid:
+                    shutil.rmtree(output_dir)
+                    shutil.copytree(candidate_root, output_dir)
+                    return {
+                        "status": "ok",
+                        "selected_run_id": run_id,
+                        "selected_artifact_id": artifact["id"],
+                        "tested_runs": tested_runs,
+                    }
+        except Exception as exc:  # pragma: no cover - covered through behavior tests
             tested_runs.append(
                 {
                     "run_id": run_id,
                     "created_at": run.get("created_at"),
-                    "valid": is_valid,
-                    "reason": reason,
+                    "valid": False,
+                    "reason": str(exc),
                 }
             )
-            if is_valid:
-                shutil.rmtree(output_dir)
-                shutil.copytree(candidate_root, output_dir)
-                return {
-                    "status": "ok",
-                    "selected_run_id": run_id,
-                    "selected_artifact_id": artifact["id"],
-                    "tested_runs": tested_runs,
-                }
+            continue
 
     return {
         "status": "missing",
