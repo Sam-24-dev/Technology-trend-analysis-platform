@@ -218,18 +218,19 @@ jobs:
           name: reddit-data
           path: artifacts/reddit
 
-      - name: Download previous aggregate history (latest main)
+      - name: Download latest valid aggregate history (main)
         continue-on-error: true
-        uses: dawidd6/action-download-artifact@v11
-        with:
-          github_token: ${{ github.token }}
-          workflow: etl_semanal.yml
-          branch: main
-          name: aggregate-data
-          search_artifacts: true
-          path: prev_artifacts
-          workflow_conclusion: success
-          if_no_artifact_found: warn
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          python scripts/download_valid_aggregate_artifact.py \
+            --repo "${GITHUB_REPOSITORY}" \
+            --workflow etl_semanal.yml \
+            --branch main \
+            --artifact-name aggregate-data \
+            --output-dir prev_artifacts \
+            --max-runs 20
 
       - name: Detect previous aggregate snapshot
         id: previous_history
