@@ -162,7 +162,6 @@ def test_download_latest_valid_aggregate_artifact_continues_after_candidate_exce
     monkeypatch,
 ):
     valid_zip = _build_zip({"marker.txt": "valid"})
-
     def fake_api_get_json(_session, url):
         if "workflows/etl_semanal.yml/runs" in url:
             return {
