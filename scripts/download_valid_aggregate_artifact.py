@@ -140,6 +140,7 @@ def download_latest_valid_aggregate_artifact(
                 for artifact in artifacts_payload.get("artifacts", [])
                 if artifact.get("name") == artifact_name and not artifact.get("expired")
             ]
+<<<<<<< HEAD
         except Exception as exc:
             tested_runs.append(
                 {
@@ -158,30 +159,59 @@ def download_latest_valid_aggregate_artifact(
         with tempfile.TemporaryDirectory() as tmp_dir:
             candidate_root = Path(tmp_dir) / "artifact"
             try:
+=======
+            if not artifacts:
+                continue
+
+            artifact = artifacts[0]
+            with tempfile.TemporaryDirectory() as tmp_dir:
+                candidate_root = Path(tmp_dir) / "artifact"
+>>>>>>> adfabbe (fix(ci): restore last valid aggregate artifact)
                 zip_bytes = _download_artifact_zip(
                     session, artifact["archive_download_url"]
                 )
                 _extract_zip(zip_bytes, candidate_root)
                 is_valid, reason = _validate_candidate(candidate_root)
+<<<<<<< HEAD
             except Exception as exc:  # covered through behavior tests
+=======
+>>>>>>> adfabbe (fix(ci): restore last valid aggregate artifact)
                 tested_runs.append(
                     {
                         "run_id": run_id,
                         "created_at": run.get("created_at"),
+<<<<<<< HEAD
                         "valid": False,
                         "reason": str(exc),
                     }
                 )
                 continue
 
+=======
+                        "valid": is_valid,
+                        "reason": reason,
+                    }
+                )
+                if is_valid:
+                    shutil.rmtree(output_dir)
+                    shutil.copytree(candidate_root, output_dir)
+                    return {
+                        "status": "ok",
+                        "selected_run_id": run_id,
+                        "selected_artifact_id": artifact["id"],
+                        "tested_runs": tested_runs,
+                    }
+        except Exception as exc:  # pragma: no cover - covered through behavior tests
+>>>>>>> adfabbe (fix(ci): restore last valid aggregate artifact)
             tested_runs.append(
                 {
                     "run_id": run_id,
                     "created_at": run.get("created_at"),
-                    "valid": is_valid,
-                    "reason": reason,
+                    "valid": False,
+                    "reason": str(exc),
                 }
             )
+<<<<<<< HEAD
             if not is_valid:
                 continue
             _replace_output_dir(candidate_root, output_dir)
@@ -191,6 +221,9 @@ def download_latest_valid_aggregate_artifact(
                 "selected_artifact_id": artifact["id"],
                 "tested_runs": tested_runs,
             }
+=======
+            continue
+>>>>>>> adfabbe (fix(ci): restore last valid aggregate artifact)
 
     return {
         "status": "missing",

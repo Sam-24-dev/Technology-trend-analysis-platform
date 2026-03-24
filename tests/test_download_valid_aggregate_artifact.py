@@ -221,6 +221,7 @@ def test_download_latest_valid_aggregate_artifact_continues_after_candidate_exce
     assert "artifact download failed" in summary["tested_runs"][0]["reason"]
 
 
+<<<<<<< HEAD
 def test_download_latest_valid_aggregate_artifact_raises_when_output_write_fails(
     tmp_path,
     monkeypatch,
@@ -278,6 +279,8 @@ def test_download_latest_valid_aggregate_artifact_raises_when_output_write_fails
         raise AssertionError("Expected output write failure to be fatal")
 
 
+=======
+>>>>>>> adfabbe (fix(ci): restore last valid aggregate artifact)
 def test_extract_zip_rejects_path_traversal(tmp_path):
     malicious_zip = _build_zip({"../escape.txt": "boom"})
 
