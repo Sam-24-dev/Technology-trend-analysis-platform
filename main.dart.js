@@ -31700,7 +31700,7 @@ aNN(a){if(!B.b.b_(a,"/"))return"/"+a
 return a},
 bdU(a){if(B.b.i0(a,"/"))return B.b.a5(a,0,a.length-1)
 return a},
-b1U(a){var s=B.b.av("https://sam-24-dev.github.io/Technology-trend-analysis-platform/assets/data/")
+b1U(a){var s=B.b.av("")
 if(s.length===0)return""
 if(B.b.i0(s,"/"))return s+a
 return s+"/"+a},
@@ -32146,7 +32146,7 @@ $S:2}
 A.aHV.prototype={
 $1(a){var s=A.dW().b
 s=s==null?null:s.canvasKitBaseUrl
-return(s==null?"https://www.gstatic.com/flutter-canvaskit/052f31d115eceda8cbff1b3481fcde4330c4ae12/":s)+a},
+return(s==null?"https://www.gstatic.com/flutter-canvaskit/425cfb54d01a9472b3e81d9e76fd63a4a44cfbcb/":s)+a},
 $S:31}
 A.Rd.prototype={
 gA(a){var s=this.a
