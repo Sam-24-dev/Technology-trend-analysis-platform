@@ -63,11 +63,15 @@ def _discover_candidate(root: Path) -> Candidate | None:
         if not (root / "datos" / csv_name).exists():
             return None
 
-    topics_date = _parse_snapshot_date(
-        _load_json(topics_bridge).get("latest_snapshot_date")
-    )
+    try:
+        topics_payload = _load_json(topics_bridge)
+        intersection_payload = _load_json(intersection_bridge)
+    except (OSError, ValueError):
+        return None
+
+    topics_date = _parse_snapshot_date(topics_payload.get("latest_snapshot_date"))
     intersection_date = _parse_snapshot_date(
-        _load_json(intersection_bridge).get("latest_snapshot_date")
+        intersection_payload.get("latest_snapshot_date")
     )
     if topics_date is None or intersection_date is None:
         return None
@@ -126,8 +130,6 @@ def restore_reddit_source_baseline(
         if source_history_root.exists():
             _replace_dir(source_history_root, target_history_root)
         else:
-            if target_history_root.exists():
-                shutil.rmtree(target_history_root)
             target_history_file = (
                 target_history_root
                 / f"year={year}"
