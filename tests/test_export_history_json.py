@@ -1,5 +1,4 @@
 import json
-from pathlib import Path
 
 import export_history_json
 
@@ -185,6 +184,50 @@ def test_compact_frontend_payload_preserves_full_so_trends_points_only():
     assert compact_so["snapshot_count"] == 2
     assert compact_so["series"][0]["points"] == [2056, 1659, 1374, 1022]
     assert compact_other["series"][0]["points"] == [30, 40]
+
+
+def test_compact_frontend_payload_aligns_trend_series_with_retained_snapshots():
+    trend_payload = {
+        "snapshot_count": 3,
+        "snapshots": [
+            {"date": "2026-03-06"},
+            {"date": "2026-03-24"},
+            {"date": "2026-03-28"},
+        ],
+        "series": [
+            {
+                "tecnologia": "Python",
+                "slug": "python",
+                "points": [
+                    {"date": "2026-03-24", "trend_score": 79.08, "fuentes": 3},
+                    {"date": "2026-03-28", "trend_score": 78.15, "fuentes": 3},
+                ],
+            },
+            {
+                "tecnologia": "Csharp",
+                "slug": "csharp",
+                "points": [
+                    {"date": "2026-03-06", "trend_score": 0.0, "fuentes": 0},
+                    {"date": "2026-03-07", "trend_score": 0.0, "fuentes": 0},
+                ],
+            },
+        ],
+    }
+
+    compact_trend = export_history_json._build_compact_frontend_payload(  # pylint: disable=protected-access
+        trend_payload
+    )
+
+    assert compact_trend["snapshot_count"] == 2
+    assert [item["date"] for item in compact_trend["snapshots"]] == [
+        "2026-03-24",
+        "2026-03-28",
+    ]
+    assert [series["slug"] for series in compact_trend["series"]] == ["python"]
+    assert [point["date"] for point in compact_trend["series"][0]["points"]] == [
+        "2026-03-24",
+        "2026-03-28",
+    ]
 
 
 def test_build_so_volume_history_handles_single_snapshot_cleanly(tmp_path):

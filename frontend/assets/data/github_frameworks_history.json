@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-03-28T22:23:16Z",
+  "generated_at_utc": "2026-03-28T22:56:16Z",
   "dataset": "github_commits_frameworks",
   "scope_label": "repos oficiales frontend",
   "source_mode": "history",
@@ -349,71 +349,5 @@
       ]
     }
   ],
-  "series": [
-    {
-      "framework": "Angular",
-      "points": [
-        {
-          "month": "2026-02",
-          "commits": 292
-        },
-        {
-          "month": "2026-03",
-          "commits": 286
-        }
-      ]
-    },
-    {
-      "framework": "Next.js",
-      "points": [
-        {
-          "month": "2026-02",
-          "commits": 435
-        },
-        {
-          "month": "2026-03",
-          "commits": 415
-        }
-      ]
-    },
-    {
-      "framework": "React",
-      "points": [
-        {
-          "month": "2026-02",
-          "commits": 87
-        },
-        {
-          "month": "2026-03",
-          "commits": 37
-        }
-      ]
-    },
-    {
-      "framework": "Svelte",
-      "points": [
-        {
-          "month": "2026-02",
-          "commits": 129
-        },
-        {
-          "month": "2026-03",
-          "commits": 75
-        }
-      ]
-    },
-    {
-      "framework": "Vue 3",
-      "points": [
-        {
-          "month": "2026-02",
-          "commits": 37
-        },
-        {
-          "month": "2026-03",
-          "commits": 44
-        }
-      ]
-    }
-  ]
+  "series": []
 }

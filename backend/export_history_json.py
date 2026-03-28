@@ -3543,7 +3543,13 @@ def _build_compact_frontend_payload(
             )
 
         snapshots = compact.get("snapshots")
+        snapshot_dates = None
         if isinstance(snapshots, list):
+            snapshot_dates = {
+                item.get("date")
+                for item in snapshots
+                if isinstance(item, dict) and item.get("date")
+            }
             latest_snapshot = snapshots[-1] if snapshots else None
             previous_snapshot = snapshots[-2] if len(snapshots) >= 2 else None
             if (
@@ -3560,6 +3566,37 @@ def _build_compact_frontend_payload(
                 )
             if "has_historical_comparison" in compact:
                 compact["has_historical_comparison"] = previous_snapshot is not None
+
+        if snapshot_dates and isinstance(compact.get("series"), list):
+            filtered_series = []
+            for item in compact["series"]:
+                if not isinstance(item, dict):
+                    filtered_series.append(item)
+                    continue
+
+                points = item.get("points")
+                if not isinstance(points, list):
+                    filtered_series.append(item)
+                    continue
+
+                kept_points = [
+                    point
+                    for point in points
+                    if isinstance(point, dict) and point.get("date") in snapshot_dates
+                ]
+                if not kept_points:
+                    continue
+
+                normalized_item = dict(item)
+                normalized_item["points"] = kept_points
+                tech_name = normalized_item.get("tecnologia")
+                if isinstance(tech_name, str) and tech_name.strip():
+                    normalized_name = _normalize_trend_technology_name(tech_name)
+                    normalized_item["tecnologia"] = normalized_name
+                    normalized_item["slug"] = _technology_slug(normalized_name)
+                filtered_series.append(normalized_item)
+
+            compact["series"] = filtered_series
 
         return compact
 

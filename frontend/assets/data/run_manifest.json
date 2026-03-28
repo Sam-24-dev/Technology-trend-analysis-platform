@@ -1,8 +1,8 @@
 {
   "manifest_version": "1.0.0",
-  "generated_at_utc": "2026-03-28T22:23:18Z",
-  "source_window_start_utc": "2025-03-28T22:23:18Z",
-  "source_window_end_utc": "2026-03-28T22:23:18Z",
+  "generated_at_utc": "2026-03-28T22:56:17Z",
+  "source_window_start_utc": "2025-03-28T22:56:17Z",
+  "source_window_end_utc": "2026-03-28T22:56:17Z",
   "quality_gate_status": "pass",
   "degraded_mode": false,
   "available_sources": [
