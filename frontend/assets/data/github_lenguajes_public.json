@@ -1,9 +1,9 @@
 {
-  "generated_at_utc": "2026-03-28T22:56:16Z",
+  "generated_at_utc": "2026-03-28T23:22:37Z",
   "dataset": "github_lenguajes",
   "source_mode": "latest",
   "source_path": "datos/latest/github_lenguajes.csv",
-  "source_updated_at_utc": "2026-03-28T22:07:35Z",
+  "source_updated_at_utc": "2026-03-28T23:22:33Z",
   "language_count": 10,
   "languages": [
     {
