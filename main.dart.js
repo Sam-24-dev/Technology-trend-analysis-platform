@@ -31700,7 +31700,7 @@ aNN(a){if(!B.b.b_(a,"/"))return"/"+a
 return a},
 bdU(a){if(B.b.i0(a,"/"))return B.b.a5(a,0,a.length-1)
 return a},
-b1U(a){var s=B.b.av("")
+b1U(a){var s=B.b.av("https://sam-24-dev.github.io/Technology-trend-analysis-platform/assets/data/")
 if(s.length===0)return""
 if(B.b.i0(s,"/"))return s+a
 return s+"/"+a},
