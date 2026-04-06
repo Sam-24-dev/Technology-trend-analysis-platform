@@ -1,10 +1,10 @@
 {
-  "generated_at_utc": "2026-03-30T03:57:32Z",
+  "generated_at_utc": "2026-04-06T03:37:32Z",
   "dataset": "interseccion_github_reddit",
   "source_mode": "history",
   "snapshot_count": 2,
-  "latest_snapshot_date": "2026-03-30",
-  "previous_snapshot_date": "2026-03-28",
+  "latest_snapshot_date": "2026-04-06",
+  "previous_snapshot_date": "2026-03-30",
   "coverage_pct": 30.0,
   "comparable_count": 3,
   "item_count": 10,
@@ -13,25 +13,25 @@
       "tecnologia": "Python",
       "tipo": "Lenguaje",
       "ranking_github": 1,
-      "ranking_reddit": 7,
-      "brecha_abs": 6,
-      "promedio_rank": 4.0,
+      "ranking_reddit": 8,
+      "brecha_abs": 7,
+      "promedio_rank": 4.5,
       "direccion": "github_favorece",
       "rank_github_prev": 1,
       "rank_reddit_prev": 7,
-      "delta_gap": 0,
-      "trend_direction": "estable"
+      "delta_gap": 1,
+      "trend_direction": "aumentando"
     },
     {
       "tecnologia": "TypeScript",
       "tipo": "Lenguaje",
       "ranking_github": 2,
-      "ranking_reddit": 6,
-      "brecha_abs": 4,
-      "promedio_rank": 4.0,
+      "ranking_reddit": 7,
+      "brecha_abs": 5,
+      "promedio_rank": 4.5,
       "direccion": "github_favorece",
       "rank_github_prev": 2,
-      "rank_reddit_prev": 5,
+      "rank_reddit_prev": 6,
       "delta_gap": 1,
       "trend_direction": "aumentando"
     },
@@ -149,9 +149,9 @@
       "tecnologia": "TypeScript",
       "tipo": "Lenguaje",
       "ranking_github": 2,
-      "ranking_reddit": 6,
-      "brecha_abs": 4,
-      "promedio_rank": 4.0,
+      "ranking_reddit": 7,
+      "brecha_abs": 5,
+      "promedio_rank": 4.5,
       "direccion": "github_favorece",
       "delta_gap": 1,
       "trend_direction": "aumentando"
@@ -160,40 +160,40 @@
       "tecnologia": "Python",
       "tipo": "Lenguaje",
       "ranking_github": 1,
-      "ranking_reddit": 7,
-      "brecha_abs": 6,
-      "promedio_rank": 4.0,
+      "ranking_reddit": 8,
+      "brecha_abs": 7,
+      "promedio_rank": 4.5,
       "direccion": "github_favorece",
-      "delta_gap": 0,
-      "trend_direction": "estable"
+      "delta_gap": 1,
+      "trend_direction": "aumentando"
     },
     "max_brecha_tecnologia": "Python",
-    "max_brecha_abs": 6
+    "max_brecha_abs": 7
   },
   "snapshots": [
     {
-      "date": "2026-03-28",
-      "path": "datos/history/interseccion/year=2026/month=03/day=28/interseccion_github_reddit.csv",
+      "date": "2026-03-30",
+      "path": "datos/history/interseccion/year=2026/month=03/day=30/interseccion_github_reddit.csv",
       "source_type": "history",
       "row_count": 10,
       "comparable_count": 3,
       "coverage_pct": 30.0,
       "items": [
         {
-          "tecnologia": "TypeScript",
-          "tipo": "Lenguaje",
-          "ranking_github": 2,
-          "ranking_reddit": 5,
-          "brecha_abs": 3,
-          "promedio_rank": 3.5,
-          "direccion": "github_favorece"
-        },
-        {
           "tecnologia": "Python",
           "tipo": "Lenguaje",
           "ranking_github": 1,
           "ranking_reddit": 7,
           "brecha_abs": 6,
+          "promedio_rank": 4.0,
+          "direccion": "github_favorece"
+        },
+        {
+          "tecnologia": "TypeScript",
+          "tipo": "Lenguaje",
+          "ranking_github": 2,
+          "ranking_reddit": 6,
+          "brecha_abs": 4,
           "promedio_rank": 4.0,
           "direccion": "github_favorece"
         },
@@ -272,8 +272,8 @@
       ]
     },
     {
-      "date": "2026-03-30",
-      "path": "datos/history/interseccion/year=2026/month=03/day=30/interseccion_github_reddit.csv",
+      "date": "2026-04-06",
+      "path": "datos/history/interseccion/year=2026/month=04/day=06/interseccion_github_reddit.csv",
       "source_type": "history",
       "row_count": 10,
       "comparable_count": 3,
@@ -283,18 +283,18 @@
           "tecnologia": "Python",
           "tipo": "Lenguaje",
           "ranking_github": 1,
-          "ranking_reddit": 7,
-          "brecha_abs": 6,
-          "promedio_rank": 4.0,
+          "ranking_reddit": 8,
+          "brecha_abs": 7,
+          "promedio_rank": 4.5,
           "direccion": "github_favorece"
         },
         {
           "tecnologia": "TypeScript",
           "tipo": "Lenguaje",
           "ranking_github": 2,
-          "ranking_reddit": 6,
-          "brecha_abs": 4,
-          "promedio_rank": 4.0,
+          "ranking_reddit": 7,
+          "brecha_abs": 5,
+          "promedio_rank": 4.5,
           "direccion": "github_favorece"
         },
         {
