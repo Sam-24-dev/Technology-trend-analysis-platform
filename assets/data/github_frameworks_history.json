@@ -1,0 +1,955 @@
+{
+  "generated_at_utc": "2026-04-13T10:04:17Z",
+  "dataset": "github_commits_frameworks",
+  "scope_label": "repos oficiales frontend",
+  "source_mode": "history",
+  "snapshot_count": 6,
+  "snapshot_date": "2026-04-13",
+  "latest_snapshot_date": "2026-04-13",
+  "previous_snapshot_date": "2026-04-06",
+  "item_count": 5,
+  "has_historical_comparison": true,
+  "latest_frameworks": [
+    {
+      "framework": "Next.js",
+      "repo": "vercel/next.js",
+      "ranking": 1,
+      "commits_2025": 5000,
+      "active_contributors": 291,
+      "merged_prs": 5001,
+      "closed_issues": 2131,
+      "releases_count": 622,
+      "commits_prev": 5000,
+      "delta_commits": 0,
+      "growth_pct": 0.0,
+      "trend_direction": "estable",
+      "active_contributors_prev": 294,
+      "delta_active_contributors": -3,
+      "growth_active_contributors_pct": -1.02,
+      "merged_prs_prev": 4989,
+      "delta_merged_prs": 12,
+      "growth_merged_prs_pct": 0.24,
+      "closed_issues_prev": 2134,
+      "delta_closed_issues": -3,
+      "growth_closed_issues_pct": -0.14,
+      "releases_count_prev": 627,
+      "delta_releases_count": -5,
+      "growth_releases_count_pct": -0.8
+    },
+    {
+      "framework": "Angular",
+      "repo": "angular/angular",
+      "ranking": 2,
+      "commits_2025": 4256,
+      "active_contributors": 263,
+      "merged_prs": 2336,
+      "closed_issues": 2067,
+      "releases_count": 146,
+      "commits_prev": 4230,
+      "delta_commits": 26,
+      "growth_pct": 0.61,
+      "trend_direction": "creciendo",
+      "active_contributors_prev": 263,
+      "delta_active_contributors": 0,
+      "growth_active_contributors_pct": 0.0,
+      "merged_prs_prev": 2264,
+      "delta_merged_prs": 72,
+      "growth_merged_prs_pct": 3.18,
+      "closed_issues_prev": 2102,
+      "delta_closed_issues": -35,
+      "growth_closed_issues_pct": -1.67,
+      "releases_count_prev": 146,
+      "delta_releases_count": 0,
+      "growth_releases_count_pct": 0.0
+    },
+    {
+      "framework": "React",
+      "repo": "facebook/react",
+      "ranking": 3,
+      "commits_2025": 1214,
+      "active_contributors": 85,
+      "merged_prs": 1218,
+      "closed_issues": 792,
+      "releases_count": 17,
+      "commits_prev": 1226,
+      "delta_commits": -12,
+      "growth_pct": -0.98,
+      "trend_direction": "cayendo",
+      "active_contributors_prev": 88,
+      "delta_active_contributors": -3,
+      "growth_active_contributors_pct": -3.41,
+      "merged_prs_prev": 1230,
+      "delta_merged_prs": -12,
+      "growth_merged_prs_pct": -0.98,
+      "closed_issues_prev": 779,
+      "delta_closed_issues": 13,
+      "growth_closed_issues_pct": 1.67,
+      "releases_count_prev": 14,
+      "delta_releases_count": 3,
+      "growth_releases_count_pct": 21.43
+    },
+    {
+      "framework": "Svelte",
+      "repo": "sveltejs/svelte",
+      "ranking": 4,
+      "commits_2025": 979,
+      "active_contributors": 111,
+      "merged_prs": 996,
+      "closed_issues": 706,
+      "releases_count": 193,
+      "commits_prev": 994,
+      "delta_commits": -15,
+      "growth_pct": -1.51,
+      "trend_direction": "cayendo",
+      "active_contributors_prev": 113,
+      "delta_active_contributors": -2,
+      "growth_active_contributors_pct": -1.77,
+      "merged_prs_prev": 1010,
+      "delta_merged_prs": -14,
+      "growth_merged_prs_pct": -1.39,
+      "closed_issues_prev": 728,
+      "delta_closed_issues": -22,
+      "growth_closed_issues_pct": -3.02,
+      "releases_count_prev": 199,
+      "delta_releases_count": -6,
+      "growth_releases_count_pct": -3.02
+    },
+    {
+      "framework": "Vue 3",
+      "repo": "vuejs/core",
+      "ranking": 5,
+      "commits_2025": 416,
+      "active_contributors": 89,
+      "merged_prs": 725,
+      "closed_issues": 407,
+      "releases_count": 36,
+      "commits_prev": 410,
+      "delta_commits": 6,
+      "growth_pct": 1.46,
+      "trend_direction": "creciendo",
+      "active_contributors_prev": 88,
+      "delta_active_contributors": 1,
+      "growth_active_contributors_pct": 1.14,
+      "merged_prs_prev": 716,
+      "delta_merged_prs": 9,
+      "growth_merged_prs_pct": 1.26,
+      "closed_issues_prev": 409,
+      "delta_closed_issues": -2,
+      "growth_closed_issues_pct": -0.49,
+      "releases_count_prev": 35,
+      "delta_releases_count": 1,
+      "growth_releases_count_pct": 2.86
+    }
+  ],
+  "summary": {
+    "leader": {
+      "framework": "Next.js",
+      "repo": "vercel/next.js",
+      "ranking": 1,
+      "commits_2025": 5000,
+      "delta_commits": 0,
+      "growth_pct": 0.0,
+      "trend_direction": "estable"
+    },
+    "runner_up": {
+      "framework": "Angular",
+      "repo": "angular/angular",
+      "ranking": 2,
+      "commits_2025": 4256,
+      "delta_commits": 26,
+      "growth_pct": 0.61,
+      "trend_direction": "creciendo"
+    },
+    "leader_share_pct": 42.14,
+    "leader_gap_commits": 744,
+    "highest_growth": {
+      "framework": "Angular",
+      "repo": "angular/angular",
+      "ranking": 2,
+      "commits_2025": 4256,
+      "delta_commits": 26,
+      "growth_pct": 0.61,
+      "trend_direction": "creciendo"
+    },
+    "largest_drop": {
+      "framework": "Svelte",
+      "repo": "sveltejs/svelte",
+      "ranking": 4,
+      "commits_2025": 979,
+      "delta_commits": -15,
+      "growth_pct": -1.51,
+      "trend_direction": "cayendo"
+    },
+    "total_commits": 11865,
+    "leader_framework": "Next.js",
+    "leader_commits": 5000,
+    "max_growth_framework": "Angular",
+    "max_growth_delta": 26,
+    "max_drop_framework": "Svelte",
+    "max_drop_delta": -15,
+    "missing_metrics_frameworks": 0
+  },
+  "snapshots": [
+    {
+      "date": "2026-03-13",
+      "path": "datos/history/github_commits/year=2026/month=03/day=13/github_commits_frameworks.csv",
+      "source_type": "history",
+      "row_count": 5,
+      "framework_count": 5,
+      "items": [
+        {
+          "framework": "Next.js",
+          "repo": "vercel/next.js",
+          "ranking": 1,
+          "commits_2025": 5000,
+          "active_contributors": 304,
+          "merged_prs": 5012,
+          "closed_issues": 2270,
+          "releases_count": 635,
+          "commits_prev": null,
+          "delta_commits": null,
+          "growth_pct": null,
+          "trend_direction": null
+        },
+        {
+          "framework": "Angular",
+          "repo": "angular/angular",
+          "ranking": 2,
+          "commits_2025": 4300,
+          "active_contributors": 274,
+          "merged_prs": 2074,
+          "closed_issues": 2124,
+          "releases_count": 146,
+          "commits_prev": null,
+          "delta_commits": null,
+          "growth_pct": null,
+          "trend_direction": null
+        },
+        {
+          "framework": "React",
+          "repo": "facebook/react",
+          "ranking": 3,
+          "commits_2025": 1328,
+          "active_contributors": 86,
+          "merged_prs": 1329,
+          "closed_issues": 788,
+          "releases_count": 15,
+          "commits_prev": null,
+          "delta_commits": null,
+          "growth_pct": null,
+          "trend_direction": null
+        },
+        {
+          "framework": "Svelte",
+          "repo": "sveltejs/svelte",
+          "ranking": 4,
+          "commits_2025": 999,
+          "active_contributors": 111,
+          "merged_prs": 1015,
+          "closed_issues": 775,
+          "releases_count": 206,
+          "commits_prev": null,
+          "delta_commits": null,
+          "growth_pct": null,
+          "trend_direction": null
+        },
+        {
+          "framework": "Vue 3",
+          "repo": "vuejs/core",
+          "ranking": 5,
+          "commits_2025": 404,
+          "active_contributors": 85,
+          "merged_prs": 684,
+          "closed_issues": 411,
+          "releases_count": 32,
+          "commits_prev": null,
+          "delta_commits": null,
+          "growth_pct": null,
+          "trend_direction": null
+        }
+      ]
+    },
+    {
+      "date": "2026-03-24",
+      "path": "datos/history/github_commits/year=2026/month=03/day=24/github_commits_frameworks.csv",
+      "source_type": "history",
+      "row_count": 5,
+      "framework_count": 5,
+      "items": [
+        {
+          "framework": "Next.js",
+          "repo": "vercel/next.js",
+          "ranking": 1,
+          "commits_2025": 5000,
+          "active_contributors": 300,
+          "merged_prs": 5036,
+          "closed_issues": 2237,
+          "releases_count": 636,
+          "commits_prev": null,
+          "delta_commits": null,
+          "growth_pct": null,
+          "trend_direction": null
+        },
+        {
+          "framework": "Angular",
+          "repo": "angular/angular",
+          "ranking": 2,
+          "commits_2025": 4336,
+          "active_contributors": 277,
+          "merged_prs": 2167,
+          "closed_issues": 2116,
+          "releases_count": 146,
+          "commits_prev": null,
+          "delta_commits": null,
+          "growth_pct": null,
+          "trend_direction": null
+        },
+        {
+          "framework": "React",
+          "repo": "facebook/react",
+          "ranking": 3,
+          "commits_2025": 1280,
+          "active_contributors": 86,
+          "merged_prs": 1281,
+          "closed_issues": 779,
+          "releases_count": 15,
+          "commits_prev": null,
+          "delta_commits": null,
+          "growth_pct": null,
+          "trend_direction": null
+        },
+        {
+          "framework": "Svelte",
+          "repo": "sveltejs/svelte",
+          "ranking": 4,
+          "commits_2025": 987,
+          "active_contributors": 111,
+          "merged_prs": 1004,
+          "closed_issues": 790,
+          "releases_count": 202,
+          "commits_prev": null,
+          "delta_commits": null,
+          "growth_pct": null,
+          "trend_direction": null
+        },
+        {
+          "framework": "Vue 3",
+          "repo": "vuejs/core",
+          "ranking": 5,
+          "commits_2025": 393,
+          "active_contributors": 83,
+          "merged_prs": 691,
+          "closed_issues": 403,
+          "releases_count": 32,
+          "commits_prev": null,
+          "delta_commits": null,
+          "growth_pct": null,
+          "trend_direction": null
+        }
+      ]
+    },
+    {
+      "date": "2026-03-28",
+      "path": "datos/history/github_commits/year=2026/month=03/day=28/github_commits_frameworks.csv",
+      "source_type": "history",
+      "row_count": 5,
+      "framework_count": 5,
+      "items": [
+        {
+          "framework": "Next.js",
+          "repo": "vercel/next.js",
+          "ranking": 1,
+          "commits_2025": 5000,
+          "active_contributors": 298,
+          "merged_prs": 5056,
+          "closed_issues": 2231,
+          "releases_count": 632,
+          "commits_prev": null,
+          "delta_commits": null,
+          "growth_pct": null,
+          "trend_direction": null
+        },
+        {
+          "framework": "Angular",
+          "repo": "angular/angular",
+          "ranking": 2,
+          "commits_2025": 4312,
+          "active_contributors": 277,
+          "merged_prs": 2221,
+          "closed_issues": 2119,
+          "releases_count": 146,
+          "commits_prev": null,
+          "delta_commits": null,
+          "growth_pct": null,
+          "trend_direction": null
+        },
+        {
+          "framework": "React",
+          "repo": "facebook/react",
+          "ranking": 3,
+          "commits_2025": 1252,
+          "active_contributors": 88,
+          "merged_prs": 1253,
+          "closed_issues": 781,
+          "releases_count": 15,
+          "commits_prev": null,
+          "delta_commits": null,
+          "growth_pct": null,
+          "trend_direction": null
+        },
+        {
+          "framework": "Svelte",
+          "repo": "sveltejs/svelte",
+          "ranking": 4,
+          "commits_2025": 992,
+          "active_contributors": 111,
+          "merged_prs": 1009,
+          "closed_issues": 762,
+          "releases_count": 202,
+          "commits_prev": null,
+          "delta_commits": null,
+          "growth_pct": null,
+          "trend_direction": null
+        },
+        {
+          "framework": "Vue 3",
+          "repo": "vuejs/core",
+          "ranking": 5,
+          "commits_2025": 410,
+          "active_contributors": 87,
+          "merged_prs": 711,
+          "closed_issues": 412,
+          "releases_count": 34,
+          "commits_prev": null,
+          "delta_commits": null,
+          "growth_pct": null,
+          "trend_direction": null
+        }
+      ]
+    },
+    {
+      "date": "2026-03-30",
+      "path": "datos/history/github_commits/year=2026/month=03/day=30/github_commits_frameworks.csv",
+      "source_type": "history",
+      "row_count": 5,
+      "framework_count": 5,
+      "items": [
+        {
+          "framework": "Next.js",
+          "repo": "vercel/next.js",
+          "ranking": 1,
+          "commits_2025": 5000,
+          "active_contributors": 298,
+          "merged_prs": 5044,
+          "closed_issues": 2152,
+          "releases_count": 632,
+          "commits_prev": null,
+          "delta_commits": null,
+          "growth_pct": null,
+          "trend_direction": null
+        },
+        {
+          "framework": "Angular",
+          "repo": "angular/angular",
+          "ranking": 2,
+          "commits_2025": 4301,
+          "active_contributors": 276,
+          "merged_prs": 2224,
+          "closed_issues": 2113,
+          "releases_count": 146,
+          "commits_prev": null,
+          "delta_commits": null,
+          "growth_pct": null,
+          "trend_direction": null
+        },
+        {
+          "framework": "React",
+          "repo": "facebook/react",
+          "ranking": 3,
+          "commits_2025": 1244,
+          "active_contributors": 87,
+          "merged_prs": 1248,
+          "closed_issues": 782,
+          "releases_count": 14,
+          "commits_prev": null,
+          "delta_commits": null,
+          "growth_pct": null,
+          "trend_direction": null
+        },
+        {
+          "framework": "Svelte",
+          "repo": "sveltejs/svelte",
+          "ranking": 4,
+          "commits_2025": 993,
+          "active_contributors": 112,
+          "merged_prs": 1010,
+          "closed_issues": 750,
+          "releases_count": 203,
+          "commits_prev": null,
+          "delta_commits": null,
+          "growth_pct": null,
+          "trend_direction": null
+        },
+        {
+          "framework": "Vue 3",
+          "repo": "vuejs/core",
+          "ranking": 5,
+          "commits_2025": 409,
+          "active_contributors": 86,
+          "merged_prs": 713,
+          "closed_issues": 411,
+          "releases_count": 34,
+          "commits_prev": null,
+          "delta_commits": null,
+          "growth_pct": null,
+          "trend_direction": null
+        }
+      ]
+    },
+    {
+      "date": "2026-04-06",
+      "path": "datos/history/github_commits/year=2026/month=04/day=06/github_commits_frameworks.csv",
+      "source_type": "history",
+      "row_count": 5,
+      "framework_count": 5,
+      "items": [
+        {
+          "framework": "Next.js",
+          "repo": "vercel/next.js",
+          "ranking": 1,
+          "commits_2025": 5000,
+          "active_contributors": 294,
+          "merged_prs": 4989,
+          "closed_issues": 2134,
+          "releases_count": 627,
+          "commits_prev": null,
+          "delta_commits": null,
+          "growth_pct": null,
+          "trend_direction": null
+        },
+        {
+          "framework": "Angular",
+          "repo": "angular/angular",
+          "ranking": 2,
+          "commits_2025": 4230,
+          "active_contributors": 263,
+          "merged_prs": 2264,
+          "closed_issues": 2102,
+          "releases_count": 146,
+          "commits_prev": null,
+          "delta_commits": null,
+          "growth_pct": null,
+          "trend_direction": null
+        },
+        {
+          "framework": "React",
+          "repo": "facebook/react",
+          "ranking": 3,
+          "commits_2025": 1226,
+          "active_contributors": 88,
+          "merged_prs": 1230,
+          "closed_issues": 779,
+          "releases_count": 14,
+          "commits_prev": null,
+          "delta_commits": null,
+          "growth_pct": null,
+          "trend_direction": null
+        },
+        {
+          "framework": "Svelte",
+          "repo": "sveltejs/svelte",
+          "ranking": 4,
+          "commits_2025": 994,
+          "active_contributors": 113,
+          "merged_prs": 1010,
+          "closed_issues": 728,
+          "releases_count": 199,
+          "commits_prev": null,
+          "delta_commits": null,
+          "growth_pct": null,
+          "trend_direction": null
+        },
+        {
+          "framework": "Vue 3",
+          "repo": "vuejs/core",
+          "ranking": 5,
+          "commits_2025": 410,
+          "active_contributors": 88,
+          "merged_prs": 716,
+          "closed_issues": 409,
+          "releases_count": 35,
+          "commits_prev": null,
+          "delta_commits": null,
+          "growth_pct": null,
+          "trend_direction": null
+        }
+      ]
+    },
+    {
+      "date": "2026-04-13",
+      "path": "datos/history/github_commits/year=2026/month=04/day=13/github_commits_frameworks.csv",
+      "source_type": "history",
+      "row_count": 5,
+      "framework_count": 5,
+      "items": [
+        {
+          "framework": "Next.js",
+          "repo": "vercel/next.js",
+          "ranking": 1,
+          "commits_2025": 5000,
+          "active_contributors": 291,
+          "merged_prs": 5001,
+          "closed_issues": 2131,
+          "releases_count": 622,
+          "commits_prev": null,
+          "delta_commits": null,
+          "growth_pct": null,
+          "trend_direction": null
+        },
+        {
+          "framework": "Angular",
+          "repo": "angular/angular",
+          "ranking": 2,
+          "commits_2025": 4256,
+          "active_contributors": 263,
+          "merged_prs": 2336,
+          "closed_issues": 2067,
+          "releases_count": 146,
+          "commits_prev": null,
+          "delta_commits": null,
+          "growth_pct": null,
+          "trend_direction": null
+        },
+        {
+          "framework": "React",
+          "repo": "facebook/react",
+          "ranking": 3,
+          "commits_2025": 1214,
+          "active_contributors": 85,
+          "merged_prs": 1218,
+          "closed_issues": 792,
+          "releases_count": 17,
+          "commits_prev": null,
+          "delta_commits": null,
+          "growth_pct": null,
+          "trend_direction": null
+        },
+        {
+          "framework": "Svelte",
+          "repo": "sveltejs/svelte",
+          "ranking": 4,
+          "commits_2025": 979,
+          "active_contributors": 111,
+          "merged_prs": 996,
+          "closed_issues": 706,
+          "releases_count": 193,
+          "commits_prev": null,
+          "delta_commits": null,
+          "growth_pct": null,
+          "trend_direction": null
+        },
+        {
+          "framework": "Vue 3",
+          "repo": "vuejs/core",
+          "ranking": 5,
+          "commits_2025": 416,
+          "active_contributors": 89,
+          "merged_prs": 725,
+          "closed_issues": 407,
+          "releases_count": 36,
+          "commits_prev": null,
+          "delta_commits": null,
+          "growth_pct": null,
+          "trend_direction": null
+        }
+      ]
+    }
+  ],
+  "series": [
+    {
+      "framework": "Angular",
+      "points": [
+        {
+          "month": "2025-03",
+          "commits": 265
+        },
+        {
+          "month": "2025-04",
+          "commits": 252
+        },
+        {
+          "month": "2025-05",
+          "commits": 438
+        },
+        {
+          "month": "2025-06",
+          "commits": 300
+        },
+        {
+          "month": "2025-07",
+          "commits": 307
+        },
+        {
+          "month": "2025-08",
+          "commits": 308
+        },
+        {
+          "month": "2025-09",
+          "commits": 389
+        },
+        {
+          "month": "2025-10",
+          "commits": 406
+        },
+        {
+          "month": "2025-11",
+          "commits": 497
+        },
+        {
+          "month": "2025-12",
+          "commits": 319
+        },
+        {
+          "month": "2026-01",
+          "commits": 344
+        },
+        {
+          "month": "2026-02",
+          "commits": 277
+        },
+        {
+          "month": "2026-03",
+          "commits": 128
+        }
+      ]
+    },
+    {
+      "framework": "Next.js",
+      "points": [
+        {
+          "month": "2025-03",
+          "commits": 0
+        },
+        {
+          "month": "2025-04",
+          "commits": 293
+        },
+        {
+          "month": "2025-05",
+          "commits": 494
+        },
+        {
+          "month": "2025-06",
+          "commits": 545
+        },
+        {
+          "month": "2025-07",
+          "commits": 536
+        },
+        {
+          "month": "2025-08",
+          "commits": 455
+        },
+        {
+          "month": "2025-09",
+          "commits": 480
+        },
+        {
+          "month": "2025-10",
+          "commits": 567
+        },
+        {
+          "month": "2025-11",
+          "commits": 305
+        },
+        {
+          "month": "2025-12",
+          "commits": 253
+        },
+        {
+          "month": "2026-01",
+          "commits": 438
+        },
+        {
+          "month": "2026-02",
+          "commits": 435
+        },
+        {
+          "month": "2026-03",
+          "commits": 199
+        }
+      ]
+    },
+    {
+      "framework": "React",
+      "points": [
+        {
+          "month": "2025-03",
+          "commits": 133
+        },
+        {
+          "month": "2025-04",
+          "commits": 108
+        },
+        {
+          "month": "2025-05",
+          "commits": 111
+        },
+        {
+          "month": "2025-06",
+          "commits": 125
+        },
+        {
+          "month": "2025-07",
+          "commits": 134
+        },
+        {
+          "month": "2025-08",
+          "commits": 133
+        },
+        {
+          "month": "2025-09",
+          "commits": 156
+        },
+        {
+          "month": "2025-10",
+          "commits": 164
+        },
+        {
+          "month": "2025-11",
+          "commits": 81
+        },
+        {
+          "month": "2025-12",
+          "commits": 39
+        },
+        {
+          "month": "2026-01",
+          "commits": 65
+        },
+        {
+          "month": "2026-02",
+          "commits": 87
+        },
+        {
+          "month": "2026-03",
+          "commits": 22
+        }
+      ]
+    },
+    {
+      "framework": "Svelte",
+      "points": [
+        {
+          "month": "2025-03",
+          "commits": 54
+        },
+        {
+          "month": "2025-04",
+          "commits": 73
+        },
+        {
+          "month": "2025-05",
+          "commits": 94
+        },
+        {
+          "month": "2025-06",
+          "commits": 71
+        },
+        {
+          "month": "2025-07",
+          "commits": 132
+        },
+        {
+          "month": "2025-08",
+          "commits": 48
+        },
+        {
+          "month": "2025-09",
+          "commits": 60
+        },
+        {
+          "month": "2025-10",
+          "commits": 97
+        },
+        {
+          "month": "2025-11",
+          "commits": 63
+        },
+        {
+          "month": "2025-12",
+          "commits": 42
+        },
+        {
+          "month": "2026-01",
+          "commits": 96
+        },
+        {
+          "month": "2026-02",
+          "commits": 129
+        },
+        {
+          "month": "2026-03",
+          "commits": 42
+        }
+      ]
+    },
+    {
+      "framework": "Vue 3",
+      "points": [
+        {
+          "month": "2025-03",
+          "commits": 26
+        },
+        {
+          "month": "2025-04",
+          "commits": 17
+        },
+        {
+          "month": "2025-05",
+          "commits": 59
+        },
+        {
+          "month": "2025-06",
+          "commits": 31
+        },
+        {
+          "month": "2025-07",
+          "commits": 28
+        },
+        {
+          "month": "2025-08",
+          "commits": 29
+        },
+        {
+          "month": "2025-09",
+          "commits": 57
+        },
+        {
+          "month": "2025-10",
+          "commits": 4
+        },
+        {
+          "month": "2025-11",
+          "commits": 42
+        },
+        {
+          "month": "2025-12",
+          "commits": 28
+        },
+        {
+          "month": "2026-01",
+          "commits": 28
+        },
+        {
+          "month": "2026-02",
+          "commits": 37
+        },
+        {
+          "month": "2026-03",
+          "commits": 19
+        }
+      ]
+    }
+  ]
+}
