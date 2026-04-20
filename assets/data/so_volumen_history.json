@@ -1,0 +1,546 @@
+{
+  "generated_at_utc": "2026-04-20T10:06:30Z",
+  "dataset": "so_volumen_preguntas",
+  "source_mode": "history",
+  "snapshot_count": 7,
+  "latest_snapshot_date": "2026-04-20",
+  "previous_snapshot_date": "2026-04-13",
+  "has_historical_comparison": true,
+  "item_count": 10,
+  "summary": {
+    "leader": {
+      "lenguaje": "python",
+      "preguntas": 8488,
+      "preguntas_prev": 8841,
+      "delta_preguntas": -353,
+      "growth_pct": -3.99,
+      "trend_direction": "cayendo",
+      "share_pct": 31.29
+    },
+    "highest_growth": null,
+    "largest_drop": {
+      "lenguaje": "python",
+      "preguntas": 8488,
+      "preguntas_prev": 8841,
+      "delta_preguntas": -353,
+      "growth_pct": -3.99,
+      "trend_direction": "cayendo",
+      "share_pct": 31.29
+    },
+    "total_questions": 27129
+  },
+  "latest_items": [
+    {
+      "lenguaje": "python",
+      "preguntas": 8488,
+      "preguntas_prev": 8841,
+      "delta_preguntas": -353,
+      "growth_pct": -3.99,
+      "trend_direction": "cayendo",
+      "share_pct": 31.29
+    },
+    {
+      "lenguaje": "javascript",
+      "preguntas": 3662,
+      "preguntas_prev": 3754,
+      "delta_preguntas": -92,
+      "growth_pct": -2.45,
+      "trend_direction": "cayendo",
+      "share_pct": 13.5
+    },
+    {
+      "lenguaje": "java",
+      "preguntas": 3624,
+      "preguntas_prev": 3748,
+      "delta_preguntas": -124,
+      "growth_pct": -3.31,
+      "trend_direction": "cayendo",
+      "share_pct": 13.36
+    },
+    {
+      "lenguaje": "c#",
+      "preguntas": 3610,
+      "preguntas_prev": 3700,
+      "delta_preguntas": -90,
+      "growth_pct": -2.43,
+      "trend_direction": "cayendo",
+      "share_pct": 13.31
+    },
+    {
+      "lenguaje": "c++",
+      "preguntas": 3208,
+      "preguntas_prev": 3291,
+      "delta_preguntas": -83,
+      "growth_pct": -2.52,
+      "trend_direction": "cayendo",
+      "share_pct": 11.82
+    },
+    {
+      "lenguaje": "typescript",
+      "preguntas": 1699,
+      "preguntas_prev": 1757,
+      "delta_preguntas": -58,
+      "growth_pct": -3.3,
+      "trend_direction": "cayendo",
+      "share_pct": 6.26
+    },
+    {
+      "lenguaje": "php",
+      "preguntas": 1234,
+      "preguntas_prev": 1263,
+      "delta_preguntas": -29,
+      "growth_pct": -2.3,
+      "trend_direction": "cayendo",
+      "share_pct": 4.55
+    },
+    {
+      "lenguaje": "kotlin",
+      "preguntas": 1076,
+      "preguntas_prev": 1120,
+      "delta_preguntas": -44,
+      "growth_pct": -3.93,
+      "trend_direction": "cayendo",
+      "share_pct": 3.97
+    },
+    {
+      "lenguaje": "go",
+      "preguntas": 370,
+      "preguntas_prev": 378,
+      "delta_preguntas": -8,
+      "growth_pct": -2.12,
+      "trend_direction": "cayendo",
+      "share_pct": 1.36
+    },
+    {
+      "lenguaje": "ruby",
+      "preguntas": 158,
+      "preguntas_prev": 163,
+      "delta_preguntas": -5,
+      "growth_pct": -3.07,
+      "trend_direction": "cayendo",
+      "share_pct": 0.58
+    }
+  ],
+  "snapshots": [
+    {
+      "date": "2026-03-13",
+      "path": "datos/history/so_volumen/year=2026/month=03/day=13/so_volumen_preguntas.csv",
+      "source_type": "history",
+      "row_count": 10,
+      "item_count": 10,
+      "total_questions": 32948,
+      "items": [
+        {
+          "lenguaje": "python",
+          "preguntas": 10372,
+          "share_pct": 31.48
+        },
+        {
+          "lenguaje": "javascript",
+          "preguntas": 4523,
+          "share_pct": 13.73
+        },
+        {
+          "lenguaje": "java",
+          "preguntas": 4399,
+          "share_pct": 13.35
+        },
+        {
+          "lenguaje": "c#",
+          "preguntas": 4334,
+          "share_pct": 13.15
+        },
+        {
+          "lenguaje": "c++",
+          "preguntas": 3715,
+          "share_pct": 11.28
+        },
+        {
+          "lenguaje": "typescript",
+          "preguntas": 2141,
+          "share_pct": 6.5
+        },
+        {
+          "lenguaje": "php",
+          "preguntas": 1465,
+          "share_pct": 4.45
+        },
+        {
+          "lenguaje": "kotlin",
+          "preguntas": 1351,
+          "share_pct": 4.1
+        },
+        {
+          "lenguaje": "go",
+          "preguntas": 447,
+          "share_pct": 1.36
+        },
+        {
+          "lenguaje": "ruby",
+          "preguntas": 201,
+          "share_pct": 0.61
+        }
+      ]
+    },
+    {
+      "date": "2026-03-24",
+      "path": "datos/history/so_volumen/year=2026/month=03/day=24/so_volumen_preguntas.csv",
+      "source_type": "history",
+      "row_count": 10,
+      "item_count": 10,
+      "total_questions": 31488,
+      "items": [
+        {
+          "lenguaje": "python",
+          "preguntas": 9882,
+          "share_pct": 31.38
+        },
+        {
+          "lenguaje": "javascript",
+          "preguntas": 4278,
+          "share_pct": 13.59
+        },
+        {
+          "lenguaje": "java",
+          "preguntas": 4235,
+          "share_pct": 13.45
+        },
+        {
+          "lenguaje": "c#",
+          "preguntas": 4131,
+          "share_pct": 13.12
+        },
+        {
+          "lenguaje": "c++",
+          "preguntas": 3606,
+          "share_pct": 11.45
+        },
+        {
+          "lenguaje": "typescript",
+          "preguntas": 2045,
+          "share_pct": 6.49
+        },
+        {
+          "lenguaje": "php",
+          "preguntas": 1404,
+          "share_pct": 4.46
+        },
+        {
+          "lenguaje": "kotlin",
+          "preguntas": 1285,
+          "share_pct": 4.08
+        },
+        {
+          "lenguaje": "go",
+          "preguntas": 433,
+          "share_pct": 1.38
+        },
+        {
+          "lenguaje": "ruby",
+          "preguntas": 189,
+          "share_pct": 0.6
+        }
+      ]
+    },
+    {
+      "date": "2026-03-28",
+      "path": "datos/history/so_volumen/year=2026/month=03/day=28/so_volumen_preguntas.csv",
+      "source_type": "history",
+      "row_count": 10,
+      "item_count": 10,
+      "total_questions": 30406,
+      "items": [
+        {
+          "lenguaje": "python",
+          "preguntas": 9556,
+          "share_pct": 31.43
+        },
+        {
+          "lenguaje": "javascript",
+          "preguntas": 4107,
+          "share_pct": 13.51
+        },
+        {
+          "lenguaje": "java",
+          "preguntas": 4097,
+          "share_pct": 13.47
+        },
+        {
+          "lenguaje": "c#",
+          "preguntas": 3999,
+          "share_pct": 13.15
+        },
+        {
+          "lenguaje": "c++",
+          "preguntas": 3496,
+          "share_pct": 11.5
+        },
+        {
+          "lenguaje": "typescript",
+          "preguntas": 1961,
+          "share_pct": 6.45
+        },
+        {
+          "lenguaje": "php",
+          "preguntas": 1354,
+          "share_pct": 4.45
+        },
+        {
+          "lenguaje": "kotlin",
+          "preguntas": 1238,
+          "share_pct": 4.07
+        },
+        {
+          "lenguaje": "go",
+          "preguntas": 414,
+          "share_pct": 1.36
+        },
+        {
+          "lenguaje": "ruby",
+          "preguntas": 184,
+          "share_pct": 0.61
+        }
+      ]
+    },
+    {
+      "date": "2026-03-30",
+      "path": "datos/history/so_volumen/year=2026/month=03/day=30/so_volumen_preguntas.csv",
+      "source_type": "history",
+      "row_count": 10,
+      "item_count": 10,
+      "total_questions": 30254,
+      "items": [
+        {
+          "lenguaje": "python",
+          "preguntas": 9512,
+          "share_pct": 31.44
+        },
+        {
+          "lenguaje": "javascript",
+          "preguntas": 4082,
+          "share_pct": 13.49
+        },
+        {
+          "lenguaje": "java",
+          "preguntas": 4079,
+          "share_pct": 13.48
+        },
+        {
+          "lenguaje": "c#",
+          "preguntas": 3977,
+          "share_pct": 13.15
+        },
+        {
+          "lenguaje": "c++",
+          "preguntas": 3477,
+          "share_pct": 11.49
+        },
+        {
+          "lenguaje": "typescript",
+          "preguntas": 1952,
+          "share_pct": 6.45
+        },
+        {
+          "lenguaje": "php",
+          "preguntas": 1346,
+          "share_pct": 4.45
+        },
+        {
+          "lenguaje": "kotlin",
+          "preguntas": 1231,
+          "share_pct": 4.07
+        },
+        {
+          "lenguaje": "go",
+          "preguntas": 414,
+          "share_pct": 1.37
+        },
+        {
+          "lenguaje": "ruby",
+          "preguntas": 184,
+          "share_pct": 0.61
+        }
+      ]
+    },
+    {
+      "date": "2026-04-06",
+      "path": "datos/history/so_volumen/year=2026/month=04/day=06/so_volumen_preguntas.csv",
+      "source_type": "history",
+      "row_count": 10,
+      "item_count": 10,
+      "total_questions": 29087,
+      "items": [
+        {
+          "lenguaje": "python",
+          "preguntas": 9175,
+          "share_pct": 31.54
+        },
+        {
+          "lenguaje": "javascript",
+          "preguntas": 3906,
+          "share_pct": 13.43
+        },
+        {
+          "lenguaje": "java",
+          "preguntas": 3899,
+          "share_pct": 13.4
+        },
+        {
+          "lenguaje": "c#",
+          "preguntas": 3834,
+          "share_pct": 13.18
+        },
+        {
+          "lenguaje": "c++",
+          "preguntas": 3383,
+          "share_pct": 11.63
+        },
+        {
+          "lenguaje": "typescript",
+          "preguntas": 1852,
+          "share_pct": 6.37
+        },
+        {
+          "lenguaje": "php",
+          "preguntas": 1300,
+          "share_pct": 4.47
+        },
+        {
+          "lenguaje": "kotlin",
+          "preguntas": 1176,
+          "share_pct": 4.04
+        },
+        {
+          "lenguaje": "go",
+          "preguntas": 394,
+          "share_pct": 1.35
+        },
+        {
+          "lenguaje": "ruby",
+          "preguntas": 168,
+          "share_pct": 0.58
+        }
+      ]
+    },
+    {
+      "date": "2026-04-13",
+      "path": "datos/history/so_volumen/year=2026/month=04/day=13/so_volumen_preguntas.csv",
+      "source_type": "history",
+      "row_count": 10,
+      "item_count": 10,
+      "total_questions": 28015,
+      "items": [
+        {
+          "lenguaje": "python",
+          "preguntas": 8841,
+          "share_pct": 31.56
+        },
+        {
+          "lenguaje": "javascript",
+          "preguntas": 3754,
+          "share_pct": 13.4
+        },
+        {
+          "lenguaje": "java",
+          "preguntas": 3748,
+          "share_pct": 13.38
+        },
+        {
+          "lenguaje": "c#",
+          "preguntas": 3700,
+          "share_pct": 13.21
+        },
+        {
+          "lenguaje": "c++",
+          "preguntas": 3291,
+          "share_pct": 11.75
+        },
+        {
+          "lenguaje": "typescript",
+          "preguntas": 1757,
+          "share_pct": 6.27
+        },
+        {
+          "lenguaje": "php",
+          "preguntas": 1263,
+          "share_pct": 4.51
+        },
+        {
+          "lenguaje": "kotlin",
+          "preguntas": 1120,
+          "share_pct": 4.0
+        },
+        {
+          "lenguaje": "go",
+          "preguntas": 378,
+          "share_pct": 1.35
+        },
+        {
+          "lenguaje": "ruby",
+          "preguntas": 163,
+          "share_pct": 0.58
+        }
+      ]
+    },
+    {
+      "date": "2026-04-20",
+      "path": "datos/history/so_volumen/year=2026/month=04/day=20/so_volumen_preguntas.csv",
+      "source_type": "history",
+      "row_count": 10,
+      "item_count": 10,
+      "total_questions": 27129,
+      "items": [
+        {
+          "lenguaje": "python",
+          "preguntas": 8488,
+          "share_pct": 31.29
+        },
+        {
+          "lenguaje": "javascript",
+          "preguntas": 3662,
+          "share_pct": 13.5
+        },
+        {
+          "lenguaje": "java",
+          "preguntas": 3624,
+          "share_pct": 13.36
+        },
+        {
+          "lenguaje": "c#",
+          "preguntas": 3610,
+          "share_pct": 13.31
+        },
+        {
+          "lenguaje": "c++",
+          "preguntas": 3208,
+          "share_pct": 11.82
+        },
+        {
+          "lenguaje": "typescript",
+          "preguntas": 1699,
+          "share_pct": 6.26
+        },
+        {
+          "lenguaje": "php",
+          "preguntas": 1234,
+          "share_pct": 4.55
+        },
+        {
+          "lenguaje": "kotlin",
+          "preguntas": 1076,
+          "share_pct": 3.97
+        },
+        {
+          "lenguaje": "go",
+          "preguntas": 370,
+          "share_pct": 1.36
+        },
+        {
+          "lenguaje": "ruby",
+          "preguntas": 158,
+          "share_pct": 0.58
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,579 @@
+{
+  "generated_at_utc": "2026-04-20T10:06:30Z",
+  "dataset": "so_tasa_aceptacion",
+  "source_mode": "history",
+  "snapshot_count": 7,
+  "latest_snapshot_date": "2026-04-20",
+  "previous_snapshot_date": "2026-04-13",
+  "has_historical_comparison": true,
+  "item_count": 5,
+  "summary": {
+    "raw_leader": {
+      "tecnologia": "svelte",
+      "total_preguntas": 109,
+      "respuestas_aceptadas": 41,
+      "tasa_aceptacion_pct": 37.61,
+      "total_preguntas_prev": 112,
+      "respuestas_aceptadas_prev": 41,
+      "tasa_aceptacion_prev_pct": 36.61,
+      "delta_tasa_pct": 1.0,
+      "delta_preguntas": -3,
+      "sample_bucket": "baja",
+      "confidence_score": 0.290884,
+      "raw_rank": 1,
+      "confidence_rank": 1
+    },
+    "confidence_leader": {
+      "tecnologia": "svelte",
+      "total_preguntas": 109,
+      "respuestas_aceptadas": 41,
+      "tasa_aceptacion_pct": 37.61,
+      "total_preguntas_prev": 112,
+      "respuestas_aceptadas_prev": 41,
+      "tasa_aceptacion_prev_pct": 36.61,
+      "delta_tasa_pct": 1.0,
+      "delta_preguntas": -3,
+      "sample_bucket": "baja",
+      "confidence_score": 0.290884,
+      "raw_rank": 1,
+      "confidence_rank": 1
+    },
+    "highest_improvement": {
+      "tecnologia": "svelte",
+      "total_preguntas": 109,
+      "respuestas_aceptadas": 41,
+      "tasa_aceptacion_pct": 37.61,
+      "total_preguntas_prev": 112,
+      "respuestas_aceptadas_prev": 41,
+      "tasa_aceptacion_prev_pct": 36.61,
+      "delta_tasa_pct": 1.0,
+      "delta_preguntas": -3,
+      "sample_bucket": "baja",
+      "confidence_score": 0.290884,
+      "raw_rank": 1,
+      "confidence_rank": 1
+    },
+    "largest_drop": {
+      "tecnologia": "vue.js",
+      "total_preguntas": 324,
+      "respuestas_aceptadas": 78,
+      "tasa_aceptacion_pct": 24.07,
+      "total_preguntas_prev": 339,
+      "respuestas_aceptadas_prev": 83,
+      "tasa_aceptacion_prev_pct": 24.48,
+      "delta_tasa_pct": -0.41,
+      "delta_preguntas": -15,
+      "sample_bucket": "media",
+      "confidence_score": 0.197399,
+      "raw_rank": 4,
+      "confidence_rank": 4
+    },
+    "largest_sample": {
+      "tecnologia": "reactjs",
+      "total_preguntas": 1633,
+      "respuestas_aceptadas": 419,
+      "tasa_aceptacion_pct": 25.66,
+      "total_preguntas_prev": 1694,
+      "respuestas_aceptadas_prev": 437,
+      "tasa_aceptacion_prev_pct": 25.8,
+      "delta_tasa_pct": -0.14,
+      "delta_preguntas": -61,
+      "sample_bucket": "alta",
+      "confidence_score": 0.235988,
+      "raw_rank": 3,
+      "confidence_rank": 3
+    }
+  },
+  "latest_items": [
+    {
+      "tecnologia": "svelte",
+      "total_preguntas": 109,
+      "respuestas_aceptadas": 41,
+      "tasa_aceptacion_pct": 37.61,
+      "total_preguntas_prev": 112,
+      "respuestas_aceptadas_prev": 41,
+      "tasa_aceptacion_prev_pct": 36.61,
+      "delta_tasa_pct": 1.0,
+      "delta_preguntas": -3,
+      "sample_bucket": "baja",
+      "confidence_score": 0.290884,
+      "raw_rank": 1,
+      "confidence_rank": 1
+    },
+    {
+      "tecnologia": "angular",
+      "total_preguntas": 1198,
+      "respuestas_aceptadas": 354,
+      "tasa_aceptacion_pct": 29.55,
+      "total_preguntas_prev": 1247,
+      "respuestas_aceptadas_prev": 372,
+      "tasa_aceptacion_prev_pct": 29.83,
+      "delta_tasa_pct": -0.28,
+      "delta_preguntas": -49,
+      "sample_bucket": "alta",
+      "confidence_score": 0.270342,
+      "raw_rank": 2,
+      "confidence_rank": 2
+    },
+    {
+      "tecnologia": "reactjs",
+      "total_preguntas": 1633,
+      "respuestas_aceptadas": 419,
+      "tasa_aceptacion_pct": 25.66,
+      "total_preguntas_prev": 1694,
+      "respuestas_aceptadas_prev": 437,
+      "tasa_aceptacion_prev_pct": 25.8,
+      "delta_tasa_pct": -0.14,
+      "delta_preguntas": -61,
+      "sample_bucket": "alta",
+      "confidence_score": 0.235988,
+      "raw_rank": 3,
+      "confidence_rank": 3
+    },
+    {
+      "tecnologia": "vue.js",
+      "total_preguntas": 324,
+      "respuestas_aceptadas": 78,
+      "tasa_aceptacion_pct": 24.07,
+      "total_preguntas_prev": 339,
+      "respuestas_aceptadas_prev": 83,
+      "tasa_aceptacion_prev_pct": 24.48,
+      "delta_tasa_pct": -0.41,
+      "delta_preguntas": -15,
+      "sample_bucket": "media",
+      "confidence_score": 0.197399,
+      "raw_rank": 4,
+      "confidence_rank": 4
+    },
+    {
+      "tecnologia": "next.js",
+      "total_preguntas": 902,
+      "respuestas_aceptadas": 155,
+      "tasa_aceptacion_pct": 17.18,
+      "total_preguntas_prev": 940,
+      "respuestas_aceptadas_prev": 161,
+      "tasa_aceptacion_prev_pct": 17.13,
+      "delta_tasa_pct": 0.05,
+      "delta_preguntas": -38,
+      "sample_bucket": "media",
+      "confidence_score": 0.148626,
+      "raw_rank": 5,
+      "confidence_rank": 5
+    }
+  ],
+  "snapshots": [
+    {
+      "date": "2026-03-13",
+      "path": "datos/history/so_aceptacion/year=2026/month=03/day=13/so_tasa_aceptacion.csv",
+      "source_type": "history",
+      "row_count": 5,
+      "item_count": 5,
+      "items": [
+        {
+          "tecnologia": "svelte",
+          "total_preguntas": 138,
+          "respuestas_aceptadas": 48,
+          "tasa_aceptacion_pct": 34.78,
+          "sample_bucket": "baja",
+          "confidence_score": 0.273457,
+          "raw_rank": 1,
+          "confidence_rank": 1
+        },
+        {
+          "tecnologia": "angular",
+          "total_preguntas": 1533,
+          "respuestas_aceptadas": 450,
+          "tasa_aceptacion_pct": 29.35,
+          "sample_bucket": "alta",
+          "confidence_score": 0.271285,
+          "raw_rank": 2,
+          "confidence_rank": 2
+        },
+        {
+          "tecnologia": "reactjs",
+          "total_preguntas": 2220,
+          "respuestas_aceptadas": 541,
+          "tasa_aceptacion_pct": 24.37,
+          "sample_bucket": "alta",
+          "confidence_score": 0.226288,
+          "raw_rank": 3,
+          "confidence_rank": 3
+        },
+        {
+          "tecnologia": "vue.js",
+          "total_preguntas": 417,
+          "respuestas_aceptadas": 99,
+          "tasa_aceptacion_pct": 23.74,
+          "sample_bucket": "media",
+          "confidence_score": 0.199084,
+          "raw_rank": 4,
+          "confidence_rank": 4
+        },
+        {
+          "tecnologia": "next.js",
+          "total_preguntas": 1200,
+          "respuestas_aceptadas": 211,
+          "tasa_aceptacion_pct": 17.58,
+          "sample_bucket": "alta",
+          "confidence_score": 0.155338,
+          "raw_rank": 5,
+          "confidence_rank": 5
+        }
+      ]
+    },
+    {
+      "date": "2026-03-24",
+      "path": "datos/history/so_aceptacion/year=2026/month=03/day=24/so_tasa_aceptacion.csv",
+      "source_type": "history",
+      "row_count": 5,
+      "item_count": 5,
+      "items": [
+        {
+          "tecnologia": "svelte",
+          "total_preguntas": 130,
+          "respuestas_aceptadas": 48,
+          "tasa_aceptacion_pct": 36.92,
+          "sample_bucket": "baja",
+          "confidence_score": 0.291137,
+          "raw_rank": 1,
+          "confidence_rank": 1
+        },
+        {
+          "tecnologia": "angular",
+          "total_preguntas": 1442,
+          "respuestas_aceptadas": 431,
+          "tasa_aceptacion_pct": 29.89,
+          "sample_bucket": "alta",
+          "confidence_score": 0.275822,
+          "raw_rank": 2,
+          "confidence_rank": 2
+        },
+        {
+          "tecnologia": "reactjs",
+          "total_preguntas": 2056,
+          "respuestas_aceptadas": 513,
+          "tasa_aceptacion_pct": 24.95,
+          "sample_bucket": "alta",
+          "confidence_score": 0.231287,
+          "raw_rank": 3,
+          "confidence_rank": 3
+        },
+        {
+          "tecnologia": "vue.js",
+          "total_preguntas": 391,
+          "respuestas_aceptadas": 96,
+          "tasa_aceptacion_pct": 24.55,
+          "sample_bucket": "media",
+          "confidence_score": 0.205474,
+          "raw_rank": 4,
+          "confidence_rank": 4
+        },
+        {
+          "tecnologia": "next.js",
+          "total_preguntas": 1104,
+          "respuestas_aceptadas": 195,
+          "tasa_aceptacion_pct": 17.66,
+          "sample_bucket": "alta",
+          "confidence_score": 0.155267,
+          "raw_rank": 5,
+          "confidence_rank": 5
+        }
+      ]
+    },
+    {
+      "date": "2026-03-28",
+      "path": "datos/history/so_aceptacion/year=2026/month=03/day=28/so_tasa_aceptacion.csv",
+      "source_type": "history",
+      "row_count": 5,
+      "item_count": 5,
+      "items": [
+        {
+          "tecnologia": "svelte",
+          "total_preguntas": 123,
+          "respuestas_aceptadas": 47,
+          "tasa_aceptacion_pct": 38.21,
+          "sample_bucket": "baja",
+          "confidence_score": 0.301047,
+          "raw_rank": 1,
+          "confidence_rank": 1
+        },
+        {
+          "tecnologia": "angular",
+          "total_preguntas": 1388,
+          "respuestas_aceptadas": 412,
+          "tasa_aceptacion_pct": 29.68,
+          "sample_bucket": "alta",
+          "confidence_score": 0.273382,
+          "raw_rank": 2,
+          "confidence_rank": 2
+        },
+        {
+          "tecnologia": "reactjs",
+          "total_preguntas": 1948,
+          "respuestas_aceptadas": 498,
+          "tasa_aceptacion_pct": 25.56,
+          "sample_bucket": "alta",
+          "confidence_score": 0.236769,
+          "raw_rank": 3,
+          "confidence_rank": 3
+        },
+        {
+          "tecnologia": "vue.js",
+          "total_preguntas": 370,
+          "respuestas_aceptadas": 94,
+          "tasa_aceptacion_pct": 25.41,
+          "sample_bucket": "media",
+          "confidence_score": 0.21238,
+          "raw_rank": 4,
+          "confidence_rank": 4
+        },
+        {
+          "tecnologia": "next.js",
+          "total_preguntas": 1052,
+          "respuestas_aceptadas": 182,
+          "tasa_aceptacion_pct": 17.3,
+          "sample_bucket": "alta",
+          "confidence_score": 0.151347,
+          "raw_rank": 5,
+          "confidence_rank": 5
+        }
+      ]
+    },
+    {
+      "date": "2026-03-30",
+      "path": "datos/history/so_aceptacion/year=2026/month=03/day=30/so_tasa_aceptacion.csv",
+      "source_type": "history",
+      "row_count": 5,
+      "item_count": 5,
+      "items": [
+        {
+          "tecnologia": "svelte",
+          "total_preguntas": 123,
+          "respuestas_aceptadas": 47,
+          "tasa_aceptacion_pct": 38.21,
+          "sample_bucket": "baja",
+          "confidence_score": 0.301047,
+          "raw_rank": 1,
+          "confidence_rank": 1
+        },
+        {
+          "tecnologia": "angular",
+          "total_preguntas": 1381,
+          "respuestas_aceptadas": 411,
+          "tasa_aceptacion_pct": 29.76,
+          "sample_bucket": "alta",
+          "confidence_score": 0.274085,
+          "raw_rank": 2,
+          "confidence_rank": 2
+        },
+        {
+          "tecnologia": "reactjs",
+          "total_preguntas": 1933,
+          "respuestas_aceptadas": 496,
+          "tasa_aceptacion_pct": 25.66,
+          "sample_bucket": "alta",
+          "confidence_score": 0.237622,
+          "raw_rank": 3,
+          "confidence_rank": 3
+        },
+        {
+          "tecnologia": "vue.js",
+          "total_preguntas": 368,
+          "respuestas_aceptadas": 93,
+          "tasa_aceptacion_pct": 25.27,
+          "sample_bucket": "media",
+          "confidence_score": 0.211027,
+          "raw_rank": 4,
+          "confidence_rank": 4
+        },
+        {
+          "tecnologia": "next.js",
+          "total_preguntas": 1043,
+          "respuestas_aceptadas": 181,
+          "tasa_aceptacion_pct": 17.35,
+          "sample_bucket": "alta",
+          "confidence_score": 0.151763,
+          "raw_rank": 5,
+          "confidence_rank": 5
+        }
+      ]
+    },
+    {
+      "date": "2026-04-06",
+      "path": "datos/history/so_aceptacion/year=2026/month=04/day=06/so_tasa_aceptacion.csv",
+      "source_type": "history",
+      "row_count": 5,
+      "item_count": 5,
+      "items": [
+        {
+          "tecnologia": "svelte",
+          "total_preguntas": 117,
+          "respuestas_aceptadas": 44,
+          "tasa_aceptacion_pct": 37.61,
+          "sample_bucket": "baja",
+          "confidence_score": 0.293551,
+          "raw_rank": 1,
+          "confidence_rank": 1
+        },
+        {
+          "tecnologia": "angular",
+          "total_preguntas": 1318,
+          "respuestas_aceptadas": 394,
+          "tasa_aceptacion_pct": 29.89,
+          "sample_bucket": "alta",
+          "confidence_score": 0.274836,
+          "raw_rank": 2,
+          "confidence_rank": 2
+        },
+        {
+          "tecnologia": "reactjs",
+          "total_preguntas": 1805,
+          "respuestas_aceptadas": 461,
+          "tasa_aceptacion_pct": 25.54,
+          "sample_bucket": "alta",
+          "confidence_score": 0.235818,
+          "raw_rank": 3,
+          "confidence_rank": 3
+        },
+        {
+          "tecnologia": "vue.js",
+          "total_preguntas": 353,
+          "respuestas_aceptadas": 89,
+          "tasa_aceptacion_pct": 25.21,
+          "sample_bucket": "media",
+          "confidence_score": 0.209659,
+          "raw_rank": 4,
+          "confidence_rank": 4
+        },
+        {
+          "tecnologia": "next.js",
+          "total_preguntas": 994,
+          "respuestas_aceptadas": 171,
+          "tasa_aceptacion_pct": 17.2,
+          "sample_bucket": "media",
+          "confidence_score": 0.149844,
+          "raw_rank": 5,
+          "confidence_rank": 5
+        }
+      ]
+    },
+    {
+      "date": "2026-04-13",
+      "path": "datos/history/so_aceptacion/year=2026/month=04/day=13/so_tasa_aceptacion.csv",
+      "source_type": "history",
+      "row_count": 5,
+      "item_count": 5,
+      "items": [
+        {
+          "tecnologia": "svelte",
+          "total_preguntas": 112,
+          "respuestas_aceptadas": 41,
+          "tasa_aceptacion_pct": 36.61,
+          "sample_bucket": "baja",
+          "confidence_score": 0.282675,
+          "raw_rank": 1,
+          "confidence_rank": 1
+        },
+        {
+          "tecnologia": "angular",
+          "total_preguntas": 1247,
+          "respuestas_aceptadas": 372,
+          "tasa_aceptacion_pct": 29.83,
+          "sample_bucket": "alta",
+          "confidence_score": 0.273573,
+          "raw_rank": 2,
+          "confidence_rank": 2
+        },
+        {
+          "tecnologia": "reactjs",
+          "total_preguntas": 1694,
+          "respuestas_aceptadas": 437,
+          "tasa_aceptacion_pct": 25.8,
+          "sample_bucket": "alta",
+          "confidence_score": 0.237698,
+          "raw_rank": 3,
+          "confidence_rank": 3
+        },
+        {
+          "tecnologia": "vue.js",
+          "total_preguntas": 339,
+          "respuestas_aceptadas": 83,
+          "tasa_aceptacion_pct": 24.48,
+          "sample_bucket": "media",
+          "confidence_score": 0.202091,
+          "raw_rank": 4,
+          "confidence_rank": 4
+        },
+        {
+          "tecnologia": "next.js",
+          "total_preguntas": 940,
+          "respuestas_aceptadas": 161,
+          "tasa_aceptacion_pct": 17.13,
+          "sample_bucket": "media",
+          "confidence_score": 0.148541,
+          "raw_rank": 5,
+          "confidence_rank": 5
+        }
+      ]
+    },
+    {
+      "date": "2026-04-20",
+      "path": "datos/history/so_aceptacion/year=2026/month=04/day=20/so_tasa_aceptacion.csv",
+      "source_type": "history",
+      "row_count": 5,
+      "item_count": 5,
+      "items": [
+        {
+          "tecnologia": "svelte",
+          "total_preguntas": 109,
+          "respuestas_aceptadas": 41,
+          "tasa_aceptacion_pct": 37.61,
+          "sample_bucket": "baja",
+          "confidence_score": 0.290884,
+          "raw_rank": 1,
+          "confidence_rank": 1
+        },
+        {
+          "tecnologia": "angular",
+          "total_preguntas": 1198,
+          "respuestas_aceptadas": 354,
+          "tasa_aceptacion_pct": 29.55,
+          "sample_bucket": "alta",
+          "confidence_score": 0.270342,
+          "raw_rank": 2,
+          "confidence_rank": 2
+        },
+        {
+          "tecnologia": "reactjs",
+          "total_preguntas": 1633,
+          "respuestas_aceptadas": 419,
+          "tasa_aceptacion_pct": 25.66,
+          "sample_bucket": "alta",
+          "confidence_score": 0.235988,
+          "raw_rank": 3,
+          "confidence_rank": 3
+        },
+        {
+          "tecnologia": "vue.js",
+          "total_preguntas": 324,
+          "respuestas_aceptadas": 78,
+          "tasa_aceptacion_pct": 24.07,
+          "sample_bucket": "media",
+          "confidence_score": 0.197399,
+          "raw_rank": 4,
+          "confidence_rank": 4
+        },
+        {
+          "tecnologia": "next.js",
+          "total_preguntas": 902,
+          "respuestas_aceptadas": 155,
+          "tasa_aceptacion_pct": 17.18,
+          "sample_bucket": "media",
+          "confidence_score": 0.148626,
+          "raw_rank": 5,
+          "confidence_rank": 5
+        }
+      ]
+    }
+  ]
+}
