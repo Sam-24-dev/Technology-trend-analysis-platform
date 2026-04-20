@@ -1,2 +1,2 @@
 total_repos_analizados,repos_ai_detectados,porcentaje_ai,mes_pico_ai,repos_mes_pico_ai,top_keywords_ai,top_repos_ai
-1000,558,55.8,2026-02,71,ai:552 | claude:223 | llm:56 | gemini:40 | prompt:36,openclaw/openclaw | affaan-m/everything-claude-code | anthropics/skills | google-gemini/gemini-cli | msitarzewski/agency-agents
+1000,555,55.5,2026-02,73,ai:544 | claude:227 | llm:55 | gemini:37 | prompt:35,openclaw/openclaw | affaan-m/everything-claude-code | anthropics/skills | msitarzewski/agency-agents | garrytan/gstack
