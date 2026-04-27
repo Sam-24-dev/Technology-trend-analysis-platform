@@ -1,0 +1,875 @@
+{
+  "generated_at_utc": "2026-04-27T10:26:01Z",
+  "dataset": "interseccion_github_reddit",
+  "source_mode": "history",
+  "snapshot_count": 7,
+  "latest_snapshot_date": "2026-04-27",
+  "previous_snapshot_date": "2026-04-20",
+  "coverage_pct": 30.0,
+  "comparable_count": 3,
+  "item_count": 10,
+  "latest_items": [
+    {
+      "tecnologia": "Python",
+      "tipo": "Lenguaje",
+      "ranking_github": 1,
+      "ranking_reddit": 7,
+      "brecha_abs": 6,
+      "promedio_rank": 4.0,
+      "direccion": "github_favorece",
+      "rank_github_prev": 1,
+      "rank_reddit_prev": 7,
+      "delta_gap": 0,
+      "trend_direction": "estable"
+    },
+    {
+      "tecnologia": "TypeScript",
+      "tipo": "Lenguaje",
+      "ranking_github": 2,
+      "ranking_reddit": 8,
+      "brecha_abs": 6,
+      "promedio_rank": 5.0,
+      "direccion": "github_favorece",
+      "rank_github_prev": 2,
+      "rank_reddit_prev": 8,
+      "delta_gap": 0,
+      "trend_direction": "estable"
+    },
+    {
+      "tecnologia": "JavaScript",
+      "tipo": "Lenguaje",
+      "ranking_github": 4,
+      "ranking_reddit": 10,
+      "brecha_abs": 6,
+      "promedio_rank": 7.0,
+      "direccion": "github_favorece",
+      "rank_github_prev": 4,
+      "rank_reddit_prev": 10,
+      "delta_gap": 0,
+      "trend_direction": "estable"
+    },
+    {
+      "tecnologia": "Angular",
+      "tipo": "Framework Frontend",
+      "ranking_github": 2,
+      "ranking_reddit": null,
+      "brecha_abs": null,
+      "promedio_rank": null,
+      "direccion": "incompleto",
+      "rank_github_prev": 2,
+      "rank_reddit_prev": null,
+      "delta_gap": null,
+      "trend_direction": null
+    },
+    {
+      "tecnologia": "Go",
+      "tipo": "Lenguaje",
+      "ranking_github": 5,
+      "ranking_reddit": null,
+      "brecha_abs": null,
+      "promedio_rank": null,
+      "direccion": "incompleto",
+      "rank_github_prev": 5,
+      "rank_reddit_prev": null,
+      "delta_gap": null,
+      "trend_direction": null
+    },
+    {
+      "tecnologia": "Next.js",
+      "tipo": "Framework Frontend",
+      "ranking_github": 1,
+      "ranking_reddit": null,
+      "brecha_abs": null,
+      "promedio_rank": null,
+      "direccion": "incompleto",
+      "rank_github_prev": 1,
+      "rank_reddit_prev": null,
+      "delta_gap": null,
+      "trend_direction": null
+    },
+    {
+      "tecnologia": "React",
+      "tipo": "Framework Frontend",
+      "ranking_github": 3,
+      "ranking_reddit": null,
+      "brecha_abs": null,
+      "promedio_rank": null,
+      "direccion": "incompleto",
+      "rank_github_prev": 3,
+      "rank_reddit_prev": null,
+      "delta_gap": null,
+      "trend_direction": null
+    },
+    {
+      "tecnologia": "Sin especificar",
+      "tipo": "Lenguaje",
+      "ranking_github": 3,
+      "ranking_reddit": null,
+      "brecha_abs": null,
+      "promedio_rank": null,
+      "direccion": "incompleto",
+      "rank_github_prev": 3,
+      "rank_reddit_prev": null,
+      "delta_gap": null,
+      "trend_direction": null
+    },
+    {
+      "tecnologia": "Svelte",
+      "tipo": "Framework Frontend",
+      "ranking_github": 4,
+      "ranking_reddit": null,
+      "brecha_abs": null,
+      "promedio_rank": null,
+      "direccion": "incompleto",
+      "rank_github_prev": 4,
+      "rank_reddit_prev": null,
+      "delta_gap": null,
+      "trend_direction": null
+    },
+    {
+      "tecnologia": "Vue 3",
+      "tipo": "Framework Frontend",
+      "ranking_github": 5,
+      "ranking_reddit": null,
+      "brecha_abs": null,
+      "promedio_rank": null,
+      "direccion": "incompleto",
+      "rank_github_prev": 5,
+      "rank_reddit_prev": null,
+      "delta_gap": null,
+      "trend_direction": null
+    }
+  ],
+  "summary": {
+    "consenso_count": 0,
+    "divergente_count": 3,
+    "comparable_count": 3,
+    "coverage_pct": 30.0,
+    "closest_alignment": {
+      "tecnologia": "Python",
+      "tipo": "Lenguaje",
+      "ranking_github": 1,
+      "ranking_reddit": 7,
+      "brecha_abs": 6,
+      "promedio_rank": 4.0,
+      "direccion": "github_favorece",
+      "delta_gap": 0,
+      "trend_direction": "estable"
+    },
+    "largest_gap_item": {
+      "tecnologia": "TypeScript",
+      "tipo": "Lenguaje",
+      "ranking_github": 2,
+      "ranking_reddit": 8,
+      "brecha_abs": 6,
+      "promedio_rank": 5.0,
+      "direccion": "github_favorece",
+      "delta_gap": 0,
+      "trend_direction": "estable"
+    },
+    "max_brecha_tecnologia": "TypeScript",
+    "max_brecha_abs": 6
+  },
+  "snapshots": [
+    {
+      "date": "2026-03-13",
+      "path": "datos/history/interseccion/year=2026/month=03/day=13/interseccion_github_reddit.csv",
+      "source_type": "history",
+      "row_count": 10,
+      "comparable_count": 3,
+      "coverage_pct": 30.0,
+      "items": [
+        {
+          "tecnologia": "Python",
+          "tipo": "Lenguaje",
+          "ranking_github": 1,
+          "ranking_reddit": 5,
+          "brecha_abs": 4,
+          "promedio_rank": 3.0,
+          "direccion": "github_favorece"
+        },
+        {
+          "tecnologia": "TypeScript",
+          "tipo": "Lenguaje",
+          "ranking_github": 2,
+          "ranking_reddit": 8,
+          "brecha_abs": 6,
+          "promedio_rank": 5.0,
+          "direccion": "github_favorece"
+        },
+        {
+          "tecnologia": "JavaScript",
+          "tipo": "Lenguaje",
+          "ranking_github": 4,
+          "ranking_reddit": 10,
+          "brecha_abs": 6,
+          "promedio_rank": 7.0,
+          "direccion": "github_favorece"
+        },
+        {
+          "tecnologia": "Angular",
+          "tipo": "Framework Frontend",
+          "ranking_github": 2,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        },
+        {
+          "tecnologia": "Go",
+          "tipo": "Lenguaje",
+          "ranking_github": 5,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        },
+        {
+          "tecnologia": "Next.js",
+          "tipo": "Framework Frontend",
+          "ranking_github": 1,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        },
+        {
+          "tecnologia": "React",
+          "tipo": "Framework Frontend",
+          "ranking_github": 3,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        },
+        {
+          "tecnologia": "Sin especificar",
+          "tipo": "Lenguaje",
+          "ranking_github": 3,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        },
+        {
+          "tecnologia": "Svelte",
+          "tipo": "Framework Frontend",
+          "ranking_github": 4,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        },
+        {
+          "tecnologia": "Vue 3",
+          "tipo": "Framework Frontend",
+          "ranking_github": 5,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        }
+      ]
+    },
+    {
+      "date": "2026-03-28",
+      "path": "datos/history/interseccion/year=2026/month=03/day=28/interseccion_github_reddit.csv",
+      "source_type": "history",
+      "row_count": 10,
+      "comparable_count": 3,
+      "coverage_pct": 30.0,
+      "items": [
+        {
+          "tecnologia": "TypeScript",
+          "tipo": "Lenguaje",
+          "ranking_github": 2,
+          "ranking_reddit": 5,
+          "brecha_abs": 3,
+          "promedio_rank": 3.5,
+          "direccion": "github_favorece"
+        },
+        {
+          "tecnologia": "Python",
+          "tipo": "Lenguaje",
+          "ranking_github": 1,
+          "ranking_reddit": 7,
+          "brecha_abs": 6,
+          "promedio_rank": 4.0,
+          "direccion": "github_favorece"
+        },
+        {
+          "tecnologia": "JavaScript",
+          "tipo": "Lenguaje",
+          "ranking_github": 4,
+          "ranking_reddit": 10,
+          "brecha_abs": 6,
+          "promedio_rank": 7.0,
+          "direccion": "github_favorece"
+        },
+        {
+          "tecnologia": "Angular",
+          "tipo": "Framework Frontend",
+          "ranking_github": 2,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        },
+        {
+          "tecnologia": "Go",
+          "tipo": "Lenguaje",
+          "ranking_github": 5,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        },
+        {
+          "tecnologia": "Next.js",
+          "tipo": "Framework Frontend",
+          "ranking_github": 1,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        },
+        {
+          "tecnologia": "React",
+          "tipo": "Framework Frontend",
+          "ranking_github": 3,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        },
+        {
+          "tecnologia": "Sin especificar",
+          "tipo": "Lenguaje",
+          "ranking_github": 3,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        },
+        {
+          "tecnologia": "Svelte",
+          "tipo": "Framework Frontend",
+          "ranking_github": 4,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        },
+        {
+          "tecnologia": "Vue 3",
+          "tipo": "Framework Frontend",
+          "ranking_github": 5,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        }
+      ]
+    },
+    {
+      "date": "2026-03-30",
+      "path": "datos/history/interseccion/year=2026/month=03/day=30/interseccion_github_reddit.csv",
+      "source_type": "history",
+      "row_count": 10,
+      "comparable_count": 3,
+      "coverage_pct": 30.0,
+      "items": [
+        {
+          "tecnologia": "Python",
+          "tipo": "Lenguaje",
+          "ranking_github": 1,
+          "ranking_reddit": 7,
+          "brecha_abs": 6,
+          "promedio_rank": 4.0,
+          "direccion": "github_favorece"
+        },
+        {
+          "tecnologia": "TypeScript",
+          "tipo": "Lenguaje",
+          "ranking_github": 2,
+          "ranking_reddit": 6,
+          "brecha_abs": 4,
+          "promedio_rank": 4.0,
+          "direccion": "github_favorece"
+        },
+        {
+          "tecnologia": "JavaScript",
+          "tipo": "Lenguaje",
+          "ranking_github": 4,
+          "ranking_reddit": 10,
+          "brecha_abs": 6,
+          "promedio_rank": 7.0,
+          "direccion": "github_favorece"
+        },
+        {
+          "tecnologia": "Angular",
+          "tipo": "Framework Frontend",
+          "ranking_github": 2,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        },
+        {
+          "tecnologia": "Go",
+          "tipo": "Lenguaje",
+          "ranking_github": 5,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        },
+        {
+          "tecnologia": "Next.js",
+          "tipo": "Framework Frontend",
+          "ranking_github": 1,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        },
+        {
+          "tecnologia": "React",
+          "tipo": "Framework Frontend",
+          "ranking_github": 3,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        },
+        {
+          "tecnologia": "Sin especificar",
+          "tipo": "Lenguaje",
+          "ranking_github": 3,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        },
+        {
+          "tecnologia": "Svelte",
+          "tipo": "Framework Frontend",
+          "ranking_github": 4,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        },
+        {
+          "tecnologia": "Vue 3",
+          "tipo": "Framework Frontend",
+          "ranking_github": 5,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        }
+      ]
+    },
+    {
+      "date": "2026-04-06",
+      "path": "datos/history/interseccion/year=2026/month=04/day=06/interseccion_github_reddit.csv",
+      "source_type": "history",
+      "row_count": 10,
+      "comparable_count": 3,
+      "coverage_pct": 30.0,
+      "items": [
+        {
+          "tecnologia": "Python",
+          "tipo": "Lenguaje",
+          "ranking_github": 1,
+          "ranking_reddit": 8,
+          "brecha_abs": 7,
+          "promedio_rank": 4.5,
+          "direccion": "github_favorece"
+        },
+        {
+          "tecnologia": "TypeScript",
+          "tipo": "Lenguaje",
+          "ranking_github": 2,
+          "ranking_reddit": 7,
+          "brecha_abs": 5,
+          "promedio_rank": 4.5,
+          "direccion": "github_favorece"
+        },
+        {
+          "tecnologia": "JavaScript",
+          "tipo": "Lenguaje",
+          "ranking_github": 4,
+          "ranking_reddit": 10,
+          "brecha_abs": 6,
+          "promedio_rank": 7.0,
+          "direccion": "github_favorece"
+        },
+        {
+          "tecnologia": "Angular",
+          "tipo": "Framework Frontend",
+          "ranking_github": 2,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        },
+        {
+          "tecnologia": "Go",
+          "tipo": "Lenguaje",
+          "ranking_github": 5,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        },
+        {
+          "tecnologia": "Next.js",
+          "tipo": "Framework Frontend",
+          "ranking_github": 1,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        },
+        {
+          "tecnologia": "React",
+          "tipo": "Framework Frontend",
+          "ranking_github": 3,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        },
+        {
+          "tecnologia": "Sin especificar",
+          "tipo": "Lenguaje",
+          "ranking_github": 3,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        },
+        {
+          "tecnologia": "Svelte",
+          "tipo": "Framework Frontend",
+          "ranking_github": 4,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        },
+        {
+          "tecnologia": "Vue 3",
+          "tipo": "Framework Frontend",
+          "ranking_github": 5,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        }
+      ]
+    },
+    {
+      "date": "2026-04-13",
+      "path": "datos/history/interseccion/year=2026/month=04/day=13/interseccion_github_reddit.csv",
+      "source_type": "history",
+      "row_count": 10,
+      "comparable_count": 3,
+      "coverage_pct": 30.0,
+      "items": [
+        {
+          "tecnologia": "Python",
+          "tipo": "Lenguaje",
+          "ranking_github": 1,
+          "ranking_reddit": 7,
+          "brecha_abs": 6,
+          "promedio_rank": 4.0,
+          "direccion": "github_favorece"
+        },
+        {
+          "tecnologia": "TypeScript",
+          "tipo": "Lenguaje",
+          "ranking_github": 2,
+          "ranking_reddit": 8,
+          "brecha_abs": 6,
+          "promedio_rank": 5.0,
+          "direccion": "github_favorece"
+        },
+        {
+          "tecnologia": "JavaScript",
+          "tipo": "Lenguaje",
+          "ranking_github": 4,
+          "ranking_reddit": 10,
+          "brecha_abs": 6,
+          "promedio_rank": 7.0,
+          "direccion": "github_favorece"
+        },
+        {
+          "tecnologia": "Angular",
+          "tipo": "Framework Frontend",
+          "ranking_github": 2,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        },
+        {
+          "tecnologia": "Go",
+          "tipo": "Lenguaje",
+          "ranking_github": 5,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        },
+        {
+          "tecnologia": "Next.js",
+          "tipo": "Framework Frontend",
+          "ranking_github": 1,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        },
+        {
+          "tecnologia": "React",
+          "tipo": "Framework Frontend",
+          "ranking_github": 3,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        },
+        {
+          "tecnologia": "Sin especificar",
+          "tipo": "Lenguaje",
+          "ranking_github": 3,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        },
+        {
+          "tecnologia": "Svelte",
+          "tipo": "Framework Frontend",
+          "ranking_github": 4,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        },
+        {
+          "tecnologia": "Vue 3",
+          "tipo": "Framework Frontend",
+          "ranking_github": 5,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        }
+      ]
+    },
+    {
+      "date": "2026-04-20",
+      "path": "datos/history/interseccion/year=2026/month=04/day=20/interseccion_github_reddit.csv",
+      "source_type": "history",
+      "row_count": 10,
+      "comparable_count": 3,
+      "coverage_pct": 30.0,
+      "items": [
+        {
+          "tecnologia": "Python",
+          "tipo": "Lenguaje",
+          "ranking_github": 1,
+          "ranking_reddit": 7,
+          "brecha_abs": 6,
+          "promedio_rank": 4.0,
+          "direccion": "github_favorece"
+        },
+        {
+          "tecnologia": "TypeScript",
+          "tipo": "Lenguaje",
+          "ranking_github": 2,
+          "ranking_reddit": 8,
+          "brecha_abs": 6,
+          "promedio_rank": 5.0,
+          "direccion": "github_favorece"
+        },
+        {
+          "tecnologia": "JavaScript",
+          "tipo": "Lenguaje",
+          "ranking_github": 4,
+          "ranking_reddit": 10,
+          "brecha_abs": 6,
+          "promedio_rank": 7.0,
+          "direccion": "github_favorece"
+        },
+        {
+          "tecnologia": "Angular",
+          "tipo": "Framework Frontend",
+          "ranking_github": 2,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        },
+        {
+          "tecnologia": "Go",
+          "tipo": "Lenguaje",
+          "ranking_github": 5,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        },
+        {
+          "tecnologia": "Next.js",
+          "tipo": "Framework Frontend",
+          "ranking_github": 1,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        },
+        {
+          "tecnologia": "React",
+          "tipo": "Framework Frontend",
+          "ranking_github": 3,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        },
+        {
+          "tecnologia": "Sin especificar",
+          "tipo": "Lenguaje",
+          "ranking_github": 3,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        },
+        {
+          "tecnologia": "Svelte",
+          "tipo": "Framework Frontend",
+          "ranking_github": 4,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        },
+        {
+          "tecnologia": "Vue 3",
+          "tipo": "Framework Frontend",
+          "ranking_github": 5,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        }
+      ]
+    },
+    {
+      "date": "2026-04-27",
+      "path": "datos/history/interseccion/year=2026/month=04/day=27/interseccion_github_reddit.csv",
+      "source_type": "history",
+      "row_count": 10,
+      "comparable_count": 3,
+      "coverage_pct": 30.0,
+      "items": [
+        {
+          "tecnologia": "Python",
+          "tipo": "Lenguaje",
+          "ranking_github": 1,
+          "ranking_reddit": 7,
+          "brecha_abs": 6,
+          "promedio_rank": 4.0,
+          "direccion": "github_favorece"
+        },
+        {
+          "tecnologia": "TypeScript",
+          "tipo": "Lenguaje",
+          "ranking_github": 2,
+          "ranking_reddit": 8,
+          "brecha_abs": 6,
+          "promedio_rank": 5.0,
+          "direccion": "github_favorece"
+        },
+        {
+          "tecnologia": "JavaScript",
+          "tipo": "Lenguaje",
+          "ranking_github": 4,
+          "ranking_reddit": 10,
+          "brecha_abs": 6,
+          "promedio_rank": 7.0,
+          "direccion": "github_favorece"
+        },
+        {
+          "tecnologia": "Angular",
+          "tipo": "Framework Frontend",
+          "ranking_github": 2,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        },
+        {
+          "tecnologia": "Go",
+          "tipo": "Lenguaje",
+          "ranking_github": 5,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        },
+        {
+          "tecnologia": "Next.js",
+          "tipo": "Framework Frontend",
+          "ranking_github": 1,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        },
+        {
+          "tecnologia": "React",
+          "tipo": "Framework Frontend",
+          "ranking_github": 3,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        },
+        {
+          "tecnologia": "Sin especificar",
+          "tipo": "Lenguaje",
+          "ranking_github": 3,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        },
+        {
+          "tecnologia": "Svelte",
+          "tipo": "Framework Frontend",
+          "ranking_github": 4,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        },
+        {
+          "tecnologia": "Vue 3",
+          "tipo": "Framework Frontend",
+          "ranking_github": 5,
+          "ranking_reddit": null,
+          "brecha_abs": null,
+          "promedio_rank": null,
+          "direccion": "incompleto"
+        }
+      ]
+    }
+  ]
+}
