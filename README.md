@@ -7,7 +7,7 @@
 ![ETL](https://img.shields.io/badge/ETL-Weekly-success?style=for-the-badge)
 ![Data](https://img.shields.io/badge/Data-Contracts-blueviolet?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)
-
+[![localhost:3000](https://localhost3000official.vercel.app/api/badge/1cb0878b-6395-44e6-8835-b4e4f4f93fd5)](https://localhost3000official.vercel.app/p/1cb0878b-6395-44e6-8835-b4e4f4f93fd5)
 <br>
 
 <a href="https://sam-24-dev.github.io/Technology-trend-analysis-platform/">
