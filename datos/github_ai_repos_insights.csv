@@ -1,2 +1,2 @@
 total_repos_analizados,repos_ai_detectados,porcentaje_ai,mes_pico_ai,repos_mes_pico_ai,top_keywords_ai,top_repos_ai
-1000,560,56.0,2026-02,77,ai:530 | claude:236 | llm:50 | prompt:41 | gemini:34,openclaw/openclaw | affaan-m/everything-claude-code | anthropics/skills | forrestchang/andrej-karpathy-skills | msitarzewski/agency-agents
+1000,558,55.8,2026-02,81,ai:529 | claude:224 | llm:51 | prompt:41 | gemini:33,openclaw/openclaw | affaan-m/everything-claude-code | anthropics/skills | forrestchang/andrej-karpathy-skills | msitarzewski/agency-agents
