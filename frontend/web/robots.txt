@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://sam-24-dev.github.io/Technology-trend-analysis-platform/sitemap.xml

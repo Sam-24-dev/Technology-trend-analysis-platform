@@ -1,11 +1,11 @@
 {
-    "name": "frontend",
-    "short_name": "frontend",
+    "name": "Technology Trend Analysis Platform",
+    "short_name": "Tech Trends",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Interactive dashboards for technology trends across GitHub, Stack Overflow, and Reddit.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
