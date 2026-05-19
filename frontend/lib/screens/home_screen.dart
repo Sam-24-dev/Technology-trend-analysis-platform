@@ -243,7 +243,7 @@ class HomeScreen extends ConsumerWidget {
 
   Widget _buildKpiCardFA({
     required double width,
-    required IconData icon,
+    required FaIconData icon,
     required String value,
     required String label,
     required Color color,
@@ -305,7 +305,7 @@ class HomeScreen extends ConsumerWidget {
 
   Widget _buildInfoCardFA({
     required BuildContext context,
-    required IconData icon,
+    required FaIconData icon,
     required String title,
     required String description,
     required Color color,
@@ -376,7 +376,7 @@ class HomeScreen extends ConsumerWidget {
   Widget _buildTeamMemberFA(
     String name,
     String role,
-    IconData icon,
+    FaIconData icon,
     Color color,
   ) {
     return Padding(
@@ -1862,7 +1862,7 @@ class _TrendTopEntryCard extends StatefulWidget {
 class _SourceContributionMeta {
   final String code;
   final String label;
-  final IconData icon;
+  final FaIconData icon;
   final Color color;
   final double value;
 

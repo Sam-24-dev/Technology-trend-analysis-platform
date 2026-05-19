@@ -609,7 +609,7 @@ class _NavItem {
   final String route;
   final String label;
   final IconData? icon;
-  final IconData? faIcon;
+  final FaIconData? faIcon;
   final String semanticsLabel;
   final String keyName;
 
