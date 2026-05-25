@@ -1,2 +1,2 @@
 total_repos_analizados,repos_ai_detectados,porcentaje_ai,mes_pico_ai,repos_mes_pico_ai,top_keywords_ai,top_repos_ai
-1000,555,55.5,2026-02,83,ai:523 | claude:229 | llm:49 | gemini:36 | prompt:33,openclaw/openclaw | affaan-m/everything-claude-code | anthropics/skills | multica-ai/andrej-karpathy-skills | msitarzewski/agency-agents
+1000,553,55.3,2026-02,86,ai:530 | claude:232 | llm:49 | gemini:33 | prompt:33,openclaw/openclaw | multica-ai/andrej-karpathy-skills | anthropics/skills | msitarzewski/agency-agents | mattpocock/skills
