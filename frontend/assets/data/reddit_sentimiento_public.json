@@ -1,9 +1,9 @@
 {
-  "generated_at_utc": "2026-05-19T03:40:24Z",
+  "generated_at_utc": "2026-05-25T04:54:05Z",
   "dataset": "reddit_sentimiento_frameworks",
   "source_mode": "latest",
   "source_path": "datos/latest/reddit_sentimiento_frameworks.csv",
-  "source_updated_at_utc": "2026-05-19T03:40:15Z",
+  "source_updated_at_utc": "2026-05-25T04:53:56Z",
   "framework_count": 5,
   "frameworks": [
     {
@@ -28,8 +28,8 @@
     },
     {
       "framework": "Spring",
-      "total_menciones": 2,
-      "positivos": 2,
+      "total_menciones": 1,
+      "positivos": 1,
       "neutros": 0,
       "negativos": 0,
       "porcentaje_positivo": 100.0,
@@ -38,23 +38,23 @@
     },
     {
       "framework": "Express",
-      "total_menciones": 15,
-      "positivos": 12,
+      "total_menciones": 14,
+      "positivos": 11,
       "neutros": 1,
       "negativos": 2,
-      "porcentaje_positivo": 80.0,
-      "porcentaje_neutro": 6.67,
-      "porcentaje_negativo": 13.33
+      "porcentaje_positivo": 78.57,
+      "porcentaje_neutro": 7.14,
+      "porcentaje_negativo": 14.29
     },
     {
       "framework": "Laravel",
-      "total_menciones": 18,
-      "positivos": 12,
+      "total_menciones": 22,
+      "positivos": 15,
       "neutros": 1,
-      "negativos": 5,
-      "porcentaje_positivo": 66.67,
-      "porcentaje_neutro": 5.56,
-      "porcentaje_negativo": 27.78
+      "negativos": 6,
+      "porcentaje_positivo": 68.18,
+      "porcentaje_neutro": 4.55,
+      "porcentaje_negativo": 27.27
     }
   ],
   "summary": {
@@ -70,25 +70,25 @@
     },
     "largest_sample": {
       "framework": "Laravel",
-      "total_menciones": 18,
-      "positivos": 12,
+      "total_menciones": 22,
+      "positivos": 15,
       "neutros": 1,
-      "negativos": 5,
-      "porcentaje_positivo": 66.67,
-      "porcentaje_neutro": 5.56,
-      "porcentaje_negativo": 27.78
+      "negativos": 6,
+      "porcentaje_positivo": 68.18,
+      "porcentaje_neutro": 4.55,
+      "porcentaje_negativo": 27.27
     },
     "negative_leader": {
       "framework": "Laravel",
-      "total_menciones": 18,
-      "positivos": 12,
+      "total_menciones": 22,
+      "positivos": 15,
       "neutros": 1,
-      "negativos": 5,
-      "porcentaje_positivo": 66.67,
-      "porcentaje_neutro": 5.56,
-      "porcentaje_negativo": 27.78
+      "negativos": 6,
+      "porcentaje_positivo": 68.18,
+      "porcentaje_neutro": 4.55,
+      "porcentaje_negativo": 27.27
     },
     "framework_count": 5,
-    "total_menciones": 41
+    "total_menciones": 43
   }
 }
