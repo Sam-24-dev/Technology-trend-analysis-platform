@@ -9,10 +9,13 @@ Autor: Mateo Mayorga
 """
 import pandas as pd
 from datetime import datetime
+import os
 import requests
 import warnings
 import time
 import re
+import html
+import xml.etree.ElementTree as ET
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 from config.settings import (
@@ -27,6 +30,24 @@ from base_etl import BaseETL
 from tech_normalization import normalize_for_match
 
 warnings.filterwarnings("ignore")
+
+
+def _env_float(name, default):
+    """Read a positive float from the environment with a safe fallback."""
+    try:
+        value = float(os.getenv(name, str(default)))
+    except (TypeError, ValueError):
+        return default
+    return value if value >= 0 else default
+
+
+def _env_int(name, default):
+    """Read a positive int from the environment with a safe fallback."""
+    try:
+        value = int(os.getenv(name, str(default)))
+    except (TypeError, ValueError):
+        return default
+    return value if value > 0 else default
 
 
 class RedditETL(BaseETL):
@@ -52,6 +73,26 @@ class RedditETL(BaseETL):
         else:
             patron = rf"(?<!\w){re.escape(kw)}(?!\w)"
         return re.search(patron, texto, flags=re.IGNORECASE) is not None
+
+    @staticmethod
+    def _html_to_text(value):
+        """Convierte contenido HTML básico de RSS a texto plano."""
+        if not value:
+            return ""
+        without_tags = re.sub(r"<[^>]+>", " ", value)
+        without_comments = re.sub(r"<!--.*?-->", " ", without_tags, flags=re.DOTALL)
+        normalized = html.unescape(without_comments)
+        return re.sub(r"\s+", " ", normalized).strip()
+
+    @staticmethod
+    def _parse_atom_datetime(value):
+        """Parsea fechas Atom/RSS en formato ISO; retorna epoch si falla."""
+        if not value:
+            return datetime.fromtimestamp(0)
+        try:
+            return datetime.fromisoformat(value.replace("Z", "+00:00")).replace(tzinfo=None)
+        except ValueError:
+            return datetime.fromtimestamp(0)
 
     def _obtener_token_oauth(self):
         """Obtiene token bearer OAuth2 de Reddit usando client credentials.
@@ -134,80 +175,225 @@ class RedditETL(BaseETL):
                 "Se ejecutara en modo degradado (API publica)."
             )
 
-    def extraer_posts(self, subreddit_name=REDDIT_SUBREDDIT, limit=REDDIT_LIMIT):
-        """Extrae posts de un subreddit usando la API JSON publica de Reddit.
-
-        Raises:
-            ETLExtractionError: Si no se pudieron extraer posts.
-        """
-        self.logger.info(f"Obteniendo posts de r/{subreddit_name}...")
-
+    def _extraer_posts_json(self, subreddit_name, limit):
+        """Extrae posts usando JSON API/OAuth de Reddit."""
         posts_data = []
         url = f"{self.api_base}/r/{subreddit_name}/hot.json"
 
         after = None
         posts_obtenidos = 0
 
-        try:
-            while posts_obtenidos < limit:
-                params = {
-                    "limit": 100,
-                    "after": after
-                }
+        while posts_obtenidos < limit:
+            params = {
+                "limit": 100,
+                "after": after
+            }
 
-                self.logger.info(f"  Descargando posts {posts_obtenidos + 1}-{min(posts_obtenidos + 100, limit)}...")
+            self.logger.info(f"  Descargando posts {posts_obtenidos + 1}-{min(posts_obtenidos + 100, limit)}...")
 
+            try:
+                response = requests.get(
+                    url,
+                    headers=self.headers,
+                    params=params,
+                    timeout=REQUEST_TIMEOUT_SECONDS,
+                )
+            except requests.exceptions.RequestException as e:
+                self.logger.error(f"  Error de red: {e}")
+                time.sleep(HTTP_RETRY_BACKOFF_SECONDS)
+                break
+
+            if response.status_code != 200:
+                self.logger.error(f"  Error: {response.status_code}")
+                break
+
+            data = response.json()
+            children = data.get("data", {}).get("children", [])
+
+            if not children:
+                break
+
+            for post in children:
+                if posts_obtenidos >= limit:
+                    break
+
+                post_data = post.get("data", {})
+
+                if post_data.get("is_self"):
+                    posts_data.append({
+                        "post_id": post_data.get("id"),
+                        "titulo": post_data.get("title", ""),
+                        "contenido": post_data.get("selftext", ""),
+                        "upvotes": post_data.get("score", 0),
+                        "comentarios": post_data.get("num_comments", 0),
+                        "created_at": datetime.fromtimestamp(post_data.get("created_utc", 0)),
+                        "autor": post_data.get("author", "Eliminado")
+                    })
+                    posts_obtenidos += 1
+
+            after = data.get("data", {}).get("after")
+
+            if not after:
+                break
+
+            time.sleep(REQUEST_PAGE_DELAY_SECONDS)
+
+        return posts_data
+
+    def _extraer_posts_rss(self, subreddit_name, limit):
+        """Extrae posts publicos desde feeds Atom/RSS de Reddit como fallback."""
+        feed_urls = [
+            f"https://www.reddit.com/r/{subreddit_name}/.rss?limit=100",
+            f"https://www.reddit.com/r/{subreddit_name}/new/.rss?limit=100",
+            f"https://www.reddit.com/r/{subreddit_name}/hot/.rss?limit=100",
+            f"https://www.reddit.com/r/{subreddit_name}/rising/.rss?limit=100",
+            f"https://www.reddit.com/r/{subreddit_name}/top/.rss?t=day&limit=100",
+            f"https://www.reddit.com/r/{subreddit_name}/top/.rss?t=week&limit=100",
+            f"https://www.reddit.com/r/{subreddit_name}/top/.rss?t=month&limit=100",
+            f"https://www.reddit.com/r/{subreddit_name}/top/.rss?t=year&limit=100",
+            f"https://www.reddit.com/r/{subreddit_name}/top/.rss?t=all&limit=100",
+            f"https://www.reddit.com/r/{subreddit_name}/controversial/.rss?t=day&limit=100",
+            f"https://www.reddit.com/r/{subreddit_name}/controversial/.rss?t=week&limit=100",
+            f"https://www.reddit.com/r/{subreddit_name}/controversial/.rss?t=month&limit=100",
+            f"https://www.reddit.com/r/{subreddit_name}/controversial/.rss?t=year&limit=100",
+            f"https://www.reddit.com/r/{subreddit_name}/controversial/.rss?t=all&limit=100",
+        ]
+        namespace = {"atom": "http://www.w3.org/2005/Atom"}
+        posts_by_id = {}
+        max_attempts = _env_int("REDDIT_RSS_MAX_ATTEMPTS", 3)
+        feed_delay_seconds = _env_float(
+            "REDDIT_RSS_FEED_DELAY_SECONDS",
+            REQUEST_PAGE_DELAY_SECONDS,
+        )
+        rate_limit_backoff_seconds = _env_float(
+            "REDDIT_RSS_429_BACKOFF_SECONDS",
+            90.0,
+        )
+        rss_headers = {
+            "User-Agent": REDDIT_USER_AGENT,
+            "Accept": "application/atom+xml,application/xml;q=0.9,*/*;q=0.8",
+        }
+
+        self.logger.info("Intentando fallback RSS publico de Reddit...")
+
+        for feed_index, feed_url in enumerate(feed_urls, start=1):
+            if len(posts_by_id) >= limit:
+                break
+
+            if feed_index > 1 and feed_delay_seconds > 0:
+                self.logger.info(
+                    "  Esperando %.1fs antes del siguiente feed RSS...",
+                    feed_delay_seconds,
+                )
+                time.sleep(feed_delay_seconds)
+
+            response = None
+            for attempt in range(1, max_attempts + 1):
+                self.logger.info(
+                    "  Descargando RSS (%d/%d intento %d/%d): %s",
+                    feed_index,
+                    len(feed_urls),
+                    attempt,
+                    max_attempts,
+                    feed_url,
+                )
                 try:
                     response = requests.get(
-                        url,
-                        headers=self.headers,
-                        params=params,
+                        feed_url,
+                        headers=rss_headers,
                         timeout=REQUEST_TIMEOUT_SECONDS,
                     )
                 except requests.exceptions.RequestException as e:
-                    self.logger.error(f"  Error de red: {e}")
-                    time.sleep(HTTP_RETRY_BACKOFF_SECONDS)
+                    self.logger.error("  Error RSS: %s", e)
+                    time.sleep(HTTP_RETRY_BACKOFF_SECONDS * attempt)
+                    continue
+
+                if response.status_code == 200:
                     break
 
-                if response.status_code != 200:
-                    self.logger.error(f"  Error: {response.status_code}")
+                if response.status_code == 429 and attempt < max_attempts:
+                    retry_after = response.headers.get("Retry-After")
+                    try:
+                        wait_seconds = float(retry_after) if retry_after else rate_limit_backoff_seconds
+                    except ValueError:
+                        wait_seconds = rate_limit_backoff_seconds
+                    self.logger.warning(
+                        "  Reddit RSS rate limit (429). Esperando %.1fs antes de reintentar...",
+                        wait_seconds,
+                    )
+                    time.sleep(wait_seconds)
+                    continue
+
+                self.logger.error("  Error RSS: %s", response.status_code)
+                break
+
+            if response is None or response.status_code != 200:
+                continue
+
+            try:
+                root = ET.fromstring(response.text)
+            except ET.ParseError as e:
+                self.logger.error("  RSS invalido: %s", e)
+                continue
+
+            for entry in root.findall("atom:entry", namespace):
+                if len(posts_by_id) >= limit:
                     break
 
-                data = response.json()
-                children = data.get("data", {}).get("children", [])
+                post_id = (entry.findtext("atom:id", default="", namespaces=namespace) or "").strip()
+                title = (entry.findtext("atom:title", default="", namespaces=namespace) or "").strip()
+                content_html = entry.findtext("atom:content", default="", namespaces=namespace) or ""
+                content = self._html_to_text(content_html)
+                published = (
+                    entry.findtext("atom:published", default="", namespaces=namespace)
+                    or entry.findtext("atom:updated", default="", namespaces=namespace)
+                    or ""
+                )
+                author_name = "RSS"
+                author = entry.find("atom:author", namespace)
+                if author is not None:
+                    author_name = (
+                        author.findtext("atom:name", default="", namespaces=namespace)
+                        or "RSS"
+                    ).strip()
 
-                if not children:
-                    break
+                if not post_id:
+                    link = entry.find("atom:link", namespace)
+                    post_id = link.attrib.get("href", title) if link is not None else title
 
-                for post in children:
-                    if posts_obtenidos >= limit:
-                        break
+                if not title and not content:
+                    continue
 
-                    post_data = post.get("data", {})
+                posts_by_id[post_id] = {
+                    "post_id": post_id.replace("t3_", ""),
+                    "titulo": title,
+                    "contenido": content,
+                    "upvotes": 0,
+                    "comentarios": 0,
+                    "created_at": self._parse_atom_datetime(published),
+                    "autor": author_name or "RSS",
+                }
 
-                    if post_data.get("is_self"):
-                        posts_data.append({
-                            "post_id": post_data.get("id"),
-                            "titulo": post_data.get("title", ""),
-                            "contenido": post_data.get("selftext", ""),
-                            "upvotes": post_data.get("score", 0),
-                            "comentarios": post_data.get("num_comments", 0),
-                            "created_at": datetime.fromtimestamp(post_data.get("created_utc", 0)),
-                            "autor": post_data.get("author", "Eliminado")
-                        })
-                        posts_obtenidos += 1
+            time.sleep(REQUEST_PAGE_DELAY_SECONDS)
 
-                after = data.get("data", {}).get("after")
+        posts_data = list(posts_by_id.values())[:limit]
+        self.logger.info("Fallback RSS obtuvo %d posts", len(posts_data))
+        return posts_data
 
-                if not after:
-                    break
+    def extraer_posts(self, subreddit_name=REDDIT_SUBREDDIT, limit=REDDIT_LIMIT):
+        """Extrae posts de un subreddit usando JSON API y RSS fallback.
 
-                time.sleep(REQUEST_PAGE_DELAY_SECONDS)
+        Raises:
+            ETLExtractionError: Si no se pudieron extraer posts.
+        """
+        self.logger.info(f"Obteniendo posts de r/{subreddit_name}...")
 
-            self.logger.info(f"Obtenidos {len(posts_data)} posts")
+        posts_data = self._extraer_posts_json(subreddit_name, limit)
 
-        except requests.exceptions.RequestException as e:
-            self.logger.error(f"Error obteniendo posts: {e}")
+        if not posts_data:
+            posts_data = self._extraer_posts_rss(subreddit_name, limit)
+
+        self.logger.info(f"Obtenidos {len(posts_data)} posts")
 
         if not posts_data:
             # Intentar cargar datos previos si existen

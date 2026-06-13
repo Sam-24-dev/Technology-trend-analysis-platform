@@ -68,8 +68,8 @@ SO_TOP_LANGUAGES = _parse_csv_list(
 # API de Reddit (OAuth para evitar bloqueos de IP de datacenter en CI)
 REDDIT_CLIENT_ID = os.getenv("REDDIT_CLIENT_ID")
 REDDIT_CLIENT_SECRET = os.getenv("REDDIT_CLIENT_SECRET")
-REDDIT_SUBREDDIT = "webdev"
-REDDIT_LIMIT = 500
+REDDIT_SUBREDDIT = os.getenv("REDDIT_SUBREDDIT", "webdev")
+REDDIT_LIMIT = int(os.getenv("REDDIT_LIMIT", "500"))
 REDDIT_USER_AGENT = (
     "TechTrendsETL/1.0 "
     "(github.com/Sam-24-dev/Technology-trend-analysis-platform)"
