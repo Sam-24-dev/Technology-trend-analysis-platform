@@ -1,6 +1,5 @@
 framework,total_menciones,positivos,neutros,negativos,% positivo,% neutro,% negativo
-Django,3,3,0,0,100.0,0.0,0.0
-FastAPI,3,3,0,0,100.0,0.0,0.0
-Spring,1,1,0,0,100.0,0.0,0.0
-Express,14,11,1,2,78.57,7.14,14.29
-Laravel,22,15,1,6,68.18,4.55,27.27
+Spring,8,8,0,0,100.0,0.0,0.0
+Laravel,16,12,0,4,75.0,0.0,25.0
+Express,43,31,6,6,72.09,13.95,13.95
+FastAPI,1,0,0,1,0.0,0.0,100.0

@@ -42,7 +42,7 @@ MAX_REPOS = 1000
 PER_PAGE = 100
 
 FRAMEWORK_REPOS = {
-    "React": "facebook/react",
+    "React": "react/react",
     "Vue 3": "vuejs/core",
     "Angular": "angular/angular",
     "Svelte": "sveltejs/svelte",
@@ -58,6 +58,16 @@ def _parse_csv_list(value: str) -> list[str]:
     return [item.strip().lower() for item in value.split(",") if item.strip()]
 
 
+def _parse_positive_int_env(name: str, default: int) -> int:
+    raw_value = os.getenv(name)
+    if raw_value is None or not raw_value.strip():
+        return default
+    try:
+        return max(1, int(raw_value))
+    except ValueError:
+        return default
+
+
 SO_TOP_LANGUAGES = _parse_csv_list(
     os.getenv(
         "STACKOVERFLOW_TOP_LANGUAGES",
@@ -68,8 +78,8 @@ SO_TOP_LANGUAGES = _parse_csv_list(
 # API de Reddit (OAuth para evitar bloqueos de IP de datacenter en CI)
 REDDIT_CLIENT_ID = os.getenv("REDDIT_CLIENT_ID")
 REDDIT_CLIENT_SECRET = os.getenv("REDDIT_CLIENT_SECRET")
-REDDIT_SUBREDDIT = "webdev"
-REDDIT_LIMIT = 500
+REDDIT_SUBREDDIT = os.getenv("REDDIT_SUBREDDIT", "webdev")
+REDDIT_LIMIT = _parse_positive_int_env("REDDIT_LIMIT", 500)
 REDDIT_USER_AGENT = (
     "TechTrendsETL/1.0 "
     "(github.com/Sam-24-dev/Technology-trend-analysis-platform)"
