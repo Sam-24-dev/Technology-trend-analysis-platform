@@ -31389,7 +31389,7 @@ aN8(a){if(!B.b.aW(a,"/"))return"/"+a
 return a},
 bd5(a){if(B.b.hS(a,"/"))return B.b.a1(a,0,a.length-1)
 return a},
-b10(a){var s=B.b.au("")
+b10(a){var s=B.b.au("https://sam-24-dev.github.io/Technology-trend-analysis-platform/assets/data/")
 if(s.length===0)return""
 if(B.b.hS(s,"/"))return s+a
 return s+"/"+a},
