@@ -1,5 +1,4 @@
 framework,total_menciones,positivos,neutros,negativos,% positivo,% neutro,% negativo
-Spring,8,8,0,0,100.0,0.0,0.0
-Express,49,34,6,9,69.39,12.24,18.37
-Laravel,17,10,0,7,58.82,0.0,41.18
-FastAPI,1,0,0,1,0.0,0.0,100.0
+Spring,2,2,0,0,100.0,0.0,0.0
+Express,15,13,1,1,86.67,6.67,6.67
+Laravel,13,8,1,4,61.54,7.69,30.77
