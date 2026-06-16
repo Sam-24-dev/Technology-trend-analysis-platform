@@ -50,6 +50,26 @@ def _env_int(name, default):
     return value if value > 0 else default
 
 
+def _split_subreddit_targets(subreddit_name):
+    """Return one or more subreddit targets from env/config."""
+    configured = os.getenv("REDDIT_SUBREDDIT_LIST") or subreddit_name
+    targets = re.split(r"[,+\s]+", configured)
+    seen = set()
+    unique_targets = []
+    for target in targets:
+        clean_target = target.strip().strip("/")
+        if clean_target.lower().startswith("r/"):
+            clean_target = clean_target[2:]
+        if not clean_target:
+            continue
+        key = clean_target.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        unique_targets.append(clean_target)
+    return unique_targets or [subreddit_name]
+
+
 class RedditETL(BaseETL):
     """Extractor ETL para datos de posts de Reddit."""
 
@@ -386,12 +406,68 @@ class RedditETL(BaseETL):
         Raises:
             ETLExtractionError: Si no se pudieron extraer posts.
         """
-        self.logger.info(f"Obteniendo posts de r/{subreddit_name}...")
+        targets = _split_subreddit_targets(subreddit_name)
+        posts_by_id = {}
 
-        posts_data = self._extraer_posts_json(subreddit_name, limit)
+        if len(targets) > 1:
+            per_target_limit = _env_int(
+                "REDDIT_PER_SUBREDDIT_LIMIT",
+                max(100, min(500, limit)),
+            )
+            subreddit_delay_seconds = _env_float(
+                "REDDIT_SUBREDDIT_DELAY_SECONDS",
+                REQUEST_PAGE_DELAY_SECONDS,
+            )
+            self.logger.info(
+                "Obteniendo hasta %d posts desde %d subreddits individuales...",
+                limit,
+                len(targets),
+            )
 
-        if not posts_data:
-            posts_data = self._extraer_posts_rss(subreddit_name, limit)
+            for target_index, target in enumerate(targets, start=1):
+                if len(posts_by_id) >= limit:
+                    break
+                if target_index > 1 and subreddit_delay_seconds > 0:
+                    self.logger.info(
+                        "Esperando %.1fs antes del siguiente subreddit...",
+                        subreddit_delay_seconds,
+                    )
+                    time.sleep(subreddit_delay_seconds)
+
+                remaining = limit - len(posts_by_id)
+                target_limit = min(per_target_limit, remaining)
+                self.logger.info(
+                    "Obteniendo posts de r/%s (%d/%d, limite %d)...",
+                    target,
+                    target_index,
+                    len(targets),
+                    target_limit,
+                )
+
+                target_posts = self._extraer_posts_json(target, target_limit)
+                if not target_posts:
+                    target_posts = self._extraer_posts_rss(target, target_limit)
+
+                for post in target_posts:
+                    post_id = str(post.get("post_id") or "").strip()
+                    if not post_id:
+                        post_id = f"{target}:{post.get('titulo', '')}"
+                    posts_by_id.setdefault(post_id, post)
+
+                self.logger.info(
+                    "Acumulado Reddit: %d posts unicos",
+                    len(posts_by_id),
+                )
+
+            posts_data = list(posts_by_id.values())[:limit]
+        else:
+            subreddit_name = targets[0]
+            self.logger.info(f"Obteniendo posts de r/{subreddit_name}...")
+
+            posts_data = self._extraer_posts_json(subreddit_name, limit)
+
+            if not posts_data:
+                posts_data = self._extraer_posts_rss(subreddit_name, limit)
 
         self.logger.info(f"Obtenidos {len(posts_data)} posts")
 
