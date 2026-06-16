@@ -324,6 +324,59 @@ jobs:
         run: |
           python scripts/materialize_etl_artifacts.py --project-root . artifacts/github artifacts/stackoverflow artifacts/reddit
 
+      - name: Guard Reddit baseline coverage
+        id: reddit_baseline_guard
+        shell: bash
+        run: |
+          python - <<'PY'
+          import csv
+          import json
+          import os
+          from pathlib import Path
+
+          def total_from_csv(path: Path):
+              if not path.exists():
+                  return None
+              with path.open(newline='', encoding='utf-8') as fh:
+                  return sum(int(row.get('menciones') or 0) for row in csv.DictReader(fh))
+
+          def total_from_bridge(path: Path):
+              if not path.exists():
+                  return None
+              payload = json.loads(path.read_text(encoding='utf-8'))
+              summary_total = payload.get('summary', {}).get('total_menciones')
+              if summary_total is not None:
+                  return int(summary_total)
+              latest = payload.get('latest_snapshot') or payload.get('latest') or {}
+              items = latest.get('items') or latest.get('data') or []
+              if items:
+                  return sum(int(item.get('menciones') or 0) for item in items)
+              return None
+
+          source_total = total_from_csv(Path('datos/reddit_temas_emergentes.csv'))
+          baseline_total = total_from_bridge(
+              Path('repo_baseline/frontend/assets/data/reddit_temas_history.json')
+          )
+          min_ratio = 0.85
+          use_baseline = (
+              source_total is not None
+              and baseline_total is not None
+              and baseline_total >= 300
+              and source_total < int(baseline_total * min_ratio)
+          )
+
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as fh:
+              fh.write(f'source_total={source_total if source_total is not None else ""}\n')
+              fh.write(f'baseline_total={baseline_total if baseline_total is not None else ""}\n')
+              fh.write(f'use_repo_baseline={str(use_baseline).lower()}\n')
+
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as fh:
+              fh.write('### Reddit baseline coverage guard\n')
+              fh.write(f'- Source Reddit mentions: {source_total}\n')
+              fh.write(f'- Repo baseline mentions: {baseline_total}\n')
+              fh.write(f'- Use repo baseline: {str(use_baseline).lower()}\n')
+          PY
+
       - name: Verify artifact handoff
         shell: bash
         run: |
@@ -361,7 +414,7 @@ jobs:
           fi
 
       - name: Restore Reddit source baseline on fallback
-        if: ${{ always() && needs.job_reddit.outputs.status == 'failed' }}
+        if: ${{ always() && (needs.job_reddit.outputs.status == 'failed' || steps.reddit_baseline_guard.outputs.use_repo_baseline == 'true') }}
         shell: bash
         run: |
           python scripts/restore_reddit_baseline.py \
@@ -377,7 +430,7 @@ jobs:
         run: python backend/sync_assets.py
 
       - name: Restore previous Reddit bridges on source fallback
-        if: ${{ always() && needs.job_reddit.outputs.status == 'failed' }}
+        if: ${{ always() && (needs.job_reddit.outputs.status == 'failed' || steps.reddit_baseline_guard.outputs.use_repo_baseline == 'true') }}
         shell: bash
         run: |
           python scripts/restore_reddit_baseline.py \
