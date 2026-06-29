@@ -5023,7 +5023,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --------------------------------------------------------------------------------
 flutter_lints
 go_router
-path_provider_linux
 path_provider_windows
 plugin_platform_interface
 xdg_directories
@@ -10264,6 +10263,7 @@ google_fonts
 path_provider
 path_provider_android
 path_provider_foundation
+path_provider_linux
 path_provider_platform_interface
 
 Copyright 2013 The Flutter Authors
