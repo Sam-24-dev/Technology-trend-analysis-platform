@@ -1,6 +1,6 @@
 framework,repo,commits_2025,active_contributors,merged_prs,closed_issues,releases_count,commits_prev,delta_commits,growth_pct,trend_direction,ranking
-Next.js,vercel/next.js,5000,294,4686,1940,602,,,,,1
-Angular,angular/angular,4156,249,3038,1992,161,,,,,2
-React,react/react,1015,80,1037,729,25,,,,,3
-Svelte,sveltejs/svelte,919,113,921,621,153,,,,,4
-Vue 3,vuejs/core,394,94,776,357,43,,,,,5
+Next.js,vercel/next.js,5000,293,4636,1911,600,,,,,1
+Angular,angular/angular,4084,240,3096,1975,163,,,,,2
+React,react/react,1000,83,1023,732,25,,,,,3
+Svelte,sveltejs/svelte,909,111,910,609,152,,,,,4
+Vue 3,vuejs/core,414,95,791,415,45,,,,,5
