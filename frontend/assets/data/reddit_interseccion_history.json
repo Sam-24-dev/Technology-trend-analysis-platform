@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-06-29T12:55:20Z",
+  "generated_at_utc": "2026-06-29T20:32:08Z",
   "dataset": "interseccion_github_reddit",
   "source_mode": "history",
   "snapshot_count": 2,
@@ -10,43 +10,43 @@
   "item_count": 10,
   "latest_items": [
     {
-      "tecnologia": "Python",
-      "tipo": "Lenguaje",
-      "ranking_github": 1,
-      "ranking_reddit": 7,
-      "brecha_abs": 6,
-      "promedio_rank": 4.0,
-      "direccion": "github_favorece",
-      "rank_github_prev": 1,
-      "rank_reddit_prev": 8,
-      "delta_gap": -1,
-      "trend_direction": "disminuyendo"
-    },
-    {
       "tecnologia": "TypeScript",
       "tipo": "Lenguaje",
       "ranking_github": 2,
-      "ranking_reddit": 6,
-      "brecha_abs": 4,
-      "promedio_rank": 4.0,
+      "ranking_reddit": 3,
+      "brecha_abs": 1,
+      "promedio_rank": 2.5,
       "direccion": "github_favorece",
       "rank_github_prev": 2,
       "rank_reddit_prev": 7,
-      "delta_gap": -1,
+      "delta_gap": -4,
       "trend_direction": "disminuyendo"
+    },
+    {
+      "tecnologia": "Python",
+      "tipo": "Lenguaje",
+      "ranking_github": 1,
+      "ranking_reddit": 8,
+      "brecha_abs": 7,
+      "promedio_rank": 4.5,
+      "direccion": "github_favorece",
+      "rank_github_prev": 1,
+      "rank_reddit_prev": 8,
+      "delta_gap": 0,
+      "trend_direction": "estable"
     },
     {
       "tecnologia": "JavaScript",
       "tipo": "Lenguaje",
       "ranking_github": 3,
-      "ranking_reddit": 9,
-      "brecha_abs": 6,
-      "promedio_rank": 6.0,
+      "ranking_reddit": 10,
+      "brecha_abs": 7,
+      "promedio_rank": 6.5,
       "direccion": "github_favorece",
       "rank_github_prev": 3,
       "rank_reddit_prev": 10,
-      "delta_gap": -1,
-      "trend_direction": "disminuyendo"
+      "delta_gap": 0,
+      "trend_direction": "estable"
     },
     {
       "tecnologia": "Angular",
@@ -149,26 +149,26 @@
       "tecnologia": "TypeScript",
       "tipo": "Lenguaje",
       "ranking_github": 2,
-      "ranking_reddit": 6,
-      "brecha_abs": 4,
-      "promedio_rank": 4.0,
+      "ranking_reddit": 3,
+      "brecha_abs": 1,
+      "promedio_rank": 2.5,
       "direccion": "github_favorece",
-      "delta_gap": -1,
+      "delta_gap": -4,
       "trend_direction": "disminuyendo"
     },
     "largest_gap_item": {
       "tecnologia": "Python",
       "tipo": "Lenguaje",
       "ranking_github": 1,
-      "ranking_reddit": 7,
-      "brecha_abs": 6,
-      "promedio_rank": 4.0,
+      "ranking_reddit": 8,
+      "brecha_abs": 7,
+      "promedio_rank": 4.5,
       "direccion": "github_favorece",
-      "delta_gap": -1,
-      "trend_direction": "disminuyendo"
+      "delta_gap": 0,
+      "trend_direction": "estable"
     },
     "max_brecha_tecnologia": "Python",
-    "max_brecha_abs": 6
+    "max_brecha_abs": 7
   },
   "snapshots": [
     {
@@ -280,30 +280,30 @@
       "coverage_pct": 30.0,
       "items": [
         {
-          "tecnologia": "Python",
-          "tipo": "Lenguaje",
-          "ranking_github": 1,
-          "ranking_reddit": 7,
-          "brecha_abs": 6,
-          "promedio_rank": 4.0,
-          "direccion": "github_favorece"
-        },
-        {
           "tecnologia": "TypeScript",
           "tipo": "Lenguaje",
           "ranking_github": 2,
-          "ranking_reddit": 6,
-          "brecha_abs": 4,
-          "promedio_rank": 4.0,
+          "ranking_reddit": 3,
+          "brecha_abs": 1,
+          "promedio_rank": 2.5,
+          "direccion": "github_favorece"
+        },
+        {
+          "tecnologia": "Python",
+          "tipo": "Lenguaje",
+          "ranking_github": 1,
+          "ranking_reddit": 8,
+          "brecha_abs": 7,
+          "promedio_rank": 4.5,
           "direccion": "github_favorece"
         },
         {
           "tecnologia": "JavaScript",
           "tipo": "Lenguaje",
           "ranking_github": 3,
-          "ranking_reddit": 9,
-          "brecha_abs": 6,
-          "promedio_rank": 6.0,
+          "ranking_reddit": 10,
+          "brecha_abs": 7,
+          "promedio_rank": 6.5,
           "direccion": "github_favorece"
         },
         {

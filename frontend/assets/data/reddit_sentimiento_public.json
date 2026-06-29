@@ -1,74 +1,94 @@
 {
-  "generated_at_utc": "2026-06-29T12:55:20Z",
+  "generated_at_utc": "2026-06-29T20:32:08Z",
   "dataset": "reddit_sentimiento_frameworks",
   "source_mode": "latest",
   "source_path": "datos/latest/reddit_sentimiento_frameworks.csv",
-  "source_updated_at_utc": "2026-06-29T12:55:16Z",
-  "framework_count": 3,
+  "source_updated_at_utc": "2026-06-29T20:23:05Z",
+  "framework_count": 5,
   "frameworks": [
     {
-      "framework": "Express",
-      "total_menciones": 11,
-      "positivos": 11,
-      "neutros": 0,
+      "framework": "Django",
+      "total_menciones": 9,
+      "positivos": 8,
+      "neutros": 1,
       "negativos": 0,
-      "porcentaje_positivo": 100.0,
-      "porcentaje_neutro": 0.0,
-      "porcentaje_negativo": 0.0
-    },
-    {
-      "framework": "Spring",
-      "total_menciones": 1,
-      "positivos": 1,
-      "neutros": 0,
-      "negativos": 0,
-      "porcentaje_positivo": 100.0,
-      "porcentaje_neutro": 0.0,
+      "porcentaje_positivo": 88.89,
+      "porcentaje_neutro": 11.11,
       "porcentaje_negativo": 0.0
     },
     {
       "framework": "Laravel",
-      "total_menciones": 14,
-      "positivos": 10,
+      "total_menciones": 46,
+      "positivos": 36,
+      "neutros": 4,
+      "negativos": 6,
+      "porcentaje_positivo": 78.26,
+      "porcentaje_neutro": 8.7,
+      "porcentaje_negativo": 13.04
+    },
+    {
+      "framework": "Express",
+      "total_menciones": 99,
+      "positivos": 71,
+      "neutros": 13,
+      "negativos": 15,
+      "porcentaje_positivo": 71.72,
+      "porcentaje_neutro": 13.13,
+      "porcentaje_negativo": 15.15
+    },
+    {
+      "framework": "FastAPI",
+      "total_menciones": 7,
+      "positivos": 5,
       "neutros": 0,
-      "negativos": 4,
+      "negativos": 2,
       "porcentaje_positivo": 71.43,
       "porcentaje_neutro": 0.0,
       "porcentaje_negativo": 28.57
+    },
+    {
+      "framework": "Spring",
+      "total_menciones": 8,
+      "positivos": 3,
+      "neutros": 5,
+      "negativos": 0,
+      "porcentaje_positivo": 37.5,
+      "porcentaje_neutro": 62.5,
+      "porcentaje_negativo": 0.0
     }
   ],
   "summary": {
     "positive_leader": {
-      "framework": "Express",
-      "total_menciones": 11,
-      "positivos": 11,
-      "neutros": 0,
+      "framework": "Django",
+      "total_menciones": 9,
+      "positivos": 8,
+      "neutros": 1,
       "negativos": 0,
-      "porcentaje_positivo": 100.0,
-      "porcentaje_neutro": 0.0,
+      "porcentaje_positivo": 88.89,
+      "porcentaje_neutro": 11.11,
       "porcentaje_negativo": 0.0
     },
     "largest_sample": {
-      "framework": "Laravel",
-      "total_menciones": 14,
-      "positivos": 10,
-      "neutros": 0,
-      "negativos": 4,
-      "porcentaje_positivo": 71.43,
-      "porcentaje_neutro": 0.0,
-      "porcentaje_negativo": 28.57
+      "framework": "Express",
+      "total_menciones": 99,
+      "positivos": 71,
+      "neutros": 13,
+      "negativos": 15,
+      "porcentaje_positivo": 71.72,
+      "porcentaje_neutro": 13.13,
+      "porcentaje_negativo": 15.15
     },
     "negative_leader": {
-      "framework": "Laravel",
-      "total_menciones": 14,
-      "positivos": 10,
+      "framework": "FastAPI",
+      "total_menciones": 7,
+      "positivos": 5,
       "neutros": 0,
-      "negativos": 4,
+      "negativos": 2,
       "porcentaje_positivo": 71.43,
       "porcentaje_neutro": 0.0,
       "porcentaje_negativo": 28.57
     },
-    "framework_count": 3,
-    "total_menciones": 26
+    "framework_count": 5,
+    "total_menciones": 169
   }
 }
