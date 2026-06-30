@@ -16,6 +16,7 @@ import re
 
 from config.settings import (
     GITHUB_API_BASE, GITHUB_HEADERS, MAX_REPOS, PER_PAGE,
+    GITHUB_MIN_CLASSIFIABLE_REPOS, GITHUB_FALLBACK_CLASSIFIABLE_REPOS,
     FRAMEWORK_REPOS,
     FECHA_INICIO_STR, FECHA_FIN_STR, FECHA_INICIO_ISO,
     DATOS_HISTORY_DIR,
@@ -198,97 +199,183 @@ class GitHubETL(BaseETL):
                     return True
         return False
 
+    def _build_created_date_partitions(self):
+        """Divide la busqueda anual en particiones mensuales."""
+        start = pd.to_datetime(FECHA_INICIO_STR, errors="coerce")
+        end = pd.to_datetime(FECHA_FIN_STR, errors="coerce")
+        if pd.isna(start) or pd.isna(end) or start > end:
+            return [(FECHA_INICIO_STR, FECHA_FIN_STR)]
+
+        partitions = []
+        for month in pd.period_range(start=start, end=end, freq="M"):
+            month_start = max(month.start_time.normalize(), start.normalize())
+            month_end = min(month.end_time.normalize(), end.normalize())
+            partitions.append(
+                (
+                    month_start.strftime("%Y-%m-%d"),
+                    month_end.strftime("%Y-%m-%d"),
+                )
+            )
+        return partitions or [(FECHA_INICIO_STR, FECHA_FIN_STR)]
+
+    def _build_repo_search_queries(self, max_repos):
+        """Crea queries particionadas para evitar el techo de una sola busqueda."""
+        partitions = self._build_created_date_partitions()
+        per_partition_goal = min(
+            1000,
+            max(
+                PER_PAGE,
+                ((max_repos + len(partitions) - 1) // len(partitions)) * 2,
+            ),
+        )
+        return [
+            {
+                "q": f"created:{start_date}..{end_date}",
+                "pages": max(1, (per_partition_goal + PER_PAGE - 1) // PER_PAGE),
+                "label": f"{start_date}..{end_date}",
+            }
+            for start_date, end_date in partitions
+        ]
+
+    def _validate_repo_coverage(self, max_repos):
+        if self.df_repos is None or self.df_repos.empty:
+            return
+
+        classifiable_count = int(
+            self.df_repos["language"].apply(self._es_lenguaje_clasificable).sum()
+        )
+        min_expected = min(GITHUB_MIN_CLASSIFIABLE_REPOS, max_repos)
+        min_fallback = min(GITHUB_FALLBACK_CLASSIFIABLE_REPOS, max_repos)
+
+        if classifiable_count < min_fallback:
+            raise ETLExtractionError(
+                "GitHub coverage below fallback threshold: "
+                f"{classifiable_count}/{min_fallback} classifiable repos",
+                critical=True,
+            )
+
+        if classifiable_count < min_expected:
+            self.logger.warning(
+                "GitHub coverage below target: %s/%s classifiable repos "
+                "(fallback threshold: %s)",
+                classifiable_count,
+                min_expected,
+                min_fallback,
+            )
+        else:
+            self.logger.info(
+                "GitHub coverage target met: %s/%s classifiable repos",
+                classifiable_count,
+                min_expected,
+            )
+
     def extraer_repos(self, max_repos=MAX_REPOS):
-        """Extrae los repositorios más populares de los últimos 12 meses.
+        """Extrae repositorios recientes usando busquedas mensuales particionadas.
 
         Raises:
-            ETLExtractionError: Si no se pudo extraer ningún repositorio.
+            ETLExtractionError: Si no se pudo extraer ningun repositorio o la
+            cobertura queda por debajo del minimo de respaldo.
         """
         self.logger.info(f"Extrayendo top {max_repos} repos ({FECHA_INICIO_STR} a {FECHA_FIN_STR})...")
 
-        repos_data = []
-        page = 1
-        total_pages = max(1, (max_repos + PER_PAGE - 1) // PER_PAGE)
+        repos_by_name = {}
+        queries = self._build_repo_search_queries(max_repos)
         max_retries = HTTP_MAX_RETRIES
         max_fallos_consecutivos = 5
         fallos_consecutivos = 0
 
-        while len(repos_data) < max_repos and page <= total_pages:
-            self.logger.info(f"  Pagina {page}/{total_pages}...")
+        for query_index, query in enumerate(queries, start=1):
+            for page in range(1, query["pages"] + 1):
+                self.logger.info(
+                    "  Particion %s/%s %s - pagina %s/%s...",
+                    query_index,
+                    len(queries),
+                    query["label"],
+                    page,
+                    query["pages"],
+                )
 
-            params = {
-                "q": f"created:{FECHA_INICIO_STR}..{FECHA_FIN_STR}",
-                "sort": "stars",
-                "order": "desc",
-                "per_page": PER_PAGE,
-                "page": page
-            }
+                params = {
+                    "q": query["q"],
+                    "sort": "stars",
+                    "order": "desc",
+                    "per_page": PER_PAGE,
+                    "page": page,
+                }
 
-            response = None
-            for retry in range(max_retries):
-                try:
-                    response = requests.get(
-                        f"{GITHUB_API_BASE}/search/repositories",
-                        headers=GITHUB_HEADERS,
-                        params=params,
-                        timeout=REQUEST_TIMEOUT_SECONDS
-                    )
-                except requests.exceptions.RequestException as e:
-                    self.logger.error(f"Error de red en pagina {page}: {e}")
-                    break
+                response = None
+                for retry in range(max_retries):
+                    try:
+                        response = requests.get(
+                            f"{GITHUB_API_BASE}/search/repositories",
+                            headers=GITHUB_HEADERS,
+                            params=params,
+                            timeout=REQUEST_TIMEOUT_SECONDS,
+                        )
+                    except requests.exceptions.RequestException as e:
+                        self.logger.error(f"Error de red en pagina {page}: {e}")
+                        break
 
-                if response.status_code == 200:
-                    break
-                elif response.status_code == 403:
-                    if self.esperar_rate_limit(response):
-                        continue
-                    else:
+                    if response.status_code == 200:
+                        break
+                    if response.status_code == 403:
+                        if self.esperar_rate_limit(response):
+                            continue
                         self.logger.warning(f"  Error 403, reintentando ({retry+1}/{max_retries})...")
                         time.sleep(HTTP_RETRY_BACKOFF_SECONDS * (retry + 1))
-                else:
-                    self.logger.error(f"Error en pagina {page}: {response.status_code}")
+                    else:
+                        self.logger.error(f"Error en pagina {page}: {response.status_code}")
+                        break
+
+                if response is None or response.status_code != 200:
+                    fallos_consecutivos += 1
+                    if fallos_consecutivos >= max_fallos_consecutivos:
+                        self.logger.error(
+                            "Demasiados fallos consecutivos (%s), deteniendo extraccion",
+                            fallos_consecutivos,
+                        )
+                        break
+                    continue
+
+                fallos_consecutivos = 0
+                items = response.json().get("items", [])
+                if not items:
                     break
 
-            if response is None or response.status_code != 200:
-                fallos_consecutivos += 1
-                if fallos_consecutivos >= max_fallos_consecutivos:
-                    self.logger.error(
-                        "Demasiados fallos consecutivos (%s), deteniendo extraccion",
-                        fallos_consecutivos,
-                    )
+                for repo in items:
+                    repo_name = repo["full_name"]
+                    if repo_name in repos_by_name:
+                        continue
+                    language = self._normalizar_lenguaje(repo.get("language"))
+                    repos_by_name[repo_name] = {
+                        "repo_name": repo_name,
+                        "language": language,
+                        "stars": repo["stargazers_count"],
+                        "forks": repo["forks_count"],
+                        "created_at": repo["created_at"],
+                        "description": repo.get("description", "")[:100] if repo.get("description") else "",
+                    }
+
+                if len(items) < PER_PAGE:
                     break
-                page += 1
-                continue
+                time.sleep(REQUEST_PAGE_DELAY_SECONDS)
 
-            fallos_consecutivos = 0
-
-            data = response.json()
-            items = data.get("items", [])
-
-            if not items:
+            if fallos_consecutivos >= max_fallos_consecutivos:
                 break
 
-            for repo in items:
-                language = self._normalizar_lenguaje(repo.get("language"))
-
-                repos_data.append({
-                    "repo_name": repo["full_name"],
-                    "language": language,
-                    "stars": repo["stargazers_count"],
-                    "forks": repo["forks_count"],
-                    "created_at": repo["created_at"],
-                    "description": repo.get("description", "")[:100] if repo.get("description") else ""
-                })
-
-            page += 1
-            time.sleep(REQUEST_PAGE_DELAY_SECONDS)
+        repos_data = sorted(
+            repos_by_name.values(),
+            key=lambda repo: (int(repo["stars"]), str(repo["repo_name"])),
+            reverse=True,
+        )[:max_repos]
 
         if not repos_data:
             raise ETLExtractionError("No se pudo extraer ningun repositorio de GitHub", critical=True)
 
-        self.logger.info(f"Extraidos {len(repos_data)} repos")
+        self.logger.info(f"Extraidos {len(repos_data)} repos unicos")
 
         self.df_repos = pd.DataFrame(repos_data)
+        self._validate_repo_coverage(max_repos)
         self.guardar_csv(self.df_repos, "github_repos")
 
     def analizar_lenguajes(self):
