@@ -139,6 +139,13 @@ class TestInsightsIA:
 class TestExtraerRepos:
     """Tests para extraer_repos con API mockeada."""
 
+    def test_build_repo_search_queries_partitions_by_month(self, etl):
+        queries = etl._build_repo_search_queries(max_repos=3000)
+
+        assert len(queries) >= 12
+        assert all("created:" in query["q"] for query in queries)
+        assert all(query["pages"] >= 1 for query in queries)
+
     def test_extraer_repos_success(self, etl, tmp_path):
         """Test de extracción exitosa de repos con API mockeada."""
         mock_response = MagicMock()
@@ -164,6 +171,48 @@ class TestExtraerRepos:
         assert etl.df_repos is not None
         assert len(etl.df_repos) == 1
         assert etl.df_repos.iloc[0]["repo_name"] == "test/repo1"
+
+    def test_extraer_repos_dedupes_partitioned_results(self, etl, tmp_path):
+        def _response(items):
+            mock_response = MagicMock()
+            mock_response.status_code = 200
+            mock_response.json.return_value = {"items": items}
+            mock_response.headers = {}
+            return mock_response
+
+        repo_low = {
+            "full_name": "test/low",
+            "language": "Python",
+            "stargazers_count": 10,
+            "forks_count": 1,
+            "created_at": "2025-06-15",
+            "description": "Low repo",
+        }
+        repo_high = {
+            "full_name": "test/high",
+            "language": "TypeScript",
+            "stargazers_count": 100,
+            "forks_count": 10,
+            "created_at": "2025-07-15",
+            "description": "High repo",
+        }
+
+        with patch.object(
+            etl,
+            "_build_repo_search_queries",
+            return_value=[
+                {"q": "created:2025-06-01..2025-06-30", "pages": 1, "label": "jun"},
+                {"q": "created:2025-07-01..2025-07-31", "pages": 1, "label": "jul"},
+            ],
+        ):
+            with patch("github_etl.requests.get", side_effect=[
+                _response([repo_low, repo_high]),
+                _response([repo_high]),
+            ]):
+                with patch("base_etl.ARCHIVOS_SALIDA", {"github_repos": tmp_path / "repos.csv"}):
+                    etl.extraer_repos(max_repos=2)
+
+        assert etl.df_repos["repo_name"].tolist() == ["test/high", "test/low"]
 
     def test_extraer_repos_handles_empty_response(self, etl):
         """Test que verifica que una respuesta vacía de API lance ETLExtractionError."""

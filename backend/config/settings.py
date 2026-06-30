@@ -30,29 +30,6 @@ LOGS_DIR.mkdir(exist_ok=True)
 env_path = PROYECTO_ROOT / ".env"
 load_dotenv(env_path)
 
-# API de GitHub
-GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
-GITHUB_API_BASE = "https://api.github.com"
-
-GITHUB_HEADERS = {"Accept": "application/vnd.github.v3+json"}
-if GITHUB_TOKEN:
-    GITHUB_HEADERS["Authorization"] = f"token {GITHUB_TOKEN}"
-
-MAX_REPOS = 1000
-PER_PAGE = 100
-
-FRAMEWORK_REPOS = {
-    "React": "react/react",
-    "Vue 3": "vuejs/core",
-    "Angular": "angular/angular",
-    "Svelte": "sveltejs/svelte",
-    "Next.js": "vercel/next.js",
-}
-
-# API de StackOverflow
-SO_API_KEY = os.getenv("STACKOVERFLOW_KEY")
-SO_API_URL = "https://api.stackexchange.com/2.3/search/advanced"
-
 
 def _parse_csv_list(value: str) -> list[str]:
     return [item.strip().lower() for item in value.split(",") if item.strip()]
@@ -66,6 +43,37 @@ def _parse_positive_int_env(name: str, default: int) -> int:
         return max(1, int(raw_value))
     except ValueError:
         return default
+
+# API de GitHub
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
+GITHUB_API_BASE = "https://api.github.com"
+
+GITHUB_HEADERS = {"Accept": "application/vnd.github.v3+json"}
+if GITHUB_TOKEN:
+    GITHUB_HEADERS["Authorization"] = f"token {GITHUB_TOKEN}"
+
+MAX_REPOS = _parse_positive_int_env("GITHUB_TARGET_REPOS", 3000)
+GITHUB_MIN_CLASSIFIABLE_REPOS = _parse_positive_int_env(
+    "GITHUB_MIN_CLASSIFIABLE_REPOS",
+    2000,
+)
+GITHUB_FALLBACK_CLASSIFIABLE_REPOS = _parse_positive_int_env(
+    "GITHUB_FALLBACK_CLASSIFIABLE_REPOS",
+    1500,
+)
+PER_PAGE = 100
+
+FRAMEWORK_REPOS = {
+    "React": "react/react",
+    "Vue 3": "vuejs/core",
+    "Angular": "angular/angular",
+    "Svelte": "sveltejs/svelte",
+    "Next.js": "vercel/next.js",
+}
+
+# API de StackOverflow
+SO_API_KEY = os.getenv("STACKOVERFLOW_KEY")
+SO_API_URL = "https://api.stackexchange.com/2.3/search/advanced"
 
 
 SO_TOP_LANGUAGES = _parse_csv_list(
