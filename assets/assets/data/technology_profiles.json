@@ -1,17 +1,17 @@
 {
-  "generated_at_utc": "2026-06-29T22:02:17Z",
+  "generated_at_utc": "2026-06-30T05:14:07Z",
   "dataset": "technology_profiles",
   "source_mode": "trend_score_history",
-  "latest_snapshot_date": "2026-06-29",
-  "previous_snapshot_date": "2026-06-22",
+  "latest_snapshot_date": "2026-06-30",
+  "previous_snapshot_date": "2026-06-29",
   "profile_count": 22,
   "profiles": [
     {
       "slug": "python",
       "display_name": "Python",
       "trend_score_actual": 77.16,
-      "trend_score_prev": 76.21,
-      "delta_score": 0.95,
+      "trend_score_prev": 77.16,
+      "delta_score": 0.0,
       "ranking_actual": 1,
       "ranking_prev": 1,
       "delta_ranking": 0,
@@ -41,16 +41,16 @@
         "display_name": "Reddit",
         "available": true,
         "score_actual": 8.62,
-        "score_prev": 4.85,
-        "delta_score": 3.77
+        "score_prev": 8.62,
+        "delta_score": 0.0
       },
       "source_history": [
         {
-          "date": "2026-06-22",
-          "trend_score": 76.21,
+          "date": "2026-06-29",
+          "trend_score": 77.16,
           "github_score": 100.0,
           "so_score": 100.0,
-          "reddit_score": 4.85,
+          "reddit_score": 8.62,
           "ranking": 1,
           "fuentes": 3,
           "available_source_codes": [
@@ -60,7 +60,7 @@
           ]
         },
         {
-          "date": "2026-06-29",
+          "date": "2026-06-30",
           "trend_score": 77.16,
           "github_score": 100.0,
           "so_score": 100.0,
@@ -95,17 +95,17 @@
           "ranking_prev": 1,
           "delta_ranking": 0,
           "score_actual": 77.16,
-          "score_prev": 76.21,
-          "label": "Python mantiene posición frente a la corrida previa y gana 0.95 puntos."
+          "score_prev": 77.16,
+          "label": "Python se mantiene estable frente a la corrida previa."
         }
       }
     },
     {
       "slug": "typescript",
       "display_name": "TypeScript",
-      "trend_score_actual": 51.9,
-      "trend_score_prev": 42.78,
-      "delta_score": 9.12,
+      "trend_score_actual": 41.72,
+      "trend_score_prev": 50.78,
+      "delta_score": -9.06,
       "ranking_actual": 2,
       "ranking_prev": 2,
       "delta_ranking": 0,
@@ -118,33 +118,33 @@
         "source": "github",
         "display_name": "GitHub",
         "available": true,
-        "score_actual": 81.25,
-        "score_prev": 84.77,
-        "delta_score": -3.52
+        "score_actual": 55.8,
+        "score_prev": 78.45,
+        "delta_score": -22.65
       },
       "stackoverflow_summary": {
         "source": "stackoverflow",
         "display_name": "StackOverflow",
         "available": true,
         "score_actual": 17.39,
-        "score_prev": 17.72,
-        "delta_score": -0.33
+        "score_prev": 17.39,
+        "delta_score": 0.0
       },
       "reddit_summary": {
         "source": "reddit",
         "display_name": "Reddit",
         "available": true,
         "score_actual": 53.26,
-        "score_prev": 10.68,
-        "delta_score": 42.58
+        "score_prev": 53.26,
+        "delta_score": 0.0
       },
       "source_history": [
         {
-          "date": "2026-06-22",
-          "trend_score": 42.78,
-          "github_score": 84.77,
-          "so_score": 17.72,
-          "reddit_score": 10.68,
+          "date": "2026-06-29",
+          "trend_score": 50.78,
+          "github_score": 78.45,
+          "so_score": 17.39,
+          "reddit_score": 53.26,
           "ranking": 2,
           "fuentes": 3,
           "available_source_codes": [
@@ -154,9 +154,9 @@
           ]
         },
         {
-          "date": "2026-06-29",
-          "trend_score": 51.9,
-          "github_score": 81.25,
+          "date": "2026-06-30",
+          "trend_score": 41.72,
+          "github_score": 55.8,
           "so_score": 17.39,
           "reddit_score": 53.26,
           "ranking": 2,
@@ -172,7 +172,7 @@
         "dominant_source": {
           "source": "github",
           "display_name": "GitHub",
-          "score": 81.25,
+          "score": 55.8,
           "label": "GitHub aporta la mayor parte del score actual."
         },
         "coverage": {
@@ -188,9 +188,9 @@
           "ranking_actual": 2,
           "ranking_prev": 2,
           "delta_ranking": 0,
-          "score_actual": 51.9,
-          "score_prev": 42.78,
-          "label": "TypeScript mantiene posición frente a la corrida previa y gana 9.12 puntos."
+          "score_actual": 41.72,
+          "score_prev": 50.78,
+          "label": "TypeScript mantiene posición frente a la corrida previa y pierde 9.06 puntos."
         }
       }
     },
@@ -232,7 +232,7 @@
       },
       "source_history": [
         {
-          "date": "2026-06-22",
+          "date": "2026-06-29",
           "trend_score": 25.0,
           "github_score": 0.0,
           "so_score": 0.0,
@@ -244,7 +244,7 @@
           ]
         },
         {
-          "date": "2026-06-29",
+          "date": "2026-06-30",
           "trend_score": 25.0,
           "github_score": 0.0,
           "so_score": 0.0,
@@ -283,9 +283,9 @@
     {
       "slug": "javascript",
       "display_name": "JavaScript",
-      "trend_score_actual": 23.84,
-      "trend_score_prev": 24.02,
-      "delta_score": -0.18,
+      "trend_score_actual": 22.12,
+      "trend_score_prev": 22.98,
+      "delta_score": -0.86,
       "ranking_actual": 4,
       "ranking_prev": 4,
       "delta_ranking": 0,
@@ -297,17 +297,17 @@
         "source": "github",
         "display_name": "GitHub",
         "available": true,
-        "score_actual": 23.36,
-        "score_prev": 23.51,
-        "delta_score": -0.15
+        "score_actual": 19.06,
+        "score_prev": 21.21,
+        "delta_score": -2.15
       },
       "stackoverflow_summary": {
         "source": "stackoverflow",
         "display_name": "StackOverflow",
         "available": true,
         "score_actual": 41.42,
-        "score_prev": 41.76,
-        "delta_score": -0.34
+        "score_prev": 41.42,
+        "delta_score": 0.0
       },
       "reddit_summary": {
         "source": "reddit",
@@ -319,10 +319,10 @@
       },
       "source_history": [
         {
-          "date": "2026-06-22",
-          "trend_score": 24.02,
-          "github_score": 23.51,
-          "so_score": 41.76,
+          "date": "2026-06-29",
+          "trend_score": 22.98,
+          "github_score": 21.21,
+          "so_score": 41.42,
           "reddit_score": 0.0,
           "ranking": 4,
           "fuentes": 2,
@@ -332,9 +332,9 @@
           ]
         },
         {
-          "date": "2026-06-29",
-          "trend_score": 23.84,
-          "github_score": 23.36,
+          "date": "2026-06-30",
+          "trend_score": 22.12,
+          "github_score": 19.06,
           "so_score": 41.42,
           "reddit_score": 0.0,
           "ranking": 4,
@@ -364,18 +364,18 @@
           "ranking_actual": 4,
           "ranking_prev": 4,
           "delta_ranking": 0,
-          "score_actual": 23.84,
-          "score_prev": 24.02,
-          "label": "JavaScript mantiene posición frente a la corrida previa y pierde 0.18 puntos."
+          "score_actual": 22.12,
+          "score_prev": 22.98,
+          "label": "JavaScript mantiene posición frente a la corrida previa y pierde 0.86 puntos."
         }
       }
     },
     {
       "slug": "java",
       "display_name": "Java",
-      "trend_score_actual": 15.79,
-      "trend_score_prev": 15.82,
-      "delta_score": -0.03,
+      "trend_score_actual": 16.58,
+      "trend_score_prev": 15.95,
+      "delta_score": 0.63,
       "ranking_actual": 5,
       "ranking_prev": 5,
       "delta_ranking": 0,
@@ -387,17 +387,17 @@
         "source": "github",
         "display_name": "GitHub",
         "available": true,
-        "score_actual": 2.3,
-        "score_prev": 2.32,
-        "delta_score": -0.02
+        "score_actual": 4.25,
+        "score_prev": 2.69,
+        "delta_score": 1.56
       },
       "stackoverflow_summary": {
         "source": "stackoverflow",
         "display_name": "StackOverflow",
         "available": true,
         "score_actual": 42.5,
-        "score_prev": 42.55,
-        "delta_score": -0.05
+        "score_prev": 42.5,
+        "delta_score": 0.0
       },
       "reddit_summary": {
         "source": "reddit",
@@ -409,10 +409,10 @@
       },
       "source_history": [
         {
-          "date": "2026-06-22",
-          "trend_score": 15.82,
-          "github_score": 2.32,
-          "so_score": 42.55,
+          "date": "2026-06-29",
+          "trend_score": 15.95,
+          "github_score": 2.69,
+          "so_score": 42.5,
           "reddit_score": 0.0,
           "ranking": 5,
           "fuentes": 2,
@@ -422,9 +422,9 @@
           ]
         },
         {
-          "date": "2026-06-29",
-          "trend_score": 15.79,
-          "github_score": 2.3,
+          "date": "2026-06-30",
+          "trend_score": 16.58,
+          "github_score": 4.25,
           "so_score": 42.5,
           "reddit_score": 0.0,
           "ranking": 5,
@@ -454,18 +454,18 @@
           "ranking_actual": 5,
           "ranking_prev": 5,
           "delta_ranking": 0,
-          "score_actual": 15.79,
-          "score_prev": 15.82,
-          "label": "Java mantiene posición frente a la corrida previa y pierde 0.03 puntos."
+          "score_actual": 16.58,
+          "score_prev": 15.95,
+          "label": "Java mantiene posición frente a la corrida previa y gana 0.63 puntos."
         }
       }
     },
     {
       "slug": "c-sharp",
       "display_name": "C#",
-      "trend_score_actual": 15.64,
-      "trend_score_prev": 15.69,
-      "delta_score": -0.05,
+      "trend_score_actual": 16.0,
+      "trend_score_prev": 15.48,
+      "delta_score": 0.52,
       "ranking_actual": 6,
       "ranking_prev": 6,
       "delta_ranking": 0,
@@ -477,17 +477,17 @@
         "source": "github",
         "display_name": "GitHub",
         "available": true,
-        "score_actual": 1.64,
-        "score_prev": 1.66,
-        "delta_score": -0.02
+        "score_actual": 2.53,
+        "score_prev": 1.23,
+        "delta_score": 1.3
       },
       "stackoverflow_summary": {
         "source": "stackoverflow",
         "display_name": "StackOverflow",
         "available": true,
         "score_actual": 42.81,
-        "score_prev": 42.94,
-        "delta_score": -0.13
+        "score_prev": 42.81,
+        "delta_score": 0.0
       },
       "reddit_summary": {
         "source": "reddit",
@@ -499,10 +499,10 @@
       },
       "source_history": [
         {
-          "date": "2026-06-22",
-          "trend_score": 15.69,
-          "github_score": 1.66,
-          "so_score": 42.94,
+          "date": "2026-06-29",
+          "trend_score": 15.48,
+          "github_score": 1.23,
+          "so_score": 42.81,
           "reddit_score": 0.0,
           "ranking": 6,
           "fuentes": 2,
@@ -512,9 +512,9 @@
           ]
         },
         {
-          "date": "2026-06-29",
-          "trend_score": 15.64,
-          "github_score": 1.64,
+          "date": "2026-06-30",
+          "trend_score": 16.0,
+          "github_score": 2.53,
           "so_score": 42.81,
           "reddit_score": 0.0,
           "ranking": 6,
@@ -544,9 +544,99 @@
           "ranking_actual": 6,
           "ranking_prev": 6,
           "delta_ranking": 0,
-          "score_actual": 15.64,
-          "score_prev": 15.69,
-          "label": "C# mantiene posición frente a la corrida previa y pierde 0.05 puntos."
+          "score_actual": 16.0,
+          "score_prev": 15.48,
+          "label": "C# mantiene posición frente a la corrida previa y gana 0.52 puntos."
+        }
+      }
+    },
+    {
+      "slug": "c-plus-plus",
+      "display_name": "C++",
+      "trend_score_actual": 15.95,
+      "trend_score_prev": 15.05,
+      "delta_score": 0.9,
+      "ranking_actual": 7,
+      "ranking_prev": 8,
+      "delta_ranking": 1,
+      "sources_present": [
+        "github",
+        "stackoverflow"
+      ],
+      "github_summary": {
+        "source": "github",
+        "display_name": "GitHub",
+        "available": true,
+        "score_actual": 5.4,
+        "score_prev": 3.14,
+        "delta_score": 2.26
+      },
+      "stackoverflow_summary": {
+        "source": "stackoverflow",
+        "display_name": "StackOverflow",
+        "available": true,
+        "score_actual": 39.4,
+        "score_prev": 39.4,
+        "delta_score": 0.0
+      },
+      "reddit_summary": {
+        "source": "reddit",
+        "display_name": "Reddit",
+        "available": false,
+        "score_actual": 0.0,
+        "score_prev": 0.0,
+        "delta_score": 0.0
+      },
+      "source_history": [
+        {
+          "date": "2026-06-29",
+          "trend_score": 15.05,
+          "github_score": 3.14,
+          "so_score": 39.4,
+          "reddit_score": 0.0,
+          "ranking": 8,
+          "fuentes": 2,
+          "available_source_codes": [
+            "GH",
+            "SO"
+          ]
+        },
+        {
+          "date": "2026-06-30",
+          "trend_score": 15.95,
+          "github_score": 5.4,
+          "so_score": 39.4,
+          "reddit_score": 0.0,
+          "ranking": 7,
+          "fuentes": 2,
+          "available_source_codes": [
+            "GH",
+            "SO"
+          ]
+        }
+      ],
+      "summary_insights": {
+        "dominant_source": {
+          "source": "stackoverflow",
+          "display_name": "StackOverflow",
+          "score": 39.4,
+          "label": "StackOverflow aporta la mayor parte del score actual."
+        },
+        "coverage": {
+          "source_count": 2,
+          "sources_present": [
+            "github",
+            "stackoverflow"
+          ],
+          "label": "Señal combinada en GitHub y StackOverflow."
+        },
+        "momentum": {
+          "ranking_actual": 7,
+          "ranking_prev": 8,
+          "delta_ranking": 1,
+          "score_actual": 15.95,
+          "score_prev": 15.05,
+          "label": "C++ sube 1 posición(es) frente a la corrida previa."
         }
       }
     },
@@ -554,11 +644,11 @@
       "slug": "performance",
       "display_name": "Performance",
       "trend_score_actual": 15.34,
-      "trend_score_prev": 6.8,
-      "delta_score": 8.54,
-      "ranking_actual": 7,
-      "ranking_prev": 9,
-      "delta_ranking": 2,
+      "trend_score_prev": 15.34,
+      "delta_score": 0.0,
+      "ranking_actual": 8,
+      "ranking_prev": 7,
+      "delta_ranking": -1,
       "sources_present": [
         "reddit"
       ],
@@ -583,22 +673,10 @@
         "display_name": "Reddit",
         "available": true,
         "score_actual": 61.36,
-        "score_prev": 27.18,
-        "delta_score": 34.18
+        "score_prev": 61.36,
+        "delta_score": 0.0
       },
       "source_history": [
-        {
-          "date": "2026-06-22",
-          "trend_score": 6.8,
-          "github_score": 0.0,
-          "so_score": 0.0,
-          "reddit_score": 27.18,
-          "ranking": 9,
-          "fuentes": 1,
-          "available_source_codes": [
-            "RD"
-          ]
-        },
         {
           "date": "2026-06-29",
           "trend_score": 15.34,
@@ -606,6 +684,18 @@
           "so_score": 0.0,
           "reddit_score": 61.36,
           "ranking": 7,
+          "fuentes": 1,
+          "available_source_codes": [
+            "RD"
+          ]
+        },
+        {
+          "date": "2026-06-30",
+          "trend_score": 15.34,
+          "github_score": 0.0,
+          "so_score": 0.0,
+          "reddit_score": 61.36,
+          "ranking": 8,
           "fuentes": 1,
           "available_source_codes": [
             "RD"
@@ -627,278 +717,12 @@
           "label": "Señal disponible en Reddit."
         },
         "momentum": {
-          "ranking_actual": 7,
-          "ranking_prev": 9,
-          "delta_ranking": 2,
-          "score_actual": 15.34,
-          "score_prev": 6.8,
-          "label": "Performance sube 2 posición(es) frente a la corrida previa."
-        }
-      }
-    },
-    {
-      "slug": "c-plus-plus",
-      "display_name": "C++",
-      "trend_score_actual": 14.71,
-      "trend_score_prev": 14.87,
-      "delta_score": -0.16,
-      "ranking_actual": 8,
-      "ranking_prev": 7,
-      "delta_ranking": -1,
-      "sources_present": [
-        "github",
-        "stackoverflow"
-      ],
-      "github_summary": {
-        "source": "github",
-        "display_name": "GitHub",
-        "available": true,
-        "score_actual": 2.3,
-        "score_prev": 2.65,
-        "delta_score": -0.35
-      },
-      "stackoverflow_summary": {
-        "source": "stackoverflow",
-        "display_name": "StackOverflow",
-        "available": true,
-        "score_actual": 39.4,
-        "score_prev": 39.45,
-        "delta_score": -0.05
-      },
-      "reddit_summary": {
-        "source": "reddit",
-        "display_name": "Reddit",
-        "available": false,
-        "score_actual": 0.0,
-        "score_prev": 0.0,
-        "delta_score": 0.0
-      },
-      "source_history": [
-        {
-          "date": "2026-06-22",
-          "trend_score": 14.87,
-          "github_score": 2.65,
-          "so_score": 39.45,
-          "reddit_score": 0.0,
-          "ranking": 7,
-          "fuentes": 2,
-          "available_source_codes": [
-            "GH",
-            "SO"
-          ]
-        },
-        {
-          "date": "2026-06-29",
-          "trend_score": 14.71,
-          "github_score": 2.3,
-          "so_score": 39.4,
-          "reddit_score": 0.0,
-          "ranking": 8,
-          "fuentes": 2,
-          "available_source_codes": [
-            "GH",
-            "SO"
-          ]
-        }
-      ],
-      "summary_insights": {
-        "dominant_source": {
-          "source": "stackoverflow",
-          "display_name": "StackOverflow",
-          "score": 39.4,
-          "label": "StackOverflow aporta la mayor parte del score actual."
-        },
-        "coverage": {
-          "source_count": 2,
-          "sources_present": [
-            "github",
-            "stackoverflow"
-          ],
-          "label": "Señal combinada en GitHub y StackOverflow."
-        },
-        "momentum": {
           "ranking_actual": 8,
           "ranking_prev": 7,
           "delta_ranking": -1,
-          "score_actual": 14.71,
-          "score_prev": 14.87,
-          "label": "C++ cae 1 posición(es) frente a la corrida previa."
-        }
-      }
-    },
-    {
-      "slug": "rust",
-      "display_name": "Rust",
-      "trend_score_actual": 7.9,
-      "trend_score_prev": 8.08,
-      "delta_score": -0.18,
-      "ranking_actual": 9,
-      "ranking_prev": 8,
-      "delta_ranking": -1,
-      "sources_present": [
-        "github"
-      ],
-      "github_summary": {
-        "source": "github",
-        "display_name": "GitHub",
-        "available": true,
-        "score_actual": 19.74,
-        "score_prev": 20.2,
-        "delta_score": -0.46
-      },
-      "stackoverflow_summary": {
-        "source": "stackoverflow",
-        "display_name": "StackOverflow",
-        "available": false,
-        "score_actual": 0.0,
-        "score_prev": 0.0,
-        "delta_score": 0.0
-      },
-      "reddit_summary": {
-        "source": "reddit",
-        "display_name": "Reddit",
-        "available": false,
-        "score_actual": 0.0,
-        "score_prev": 0.0,
-        "delta_score": 0.0
-      },
-      "source_history": [
-        {
-          "date": "2026-06-22",
-          "trend_score": 8.08,
-          "github_score": 20.2,
-          "so_score": 0.0,
-          "reddit_score": 0.0,
-          "ranking": 8,
-          "fuentes": 1,
-          "available_source_codes": [
-            "GH"
-          ]
-        },
-        {
-          "date": "2026-06-29",
-          "trend_score": 7.9,
-          "github_score": 19.74,
-          "so_score": 0.0,
-          "reddit_score": 0.0,
-          "ranking": 9,
-          "fuentes": 1,
-          "available_source_codes": [
-            "GH"
-          ]
-        }
-      ],
-      "summary_insights": {
-        "dominant_source": {
-          "source": "github",
-          "display_name": "GitHub",
-          "score": 19.74,
-          "label": "GitHub aporta la mayor parte del score actual."
-        },
-        "coverage": {
-          "source_count": 1,
-          "sources_present": [
-            "github"
-          ],
-          "label": "Señal disponible en GitHub."
-        },
-        "momentum": {
-          "ranking_actual": 9,
-          "ranking_prev": 8,
-          "delta_ranking": -1,
-          "score_actual": 7.9,
-          "score_prev": 8.08,
-          "label": "Rust cae 1 posición(es) frente a la corrida previa."
-        }
-      }
-    },
-    {
-      "slug": "go",
-      "display_name": "Go",
-      "trend_score_actual": 6.79,
-      "trend_score_prev": 6.68,
-      "delta_score": 0.11,
-      "ranking_actual": 10,
-      "ranking_prev": 10,
-      "delta_ranking": 0,
-      "sources_present": [
-        "github",
-        "stackoverflow"
-      ],
-      "github_summary": {
-        "source": "github",
-        "display_name": "GitHub",
-        "available": true,
-        "score_actual": 14.47,
-        "score_prev": 14.24,
-        "delta_score": 0.23
-      },
-      "stackoverflow_summary": {
-        "source": "stackoverflow",
-        "display_name": "StackOverflow",
-        "available": true,
-        "score_actual": 2.87,
-        "score_prev": 2.82,
-        "delta_score": 0.05
-      },
-      "reddit_summary": {
-        "source": "reddit",
-        "display_name": "Reddit",
-        "available": false,
-        "score_actual": 0.0,
-        "score_prev": 0.0,
-        "delta_score": 0.0
-      },
-      "source_history": [
-        {
-          "date": "2026-06-22",
-          "trend_score": 6.68,
-          "github_score": 14.24,
-          "so_score": 2.82,
-          "reddit_score": 0.0,
-          "ranking": 10,
-          "fuentes": 2,
-          "available_source_codes": [
-            "GH",
-            "SO"
-          ]
-        },
-        {
-          "date": "2026-06-29",
-          "trend_score": 6.79,
-          "github_score": 14.47,
-          "so_score": 2.87,
-          "reddit_score": 0.0,
-          "ranking": 10,
-          "fuentes": 2,
-          "available_source_codes": [
-            "GH",
-            "SO"
-          ]
-        }
-      ],
-      "summary_insights": {
-        "dominant_source": {
-          "source": "github",
-          "display_name": "GitHub",
-          "score": 14.47,
-          "label": "GitHub aporta la mayor parte del score actual."
-        },
-        "coverage": {
-          "source_count": 2,
-          "sources_present": [
-            "github",
-            "stackoverflow"
-          ],
-          "label": "Señal combinada en GitHub y StackOverflow."
-        },
-        "momentum": {
-          "ranking_actual": 10,
-          "ranking_prev": 10,
-          "delta_ranking": 0,
-          "score_actual": 6.79,
-          "score_prev": 6.68,
-          "label": "Go mantiene posición frente a la corrida previa y gana 0.11 puntos."
+          "score_actual": 15.34,
+          "score_prev": 15.34,
+          "label": "Performance cae 1 posición(es) frente a la corrida previa."
         }
       }
     },
@@ -906,11 +730,11 @@
       "slug": "security",
       "display_name": "Security",
       "trend_score_actual": 6.14,
-      "trend_score_prev": 6.31,
-      "delta_score": -0.17,
-      "ranking_actual": 11,
+      "trend_score_prev": 6.14,
+      "delta_score": 0.0,
+      "ranking_actual": 9,
       "ranking_prev": 11,
-      "delta_ranking": 0,
+      "delta_ranking": 2,
       "sources_present": [
         "reddit"
       ],
@@ -935,22 +759,10 @@
         "display_name": "Reddit",
         "available": true,
         "score_actual": 24.54,
-        "score_prev": 25.24,
-        "delta_score": -0.7
+        "score_prev": 24.54,
+        "delta_score": 0.0
       },
       "source_history": [
-        {
-          "date": "2026-06-22",
-          "trend_score": 6.31,
-          "github_score": 0.0,
-          "so_score": 0.0,
-          "reddit_score": 25.24,
-          "ranking": 11,
-          "fuentes": 1,
-          "available_source_codes": [
-            "RD"
-          ]
-        },
         {
           "date": "2026-06-29",
           "trend_score": 6.14,
@@ -958,6 +770,18 @@
           "so_score": 0.0,
           "reddit_score": 24.54,
           "ranking": 11,
+          "fuentes": 1,
+          "available_source_codes": [
+            "RD"
+          ]
+        },
+        {
+          "date": "2026-06-30",
+          "trend_score": 6.14,
+          "github_score": 0.0,
+          "so_score": 0.0,
+          "reddit_score": 24.54,
+          "ranking": 9,
           "fuentes": 1,
           "available_source_codes": [
             "RD"
@@ -979,12 +803,102 @@
           "label": "Señal disponible en Reddit."
         },
         "momentum": {
-          "ranking_actual": 11,
+          "ranking_actual": 9,
           "ranking_prev": 11,
-          "delta_ranking": 0,
+          "delta_ranking": 2,
           "score_actual": 6.14,
-          "score_prev": 6.31,
-          "label": "Security mantiene posición frente a la corrida previa y pierde 0.17 puntos."
+          "score_prev": 6.14,
+          "label": "Security sube 2 posición(es) frente a la corrida previa."
+        }
+      }
+    },
+    {
+      "slug": "kotlin",
+      "display_name": "Kotlin",
+      "trend_score_actual": 5.39,
+      "trend_score_prev": 5.05,
+      "delta_score": 0.34,
+      "ranking_actual": 10,
+      "ranking_prev": 13,
+      "delta_ranking": 3,
+      "sources_present": [
+        "github",
+        "stackoverflow"
+      ],
+      "github_summary": {
+        "source": "github",
+        "display_name": "GitHub",
+        "available": true,
+        "score_actual": 3.79,
+        "score_prev": 2.92,
+        "delta_score": 0.87
+      },
+      "stackoverflow_summary": {
+        "source": "stackoverflow",
+        "display_name": "StackOverflow",
+        "available": true,
+        "score_actual": 11.08,
+        "score_prev": 11.08,
+        "delta_score": 0.0
+      },
+      "reddit_summary": {
+        "source": "reddit",
+        "display_name": "Reddit",
+        "available": false,
+        "score_actual": 0.0,
+        "score_prev": 0.0,
+        "delta_score": 0.0
+      },
+      "source_history": [
+        {
+          "date": "2026-06-29",
+          "trend_score": 5.05,
+          "github_score": 2.92,
+          "so_score": 11.08,
+          "reddit_score": 0.0,
+          "ranking": 13,
+          "fuentes": 2,
+          "available_source_codes": [
+            "GH",
+            "SO"
+          ]
+        },
+        {
+          "date": "2026-06-30",
+          "trend_score": 5.39,
+          "github_score": 3.79,
+          "so_score": 11.08,
+          "reddit_score": 0.0,
+          "ranking": 10,
+          "fuentes": 2,
+          "available_source_codes": [
+            "GH",
+            "SO"
+          ]
+        }
+      ],
+      "summary_insights": {
+        "dominant_source": {
+          "source": "stackoverflow",
+          "display_name": "StackOverflow",
+          "score": 11.08,
+          "label": "StackOverflow aporta la mayor parte del score actual."
+        },
+        "coverage": {
+          "source_count": 2,
+          "sources_present": [
+            "github",
+            "stackoverflow"
+          ],
+          "label": "Señal combinada en GitHub y StackOverflow."
+        },
+        "momentum": {
+          "ranking_actual": 10,
+          "ranking_prev": 13,
+          "delta_ranking": 3,
+          "score_actual": 5.39,
+          "score_prev": 5.05,
+          "label": "Kotlin sube 3 posición(es) frente a la corrida previa."
         }
       }
     },
@@ -992,11 +906,11 @@
       "slug": "cloud",
       "display_name": "Cloud",
       "trend_score_actual": 5.16,
-      "trend_score_prev": 4.37,
-      "delta_score": 0.79,
-      "ranking_actual": 12,
+      "trend_score_prev": 5.16,
+      "delta_score": 0.0,
+      "ranking_actual": 11,
       "ranking_prev": 12,
-      "delta_ranking": 0,
+      "delta_ranking": 1,
       "sources_present": [
         "reddit"
       ],
@@ -1021,22 +935,10 @@
         "display_name": "Reddit",
         "available": true,
         "score_actual": 20.63,
-        "score_prev": 17.48,
-        "delta_score": 3.15
+        "score_prev": 20.63,
+        "delta_score": 0.0
       },
       "source_history": [
-        {
-          "date": "2026-06-22",
-          "trend_score": 4.37,
-          "github_score": 0.0,
-          "so_score": 0.0,
-          "reddit_score": 17.48,
-          "ranking": 12,
-          "fuentes": 1,
-          "available_source_codes": [
-            "RD"
-          ]
-        },
         {
           "date": "2026-06-29",
           "trend_score": 5.16,
@@ -1044,6 +946,18 @@
           "so_score": 0.0,
           "reddit_score": 20.63,
           "ranking": 12,
+          "fuentes": 1,
+          "available_source_codes": [
+            "RD"
+          ]
+        },
+        {
+          "date": "2026-06-30",
+          "trend_score": 5.16,
+          "github_score": 0.0,
+          "so_score": 0.0,
+          "reddit_score": 20.63,
+          "ranking": 11,
           "fuentes": 1,
           "available_source_codes": [
             "RD"
@@ -1065,12 +979,188 @@
           "label": "Señal disponible en Reddit."
         },
         "momentum": {
-          "ranking_actual": 12,
+          "ranking_actual": 11,
           "ranking_prev": 12,
-          "delta_ranking": 0,
+          "delta_ranking": 1,
           "score_actual": 5.16,
-          "score_prev": 4.37,
-          "label": "Cloud mantiene posición frente a la corrida previa y gana 0.79 puntos."
+          "score_prev": 5.16,
+          "label": "Cloud sube 1 posición(es) frente a la corrida previa."
+        }
+      }
+    },
+    {
+      "slug": "rust",
+      "display_name": "Rust",
+      "trend_score_actual": 5.05,
+      "trend_score_prev": 7.99,
+      "delta_score": -2.94,
+      "ranking_actual": 12,
+      "ranking_prev": 9,
+      "delta_ranking": -3,
+      "sources_present": [
+        "github"
+      ],
+      "github_summary": {
+        "source": "github",
+        "display_name": "GitHub",
+        "available": true,
+        "score_actual": 12.63,
+        "score_prev": 19.98,
+        "delta_score": -7.35
+      },
+      "stackoverflow_summary": {
+        "source": "stackoverflow",
+        "display_name": "StackOverflow",
+        "available": false,
+        "score_actual": 0.0,
+        "score_prev": 0.0,
+        "delta_score": 0.0
+      },
+      "reddit_summary": {
+        "source": "reddit",
+        "display_name": "Reddit",
+        "available": false,
+        "score_actual": 0.0,
+        "score_prev": 0.0,
+        "delta_score": 0.0
+      },
+      "source_history": [
+        {
+          "date": "2026-06-29",
+          "trend_score": 7.99,
+          "github_score": 19.98,
+          "so_score": 0.0,
+          "reddit_score": 0.0,
+          "ranking": 9,
+          "fuentes": 1,
+          "available_source_codes": [
+            "GH"
+          ]
+        },
+        {
+          "date": "2026-06-30",
+          "trend_score": 5.05,
+          "github_score": 12.63,
+          "so_score": 0.0,
+          "reddit_score": 0.0,
+          "ranking": 12,
+          "fuentes": 1,
+          "available_source_codes": [
+            "GH"
+          ]
+        }
+      ],
+      "summary_insights": {
+        "dominant_source": {
+          "source": "github",
+          "display_name": "GitHub",
+          "score": 12.63,
+          "label": "GitHub aporta la mayor parte del score actual."
+        },
+        "coverage": {
+          "source_count": 1,
+          "sources_present": [
+            "github"
+          ],
+          "label": "Señal disponible en GitHub."
+        },
+        "momentum": {
+          "ranking_actual": 12,
+          "ranking_prev": 9,
+          "delta_ranking": -3,
+          "score_actual": 5.05,
+          "score_prev": 7.99,
+          "label": "Rust cae 3 posición(es) frente a la corrida previa."
+        }
+      }
+    },
+    {
+      "slug": "go",
+      "display_name": "Go",
+      "trend_score_actual": 5.04,
+      "trend_score_prev": 7.02,
+      "delta_score": -1.98,
+      "ranking_actual": 13,
+      "ranking_prev": 10,
+      "delta_ranking": -3,
+      "sources_present": [
+        "github",
+        "stackoverflow"
+      ],
+      "github_summary": {
+        "source": "github",
+        "display_name": "GitHub",
+        "available": true,
+        "score_actual": 10.1,
+        "score_prev": 15.04,
+        "delta_score": -4.94
+      },
+      "stackoverflow_summary": {
+        "source": "stackoverflow",
+        "display_name": "StackOverflow",
+        "available": true,
+        "score_actual": 2.87,
+        "score_prev": 2.87,
+        "delta_score": 0.0
+      },
+      "reddit_summary": {
+        "source": "reddit",
+        "display_name": "Reddit",
+        "available": false,
+        "score_actual": 0.0,
+        "score_prev": 0.0,
+        "delta_score": 0.0
+      },
+      "source_history": [
+        {
+          "date": "2026-06-29",
+          "trend_score": 7.02,
+          "github_score": 15.04,
+          "so_score": 2.87,
+          "reddit_score": 0.0,
+          "ranking": 10,
+          "fuentes": 2,
+          "available_source_codes": [
+            "GH",
+            "SO"
+          ]
+        },
+        {
+          "date": "2026-06-30",
+          "trend_score": 5.04,
+          "github_score": 10.1,
+          "so_score": 2.87,
+          "reddit_score": 0.0,
+          "ranking": 13,
+          "fuentes": 2,
+          "available_source_codes": [
+            "GH",
+            "SO"
+          ]
+        }
+      ],
+      "summary_insights": {
+        "dominant_source": {
+          "source": "github",
+          "display_name": "GitHub",
+          "score": 10.1,
+          "label": "GitHub aporta la mayor parte del score actual."
+        },
+        "coverage": {
+          "source_count": 2,
+          "sources_present": [
+            "github",
+            "stackoverflow"
+          ],
+          "label": "Señal combinada en GitHub y StackOverflow."
+        },
+        "momentum": {
+          "ranking_actual": 13,
+          "ranking_prev": 10,
+          "delta_ranking": -3,
+          "score_actual": 5.04,
+          "score_prev": 7.02,
+          "label": "Go cae 3 posición(es) frente a la corrida previa."
         }
       }
     },
@@ -1078,10 +1168,10 @@
       "slug": "php",
       "display_name": "PHP",
       "trend_score_actual": 4.3,
-      "trend_score_prev": 4.36,
-      "delta_score": -0.06,
-      "ranking_actual": 13,
-      "ranking_prev": 13,
+      "trend_score_prev": 4.3,
+      "delta_score": 0.0,
+      "ranking_actual": 14,
+      "ranking_prev": 14,
       "delta_ranking": 0,
       "sources_present": [
         "stackoverflow"
@@ -1099,8 +1189,8 @@
         "display_name": "StackOverflow",
         "available": true,
         "score_actual": 12.29,
-        "score_prev": 12.46,
-        "delta_score": -0.17
+        "score_prev": 12.29,
+        "delta_score": 0.0
       },
       "reddit_summary": {
         "source": "reddit",
@@ -1112,24 +1202,24 @@
       },
       "source_history": [
         {
-          "date": "2026-06-22",
-          "trend_score": 4.36,
+          "date": "2026-06-29",
+          "trend_score": 4.3,
           "github_score": 0.0,
-          "so_score": 12.46,
+          "so_score": 12.29,
           "reddit_score": 0.0,
-          "ranking": 13,
+          "ranking": 14,
           "fuentes": 1,
           "available_source_codes": [
             "SO"
           ]
         },
         {
-          "date": "2026-06-29",
+          "date": "2026-06-30",
           "trend_score": 4.3,
           "github_score": 0.0,
           "so_score": 12.29,
           "reddit_score": 0.0,
-          "ranking": 13,
+          "ranking": 14,
           "fuentes": 1,
           "available_source_codes": [
             "SO"
@@ -1151,102 +1241,12 @@
           "label": "Señal disponible en StackOverflow."
         },
         "momentum": {
-          "ranking_actual": 13,
-          "ranking_prev": 13,
-          "delta_ranking": 0,
-          "score_actual": 4.3,
-          "score_prev": 4.36,
-          "label": "PHP mantiene posición frente a la corrida previa y pierde 0.06 puntos."
-        }
-      }
-    },
-    {
-      "slug": "kotlin",
-      "display_name": "Kotlin",
-      "trend_score_actual": 4.27,
-      "trend_score_prev": 4.15,
-      "delta_score": 0.12,
-      "ranking_actual": 14,
-      "ranking_prev": 14,
-      "delta_ranking": 0,
-      "sources_present": [
-        "github",
-        "stackoverflow"
-      ],
-      "github_summary": {
-        "source": "github",
-        "display_name": "GitHub",
-        "available": true,
-        "score_actual": 0.99,
-        "score_prev": 0.66,
-        "delta_score": 0.33
-      },
-      "stackoverflow_summary": {
-        "source": "stackoverflow",
-        "display_name": "StackOverflow",
-        "available": true,
-        "score_actual": 11.08,
-        "score_prev": 11.1,
-        "delta_score": -0.02
-      },
-      "reddit_summary": {
-        "source": "reddit",
-        "display_name": "Reddit",
-        "available": false,
-        "score_actual": 0.0,
-        "score_prev": 0.0,
-        "delta_score": 0.0
-      },
-      "source_history": [
-        {
-          "date": "2026-06-22",
-          "trend_score": 4.15,
-          "github_score": 0.66,
-          "so_score": 11.1,
-          "reddit_score": 0.0,
-          "ranking": 14,
-          "fuentes": 2,
-          "available_source_codes": [
-            "GH",
-            "SO"
-          ]
-        },
-        {
-          "date": "2026-06-29",
-          "trend_score": 4.27,
-          "github_score": 0.99,
-          "so_score": 11.08,
-          "reddit_score": 0.0,
-          "ranking": 14,
-          "fuentes": 2,
-          "available_source_codes": [
-            "GH",
-            "SO"
-          ]
-        }
-      ],
-      "summary_insights": {
-        "dominant_source": {
-          "source": "stackoverflow",
-          "display_name": "StackOverflow",
-          "score": 11.08,
-          "label": "StackOverflow aporta la mayor parte del score actual."
-        },
-        "coverage": {
-          "source_count": 2,
-          "sources_present": [
-            "github",
-            "stackoverflow"
-          ],
-          "label": "Señal combinada en GitHub y StackOverflow."
-        },
-        "momentum": {
           "ranking_actual": 14,
           "ranking_prev": 14,
           "delta_ranking": 0,
-          "score_actual": 4.27,
-          "score_prev": 4.15,
-          "label": "Kotlin mantiene posición frente a la corrida previa y gana 0.12 puntos."
+          "score_actual": 4.3,
+          "score_prev": 4.3,
+          "label": "PHP se mantiene estable frente a la corrida previa."
         }
       }
     },
@@ -1254,11 +1254,11 @@
       "slug": "testing",
       "display_name": "Testing",
       "trend_score_actual": 4.05,
-      "trend_score_prev": 2.67,
-      "delta_score": 1.38,
+      "trend_score_prev": 4.05,
+      "delta_score": 0.0,
       "ranking_actual": 15,
-      "ranking_prev": 18,
-      "delta_ranking": 3,
+      "ranking_prev": 15,
+      "delta_ranking": 0,
       "sources_present": [
         "reddit"
       ],
@@ -1283,24 +1283,24 @@
         "display_name": "Reddit",
         "available": true,
         "score_actual": 16.19,
-        "score_prev": 10.68,
-        "delta_score": 5.51
+        "score_prev": 16.19,
+        "delta_score": 0.0
       },
       "source_history": [
         {
-          "date": "2026-06-22",
-          "trend_score": 2.67,
+          "date": "2026-06-29",
+          "trend_score": 4.05,
           "github_score": 0.0,
           "so_score": 0.0,
-          "reddit_score": 10.68,
-          "ranking": 18,
+          "reddit_score": 16.19,
+          "ranking": 15,
           "fuentes": 1,
           "available_source_codes": [
             "RD"
           ]
         },
         {
-          "date": "2026-06-29",
+          "date": "2026-06-30",
           "trend_score": 4.05,
           "github_score": 0.0,
           "so_score": 0.0,
@@ -1328,11 +1328,11 @@
         },
         "momentum": {
           "ranking_actual": 15,
-          "ranking_prev": 18,
-          "delta_ranking": 3,
+          "ranking_prev": 15,
+          "delta_ranking": 0,
           "score_actual": 4.05,
-          "score_prev": 2.67,
-          "label": "Testing sube 3 posición(es) frente a la corrida previa."
+          "score_prev": 4.05,
+          "label": "Testing se mantiene estable frente a la corrida previa."
         }
       }
     },
@@ -1340,11 +1340,11 @@
       "slug": "devops",
       "display_name": "DevOps",
       "trend_score_actual": 3.98,
-      "trend_score_prev": 3.16,
-      "delta_score": 0.82,
+      "trend_score_prev": 3.98,
+      "delta_score": 0.0,
       "ranking_actual": 16,
-      "ranking_prev": 17,
-      "delta_ranking": 1,
+      "ranking_prev": 16,
+      "delta_ranking": 0,
       "sources_present": [
         "reddit"
       ],
@@ -1369,24 +1369,24 @@
         "display_name": "Reddit",
         "available": true,
         "score_actual": 15.93,
-        "score_prev": 12.62,
-        "delta_score": 3.31
+        "score_prev": 15.93,
+        "delta_score": 0.0
       },
       "source_history": [
         {
-          "date": "2026-06-22",
-          "trend_score": 3.16,
+          "date": "2026-06-29",
+          "trend_score": 3.98,
           "github_score": 0.0,
           "so_score": 0.0,
-          "reddit_score": 12.62,
-          "ranking": 17,
+          "reddit_score": 15.93,
+          "ranking": 16,
           "fuentes": 1,
           "available_source_codes": [
             "RD"
           ]
         },
         {
-          "date": "2026-06-29",
+          "date": "2026-06-30",
           "trend_score": 3.98,
           "github_score": 0.0,
           "so_score": 0.0,
@@ -1414,23 +1414,23 @@
         },
         "momentum": {
           "ranking_actual": 16,
-          "ranking_prev": 17,
-          "delta_ranking": 1,
+          "ranking_prev": 16,
+          "delta_ranking": 0,
           "score_actual": 3.98,
-          "score_prev": 3.16,
-          "label": "DevOps sube 1 posición(es) frente a la corrida previa."
+          "score_prev": 3.98,
+          "label": "DevOps se mantiene estable frente a la corrida previa."
         }
       }
     },
     {
       "slug": "shell",
       "display_name": "Shell",
-      "trend_score_actual": 3.95,
-      "trend_score_prev": 3.97,
-      "delta_score": -0.02,
+      "trend_score_actual": 3.49,
+      "trend_score_prev": 3.95,
+      "delta_score": -0.46,
       "ranking_actual": 17,
-      "ranking_prev": 15,
-      "delta_ranking": -2,
+      "ranking_prev": 17,
+      "delta_ranking": 0,
       "sources_present": [
         "github"
       ],
@@ -1438,9 +1438,9 @@
         "source": "github",
         "display_name": "GitHub",
         "available": true,
-        "score_actual": 9.87,
-        "score_prev": 9.93,
-        "delta_score": -0.06
+        "score_actual": 8.73,
+        "score_prev": 9.88,
+        "delta_score": -1.15
       },
       "stackoverflow_summary": {
         "source": "stackoverflow",
@@ -1460,21 +1460,21 @@
       },
       "source_history": [
         {
-          "date": "2026-06-22",
-          "trend_score": 3.97,
-          "github_score": 9.93,
+          "date": "2026-06-29",
+          "trend_score": 3.95,
+          "github_score": 9.88,
           "so_score": 0.0,
           "reddit_score": 0.0,
-          "ranking": 15,
+          "ranking": 17,
           "fuentes": 1,
           "available_source_codes": [
             "GH"
           ]
         },
         {
-          "date": "2026-06-29",
-          "trend_score": 3.95,
-          "github_score": 9.87,
+          "date": "2026-06-30",
+          "trend_score": 3.49,
+          "github_score": 8.73,
           "so_score": 0.0,
           "reddit_score": 0.0,
           "ranking": 17,
@@ -1488,7 +1488,7 @@
         "dominant_source": {
           "source": "github",
           "display_name": "GitHub",
-          "score": 9.87,
+          "score": 8.73,
           "label": "GitHub aporta la mayor parte del score actual."
         },
         "coverage": {
@@ -1500,23 +1500,23 @@
         },
         "momentum": {
           "ranking_actual": 17,
-          "ranking_prev": 15,
-          "delta_ranking": -2,
-          "score_actual": 3.95,
-          "score_prev": 3.97,
-          "label": "Shell cae 2 posición(es) frente a la corrida previa."
+          "ranking_prev": 17,
+          "delta_ranking": 0,
+          "score_actual": 3.49,
+          "score_prev": 3.95,
+          "label": "Shell mantiene posición frente a la corrida previa y pierde 0.46 puntos."
         }
       }
     },
     {
       "slug": "html",
       "display_name": "Html",
-      "trend_score_actual": 3.42,
-      "trend_score_prev": 3.31,
-      "delta_score": 0.11,
+      "trend_score_actual": 1.93,
+      "trend_score_prev": 3.1,
+      "delta_score": -1.17,
       "ranking_actual": 18,
-      "ranking_prev": 16,
-      "delta_ranking": -2,
+      "ranking_prev": 18,
+      "delta_ranking": 0,
       "sources_present": [
         "github"
       ],
@@ -1524,9 +1524,9 @@
         "source": "github",
         "display_name": "GitHub",
         "available": true,
-        "score_actual": 8.55,
-        "score_prev": 8.28,
-        "delta_score": 0.27
+        "score_actual": 4.82,
+        "score_prev": 7.74,
+        "delta_score": -2.92
       },
       "stackoverflow_summary": {
         "source": "stackoverflow",
@@ -1546,21 +1546,21 @@
       },
       "source_history": [
         {
-          "date": "2026-06-22",
-          "trend_score": 3.31,
-          "github_score": 8.28,
+          "date": "2026-06-29",
+          "trend_score": 3.1,
+          "github_score": 7.74,
           "so_score": 0.0,
           "reddit_score": 0.0,
-          "ranking": 16,
+          "ranking": 18,
           "fuentes": 1,
           "available_source_codes": [
             "GH"
           ]
         },
         {
-          "date": "2026-06-29",
-          "trend_score": 3.42,
-          "github_score": 8.55,
+          "date": "2026-06-30",
+          "trend_score": 1.93,
+          "github_score": 4.82,
           "so_score": 0.0,
           "reddit_score": 0.0,
           "ranking": 18,
@@ -1574,7 +1574,7 @@
         "dominant_source": {
           "source": "github",
           "display_name": "GitHub",
-          "score": 8.55,
+          "score": 4.82,
           "label": "GitHub aporta la mayor parte del score actual."
         },
         "coverage": {
@@ -1586,23 +1586,23 @@
         },
         "momentum": {
           "ranking_actual": 18,
-          "ranking_prev": 16,
-          "delta_ranking": -2,
-          "score_actual": 3.42,
-          "score_prev": 3.31,
-          "label": "Html cae 2 posición(es) frente a la corrida previa."
+          "ranking_prev": 18,
+          "delta_ranking": 0,
+          "score_actual": 1.93,
+          "score_prev": 3.1,
+          "label": "Html mantiene posición frente a la corrida previa y pierde 1.17 puntos."
         }
       }
     },
     {
-      "slug": "swift",
-      "display_name": "Swift",
-      "trend_score_actual": 2.63,
-      "trend_score_prev": 2.38,
-      "delta_score": 0.25,
+      "slug": "jupyter-notebook",
+      "display_name": "Jupyter Notebook",
+      "trend_score_actual": 1.65,
+      "trend_score_prev": 0.49,
+      "delta_score": 1.16,
       "ranking_actual": 19,
-      "ranking_prev": 19,
-      "delta_ranking": 0,
+      "ranking_prev": 21,
+      "delta_ranking": 2,
       "sources_present": [
         "github"
       ],
@@ -1610,9 +1610,9 @@
         "source": "github",
         "display_name": "GitHub",
         "available": true,
-        "score_actual": 6.58,
-        "score_prev": 5.96,
-        "delta_score": 0.62
+        "score_actual": 4.13,
+        "score_prev": 1.23,
+        "delta_score": 2.9
       },
       "stackoverflow_summary": {
         "source": "stackoverflow",
@@ -1632,21 +1632,21 @@
       },
       "source_history": [
         {
-          "date": "2026-06-22",
-          "trend_score": 2.38,
-          "github_score": 5.96,
+          "date": "2026-06-29",
+          "trend_score": 0.49,
+          "github_score": 1.23,
           "so_score": 0.0,
           "reddit_score": 0.0,
-          "ranking": 19,
+          "ranking": 21,
           "fuentes": 1,
           "available_source_codes": [
             "GH"
           ]
         },
         {
-          "date": "2026-06-29",
-          "trend_score": 2.63,
-          "github_score": 6.58,
+          "date": "2026-06-30",
+          "trend_score": 1.65,
+          "github_score": 4.13,
           "so_score": 0.0,
           "reddit_score": 0.0,
           "ranking": 19,
@@ -1660,7 +1660,7 @@
         "dominant_source": {
           "source": "github",
           "display_name": "GitHub",
-          "score": 6.58,
+          "score": 4.13,
           "label": "GitHub aporta la mayor parte del score actual."
         },
         "coverage": {
@@ -1672,23 +1672,23 @@
         },
         "momentum": {
           "ranking_actual": 19,
-          "ranking_prev": 19,
-          "delta_ranking": 0,
-          "score_actual": 2.63,
-          "score_prev": 2.38,
-          "label": "Swift mantiene posición frente a la corrida previa y gana 0.25 puntos."
+          "ranking_prev": 21,
+          "delta_ranking": 2,
+          "score_actual": 1.65,
+          "score_prev": 0.49,
+          "label": "Jupyter Notebook sube 2 posición(es) frente a la corrida previa."
         }
       }
     },
     {
-      "slug": "c",
-      "display_name": "C",
-      "trend_score_actual": 1.45,
-      "trend_score_prev": 1.46,
-      "delta_score": -0.01,
+      "slug": "swift",
+      "display_name": "Swift",
+      "trend_score_actual": 0.92,
+      "trend_score_prev": 3.01,
+      "delta_score": -2.09,
       "ranking_actual": 20,
-      "ranking_prev": 20,
-      "delta_ranking": 0,
+      "ranking_prev": 19,
+      "delta_ranking": -1,
       "sources_present": [
         "github"
       ],
@@ -1696,9 +1696,9 @@
         "source": "github",
         "display_name": "GitHub",
         "available": true,
-        "score_actual": 3.62,
-        "score_prev": 3.64,
-        "delta_score": -0.02
+        "score_actual": 2.3,
+        "score_prev": 7.52,
+        "delta_score": -5.22
       },
       "stackoverflow_summary": {
         "source": "stackoverflow",
@@ -1718,21 +1718,21 @@
       },
       "source_history": [
         {
-          "date": "2026-06-22",
-          "trend_score": 1.46,
-          "github_score": 3.64,
+          "date": "2026-06-29",
+          "trend_score": 3.01,
+          "github_score": 7.52,
           "so_score": 0.0,
           "reddit_score": 0.0,
-          "ranking": 20,
+          "ranking": 19,
           "fuentes": 1,
           "available_source_codes": [
             "GH"
           ]
         },
         {
-          "date": "2026-06-29",
-          "trend_score": 1.45,
-          "github_score": 3.62,
+          "date": "2026-06-30",
+          "trend_score": 0.92,
+          "github_score": 2.3,
           "so_score": 0.0,
           "reddit_score": 0.0,
           "ranking": 20,
@@ -1746,7 +1746,7 @@
         "dominant_source": {
           "source": "github",
           "display_name": "GitHub",
-          "score": 3.62,
+          "score": 2.3,
           "label": "GitHub aporta la mayor parte del score actual."
         },
         "coverage": {
@@ -1758,23 +1758,23 @@
         },
         "momentum": {
           "ranking_actual": 20,
-          "ranking_prev": 20,
-          "delta_ranking": 0,
-          "score_actual": 1.45,
-          "score_prev": 1.46,
-          "label": "C mantiene posición frente a la corrida previa y pierde 0.01 puntos."
+          "ranking_prev": 19,
+          "delta_ranking": -1,
+          "score_actual": 0.92,
+          "score_prev": 3.01,
+          "label": "Swift cae 1 posición(es) frente a la corrida previa."
         }
       }
     },
     {
-      "slug": "jupyter-notebook",
-      "display_name": "Jupyter Notebook",
-      "trend_score_actual": 0.66,
-      "trend_score_prev": 0.66,
-      "delta_score": 0.0,
+      "slug": "c",
+      "display_name": "C",
+      "trend_score_actual": 0.87,
+      "trend_score_prev": 1.44,
+      "delta_score": -0.57,
       "ranking_actual": 21,
-      "ranking_prev": 21,
-      "delta_ranking": 0,
+      "ranking_prev": 20,
+      "delta_ranking": -1,
       "sources_present": [
         "github"
       ],
@@ -1782,9 +1782,9 @@
         "source": "github",
         "display_name": "GitHub",
         "available": true,
-        "score_actual": 1.64,
-        "score_prev": 1.66,
-        "delta_score": -0.02
+        "score_actual": 2.18,
+        "score_prev": 3.59,
+        "delta_score": -1.41
       },
       "stackoverflow_summary": {
         "source": "stackoverflow",
@@ -1804,21 +1804,21 @@
       },
       "source_history": [
         {
-          "date": "2026-06-22",
-          "trend_score": 0.66,
-          "github_score": 1.66,
+          "date": "2026-06-29",
+          "trend_score": 1.44,
+          "github_score": 3.59,
           "so_score": 0.0,
           "reddit_score": 0.0,
-          "ranking": 21,
+          "ranking": 20,
           "fuentes": 1,
           "available_source_codes": [
             "GH"
           ]
         },
         {
-          "date": "2026-06-29",
-          "trend_score": 0.66,
-          "github_score": 1.64,
+          "date": "2026-06-30",
+          "trend_score": 0.87,
+          "github_score": 2.18,
           "so_score": 0.0,
           "reddit_score": 0.0,
           "ranking": 21,
@@ -1832,7 +1832,7 @@
         "dominant_source": {
           "source": "github",
           "display_name": "GitHub",
-          "score": 1.64,
+          "score": 2.18,
           "label": "GitHub aporta la mayor parte del score actual."
         },
         "coverage": {
@@ -1844,11 +1844,11 @@
         },
         "momentum": {
           "ranking_actual": 21,
-          "ranking_prev": 21,
-          "delta_ranking": 0,
-          "score_actual": 0.66,
-          "score_prev": 0.66,
-          "label": "Jupyter Notebook se mantiene estable frente a la corrida previa."
+          "ranking_prev": 20,
+          "delta_ranking": -1,
+          "score_actual": 0.87,
+          "score_prev": 1.44,
+          "label": "C cae 1 posición(es) frente a la corrida previa."
         }
       }
     },
@@ -1856,11 +1856,11 @@
       "slug": "microservices",
       "display_name": "Microservices",
       "trend_score_actual": 0.2,
-      "trend_score_prev": null,
-      "delta_score": null,
+      "trend_score_prev": 0.2,
+      "delta_score": 0.0,
       "ranking_actual": 22,
-      "ranking_prev": null,
-      "delta_ranking": null,
+      "ranking_prev": 22,
+      "delta_ranking": 0,
       "sources_present": [
         "reddit"
       ],
@@ -1869,38 +1869,40 @@
         "display_name": "GitHub",
         "available": false,
         "score_actual": 0.0,
-        "score_prev": null,
-        "delta_score": null
+        "score_prev": 0.0,
+        "delta_score": 0.0
       },
       "stackoverflow_summary": {
         "source": "stackoverflow",
         "display_name": "StackOverflow",
         "available": false,
         "score_actual": 0.0,
-        "score_prev": null,
-        "delta_score": null
+        "score_prev": 0.0,
+        "delta_score": 0.0
       },
       "reddit_summary": {
         "source": "reddit",
         "display_name": "Reddit",
         "available": true,
         "score_actual": 0.78,
-        "score_prev": null,
-        "delta_score": null
+        "score_prev": 0.78,
+        "delta_score": 0.0
       },
       "source_history": [
         {
-          "date": "2026-06-22",
-          "trend_score": 0.0,
+          "date": "2026-06-29",
+          "trend_score": 0.2,
           "github_score": 0.0,
           "so_score": 0.0,
-          "reddit_score": 0.0,
-          "ranking": null,
-          "fuentes": 0,
-          "available_source_codes": []
+          "reddit_score": 0.78,
+          "ranking": 22,
+          "fuentes": 1,
+          "available_source_codes": [
+            "RD"
+          ]
         },
         {
-          "date": "2026-06-29",
+          "date": "2026-06-30",
           "trend_score": 0.2,
           "github_score": 0.0,
           "so_score": 0.0,
@@ -1928,11 +1930,11 @@
         },
         "momentum": {
           "ranking_actual": 22,
-          "ranking_prev": null,
-          "delta_ranking": null,
+          "ranking_prev": 22,
+          "delta_ranking": 0,
           "score_actual": 0.2,
-          "score_prev": null,
-          "label": "Sin corrida previa comparable para medir movimiento."
+          "score_prev": 0.2,
+          "label": "Microservices se mantiene estable frente a la corrida previa."
         }
       }
     }
