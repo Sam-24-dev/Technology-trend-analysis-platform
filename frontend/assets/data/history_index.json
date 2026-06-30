@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-06-30T18:08:05Z",
+  "generated_at_utc": "2026-06-30T19:17:57Z",
   "dataset_count": 23,
   "datasets": [
     {
@@ -118,13 +118,8 @@
       "dataset": "interseccion",
       "latest_path": null,
       "latest_row_count": null,
-      "history_snapshot_count": 2,
+      "history_snapshot_count": 1,
       "snapshots": [
-        {
-          "date": "2026-06-29",
-          "path": "datos/history/interseccion/year=2026/month=06/day=29/interseccion_github_reddit.csv",
-          "row_count": 10
-        },
         {
           "date": "2026-06-30",
           "path": "datos/history/interseccion/year=2026/month=06/day=30/interseccion_github_reddit.csv",
@@ -144,13 +139,8 @@
       "dataset": "reddit_sentimiento",
       "latest_path": null,
       "latest_row_count": null,
-      "history_snapshot_count": 2,
+      "history_snapshot_count": 1,
       "snapshots": [
-        {
-          "date": "2026-06-29",
-          "path": "datos/history/reddit_sentimiento/year=2026/month=06/day=29/reddit_sentimiento_frameworks.csv",
-          "row_count": 5
-        },
         {
           "date": "2026-06-30",
           "path": "datos/history/reddit_sentimiento/year=2026/month=06/day=30/reddit_sentimiento_frameworks.csv",
@@ -170,13 +160,8 @@
       "dataset": "reddit_temas",
       "latest_path": null,
       "latest_row_count": null,
-      "history_snapshot_count": 2,
+      "history_snapshot_count": 1,
       "snapshots": [
-        {
-          "date": "2026-06-29",
-          "path": "datos/history/reddit_temas/year=2026/month=06/day=29/reddit_temas_emergentes.csv",
-          "row_count": 10
-        },
         {
           "date": "2026-06-30",
           "path": "datos/history/reddit_temas/year=2026/month=06/day=30/reddit_temas_emergentes.csv",
@@ -196,15 +181,20 @@
       "dataset": "so_aceptacion",
       "latest_path": null,
       "latest_row_count": null,
-      "history_snapshot_count": 1,
+      "history_snapshot_count": 2,
       "snapshots": [
         {
           "date": "2026-06-29",
           "path": "datos/history/so_aceptacion/year=2026/month=06/day=29/so_tasa_aceptacion.csv",
           "row_count": 5
+        },
+        {
+          "date": "2026-06-30",
+          "path": "datos/history/so_aceptacion/year=2026/month=06/day=30/so_tasa_aceptacion.csv",
+          "row_count": 5
         }
       ],
-      "latest_snapshot_date": "2026-06-29"
+      "latest_snapshot_date": "2026-06-30"
     },
     {
       "dataset": "so_tasa_aceptacion",
@@ -217,15 +207,20 @@
       "dataset": "so_tendencias",
       "latest_path": null,
       "latest_row_count": null,
-      "history_snapshot_count": 1,
+      "history_snapshot_count": 2,
       "snapshots": [
         {
           "date": "2026-06-29",
           "path": "datos/history/so_tendencias/year=2026/month=06/day=29/so_tendencias_mensuales.csv",
           "row_count": 12
+        },
+        {
+          "date": "2026-06-30",
+          "path": "datos/history/so_tendencias/year=2026/month=06/day=30/so_tendencias_mensuales.csv",
+          "row_count": 12
         }
       ],
-      "latest_snapshot_date": "2026-06-29"
+      "latest_snapshot_date": "2026-06-30"
     },
     {
       "dataset": "so_tendencias_mensuales",
@@ -238,15 +233,20 @@
       "dataset": "so_volumen",
       "latest_path": null,
       "latest_row_count": null,
-      "history_snapshot_count": 1,
+      "history_snapshot_count": 2,
       "snapshots": [
         {
           "date": "2026-06-29",
           "path": "datos/history/so_volumen/year=2026/month=06/day=29/so_volumen_preguntas.csv",
           "row_count": 10
+        },
+        {
+          "date": "2026-06-30",
+          "path": "datos/history/so_volumen/year=2026/month=06/day=30/so_volumen_preguntas.csv",
+          "row_count": 10
         }
       ],
-      "latest_snapshot_date": "2026-06-29"
+      "latest_snapshot_date": "2026-06-30"
     },
     {
       "dataset": "so_volumen_preguntas",
@@ -264,7 +264,7 @@
         {
           "date": "2026-06-29",
           "path": "datos/history/trend_score/year=2026/month=06/day=29/trend_score.csv",
-          "row_count": 22
+          "row_count": 10
         },
         {
           "date": "2026-06-30",
