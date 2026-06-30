@@ -1,94 +1,94 @@
 {
-  "generated_at_utc": "2026-06-29T20:32:08Z",
+  "generated_at_utc": "2026-06-30T18:08:05Z",
   "dataset": "reddit_sentimiento_frameworks",
   "source_mode": "latest",
   "source_path": "datos/latest/reddit_sentimiento_frameworks.csv",
-  "source_updated_at_utc": "2026-06-29T20:23:05Z",
+  "source_updated_at_utc": "2026-06-30T18:03:58Z",
   "framework_count": 5,
   "frameworks": [
     {
       "framework": "Django",
-      "total_menciones": 9,
-      "positivos": 8,
-      "neutros": 1,
+      "total_menciones": 11,
+      "positivos": 11,
+      "neutros": 0,
       "negativos": 0,
-      "porcentaje_positivo": 88.89,
-      "porcentaje_neutro": 11.11,
+      "porcentaje_positivo": 100.0,
+      "porcentaje_neutro": 0.0,
       "porcentaje_negativo": 0.0
-    },
-    {
-      "framework": "Laravel",
-      "total_menciones": 46,
-      "positivos": 36,
-      "neutros": 4,
-      "negativos": 6,
-      "porcentaje_positivo": 78.26,
-      "porcentaje_neutro": 8.7,
-      "porcentaje_negativo": 13.04
-    },
-    {
-      "framework": "Express",
-      "total_menciones": 99,
-      "positivos": 71,
-      "neutros": 13,
-      "negativos": 15,
-      "porcentaje_positivo": 71.72,
-      "porcentaje_neutro": 13.13,
-      "porcentaje_negativo": 15.15
     },
     {
       "framework": "FastAPI",
-      "total_menciones": 7,
-      "positivos": 5,
+      "total_menciones": 19,
+      "positivos": 17,
       "neutros": 0,
       "negativos": 2,
-      "porcentaje_positivo": 71.43,
+      "porcentaje_positivo": 89.47,
       "porcentaje_neutro": 0.0,
-      "porcentaje_negativo": 28.57
+      "porcentaje_negativo": 10.53
+    },
+    {
+      "framework": "Laravel",
+      "total_menciones": 32,
+      "positivos": 25,
+      "neutros": 1,
+      "negativos": 6,
+      "porcentaje_positivo": 78.12,
+      "porcentaje_neutro": 3.12,
+      "porcentaje_negativo": 18.75
+    },
+    {
+      "framework": "Express",
+      "total_menciones": 176,
+      "positivos": 114,
+      "neutros": 32,
+      "negativos": 30,
+      "porcentaje_positivo": 64.77,
+      "porcentaje_neutro": 18.18,
+      "porcentaje_negativo": 17.05
     },
     {
       "framework": "Spring",
-      "total_menciones": 8,
-      "positivos": 3,
-      "neutros": 5,
-      "negativos": 0,
-      "porcentaje_positivo": 37.5,
-      "porcentaje_neutro": 62.5,
-      "porcentaje_negativo": 0.0
+      "total_menciones": 17,
+      "positivos": 11,
+      "neutros": 3,
+      "negativos": 3,
+      "porcentaje_positivo": 64.71,
+      "porcentaje_neutro": 17.65,
+      "porcentaje_negativo": 17.65
     }
   ],
   "summary": {
     "positive_leader": {
       "framework": "Django",
-      "total_menciones": 9,
-      "positivos": 8,
-      "neutros": 1,
+      "total_menciones": 11,
+      "positivos": 11,
+      "neutros": 0,
       "negativos": 0,
-      "porcentaje_positivo": 88.89,
-      "porcentaje_neutro": 11.11,
+      "porcentaje_positivo": 100.0,
+      "porcentaje_neutro": 0.0,
       "porcentaje_negativo": 0.0
     },
     "largest_sample": {
       "framework": "Express",
-      "total_menciones": 99,
-      "positivos": 71,
-      "neutros": 13,
-      "negativos": 15,
-      "porcentaje_positivo": 71.72,
-      "porcentaje_neutro": 13.13,
-      "porcentaje_negativo": 15.15
+      "total_menciones": 176,
+      "positivos": 114,
+      "neutros": 32,
+      "negativos": 30,
+      "porcentaje_positivo": 64.77,
+      "porcentaje_neutro": 18.18,
+      "porcentaje_negativo": 17.05
     },
     "negative_leader": {
-      "framework": "FastAPI",
-      "total_menciones": 7,
-      "positivos": 5,
-      "neutros": 0,
-      "negativos": 2,
-      "porcentaje_positivo": 71.43,
-      "porcentaje_neutro": 0.0,
-      "porcentaje_negativo": 28.57
+      "framework": "Laravel",
+      "total_menciones": 32,
+      "positivos": 25,
+      "neutros": 1,
+      "negativos": 6,
+      "porcentaje_positivo": 78.12,
+      "porcentaje_neutro": 3.12,
+      "porcentaje_negativo": 18.75
     },
     "framework_count": 5,
-    "total_menciones": 169
+    "total_menciones": 255
   }
 }
