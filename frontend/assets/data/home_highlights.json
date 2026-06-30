@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-06-30T05:14:07Z",
+  "generated_at_utc": "2026-06-30T18:08:05Z",
   "dataset": "home_highlights",
   "source_mode": "bridges",
   "candidate_count": 9,
@@ -150,7 +150,7 @@
           },
           "item_count": 100,
           "latest_snapshot_date": "2026-06-30",
-          "previous_snapshot_date": "2026-06-29"
+          "previous_snapshot_date": null
         }
       }
     },
@@ -160,47 +160,47 @@
         "source": "reddit_sentimiento_public.summary.positive_leader",
         "payload": {
           "framework": "Django",
-          "total_menciones": 9,
-          "positivos": 8,
-          "neutros": 1,
+          "total_menciones": 11,
+          "positivos": 11,
+          "neutros": 0,
           "negativos": 0,
-          "porcentaje_positivo": 88.89,
-          "porcentaje_neutro": 11.11,
+          "porcentaje_positivo": 100.0,
+          "porcentaje_neutro": 0.0,
           "porcentaje_negativo": 0.0
         },
         "summary": {
           "positive_leader": {
             "framework": "Django",
-            "total_menciones": 9,
-            "positivos": 8,
-            "neutros": 1,
+            "total_menciones": 11,
+            "positivos": 11,
+            "neutros": 0,
             "negativos": 0,
-            "porcentaje_positivo": 88.89,
-            "porcentaje_neutro": 11.11,
+            "porcentaje_positivo": 100.0,
+            "porcentaje_neutro": 0.0,
             "porcentaje_negativo": 0.0
           },
           "largest_sample": {
             "framework": "Express",
-            "total_menciones": 99,
-            "positivos": 71,
-            "neutros": 13,
-            "negativos": 15,
-            "porcentaje_positivo": 71.72,
-            "porcentaje_neutro": 13.13,
-            "porcentaje_negativo": 15.15
+            "total_menciones": 176,
+            "positivos": 114,
+            "neutros": 32,
+            "negativos": 30,
+            "porcentaje_positivo": 64.77,
+            "porcentaje_neutro": 18.18,
+            "porcentaje_negativo": 17.05
           },
           "negative_leader": {
-            "framework": "FastAPI",
-            "total_menciones": 7,
-            "positivos": 5,
-            "neutros": 0,
-            "negativos": 2,
-            "porcentaje_positivo": 71.43,
-            "porcentaje_neutro": 0.0,
-            "porcentaje_negativo": 28.57
+            "framework": "Laravel",
+            "total_menciones": 32,
+            "positivos": 25,
+            "neutros": 1,
+            "negativos": 6,
+            "porcentaje_positivo": 78.12,
+            "porcentaje_neutro": 3.12,
+            "porcentaje_negativo": 18.75
           },
           "framework_count": 5,
-          "total_menciones": 169
+          "total_menciones": 255
         }
       },
       "graph_2": {
@@ -208,24 +208,24 @@
         "source": "reddit_temas_history.summary.leader_topic",
         "payload": {
           "tema": "IA/Machine Learning",
-          "menciones": 399,
-          "menciones_previas": null,
-          "delta_menciones": null,
-          "growth_pct": null,
-          "trend_direction": null
+          "menciones": 583,
+          "menciones_previas": 583,
+          "delta_menciones": 0,
+          "growth_pct": 0.0,
+          "trend_direction": "estable"
         },
         "summary": {
           "leader_topic": {
             "tema": "IA/Machine Learning",
-            "menciones": 399,
-            "menciones_previas": null,
-            "delta_menciones": null,
-            "growth_pct": null,
-            "trend_direction": null
+            "menciones": 583,
+            "menciones_previas": 583,
+            "delta_menciones": 0,
+            "growth_pct": 0.0,
+            "trend_direction": "estable"
           },
           "highest_growth_topic": null,
           "largest_drop_topic": null,
-          "total_menciones": 1314,
+          "total_menciones": 2280,
           "topic_count": 10
         }
       },
@@ -233,15 +233,15 @@
         "signal": "closest_alignment",
         "source": "reddit_interseccion_history.summary.closest_alignment",
         "payload": {
-          "tecnologia": "TypeScript",
+          "tecnologia": "Python",
           "tipo": "Lenguaje",
-          "ranking_github": 2,
-          "ranking_reddit": 3,
+          "ranking_github": 1,
+          "ranking_reddit": 2,
           "brecha_abs": 1,
-          "promedio_rank": 2.5,
+          "promedio_rank": 1.5,
           "direccion": "github_favorece",
-          "delta_gap": null,
-          "trend_direction": null
+          "delta_gap": 0,
+          "trend_direction": "estable"
         },
         "summary": {
           "consenso_count": 0,
@@ -249,29 +249,29 @@
           "comparable_count": 3,
           "coverage_pct": 30.0,
           "closest_alignment": {
-            "tecnologia": "TypeScript",
-            "tipo": "Lenguaje",
-            "ranking_github": 2,
-            "ranking_reddit": 3,
-            "brecha_abs": 1,
-            "promedio_rank": 2.5,
-            "direccion": "github_favorece",
-            "delta_gap": null,
-            "trend_direction": null
-          },
-          "largest_gap_item": {
             "tecnologia": "Python",
             "tipo": "Lenguaje",
             "ranking_github": 1,
-            "ranking_reddit": 8,
-            "brecha_abs": 7,
-            "promedio_rank": 4.5,
+            "ranking_reddit": 2,
+            "brecha_abs": 1,
+            "promedio_rank": 1.5,
             "direccion": "github_favorece",
-            "delta_gap": null,
-            "trend_direction": null
+            "delta_gap": 0,
+            "trend_direction": "estable"
           },
-          "max_brecha_tecnologia": "Python",
-          "max_brecha_abs": 7
+          "largest_gap_item": {
+            "tecnologia": "JavaScript",
+            "tipo": "Lenguaje",
+            "ranking_github": 4,
+            "ranking_reddit": 10,
+            "brecha_abs": 6,
+            "promedio_rank": 7.0,
+            "direccion": "github_favorece",
+            "delta_gap": 0,
+            "trend_direction": "estable"
+          },
+          "max_brecha_tecnologia": "JavaScript",
+          "max_brecha_abs": 6
         }
       }
     },
@@ -442,14 +442,14 @@
       "source": "reddit_temas_history.summary.leader_topic",
       "entity": "IA/Machine Learning",
       "entity_key": "iamachinelearning",
-      "score": 399.0,
+      "score": 583.0,
       "payload": {
         "tema": "IA/Machine Learning",
-        "menciones": 399,
-        "menciones_previas": null,
-        "delta_menciones": null,
-        "growth_pct": null,
-        "trend_direction": null
+        "menciones": 583,
+        "menciones_previas": 583,
+        "delta_menciones": 0,
+        "growth_pct": 0.0,
+        "trend_direction": "estable"
       }
     },
     {
