@@ -1,2 +1,2 @@
 total_repos_analizados,repos_ai_detectados,porcentaje_ai,mes_pico_ai,repos_mes_pico_ai,top_keywords_ai,top_repos_ai
-1000,547,54.7,2026-02,87,ai:548 | claude:213 | llm:48 | gemini:34 | prompt:33,openclaw/openclaw | ultraworkers/claw-code | multica-ai/andrej-karpathy-skills | anthropics/skills | mattpocock/skills
+2800,1136,40.57,2025-10,240,ai:1224 | claude:342 | llm:157 | rag:72 | prompt:68,openclaw/openclaw | anthropics/skills | msitarzewski/agency-agents | farion1231/cc-switch | nextlevelbuilder/ui-ux-pro-max-skill

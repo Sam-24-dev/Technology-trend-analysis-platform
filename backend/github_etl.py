@@ -353,7 +353,7 @@ class GitHubETL(BaseETL):
                         "stars": repo["stargazers_count"],
                         "forks": repo["forks_count"],
                         "created_at": repo["created_at"],
-                        "description": repo.get("description", "")[:100] if repo.get("description") else "",
+                        "description": repo.get("description", "").strip()[:100].strip() if repo.get("description") else "",
                     }
 
                 if len(items) < PER_PAGE:
