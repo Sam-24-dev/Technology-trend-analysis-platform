@@ -74,6 +74,36 @@ class TestConfiguracionReddit:
             etl.validar_configuracion()
 
 
+class TestOAuthLogging:
+    """Tests for secure Reddit OAuth logging."""
+
+    def test_missing_oauth_token_does_not_log_response_payload(self, etl, caplog):
+        class FakeResponse:
+            status_code = 200
+
+            @staticmethod
+            def json():
+                return {
+                    "error": "invalid_client",
+                    "error_description": "redacted-marker-alpha",
+                    "debug_payload": "redacted-marker-beta",
+                }
+
+        with (
+            patch("reddit_etl.REDDIT_CLIENT_ID", "client-id"),
+            patch("reddit_etl.REDDIT_CLIENT_SECRET", "client-secret"),
+            patch("reddit_etl.requests.post", return_value=FakeResponse()),
+            caplog.at_level("WARNING", logger=etl.logger.name),
+        ):
+            etl._obtener_token_oauth()
+
+        assert etl.access_token is None
+        assert etl.api_base == "https://www.reddit.com"
+        assert "redacted-marker-alpha" not in caplog.text
+        assert "redacted-marker-beta" not in caplog.text
+        assert "debug_payload" not in caplog.text
+
+
 class TestSentimientoFrameworks:
     """Tests para analizar_sentimiento_frameworks."""
 

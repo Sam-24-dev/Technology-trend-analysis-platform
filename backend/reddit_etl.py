@@ -157,7 +157,7 @@ class RedditETL(BaseETL):
                     )
                 else:
                     self.logger.warning(
-                        "Token vacio en respuesta OAuth: %s", token_data
+                        "Token vacio en respuesta OAuth; usando API publica"
                     )
             else:
                 self.logger.warning(
