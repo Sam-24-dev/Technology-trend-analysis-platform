@@ -103,6 +103,40 @@
       }
     })();
   </script>
+  <script>
+    (function () {
+      var zoomableViewport = 'width=device-width, initial-scale=1, viewport-fit=cover';
+      var observedViewport = null;
+      var viewportObserver = new MutationObserver(allowViewportZoom);
+
+      function allowViewportZoom() {
+        var viewport = document.querySelector('meta[flt-viewport]');
+        if (!viewport) {
+          viewportObserver.disconnect();
+          observedViewport = null;
+          return;
+        }
+
+        if (viewport.content !== zoomableViewport) {
+          viewport.content = zoomableViewport;
+        }
+
+        if (viewport !== observedViewport) {
+          viewportObserver.disconnect();
+          viewportObserver.observe(viewport, {
+            attributes: true,
+            attributeFilter: ['content'],
+          });
+          observedViewport = viewport;
+        }
+      }
+
+      allowViewportZoom();
+      new MutationObserver(allowViewportZoom).observe(document.head, {
+        childList: true,
+      });
+    })();
+  </script>
   <script src="flutter_bootstrap.js?v=2" async></script>
 </body>
 </html>
