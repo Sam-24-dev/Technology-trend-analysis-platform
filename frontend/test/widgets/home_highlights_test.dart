@@ -21,6 +21,10 @@ void main() {
       Size(1400, 1800),
     ];
 
+    bool loadedGithubDashboard = false;
+    bool loadedStackOverflowDashboard = false;
+    bool loadedRedditDashboard = false;
+
     addTearDown(() {
       tester.view.resetPhysicalSize();
       tester.view.resetDevicePixelRatio();
@@ -52,6 +56,7 @@ void main() {
                       'payload': {
                         'framework': 'Next.js',
                         'commits_2025': 5000,
+                        'total_classifiable_repos': 2179,
                       },
                     },
                     {
@@ -65,6 +70,7 @@ void main() {
                       'payload': {
                         'lenguaje': 'python',
                         'preguntas': 10810,
+                        'total_questions': 19848,
                         'share_pct': 31.53,
                       },
                     },
@@ -79,6 +85,7 @@ void main() {
                       'payload': {
                         'tema': 'IA/Machine Learning',
                         'menciones': 142,
+                        'total_menciones': 2280,
                         'growth_pct': 0.71,
                         'trend_direction': 'creciendo',
                       },
@@ -96,6 +103,20 @@ void main() {
                 ),
               ),
             ),
+            githubDashboardProvider.overrideWith((ref) async {
+              loadedGithubDashboard = true;
+              return DataLoadState.error('github dashboard should be deferred');
+            }),
+            stackoverflowDashboardProvider.overrideWith((ref) async {
+              loadedStackOverflowDashboard = true;
+              return DataLoadState.error(
+                'stackoverflow dashboard should be deferred',
+              );
+            }),
+            redditDashboardProvider.overrideWith((ref) async {
+              loadedRedditDashboard = true;
+              return DataLoadState.error('reddit dashboard should be deferred');
+            }),
             runManifestProvider.overrideWith(
               (ref) async => DataLoadState.data(
                 const RunManifestPublic(
@@ -112,7 +133,7 @@ void main() {
                   ],
                   datasetSummaries: <RunManifestDatasetSummary>[],
                   totalReposExtraidos: 0,
-                  totalReposClasificables: 0,
+                  totalReposClasificables: 2179,
                   soLanguagesCount: 0,
                   notes: 'ok',
                 ),
@@ -146,6 +167,12 @@ void main() {
       final Text descriptionText = tester.widget<Text>(descriptionFinder);
       expect(descriptionText.maxLines, isNull);
       expect(descriptionText.overflow, isNull);
+      expect(find.text('2,179'), findsOneWidget);
+      expect(find.text('19,848'), findsOneWidget);
+      expect(find.text('2,280'), findsOneWidget);
+      expect(loadedGithubDashboard, isFalse);
+      expect(loadedStackOverflowDashboard, isFalse);
+      expect(loadedRedditDashboard, isFalse);
       expect(
         tester.takeException(),
         isNull,
