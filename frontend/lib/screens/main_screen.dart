@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 
 import '../providers/app_providers.dart';
@@ -28,21 +27,21 @@ class MainScreen extends ConsumerStatefulWidget {
     _NavItem(
       route: AppRoutes.github,
       label: 'GitHub Data',
-      faIcon: FontAwesomeIcons.github,
+      icon: Icons.code_rounded,
       semanticsLabel: 'Navegar a dashboard de GitHub',
       keyName: 'github',
     ),
     _NavItem(
       route: AppRoutes.stackoverflow,
       label: 'StackOverflow Data',
-      faIcon: FontAwesomeIcons.stackOverflow,
+      icon: Icons.question_answer_rounded,
       semanticsLabel: 'Navegar a dashboard de StackOverflow',
       keyName: 'stackoverflow',
     ),
     _NavItem(
       route: AppRoutes.reddit,
       label: 'Reddit Data',
-      faIcon: FontAwesomeIcons.reddit,
+      icon: Icons.forum_rounded,
       semanticsLabel: 'Navegar a dashboard de Reddit',
       keyName: 'reddit',
     ),
@@ -575,13 +574,6 @@ class _MainScreenView extends StatelessWidget {
   }
 
   Widget _buildIcon(_NavItem item, bool isSelected) {
-    if (item.faIcon != null) {
-      return FaIcon(
-        item.faIcon,
-        size: 18,
-        color: isSelected ? Colors.white : const Color(0xFFCBD5E1),
-      );
-    }
     return Icon(
       item.icon,
       size: 20,
@@ -608,16 +600,14 @@ class _MainScreenView extends StatelessWidget {
 class _NavItem {
   final String route;
   final String label;
-  final IconData? icon;
-  final FaIconData? faIcon;
+  final IconData icon;
   final String semanticsLabel;
   final String keyName;
 
   const _NavItem({
     required this.route,
     required this.label,
-    this.icon,
-    this.faIcon,
+    required this.icon,
     required this.semanticsLabel,
     required this.keyName,
   });

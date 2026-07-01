@@ -3,7 +3,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'router/app_router.dart';
 
 void main() {
@@ -25,7 +24,7 @@ class MyApp extends StatelessWidget {
       brightness: Brightness.light,
     );
 
-    final TextTheme baseTextTheme = GoogleFonts.interTextTheme();
+    final TextTheme baseTextTheme = Typography.material2021().black;
     final Color appBackground = const Color(0xFFF7F9FC);
     return MaterialApp.router(
       title: 'Technology Trend Analysis Platform',
