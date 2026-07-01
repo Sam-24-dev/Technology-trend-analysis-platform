@@ -104,6 +104,46 @@ class TestOAuthLogging:
         assert "debug_payload" not in caplog.text
 
 
+class TestRssFallback:
+    """Tests for the Reddit RSS fallback parser."""
+
+    def test_rss_fallback_parses_atom_entries(self, etl):
+        atom_payload = """<?xml version="1.0" encoding="UTF-8"?>
+        <feed xmlns="http://www.w3.org/2005/Atom">
+          <entry>
+            <id>t3_post123</id>
+            <title>Python and FastAPI are useful</title>
+            <content type="html">&lt;p&gt;Django &amp;amp; FastAPI content&lt;/p&gt;</content>
+            <published>2026-06-30T12:34:56Z</published>
+            <author><name>rss_author</name></author>
+          </entry>
+        </feed>
+        """
+
+        class FakeResponse:
+            status_code = 200
+            text = atom_payload
+            headers = {}
+
+        with (
+            patch("reddit_etl.requests.get", return_value=FakeResponse()),
+            patch("reddit_etl.time.sleep"),
+        ):
+            posts = etl._extraer_posts_rss("webdev", 1)
+
+        assert posts == [
+            {
+                "post_id": "post123",
+                "titulo": "Python and FastAPI are useful",
+                "contenido": "Django & FastAPI content",
+                "upvotes": 0,
+                "comentarios": 0,
+                "created_at": pd.Timestamp("2026-06-30T12:34:56").to_pydatetime(),
+                "autor": "rss_author",
+            }
+        ]
+
+
 class TestSentimientoFrameworks:
     """Tests para analizar_sentimiento_frameworks."""
 

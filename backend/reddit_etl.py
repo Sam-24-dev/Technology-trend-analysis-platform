@@ -15,7 +15,7 @@ import warnings
 import time
 import re
 import html
-import xml.etree.ElementTree as ET
+from defusedxml import ElementTree as ET
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 from config.settings import (
