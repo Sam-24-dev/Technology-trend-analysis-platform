@@ -3,6 +3,7 @@ requests>=2.33.0,<2.34.0
 pandas>=2.2.0,<3.0
 numpy>=1.24,<3.0
 python-dotenv>=1.0.0,<2.0
+defusedxml>=0.7.1,<1.0
 vaderSentiment>=3.3.2,<4.0
 pandera>=0.22.0,<0.23.0
 duckdb>=1.2.2,<2.0
