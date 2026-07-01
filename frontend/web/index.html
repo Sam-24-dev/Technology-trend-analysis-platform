@@ -103,6 +103,26 @@
       }
     })();
   </script>
+  <script>
+    (function () {
+      var zoomableViewport = 'width=device-width, initial-scale=1, viewport-fit=cover';
+
+      function allowViewportZoom() {
+        var viewport = document.querySelector('meta[flt-viewport]');
+        if (viewport && viewport.content !== zoomableViewport) {
+          viewport.content = zoomableViewport;
+        }
+      }
+
+      allowViewportZoom();
+      new MutationObserver(allowViewportZoom).observe(document.head, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['content'],
+      });
+    })();
+  </script>
   <script src="flutter_bootstrap.js?v=2" async></script>
 </body>
 </html>
