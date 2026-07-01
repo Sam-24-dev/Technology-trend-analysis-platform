@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import '../models/dashboard_domain_models.dart';
 import '../models/data_load_state.dart';
@@ -100,23 +99,23 @@ class HomeScreen extends ConsumerWidget {
                 spacing: 16,
                 runSpacing: 16,
                 children: [
-                  _buildKpiCardFA(
+                  _buildKpiCard(
                     width: kpiCardWidth,
-                    icon: FontAwesomeIcons.github,
+                    icon: Icons.code_rounded,
                     value: _formatMetric(githubRepos),
                     label: 'Repositorios clasificables',
                     color: Colors.blue,
                   ),
-                  _buildKpiCardFA(
+                  _buildKpiCard(
                     width: kpiCardWidth,
-                    icon: FontAwesomeIcons.stackOverflow,
+                    icon: Icons.question_answer_rounded,
                     value: _formatMetric(stackQuestions),
                     label: 'Preguntas Procesadas',
                     color: const Color(0xFFF48024),
                   ),
-                  _buildKpiCardFA(
+                  _buildKpiCard(
                     width: kpiCardWidth,
-                    icon: FontAwesomeIcons.reddit,
+                    icon: Icons.forum_rounded,
                     value: _formatMetric(redditMentions),
                     label: 'Menciones en Reddit',
                     color: const Color(0xFFFF4500),
@@ -174,27 +173,27 @@ class HomeScreen extends ConsumerWidget {
                 spacing: 24,
                 runSpacing: 24,
                 children: [
-                  _buildInfoCardFA(
+                  _buildInfoCard(
                     context: context,
-                    icon: FontAwesomeIcons.github,
+                    icon: Icons.code_rounded,
                     title: 'GitHub Data',
                     description:
                         'Análisis de repos nuevos y commits del corte actual, con ranking de lenguajes y frameworks.',
                     color: Colors.blue,
                     route: AppRoutes.github,
                   ),
-                  _buildInfoCardFA(
+                  _buildInfoCard(
                     context: context,
-                    icon: FontAwesomeIcons.stackOverflow,
+                    icon: Icons.question_answer_rounded,
                     title: 'StackOverflow Data',
                     description:
                         'Actividad por tecnología a lo largo del tiempo: volumen, variación y tasa de aceptación.',
                     color: const Color(0xFFF48024),
                     route: AppRoutes.stackoverflow,
                   ),
-                  _buildInfoCardFA(
+                  _buildInfoCard(
                     context: context,
-                    icon: FontAwesomeIcons.reddit,
+                    icon: Icons.forum_rounded,
                     title: 'Reddit Data',
                     description:
                         'Sentimiento y crecimiento de temas en la comunidad, con cambios vs corrida previa.',
@@ -213,22 +212,22 @@ class HomeScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              _buildTeamMemberFA(
+              _buildTeamMember(
                 'Samir Caizapasto',
                 'Líder del proyecto · Arquitectura, ETL GitHub y dashboards',
-                FontAwesomeIcons.github,
+                Icons.code_rounded,
                 Colors.blue,
               ),
-              _buildTeamMemberFA(
+              _buildTeamMember(
                 'Andrés Salinas',
                 'Ingeniería de datos · ETL StackOverflow y dashboards',
-                FontAwesomeIcons.stackOverflow,
+                Icons.question_answer_rounded,
                 const Color(0xFFF48024),
               ),
-              _buildTeamMemberFA(
+              _buildTeamMember(
                 'Mateo Mayorga',
                 'Ingeniería de datos · ETL Reddit y visualización',
-                FontAwesomeIcons.reddit,
+                Icons.forum_rounded,
                 const Color(0xFFFF4500),
               ),
 
@@ -241,9 +240,9 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildKpiCardFA({
+  Widget _buildKpiCard({
     required double width,
-    required FaIconData icon,
+    required IconData icon,
     required String value,
     required String label,
     required Color color,
@@ -269,7 +268,7 @@ class HomeScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          FaIcon(icon, size: 32, color: Colors.white.withValues(alpha: 0.9)),
+          Icon(icon, size: 32, color: Colors.white.withValues(alpha: 0.9)),
           const SizedBox(height: 16),
           Text(
             value,
@@ -303,9 +302,9 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildInfoCardFA({
+  Widget _buildInfoCard({
     required BuildContext context,
-    required FaIconData icon,
+    required IconData icon,
     required String title,
     required String description,
     required Color color,
@@ -331,7 +330,7 @@ class HomeScreen extends ConsumerWidget {
         children: [
           Row(
             children: [
-              FaIcon(icon, size: 20, color: color),
+              Icon(icon, size: 20, color: color),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
@@ -373,10 +372,10 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildTeamMemberFA(
+  Widget _buildTeamMember(
     String name,
     String role,
-    FaIconData icon,
+    IconData icon,
     Color color,
   ) {
     return Padding(
@@ -390,7 +389,7 @@ class HomeScreen extends ConsumerWidget {
               children: <Widget>[
                 CircleAvatar(
                   backgroundColor: color.withValues(alpha: 0.15),
-                  child: FaIcon(icon, color: color, size: 18),
+                  child: Icon(icon, color: color, size: 18),
                 ),
                 const SizedBox(height: 6),
                 Text(
@@ -411,7 +410,7 @@ class HomeScreen extends ConsumerWidget {
             children: [
               CircleAvatar(
                 backgroundColor: color.withValues(alpha: 0.15),
-                child: FaIcon(icon, color: color, size: 18),
+                child: Icon(icon, color: color, size: 18),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -1862,7 +1861,7 @@ class _TrendTopEntryCard extends StatefulWidget {
 class _SourceContributionMeta {
   final String code;
   final String label;
-  final FaIconData icon;
+  final IconData icon;
   final Color color;
   final double value;
 
@@ -2164,21 +2163,21 @@ class _TrendTopEntryCardState extends State<_TrendTopEntryCard> {
       _SourceContributionMeta(
         code: 'GH',
         label: 'GitHub',
-        icon: FontAwesomeIcons.github,
+        icon: Icons.code_rounded,
         color: const Color(0xFF111827),
         value: widget.item.githubScore,
       ),
       _SourceContributionMeta(
         code: 'SO',
         label: 'StackOverflow',
-        icon: FontAwesomeIcons.stackOverflow,
+        icon: Icons.question_answer_rounded,
         color: const Color(0xFFF48024),
         value: widget.item.stackOverflowScore,
       ),
       _SourceContributionMeta(
         code: 'RD',
         label: 'Reddit',
-        icon: FontAwesomeIcons.redditAlien,
+        icon: Icons.forum_rounded,
         color: const Color(0xFFFF4500),
         value: widget.item.redditScore,
       ),
@@ -2212,7 +2211,7 @@ class _TrendTopEntryCardState extends State<_TrendTopEntryCard> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                FaIcon(
+                Icon(
                   meta.icon,
                   size: 12,
                   color: hasData ? meta.color : const Color(0xFF94A3B8),
