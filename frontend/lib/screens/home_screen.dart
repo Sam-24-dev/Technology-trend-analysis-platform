@@ -30,19 +30,26 @@ class HomeScreen extends ConsumerWidget {
     final DataLoadState<HomeHighlightsPayloadModel>? homeHighlightsState =
         homeHighlightsAsync.asData?.value;
     final HomeHighlightsPayloadModel? highlights = homeHighlightsState?.data;
-    final int? githubRepos = _positiveOrNull(
-      manifestState?.data?.totalReposClasificables,
-    ) ?? _homeHighlightInt(highlights, 'github', 'total_classifiable_repos');
-    final int? stackQuestions = _homeHighlightInt(
-      highlights,
-      'stackoverflow',
-      'total_questions',
-    );
-    final int? redditMentions = _homeHighlightInt(
-      highlights,
-      'reddit',
-      'total_menciones',
-    );
+    final int? githubRepos =
+        _positiveOrNull(manifestState?.data?.totalReposClasificables) ??
+        _homeSignalInt(
+          highlights,
+          'github',
+          'graph_1',
+          'total_classifiable_repos',
+        ) ??
+        _homeHighlightInt(highlights, 'github', 'total_classifiable_repos');
+    final int? stackQuestions =
+        _homeSignalInt(
+          highlights,
+          'stackoverflow',
+          'graph_1',
+          'total_questions',
+        ) ??
+        _homeHighlightInt(highlights, 'stackoverflow', 'total_questions');
+    final int? redditMentions =
+        _homeSignalInt(highlights, 'reddit', 'graph_2', 'total_menciones') ??
+        _homeHighlightInt(highlights, 'reddit', 'total_menciones');
 
     return _HomeScrollRestore(
       child: LayoutBuilder(
@@ -309,6 +316,27 @@ class HomeScreen extends ConsumerWidget {
     return null;
   }
 
+  int? _homeSignalInt(
+    HomeHighlightsPayloadModel? highlights,
+    String dashboard,
+    String graph,
+    String payloadKey,
+  ) {
+    final Object? dashboardNode = highlights?.dashboardSignals[dashboard];
+    if (dashboardNode is! Map) {
+      return null;
+    }
+    final Object? graphNode = dashboardNode[graph];
+    if (graphNode is! Map) {
+      return null;
+    }
+    final Object? summaryNode = graphNode['summary'];
+    if (summaryNode is! Map) {
+      return null;
+    }
+    return _positiveOrNull(summaryNode[payloadKey]);
+  }
+
   int? _positiveOrNull(Object? value) {
     final int parsed = int.tryParse(value?.toString() ?? '') ?? 0;
     return parsed > 0 ? parsed : null;
@@ -552,7 +580,7 @@ class _DynamicHomeInsights extends ConsumerWidget {
         homeHighlightsState?.data;
     if (homeHighlightsState == null && homeHighlightsAsync.isLoading) {
       return const Text(
-        'Insights no disponibles por ahora.',
+        'Cargando insights...',
         style: TextStyle(fontSize: 14, color: Color(0xFF475569)),
       );
     }

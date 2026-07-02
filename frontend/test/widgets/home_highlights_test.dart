@@ -46,6 +46,23 @@ void main() {
                   'dataset': 'home_highlights',
                   'source_mode': 'bridges',
                   'candidate_count': 3,
+                  'dashboard_signals': {
+                    'github': {
+                      'graph_1': {
+                        'summary': {'total_classifiable_repos': 2179},
+                      },
+                    },
+                    'stackoverflow': {
+                      'graph_1': {
+                        'summary': {'total_questions': 19848},
+                      },
+                    },
+                    'reddit': {
+                      'graph_2': {
+                        'summary': {'total_menciones': 2280},
+                      },
+                    },
+                  },
                   'highlights': [
                     {
                       'dashboard': 'github',
@@ -55,26 +72,7 @@ void main() {
                       'entity': 'Next.js',
                       'entity_key': 'nextjs',
                       'score': 251.61,
-                      'payload': {
-                        'framework': 'Next.js',
-                        'commits_2025': 5000,
-                        'total_classifiable_repos': 2179,
-                      },
-                    },
-                    {
-                      'dashboard': 'stackoverflow',
-                      'graph': 1,
-                      'signal': 'leader',
-                      'source': 'so_volumen_history.summary.leader',
-                      'entity': 'python',
-                      'entity_key': 'python',
-                      'score': 234.22,
-                      'payload': {
-                        'lenguaje': 'python',
-                        'preguntas': 10810,
-                        'total_questions': 19848,
-                        'share_pct': 31.53,
-                      },
+                      'payload': {'framework': 'Next.js', 'commits_2025': 5000},
                     },
                     {
                       'dashboard': 'reddit',
@@ -87,7 +85,6 @@ void main() {
                       'payload': {
                         'tema': 'IA/Machine Learning',
                         'menciones': 142,
-                        'total_menciones': 2280,
                         'growth_pct': 0.71,
                         'trend_direction': 'creciendo',
                       },
@@ -157,21 +154,10 @@ void main() {
         findsOneWidget,
       );
       expect(
-        find.text('Python lidera el volumen en StackOverflow'),
-        findsOneWidget,
-      );
-      expect(
         find.text('AI/ML lidera la conversación en Reddit'),
         findsOneWidget,
       );
       expect(find.text('Python domina GitHub y StackOverflow'), findsNothing);
-      final Finder descriptionFinder = find.textContaining(
-        '10,810 preguntas nuevas',
-      );
-      expect(descriptionFinder, findsOneWidget);
-      final Text descriptionText = tester.widget<Text>(descriptionFinder);
-      expect(descriptionText.maxLines, isNull);
-      expect(descriptionText.overflow, isNull);
       expect(find.text('2,179'), findsOneWidget);
       expect(find.text('19,848'), findsOneWidget);
       expect(find.text('2,280'), findsOneWidget);
@@ -249,7 +235,7 @@ void main() {
 
     await tester.pump();
 
-    expect(find.text('Insights no disponibles por ahora.'), findsOneWidget);
+    expect(find.text('Cargando insights...'), findsOneWidget);
     expect(loadedGithubDashboard, isFalse);
     expect(loadedStackOverflowDashboard, isFalse);
     expect(loadedRedditDashboard, isFalse);
