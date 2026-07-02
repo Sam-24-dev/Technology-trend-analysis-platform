@@ -14,11 +14,16 @@ def calcular_trend_score_duckdb(df_github, df_so, df_reddit, pesos):
     """Calcula Trend Score usando SQL de DuckDB sobre DataFrames en memoria."""
     if duckdb is None:
         raise RuntimeError("DuckDB engine is unavailable. Install 'duckdb' to use this engine.")
-    weight_params = (
-        float(pesos["github"]),
-        float(pesos["stackoverflow"]),
-        float(pesos["reddit"]),
-    )
+    try:
+        weight_params = (
+            float(pesos["github"]),
+            float(pesos["stackoverflow"]),
+            float(pesos["reddit"]),
+        )
+    except (KeyError, TypeError, ValueError) as exc:
+        raise ValueError(
+            "Trend score weights must include numeric github, stackoverflow, and reddit values."
+        ) from exc
 
     github_scores = (
         df_github[["tecnologia", "github_score"]].copy()

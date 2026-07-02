@@ -222,7 +222,31 @@ class TestCalcularTrendScore:
         assert not result.empty
         assert result.iloc[0]["tecnologia"] == "Python"
 
-    def test_duckdb_engine_rejects_non_numeric_weights(self):
+    @pytest.mark.parametrize(
+        ("unsafe_weights", "leaked_text"),
+        [
+            (
+                {
+                    "github": "0.4); DROP TABLE github_scores; --",
+                    "stackoverflow": 0.35,
+                    "reddit": 0.25,
+                },
+                "DROP TABLE",
+            ),
+            (
+                {
+                    "github": 0.4,
+                    "reddit": 0.25,
+                },
+                None,
+            ),
+        ],
+    )
+    def test_duckdb_engine_reports_invalid_weights_consistently(
+        self,
+        unsafe_weights,
+        leaked_text,
+    ):
         df_github = pd.DataFrame(
             {
                 "tecnologia": ["Python"],
@@ -231,19 +255,17 @@ class TestCalcularTrendScore:
         )
         df_so = pd.DataFrame(columns=["tecnologia", "so_score"])
         df_reddit = pd.DataFrame(columns=["tecnologia", "reddit_score"])
-        unsafe_weights = {
-            "github": "0.4); DROP TABLE github_scores; --",
-            "stackoverflow": 0.35,
-            "reddit": 0.25,
-        }
 
-        with pytest.raises(ValueError):
+        message = "Trend score weights must include numeric github, stackoverflow, and reddit values."
+        with pytest.raises(ValueError, match=message) as exc_info:
             calcular_trend_score_duckdb(
                 df_github,
                 df_so,
                 df_reddit,
                 unsafe_weights,
             )
+        if leaked_text is not None:
+            assert leaked_text not in str(exc_info.value)
 
 
 class TestCargarGitHub:
