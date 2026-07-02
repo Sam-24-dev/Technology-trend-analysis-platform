@@ -14,6 +14,11 @@ def calcular_trend_score_duckdb(df_github, df_so, df_reddit, pesos):
     """Calcula Trend Score usando SQL de DuckDB sobre DataFrames en memoria."""
     if duckdb is None:
         raise RuntimeError("DuckDB engine is unavailable. Install 'duckdb' to use this engine.")
+    weight_params = (
+        float(pesos["github"]),
+        float(pesos["stackoverflow"]),
+        float(pesos["reddit"]),
+    )
 
     github_scores = (
         df_github[["tecnologia", "github_score"]].copy()
@@ -37,7 +42,7 @@ def calcular_trend_score_duckdb(df_github, df_so, df_reddit, pesos):
         connection.register("so_scores", so_scores)
         connection.register("reddit_scores", reddit_scores)
 
-        query = f"""
+        query = """
             WITH merged AS (
                 SELECT
                     COALESCE(g.tecnologia, s.tecnologia, r.tecnologia) AS tecnologia,
@@ -57,9 +62,9 @@ def calcular_trend_score_duckdb(df_github, df_so, df_reddit, pesos):
                     so_score,
                     reddit_score,
                     ROUND((
-                        {pesos['github']} * github_score +
-                        {pesos['stackoverflow']} * so_score +
-                        {pesos['reddit']} * reddit_score
+                        ? * github_score +
+                        ? * so_score +
+                        ? * reddit_score
                     ), 2) AS trend_score,
                     (
                         CASE WHEN github_score > 0 THEN 1 ELSE 0 END +
@@ -92,6 +97,6 @@ def calcular_trend_score_duckdb(df_github, df_so, df_reddit, pesos):
             ORDER BY ranking
         """
 
-        return connection.execute(query).df()
+        return connection.execute(query, weight_params).df()
     finally:
         connection.close()

@@ -8,6 +8,7 @@ Los tests cubren:
 - Manejo de fuentes faltantes
 """
 import pandas as pd
+import pytest
 from unittest.mock import patch
 from trend_score import (
     normalizar_nombre,
@@ -18,6 +19,7 @@ from trend_score import (
     resolve_trend_engine,
     PESOS
 )
+from trend_score_duckdb import calcular_trend_score_duckdb
 
 
 class TestNormalizarNombre:
@@ -219,6 +221,29 @@ class TestCalcularTrendScore:
 
         assert not result.empty
         assert result.iloc[0]["tecnologia"] == "Python"
+
+    def test_duckdb_engine_rejects_non_numeric_weights(self):
+        df_github = pd.DataFrame(
+            {
+                "tecnologia": ["Python"],
+                "github_score": [100.0],
+            }
+        )
+        df_so = pd.DataFrame(columns=["tecnologia", "so_score"])
+        df_reddit = pd.DataFrame(columns=["tecnologia", "reddit_score"])
+        unsafe_weights = {
+            "github": "0.4); DROP TABLE github_scores; --",
+            "stackoverflow": 0.35,
+            "reddit": 0.25,
+        }
+
+        with pytest.raises(ValueError):
+            calcular_trend_score_duckdb(
+                df_github,
+                df_so,
+                df_reddit,
+                unsafe_weights,
+            )
 
 
 class TestCargarGitHub:
