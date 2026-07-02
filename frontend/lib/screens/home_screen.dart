@@ -22,40 +22,34 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final TextTheme textTheme = Theme.of(context).textTheme;
     final ColorScheme colors = Theme.of(context).colorScheme;
-    final DataLoadState<GithubDashboardData>? githubState = ref
-        .watch(githubDashboardProvider)
-        .asData
-        ?.value;
-    final DataLoadState<StackOverflowDashboardData>? stackState = ref
-        .watch(stackoverflowDashboardProvider)
-        .asData
-        ?.value;
-    final DataLoadState<RedditDashboardData>? redditState = ref
-        .watch(redditDashboardProvider)
-        .asData
-        ?.value;
     final DataLoadState<RunManifestPublic>? manifestState = ref
         .watch(runManifestProvider)
         .asData
         ?.value;
-    final int githubTop10Repos =
-        githubState?.data?.lenguajes.fold<int>(
-          0,
-          (int total, LenguajeModel row) => total + row.reposCount,
-        ) ??
-        0;
+    final homeHighlightsAsync = ref.watch(homeHighlightsProvider);
+    final DataLoadState<HomeHighlightsPayloadModel>? homeHighlightsState =
+        homeHighlightsAsync.asData?.value;
+    final HomeHighlightsPayloadModel? highlights = homeHighlightsState?.data;
     final int? githubRepos =
-        (manifestState?.data?.totalReposClasificables ?? 0) > 0
-        ? manifestState?.data?.totalReposClasificables
-        : githubTop10Repos;
-    final int? stackQuestions = stackState?.data?.volumen.fold<int>(
-      0,
-      (int total, VolumenPreguntasModel row) => total + row.preguntas,
-    );
-    final int? redditMentions = redditState?.data?.temas.fold<int>(
-      0,
-      (int total, TemasEmergentesModel row) => total + row.menciones,
-    );
+        _positiveOrNull(manifestState?.data?.totalReposClasificables) ??
+        _homeSignalInt(
+          highlights,
+          'github',
+          'graph_1',
+          'total_classifiable_repos',
+        ) ??
+        _homeHighlightInt(highlights, 'github', 'total_classifiable_repos');
+    final int? stackQuestions =
+        _homeSignalInt(
+          highlights,
+          'stackoverflow',
+          'graph_1',
+          'total_questions',
+        ) ??
+        _homeHighlightInt(highlights, 'stackoverflow', 'total_questions');
+    final int? redditMentions =
+        _homeSignalInt(highlights, 'reddit', 'graph_2', 'total_menciones') ??
+        _homeHighlightInt(highlights, 'reddit', 'total_menciones');
 
     return _HomeScrollRestore(
       child: LayoutBuilder(
@@ -302,6 +296,52 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
+  int? _homeHighlightInt(
+    HomeHighlightsPayloadModel? highlights,
+    String dashboard,
+    String payloadKey,
+  ) {
+    if (highlights == null) {
+      return null;
+    }
+    for (final HomeHighlightModel highlight in highlights.highlights) {
+      if (highlight.dashboard != dashboard) {
+        continue;
+      }
+      final int? value = _positiveOrNull(highlight.payload[payloadKey]);
+      if (value != null) {
+        return value;
+      }
+    }
+    return null;
+  }
+
+  int? _homeSignalInt(
+    HomeHighlightsPayloadModel? highlights,
+    String dashboard,
+    String graph,
+    String payloadKey,
+  ) {
+    final Object? dashboardNode = highlights?.dashboardSignals[dashboard];
+    if (dashboardNode is! Map) {
+      return null;
+    }
+    final Object? graphNode = dashboardNode[graph];
+    if (graphNode is! Map) {
+      return null;
+    }
+    final Object? summaryNode = graphNode['summary'];
+    if (summaryNode is! Map) {
+      return null;
+    }
+    return _positiveOrNull(summaryNode[payloadKey]);
+  }
+
+  int? _positiveOrNull(Object? value) {
+    final int parsed = int.tryParse(value?.toString() ?? '') ?? 0;
+    return parsed > 0 ? parsed : null;
+  }
+
   Widget _buildInfoCard({
     required BuildContext context,
     required IconData icon,
@@ -524,26 +564,9 @@ class _DynamicHomeInsights extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final DataLoadState<HomeHighlightsPayloadModel>? homeHighlightsState = ref
-        .watch(homeHighlightsProvider)
-        .asData
-        ?.value;
-    final DataLoadState<GithubDashboardData>? githubState = ref
-        .watch(githubDashboardProvider)
-        .asData
-        ?.value;
-    final DataLoadState<StackOverflowDashboardData>? stackState = ref
-        .watch(stackoverflowDashboardProvider)
-        .asData
-        ?.value;
-    final DataLoadState<RedditDashboardData>? redditState = ref
-        .watch(redditDashboardProvider)
-        .asData
-        ?.value;
-    final DataLoadState<RunManifestPublic>? manifestState = ref
-        .watch(runManifestProvider)
-        .asData
-        ?.value;
+    final homeHighlightsAsync = ref.watch(homeHighlightsProvider);
+    final DataLoadState<HomeHighlightsPayloadModel>? homeHighlightsState =
+        homeHighlightsAsync.asData?.value;
     final DataLoadState<TrendTemporalViewData>? trendState = ref
         .watch(trendTemporalProvider)
         .asData
@@ -555,19 +578,44 @@ class _DynamicHomeInsights extends ConsumerWidget {
 
     final HomeHighlightsPayloadModel? highlightsPayload =
         homeHighlightsState?.data;
-    final List<_InsightItem> insights =
-        (highlightsPayload != null && highlightsPayload.highlights.isNotEmpty)
-        ? _buildCanonicalInsights(
-            highlightsPayload.highlights,
-            comparisonDate: comparisonDate,
-          )
-        : _buildLegacyInsights(
-            github: githubState?.data,
-            stack: stackState?.data,
-            reddit: redditState?.data,
-            manifest: manifestState?.data,
-            comparisonDate: comparisonDate,
-          );
+    if (homeHighlightsState == null && homeHighlightsAsync.isLoading) {
+      return const Text(
+        'Cargando insights...',
+        style: TextStyle(fontSize: 14, color: Color(0xFF475569)),
+      );
+    }
+
+    final List<_InsightItem> insights;
+    if (highlightsPayload != null && highlightsPayload.highlights.isNotEmpty) {
+      insights = _buildCanonicalInsights(
+        highlightsPayload.highlights,
+        comparisonDate: comparisonDate,
+      );
+    } else {
+      final DataLoadState<GithubDashboardData>? githubState = ref
+          .watch(githubDashboardProvider)
+          .asData
+          ?.value;
+      final DataLoadState<StackOverflowDashboardData>? stackState = ref
+          .watch(stackoverflowDashboardProvider)
+          .asData
+          ?.value;
+      final DataLoadState<RedditDashboardData>? redditState = ref
+          .watch(redditDashboardProvider)
+          .asData
+          ?.value;
+      final DataLoadState<RunManifestPublic>? manifestState = ref
+          .watch(runManifestProvider)
+          .asData
+          ?.value;
+      insights = _buildLegacyInsights(
+        github: githubState?.data,
+        stack: stackState?.data,
+        reddit: redditState?.data,
+        manifest: manifestState?.data,
+        comparisonDate: comparisonDate,
+      );
+    }
 
     if (insights.isEmpty) {
       return const Text(

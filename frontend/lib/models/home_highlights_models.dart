@@ -40,6 +40,7 @@ class HomeHighlightsPayloadModel {
   final String dataset;
   final String sourceMode;
   final int candidateCount;
+  final Map<String, dynamic> dashboardSignals;
   final List<HomeHighlightModel> highlights;
 
   const HomeHighlightsPayloadModel({
@@ -47,6 +48,7 @@ class HomeHighlightsPayloadModel {
     required this.dataset,
     required this.sourceMode,
     required this.candidateCount,
+    required this.dashboardSignals,
     required this.highlights,
   });
 
@@ -59,6 +61,9 @@ class HomeHighlightsPayloadModel {
       sourceMode: map['source_mode']?.toString() ?? '',
       candidateCount:
           int.tryParse(map['candidate_count']?.toString() ?? '0') ?? 0,
+      dashboardSignals:
+          (map['dashboard_signals'] as Map?)?.cast<String, dynamic>() ??
+          const <String, dynamic>{},
       highlights: rawHighlights
           .whereType<Map>()
           .map(
