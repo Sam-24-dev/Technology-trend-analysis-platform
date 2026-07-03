@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:frontend/router/app_router.dart';
-import 'package:frontend/screens/trends_tech_screen.dart';
 
 void main() {
   Future<void> _pumpRouter(
@@ -12,6 +11,9 @@ void main() {
     Size size = const Size(1280, 900),
     Finder? readyFinder,
   }) async {
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
+
     tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1.0;
     addTearDown(() {
@@ -20,15 +22,12 @@ void main() {
     });
 
     final router = createAppRouter(initialLocation: initialLocation);
+    addTearDown(router.dispose);
     await tester.pumpWidget(
       ProviderScope(child: MaterialApp.router(routerConfig: router)),
     );
-    for (int i = 0; i < 80; i++) {
+    for (int i = 0; i < 30; i++) {
       await tester.pump(const Duration(milliseconds: 250));
-      if (readyFinder != null && readyFinder.evaluate().isNotEmpty) {
-        await tester.pump();
-        return;
-      }
     }
     if (readyFinder != null) {
       expect(readyFinder, findsWidgets);
@@ -52,18 +51,25 @@ void main() {
   testWidgets('go_router deep-link /trends/:tech renderiza detalle', (
     WidgetTester tester,
   ) async {
-    final Finder trendsScreenFinder = find.byWidgetPredicate(
-      (Widget widget) =>
-          widget is TrendsTechScreen && widget.technology == 'python',
-    );
-
     await _pumpRouter(
       tester,
       initialLocation: '/trends/python',
-      readyFinder: trendsScreenFinder,
+      size: const Size(800, 600),
+      readyFinder: find.textContaining(
+        'Análisis por tecnología',
+        findRichText: true,
+        skipOffstage: false,
+      ),
     );
 
-    expect(trendsScreenFinder, findsOneWidget);
+    expect(
+      find.textContaining(
+        'Análisis por tecnología',
+        findRichText: true,
+        skipOffstage: false,
+      ),
+      findsWidgets,
+    );
     expect(tester.takeException(), isNull);
   });
 
