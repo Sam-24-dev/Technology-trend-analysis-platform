@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../screens/github_dashboard.dart';
+import '../screens/github_dashboard.dart' deferred as github_dashboard;
 import '../screens/home_screen.dart';
 import '../screens/main_screen.dart';
-import '../screens/reddit_dashboard.dart';
-import '../screens/stackoverflow_dashboard.dart';
+import '../screens/reddit_dashboard.dart' deferred as reddit_dashboard;
+import '../screens/stackoverflow_dashboard.dart'
+    deferred as stackoverflow_dashboard;
 import '../screens/trends_tech_screen.dart';
 
 class AppRoutes {
@@ -51,17 +52,33 @@ GoRouter createAppRouter({String initialLocation = AppRoutes.home}) {
           GoRoute(
             path: AppRoutes.github,
             pageBuilder: (BuildContext context, GoRouterState state) =>
-                const NoTransitionPage<void>(child: GithubDashboard()),
+                NoTransitionPage<void>(
+                  child: _DeferredRoute(
+                    loadLibrary: github_dashboard.loadLibrary,
+                    builder: () => github_dashboard.GithubDashboard(),
+                  ),
+                ),
           ),
           GoRoute(
             path: AppRoutes.stackoverflow,
             pageBuilder: (BuildContext context, GoRouterState state) =>
-                const NoTransitionPage<void>(child: StackOverflowDashboard()),
+                NoTransitionPage<void>(
+                  child: _DeferredRoute(
+                    loadLibrary: stackoverflow_dashboard.loadLibrary,
+                    builder: () =>
+                        stackoverflow_dashboard.StackOverflowDashboard(),
+                  ),
+                ),
           ),
           GoRoute(
             path: AppRoutes.reddit,
             pageBuilder: (BuildContext context, GoRouterState state) =>
-                const NoTransitionPage<void>(child: RedditDashboard()),
+                NoTransitionPage<void>(
+                  child: _DeferredRoute(
+                    loadLibrary: reddit_dashboard.loadLibrary,
+                    builder: () => reddit_dashboard.RedditDashboard(),
+                  ),
+                ),
           ),
           GoRoute(
             path: AppRoutes.trendsTech,
@@ -90,4 +107,84 @@ GoRouter createAppRouter({String initialLocation = AppRoutes.home}) {
       );
     },
   );
+}
+
+typedef _DeferredRouteBuilder = Widget Function();
+
+class _DeferredRoute extends StatefulWidget {
+  final Future<void> Function() loadLibrary;
+  final _DeferredRouteBuilder builder;
+
+  const _DeferredRoute({required this.loadLibrary, required this.builder});
+
+  @override
+  State<_DeferredRoute> createState() => _DeferredRouteState();
+}
+
+class _DeferredRouteState extends State<_DeferredRoute> {
+  late Future<void> _loadFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFuture = _loadRoute();
+  }
+
+  @override
+  void didUpdateWidget(covariant _DeferredRoute oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.loadLibrary != widget.loadLibrary) {
+      _loadFuture = _loadRoute();
+    }
+  }
+
+  Future<void> _loadRoute() async {
+    try {
+      await widget.loadLibrary();
+    } catch (error, stackTrace) {
+      FlutterError.reportError(
+        FlutterErrorDetails(
+          exception: error,
+          stack: stackTrace,
+          library: 'app_router',
+          context: ErrorDescription('loading a deferred route library'),
+        ),
+      );
+      rethrow;
+    }
+  }
+
+  void _retryLoad() {
+    setState(() {
+      _loadFuture = _loadRoute();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<void>(
+      future: _loadFuture,
+      builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
+        if (snapshot.hasError) {
+          return Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                const Text('No se pudo cargar la página.'),
+                const SizedBox(height: 12),
+                OutlinedButton(
+                  onPressed: _retryLoad,
+                  child: const Text('Reintentar'),
+                ),
+              ],
+            ),
+          );
+        }
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        return widget.builder();
+      },
+    );
+  }
 }
