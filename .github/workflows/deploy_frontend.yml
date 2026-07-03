@@ -105,7 +105,7 @@ jobs:
       - name: Build Flutter Web
         run: |
           cd frontend
-          flutter build web --wasm --base-href "/Technology-trend-analysis-platform/" --dart-define=USE_HISTORY_BRIDGE_JSON=true --dart-define=REMOTE_ASSETS_BASE_URL=${REMOTE_ASSETS_BASE_URL}
+          flutter build web --wasm --no-web-resources-cdn --base-href "/Technology-trend-analysis-platform/" --dart-define=USE_HISTORY_BRIDGE_JSON=true --dart-define=REMOTE_ASSETS_BASE_URL=${REMOTE_ASSETS_BASE_URL}
 
       - name: Inject remote JSON assets
         shell: bash
