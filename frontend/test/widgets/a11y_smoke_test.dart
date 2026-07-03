@@ -90,7 +90,7 @@ void main() {
     expect(FocusManager.instance.primaryFocus, isNotNull);
 
     await tester.sendKeyEvent(LogicalKeyboardKey.enter);
-    await tester.pump(const Duration(milliseconds: 200));
+    await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
   });
 
