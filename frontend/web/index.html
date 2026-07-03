@@ -51,6 +51,33 @@
 
   <title>Technology Trend Analysis Platform</title>
   <link rel="manifest" href="manifest.json">
+  <style>
+    #app-loading {
+      align-items: center;
+      background: #f8fafc;
+      color: #0f172a;
+      display: flex;
+      font-family: Arial, sans-serif;
+      inset: 0;
+      justify-content: center;
+      padding: 24px;
+      position: fixed;
+      text-align: center;
+      z-index: 1;
+    }
+
+    #app-loading h1 {
+      font-size: clamp(28px, 7vw, 56px);
+      line-height: 1.05;
+      margin: 0 0 12px;
+    }
+
+    #app-loading p {
+      color: #475569;
+      font-size: 16px;
+      margin: 0;
+    }
+  </style>
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -66,6 +93,12 @@
   </script>
 </head>
 <body>
+  <div id="app-loading" role="status" aria-live="polite">
+    <main>
+      <h1>Technology Trend Analysis Platform</h1>
+      <p>Loading GitHub, Stack Overflow, and Reddit trend dashboards...</p>
+    </main>
+  </div>
   <noscript>
     <main>
       <h1>Technology Trend Analysis Platform</h1>
