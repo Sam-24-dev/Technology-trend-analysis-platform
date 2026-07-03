@@ -127,15 +127,37 @@ class _DeferredRouteState extends State<_DeferredRoute> {
   @override
   void initState() {
     super.initState();
-    _loadFuture = widget.loadLibrary();
+    _loadFuture = _loadRoute();
   }
 
   @override
   void didUpdateWidget(covariant _DeferredRoute oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.loadLibrary != widget.loadLibrary) {
-      _loadFuture = widget.loadLibrary();
+      _loadFuture = _loadRoute();
     }
+  }
+
+  Future<void> _loadRoute() async {
+    try {
+      await widget.loadLibrary();
+    } catch (error, stackTrace) {
+      FlutterError.reportError(
+        FlutterErrorDetails(
+          exception: error,
+          stack: stackTrace,
+          library: 'app_router',
+          context: ErrorDescription('loading a deferred route library'),
+        ),
+      );
+      rethrow;
+    }
+  }
+
+  void _retryLoad() {
+    setState(() {
+      _loadFuture = _loadRoute();
+    });
   }
 
   @override
@@ -144,7 +166,19 @@ class _DeferredRouteState extends State<_DeferredRoute> {
       future: _loadFuture,
       builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
         if (snapshot.hasError) {
-          return const Center(child: Text('No se pudo cargar la página.'));
+          return Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                const Text('No se pudo cargar la página.'),
+                const SizedBox(height: 12),
+                OutlinedButton(
+                  onPressed: _retryLoad,
+                  child: const Text('Reintentar'),
+                ),
+              ],
+            ),
+          );
         }
         if (snapshot.connectionState != ConnectionState.done) {
           return const Center(child: CircularProgressIndicator());
