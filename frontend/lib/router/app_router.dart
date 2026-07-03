@@ -7,7 +7,7 @@ import '../screens/main_screen.dart';
 import '../screens/reddit_dashboard.dart' deferred as reddit_dashboard;
 import '../screens/stackoverflow_dashboard.dart'
     deferred as stackoverflow_dashboard;
-import '../screens/trends_tech_screen.dart';
+import '../screens/trends_tech_screen.dart' deferred as trends_tech_screen;
 
 class AppRoutes {
   static const String home = '/';
@@ -85,7 +85,11 @@ GoRouter createAppRouter({String initialLocation = AppRoutes.home}) {
             pageBuilder: (BuildContext context, GoRouterState state) {
               final String tech = state.pathParameters['tech'] ?? 'unknown';
               return NoTransitionPage<void>(
-                child: TrendsTechScreen(technology: tech),
+                child: _DeferredRoute(
+                  loadLibrary: trends_tech_screen.loadLibrary,
+                  builder: () =>
+                      trends_tech_screen.TrendsTechScreen(technology: tech),
+                ),
               );
             },
           ),

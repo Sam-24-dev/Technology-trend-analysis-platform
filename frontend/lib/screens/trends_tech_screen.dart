@@ -15,7 +15,6 @@ import '../models/stackoverflow_models.dart';
 import '../models/technology_profile_models.dart';
 import '../models/trend_history_models.dart';
 import '../providers/app_providers.dart';
-import '../router/app_router.dart';
 import '../utils/tech_slug.dart';
 import '../widgets/chart_card.dart';
 import '../widgets/chart_legend.dart';
@@ -138,7 +137,7 @@ class TrendsTechScreen extends ConsumerWidget {
       crossAxisAlignment: WrapCrossAlignment.center,
       children: <Widget>[
         TextButton.icon(
-          onPressed: () => context.go(AppRoutes.home),
+          onPressed: () => context.go('/'),
           icon: const Icon(Icons.arrow_back_rounded, size: 18),
           label: const Text('Inicio'),
           style: TextButton.styleFrom(
