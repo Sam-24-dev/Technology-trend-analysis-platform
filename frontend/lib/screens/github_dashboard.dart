@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -115,7 +116,9 @@ class _GithubDashboardState extends ConsumerState<GithubDashboard> {
         isLoading = false;
       });
     } catch (e, stackTrace) {
-      debugPrint('Error cargando datos: $e');
+      if (kDebugMode) {
+        debugPrint('Error cargando datos: $e');
+      }
       setState(() {
         isLoading = false;
         errorMessage = 'Error: $e\n$stackTrace';

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -104,7 +105,9 @@ class _RedditDashboardState extends ConsumerState<RedditDashboard> {
         isLoading = false;
       });
     } catch (e) {
-      debugPrint('Error cargando datos: $e');
+      if (kDebugMode) {
+        debugPrint('Error cargando datos: $e');
+      }
       setState(() {
         isLoading = false;
         errorMessage = 'Error cargando datos: $e';
