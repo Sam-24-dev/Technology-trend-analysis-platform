@@ -8,6 +8,9 @@ updates:
       time: "09:00"
       timezone: "America/Guayaquil"
     open-pull-requests-limit: 5
+    ignore:
+      - dependency-name: "numpy"
+        versions: [">=2.5.0"]
     groups:
       python-dependencies:
         patterns:
@@ -23,6 +26,9 @@ updates:
       time: "09:30"
       timezone: "America/Guayaquil"
     open-pull-requests-limit: 5
+    ignore:
+      - dependency-name: "file_saver"
+        versions: [">=0.4.0"]
     groups:
       flutter-dependencies:
         patterns:
