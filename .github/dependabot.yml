@@ -29,6 +29,8 @@ updates:
     ignore:
       - dependency-name: "file_saver"
         versions: [">=0.4.0"]
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     groups:
       flutter-dependencies:
         patterns:
