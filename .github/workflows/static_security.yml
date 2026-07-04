@@ -1,0 +1,63 @@
+﻿name: Static Security Analysis
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - 'scripts/**'
+      - 'frontend/lib/**'
+      - 'frontend/web/**'
+      - '.github/workflows/**'
+      - 'pyproject.toml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - 'scripts/**'
+      - 'frontend/lib/**'
+      - 'frontend/web/**'
+      - '.github/workflows/**'
+      - 'pyproject.toml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  static-security:
+    name: Bandit and Semgrep
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.11'
+
+      - name: Install security tools
+        run: |
+          python -m pip install --disable-pip-version-check bandit==1.8.6 semgrep==1.141.0
+
+      - name: Run Bandit
+        run: |
+          bandit -r backend scripts -x "**/__pycache__/**" -ll
+
+      - name: Run Semgrep
+        run: |
+          semgrep scan \
+            --error \
+            --metrics=off \
+            --config p/python \
+            --config p/javascript \
+            --config p/github-actions \
+            --config p/secrets \
+            --exclude .git \
+            --exclude frontend/build \
+            --exclude frontend/.dart_tool \
+            --exclude datos \
+            --exclude frontend/assets/data
