@@ -1,7 +1,7 @@
 import 'dart:convert' show jsonDecode, utf8;
 
 import 'package:csv/csv.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show debugPrint, kDebugMode, kIsWeb;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:http/http.dart' as http;
 
@@ -20,6 +20,12 @@ import '../utils/tech_slug.dart';
 /// plataformas.  CsvToListConverter se usa solo como fallback porque
 /// tiene problemas de detección de eol en Dart2JS compilado.
 class CsvService {
+  static void _debugLog(Object? message) {
+    if (kDebugMode) {
+      debugPrint(message?.toString());
+    }
+  }
+
   static Map<String, dynamic> _coerceJsonMap(dynamic parsed, String source) {
     if (parsed is Map<String, dynamic>) {
       return parsed;
@@ -94,39 +100,39 @@ class CsvService {
   /// luego CsvToListConverter como fallback.
   static List<Map<String, dynamic>> _parseCsvToMap(String rawData) {
     if (rawData.trim().isEmpty) {
-      print('[CsvService] _parseCsvToMap: input vacío');
+      _debugLog('[CsvService] _parseCsvToMap: input vacío');
       return [];
     }
 
     final probe = rawData.trimLeft();
     if (probe.startsWith('<!') || probe.startsWith('<html')) {
-      print('[CsvService] _parseCsvToMap: detectó HTML, no CSV');
+      _debugLog('[CsvService] _parseCsvToMap: detectó HTML, no CSV');
       return [];
     }
 
     // Log de diagnóstico: primeros 150 chars y longitud
     final preview = rawData.length > 150 ? rawData.substring(0, 150) : rawData;
-    print(
+    _debugLog(
       '[CsvService] _parseCsvToMap: ${rawData.length} chars, '
       'first 20 code units: ${rawData.codeUnits.take(20).toList()}',
     );
-    print('[CsvService] _parseCsvToMap preview: $preview');
+    _debugLog('[CsvService] _parseCsvToMap preview: $preview');
 
     // ── PRIMARY: Parser manual (funciona en todas las plataformas) ──
     final manual = _parseCsvManual(rawData);
     if (manual.isNotEmpty) {
-      print(
+      _debugLog(
         '[CsvService] _parseCsvToMap: manual parser OK '
         '(${manual.length} filas, headers: ${manual.first.keys.toList()})',
       );
       return manual;
     }
-    print('[CsvService] _parseCsvToMap: manual parser devolvió vacío');
+    _debugLog('[CsvService] _parseCsvToMap: manual parser devolvió vacío');
 
     // ── FALLBACK: CsvToListConverter ──
     try {
       final csvData = const CsvToListConverter().convert(rawData);
-      print(
+      _debugLog(
         '[CsvService] _parseCsvToMap: CsvToListConverter '
         'rows=${csvData.length}',
       );
@@ -144,7 +150,7 @@ class CsvService {
           },
       ];
     } catch (e) {
-      print('[CsvService] _parseCsvToMap: CsvToListConverter falló: $e');
+      _debugLog('[CsvService] _parseCsvToMap: CsvToListConverter falló: $e');
       return [];
     }
   }
@@ -157,7 +163,7 @@ class CsvService {
       final uri = Uri.parse(url);
       final response = await http.get(uri).timeout(const Duration(seconds: 15));
 
-      print(
+      _debugLog(
         '[CsvService] HTTP ${response.statusCode} ← $url '
         '(${response.bodyBytes.length} bytes)',
       );
@@ -183,10 +189,10 @@ class CsvService {
         throw Exception('CSV parsing vacío para $url');
       }
 
-      print('[CsvService] OK via HTTP → $url (${parsed.length} filas)');
+      _debugLog('[CsvService] OK via HTTP → $url (${parsed.length} filas)');
       return parsed;
     } catch (e) {
-      print('[CsvService] HTTP fallo en $url → $e');
+      _debugLog('[CsvService] HTTP fallo en $url → $e');
       rethrow;
     }
   }
@@ -203,7 +209,7 @@ class CsvService {
         for (final row in maps) [for (final h in headers) row[h] ?? ''],
       ];
     } catch (e) {
-      print('[CsvService] loadCsv error: $e');
+      _debugLog('[CsvService] loadCsv error: $e');
       return [];
     }
   }
@@ -214,7 +220,7 @@ class CsvService {
   ) async {
     final fileName = assetPath.replaceAll('\\', '/').split('/').last;
     final errors = <String>[];
-    print('[CsvService] ═══ Cargando: $fileName ═══');
+    _debugLog('[CsvService] ═══ Cargando: $fileName ═══');
 
     // ── 1) HTTP con rutas relativas (web) ──
     if (kIsWeb) {
@@ -239,7 +245,7 @@ class CsvService {
         final raw = await rootBundle.loadString(path);
         final parsed = _parseCsvToMap(raw);
         if (parsed.isNotEmpty) {
-          print(
+          _debugLog(
             '[CsvService] OK via AssetBundle → $path '
             '(${parsed.length} filas)',
           );
@@ -252,14 +258,14 @@ class CsvService {
         );
       } catch (e) {
         errors.add('AssetBundle $path: $e');
-        print('[CsvService] AssetBundle fallo en $path → $e');
+        _debugLog('[CsvService] AssetBundle fallo en $path → $e');
       }
     }
 
     // ── 3) No se pudo cargar ──
     final errorMsg =
         'No se pudo cargar $fileName.\nErrores:\n${errors.join('\n')}';
-    print('[CsvService] FALLO total para $fileName');
+    _debugLog('[CsvService] FALLO total para $fileName');
     throw Exception(errorMsg);
   }
 
@@ -267,7 +273,7 @@ class CsvService {
   static Future<Map<String, dynamic>> loadJsonAsMap(String assetPath) async {
     final fileName = assetPath.replaceAll('\\', '/').split('/').last;
     final errors = <String>[];
-    print('[CsvService] === Loading JSON: $fileName ===');
+    _debugLog('[CsvService] === Loading JSON: $fileName ===');
 
     if (kIsWeb) {
       final urls = ['assets/assets/data/$fileName', 'assets/data/$fileName'];
@@ -520,7 +526,7 @@ class CsvService {
           };
         }
       } catch (e) {
-        print('[CsvService] Bridge JSON fallback to CSV: $e');
+        _debugLog('[CsvService] Bridge JSON fallback to CSV: $e');
       }
 
       return {
