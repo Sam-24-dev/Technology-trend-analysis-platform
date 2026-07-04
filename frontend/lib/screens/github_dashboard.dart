@@ -1993,13 +1993,13 @@ class _GithubDashboardState extends ConsumerState<GithubDashboard> {
           .reduce(max);
       axisMax = ((maxRepos + 49) ~/ 50 * 50).toDouble();
     }
-    final List<double> ticks = <double>[
-      0,
+    final List<double> ticks = {
+      0.0,
       axisMax * 0.25,
       axisMax * 0.5,
       axisMax * 0.75,
       axisMax,
-    ].toSet().toList()..sort();
+    }.toList()..sort();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

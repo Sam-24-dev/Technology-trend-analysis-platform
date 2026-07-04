@@ -90,7 +90,7 @@ class DataHealthBadge extends ConsumerWidget {
         label: compact ? '...' : 'loading',
         sourcesCount: 0,
       ),
-      error: (_, __) => _buildChip(
+      error: (_, _) => _buildChip(
         context,
         status: 'unknown',
         label: compact ? 'unknown' : 'metadata unavailable',

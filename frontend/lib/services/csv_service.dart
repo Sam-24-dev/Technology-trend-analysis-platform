@@ -12,8 +12,8 @@ import '../utils/tech_slug.dart';
 ///
 /// Estrategia de carga (en orden):
 ///   1. HTTP GET con rutas relativas (web):
-///      - assets/assets/data/<file>  (estructura de build Flutter)
-///      - assets/data/<file>         (fallback)
+///      - assets/assets/data/{file}  (estructura de build Flutter)
+///      - assets/data/{file}         (fallback)
 ///   2. rootBundle (local / flutter run).
 ///
 /// Parser primario: manual (_parseCsvManual) — fiable en todas las
@@ -199,7 +199,7 @@ class CsvService {
 
   // ── API pública ───────────────────────────────────────────────
 
-  /// Carga CSV como List<List<dynamic>>.
+  /// Carga CSV como `List<List<dynamic>>`.
   static Future<List<List<dynamic>>> loadCsv(String assetPath) async {
     try {
       final maps = await loadCsvAsMap(assetPath);
@@ -214,7 +214,7 @@ class CsvService {
     }
   }
 
-  /// Carga CSV como List<Map<String, dynamic>>.
+  /// Carga CSV como `List<Map<String, dynamic>>`.
   static Future<List<Map<String, dynamic>>> loadCsvAsMap(
     String assetPath,
   ) async {
