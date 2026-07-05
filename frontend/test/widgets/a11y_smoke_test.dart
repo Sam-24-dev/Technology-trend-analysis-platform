@@ -1,3 +1,5 @@
+// ignore_for_file: no_leading_underscores_for_local_identifiers
+
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -21,9 +23,9 @@ double _channelToLinear(int channel) {
 }
 
 double _relativeLuminance(Color color) {
-  return (0.2126 * _channelToLinear(color.red)) +
-      (0.7152 * _channelToLinear(color.green)) +
-      (0.0722 * _channelToLinear(color.blue));
+  return (0.2126 * _channelToLinear((color.r * 255.0).round())) +
+      (0.7152 * _channelToLinear((color.g * 255.0).round())) +
+      (0.0722 * _channelToLinear((color.b * 255.0).round()));
 }
 
 double _contrastRatio(Color a, Color b) {
