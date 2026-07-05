@@ -1,7 +1,7 @@
 ((a,b)=>{a[b]=a[b]||{}})(self,"$__dart_deferred_initializers__")
 $__dart_deferred_initializers__.current=function(a,b,c,$){var B,A,K,M,C={
-b4d(){return new C.q8(null)},
-q8:function q8(d){this.a=d},
+b4d(){return new C.q7(null)},
+q7:function q7(d){this.a=d},
 JQ:function JQ(d,e,f,g,h,i,j,k,l,m){var _=this
 _.w=d
 _.x=e
@@ -146,7 +146,7 @@ E=c[11]
 I=c[15]
 G=c[16]
 L=c[19]
-C.q8.prototype={
+C.q7.prototype={
 ai(){return new C.JQ(new F.Hu(),B.b([],x.e),B.b([],x.q),B.b([],x.F),D.DZ,D.dn,D.f7,D.hz,D.DT,D.ko)}}
 C.JQ.prototype={
 aw(){this.aI()
@@ -253,7 +253,7 @@ Pb(d,e){return this.a9d(d,e,x.z)},
 Em(d,e){var w,v
 if(d<=1)return G.mt
 if(d<=3)return G.mt
-w=B.cw([0],x.S)
+w=B.ct([0],x.S)
 w.O(0,new B.a3(e,new C.aBV(d),B.F(e).h("a3<1>")))
 if(w.a===1)w.F(0,Math.min(3,d-1))
 v=B.x(w,w.$ti.c)
@@ -313,7 +313,7 @@ tW(d){var w
 if(d==null||A.b.au(d).length===0)return null
 w=B.jD(A.b.au(d))
 if(w==null)return null
-return A.b.eG(A.e.k(B.q4(w)),2,"0")+"/"+A.b.eG(A.e.k(B.kM(w)),2,"0")+"/"+B.hB(w)},
+return A.b.eG(A.e.k(B.q3(w)),2,"0")+"/"+A.b.eG(A.e.k(B.kM(w)),2,"0")+"/"+B.hB(w)},
 aby(d,e){var w=d==null
 if(w&&e==null)return 0
 if(w)return 1
@@ -1189,14 +1189,14 @@ $S:128};(function installTearOffs(){var w=a._instance_0u
 var v
 w(v=C.JQ.prototype,"gajs","q8",0)
 w(v,"gads","y5",0)})();(function inheritance(){var w=a.inherit,v=a.inheritMany
-w(C.q8,B.rL)
+w(C.q7,B.rK)
 w(C.JQ,B.p8)
 v(B.fW,[C.aC2,C.aBv,C.aBw,C.aBx,C.aBy,C.aBz,C.aBA,C.aBB,C.aBV,C.aC4,C.aC3,C.aBU,C.aBJ,C.aBK,C.aBM,C.aBN,C.aBO,C.aBP,C.aBQ,C.aBR,C.aBS,C.aBd,C.aBf,C.aBg,C.aBh,C.aBi,C.aBj,C.aBX,C.aBp,C.aBl,C.aBn])
 v(B.jy,[C.aBY,C.aBZ,C.aC_,C.aBs,C.aBr,C.aBH,C.aBG,C.aBF,C.aBE,C.aBc,C.aBb,C.aBa])
 v(B.jz,[C.aC6,C.aBt,C.aBu,C.aBD,C.aBC,C.aC5,C.aC1,C.aBI,C.aBL,C.aBT,C.aBe,C.aBk,C.aC0,C.aBW,C.aBq,C.aBm,C.aBo,C.aB9])
 w(C.hi,B.u)
 v(B.mt,[C.mC,C.my,C.ov,C.ou,C.mx,C.ot])})()
-B.r4(b.typeUniverse,JSON.parse('{"q8":{"a0":[],"e":[]},"JQ":{"ac":["q8"]}}'))
+B.r3(b.typeUniverse,JSON.parse('{"q7":{"a0":[],"e":[]},"JQ":{"ac":["q7"]}}'))
 var y={d:"framework,total_menciones,positivos,neutros,negativos,porcentaje_positivo,porcentaje_neutro,porcentaje_negativo\n",e:"tema,menciones,menciones_previas,variacion_menciones,variacion_pct,tendencia\n"}
 var x=(function rtii(){var w=B.a8
 return{G:w("cH<aW<fp>>"),s:w("bY"),X:w("bK<ot>"),P:w("bK<mx>"),Q:w("bK<ou>"),U:w("bK<ov>"),K:w("bK<my>"),v:w("bK<mC>"),A:w("bK<f>"),J:w("aW<fp>"),o:w("aD<ot>"),h:w("aD<mx>"),R:w("aD<ou>"),_:w("aD<ov>"),i:w("aD<my>"),T:w("aD<mC>"),L:w("n<mU>"),t:w("n<dw>"),V:w("n<b4>"),a:w("n<cI>"),F:w("n<ie>"),W:w("n<eP>"),e:w("n<e6>"),q:w("n<e9>"),H:w("n<o6>"),p:w("n<e>"),I:w("n<hi>"),D:w("d4<hi>"),w:w("h4"),M:w("ax"),k:w("eP"),u:w("e6"),N:w("k"),E:w("e9"),O:w("bb<k>"),Y:w("ow"),z:w("@"),S:w("f"),n:w("~")}})();(function constants(){var w=a.makeConstList
@@ -1225,7 +1225,7 @@ D.pX=new B.q(1,0.058823529411764705,0.4627450980392157,0.43137254901960786,A.f)
 D.Kw=new B.b1(3e8)
 D.KF=new B.ad(0,0,0,10)
 D.KQ=new B.ad(12,12,12,12)
-D.qN=new E.jH(!0,!0,null,E.rf(),E.hX(),!1,null,E.rf(),E.hX())
+D.qN=new E.jH(!0,!0,null,E.re(),E.hX(),!1,null,E.re(),E.hX())
 D.ml=new B.by(983620,"MaterialIcons",null,!1)
 D.mu=w([3,5,8,10],B.a8("n<f>"))
 D.hz=new C.ou(0,"actual")
@@ -1301,4 +1301,4 @@ D.a3M=new B.bb("temas-vista-filter",x.O)
 D.a4B=new C.hi("Temas de Reddit","A\xfan no hay suficientes menciones para resumir tendencias.",A.bH,null,D.ml)
 D.a4C=new C.hi("Cruce GitHub vs Reddit","No hay tecnolog\xedas con ranking completo en GitHub y Reddit.",A.as,null,A.ez)
 D.a4D=new C.hi("Sentimiento en Reddit","No hay suficientes registros para estimar polaridad en Reddit.",H.c_,null,A.iV)})()};
-(a=>{a["LYNkFxdsg4Gt8Q5KPxIK99rOCmM="]=a.current})($__dart_deferred_initializers__);
+(a=>{a["rDeJJFqV3DOlsx4Is3IOuksmaiM="]=a.current})($__dart_deferred_initializers__);
