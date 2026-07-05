@@ -40,8 +40,7 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install -r backend/requirements.txt
-          pip install pip-audit
-
+          pip install pip-audit==2.10.1
       - name: Run vulnerability audit
         run: |
           pip-audit -r backend/requirements.txt
