@@ -1,76 +1,76 @@
 {
-  "generated_at_utc": "2026-06-30T05:14:07Z",
+  "generated_at_utc": "2026-07-06T12:24:55Z",
   "dataset": "github_lenguajes",
   "source_mode": "latest",
   "source_path": "datos/latest/github_lenguajes.csv",
-  "source_updated_at_utc": "2026-06-30T05:02:32Z",
+  "source_updated_at_utc": "2026-07-06T12:24:50Z",
   "language_count": 10,
   "languages": [
     {
       "lenguaje": "Python",
-      "repos_count": 893,
-      "share_pct": 34.94
+      "repos_count": 908,
+      "share_pct": 32.99
     },
     {
       "lenguaje": "TypeScript",
-      "repos_count": 508,
-      "share_pct": 19.87
+      "repos_count": 725,
+      "share_pct": 26.34
     },
     {
       "lenguaje": "JavaScript",
-      "repos_count": 188,
-      "share_pct": 7.36
+      "repos_count": 197,
+      "share_pct": 7.16
     },
     {
       "lenguaje": "Rust",
-      "repos_count": 132,
-      "share_pct": 5.16
+      "repos_count": 186,
+      "share_pct": 6.76
     },
     {
       "lenguaje": "Go",
-      "repos_count": 110,
-      "share_pct": 4.3
+      "repos_count": 146,
+      "share_pct": 5.31
     },
     {
       "lenguaje": "Shell",
-      "repos_count": 98,
-      "share_pct": 3.83
-    },
-    {
-      "lenguaje": "C++",
-      "repos_count": 69,
-      "share_pct": 2.7
+      "repos_count": 99,
+      "share_pct": 3.6
     },
     {
       "lenguaje": "HTML",
-      "repos_count": 64,
-      "share_pct": 2.5
+      "repos_count": 82,
+      "share_pct": 2.98
     },
     {
-      "lenguaje": "Java",
-      "repos_count": 59,
-      "share_pct": 2.31
+      "lenguaje": "Swift",
+      "repos_count": 78,
+      "share_pct": 2.83
     },
     {
-      "lenguaje": "Jupyter Notebook",
-      "repos_count": 58,
-      "share_pct": 2.27
+      "lenguaje": "C",
+      "repos_count": 46,
+      "share_pct": 1.67
+    },
+    {
+      "lenguaje": "C++",
+      "repos_count": 41,
+      "share_pct": 1.49
     }
   ],
   "summary": {
     "leader": {
       "lenguaje": "Python",
-      "repos_count": 893,
-      "share_pct": 34.94
+      "repos_count": 908,
+      "share_pct": 32.99
     },
     "runner_up": {
       "lenguaje": "TypeScript",
-      "repos_count": 508,
-      "share_pct": 19.87
+      "repos_count": 725,
+      "share_pct": 26.34
     },
     "language_count": 10,
-    "total_classifiable_repos": 2179,
-    "leader_gap_repos": 385,
-    "leader_gap_share_pct": 15.07
+    "total_classifiable_repos": 2508,
+    "leader_gap_repos": 183,
+    "leader_gap_share_pct": 6.65
   }
 }
