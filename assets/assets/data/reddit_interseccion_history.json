@@ -1,10 +1,10 @@
 {
-  "generated_at_utc": "2026-06-30T18:08:05Z",
+  "generated_at_utc": "2026-07-06T03:58:25Z",
   "dataset": "interseccion_github_reddit",
   "source_mode": "history",
   "snapshot_count": 2,
-  "latest_snapshot_date": "2026-06-30",
-  "previous_snapshot_date": "2026-06-29",
+  "latest_snapshot_date": "2026-07-06",
+  "previous_snapshot_date": "2026-06-30",
   "coverage_pct": 30.0,
   "comparable_count": 3,
   "item_count": 10,
@@ -172,8 +172,8 @@
   },
   "snapshots": [
     {
-      "date": "2026-06-29",
-      "path": "datos/history/interseccion/year=2026/month=06/day=29/interseccion_github_reddit.csv",
+      "date": "2026-06-30",
+      "path": "datos/history/interseccion/year=2026/month=06/day=30/interseccion_github_reddit.csv",
       "source_type": "history",
       "row_count": 10,
       "comparable_count": 3,
@@ -272,8 +272,8 @@
       ]
     },
     {
-      "date": "2026-06-30",
-      "path": "datos/history/interseccion/year=2026/month=06/day=30/interseccion_github_reddit.csv",
+      "date": "2026-07-06",
+      "path": "datos/history/interseccion/year=2026/month=07/day=06/interseccion_github_reddit.csv",
       "source_type": "history",
       "row_count": 10,
       "comparable_count": 3,
