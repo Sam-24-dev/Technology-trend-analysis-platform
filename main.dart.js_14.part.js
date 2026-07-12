@@ -4,5 +4,5 @@ A=c[2]
 B=c[23]
 C=c[11]
 D=c[15]
-var z=a.updateTypes([]);(function constants(){B.pg=new C.cI("GitHub",A.as,D.b_)})()};
-(a=>{a["aCBZ1d869Df1UpjcDJ2+R4RK8Sk="]=a.current})($__dart_deferred_initializers__);
+var z=a.updateTypes([]);(function constants(){B.pg=new C.cJ("GitHub",A.as,D.b_)})()};
+(a=>{a["WpZnr62mWJ8yP0V+BNYC/scZtB4="]=a.current})($__dart_deferred_initializers__);

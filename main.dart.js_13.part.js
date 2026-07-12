@@ -162,7 +162,7 @@ q8(){var w=0,v=B.Q(x.n),u,t=2,s=[],r=this,q,p,o,n,m,l,k
 var $async$q8=B.R(function(d,e){if(d===1){s.push(e)
 w=t}for(;;)switch(w){case 0:t=4
 n=r.gff()
-m=$.aJT().gJJ()
+m=$.aJT().gJI()
 if(n.e==null)B.ab(B.b_('Cannot use "ref" after the widget was disposed.'))
 n=B.ajI(n,!1)
 n.awx(m.a)
@@ -195,7 +195,7 @@ if(v!=null)return B.eG(new B.ax(A.cI,B.amW(v,H.nQ),u),u,u)
 return B.eh(new C.aC6(this))},
 aaq(){if(this.fx===D.f6)return D.H3
 return D.H9},
-aap(){var w,v=this,u=v.gVM(),t=u>0?"top "+u:"sin datos",s=v.dy===D.ch?"% participacion":"menciones",r=v.fx===D.f6?"variacion vs corrida anterior":"valor actual"
+aap(){var w,v=this,u=v.gVL(),t=u>0?"top "+u:"sin datos",s=v.dy===D.ch?"% participacion":"menciones",r=v.fx===D.f6?"variacion vs corrida anterior":"valor actual"
 switch((v.gmO()?v.fr:D.f7).a){case 0:w="mas menciones"
 break
 case 1:w="mayor crecimiento"
@@ -246,10 +246,10 @@ aqc(){var w,v=B.bR(this.x,!0,x.u)
 A.c.b6(v,new C.aC5(this))
 w=this.cy
 if(w<=0||w>=v.length)return v
-return B.cO(v,0,B.ep(w,"count",x.S),B.F(v).c).bY(0)},
+return B.cP(v,0,B.ep(w,"count",x.S),B.F(v).c).bY(0)},
 a9d(d,e){if(e<=0||e>=d.length)return d
-return B.cO(d,0,B.ep(e,"count",x.S),B.F(d).c).bY(0)},
-Pb(d,e){return this.a9d(d,e,x.z)},
+return B.cP(d,0,B.ep(e,"count",x.S),B.F(d).c).bY(0)},
+Pa(d,e){return this.a9d(d,e,x.z)},
 Em(d,e){var w,v
 if(d<=1)return G.mt
 if(d<=3)return G.mt
@@ -265,7 +265,7 @@ if(v===0)return 0
 w=this.cy
 if(w>0&&w<v)return w
 return v},
-gV3(){switch(this.db.a){case 0:var w="m\xe1s positivo"
+gV2(){switch(this.db.a){case 0:var w="m\xe1s positivo"
 break
 case 1:w="m\xe1s negativo"
 break
@@ -276,10 +276,10 @@ ganT(){if(this.x.length===0)return"Sentimiento de Frameworks Backend"
 return"Top "+this.gH3()+" frameworks backend por sentimiento"},
 ganS(){var w=this
 if(w.x.length===0)return"No hay datos disponibles para sentimiento de frameworks."
-return"M\xe9trica: Sentimiento   Orden: "+w.gV3()+"\n"+("Cobertura: "+w.gH3()+" de "+w.x.length+" frameworks analizados.")},
+return"M\xe9trica: Sentimiento   Orden: "+w.gV2()+"\n"+("Cobertura: "+w.gH3()+" de "+w.x.length+" frameworks analizados.")},
 gaoM(){if(this.y.length===0)return"Temas emergentes"
-return"Top "+this.gVM()+" temas emergentes"},
-gVM(){var w,v=this.y.length
+return"Top "+this.gVL()+" temas emergentes"},
+gVL(){var w,v=this.y.length
 if(v===0)return 0
 w=this.dx
 if(w>0&&w<v)return w
@@ -338,7 +338,7 @@ w=b5.al6()
 v=A.c.dd(w,0,new C.aBI())
 u=b5.Em(w.length,D.mu)
 t=A.c.l(u,b5.dx)?b5.dx:0
-s=b5.Pb(w,t)
+s=b5.Pa(w,t)
 r=b5.fx===D.f6
 q=new C.aBU(b5,r,v)
 p=B.F(s).h("y<1,m>")
@@ -440,10 +440,10 @@ v=B.F(w).h("a3<1>")
 w=B.x(new B.a3(w,new C.aBd(),v),v.h("p.E"))
 u=m.al5(w)
 w=u.length
-if(w===0)return m.Pu("No hay tecnolog\xedas comparables en la selecci\xf3n actual. Ajusta Top para incluir m\xe1s elementos.")
+if(w===0)return m.Pt("No hay tecnolog\xedas comparables en la selecci\xf3n actual. Ajusta Top para incluir m\xe1s elementos.")
 t=m.Em(w,D.mu)
 s=A.c.l(t,m.fy)?m.fy:0
-r=m.Pb(u,s)
+r=m.Pa(u,s)
 q=Math.max(10,A.c.dd(r,10,new C.aBe()))
 w=m.id
 v=x.p
@@ -484,7 +484,7 @@ q=Math.max(t,s)
 u=B.aG(12)
 p=B.cs(A.aN,1)
 o=B.Z(this.lv(d.a),i,i,i,i,D.XV,i,i)
-n=B.cC(B.eh(new C.aBk(this,r,q,t,s)),28,i)
+n=B.cD(B.eh(new C.aBk(this,r,q,t,s)),28,i)
 m=B.Z("GitHub #"+h,i,i,i,i,D.a0q,i,i)
 l=B.Z("Reddit #"+w,i,i,i,i,D.Z_,i,i)
 k=d.e
@@ -493,18 +493,18 @@ k=B.b([m,l,B.Z("Brecha "+B.o(k==null?"-":k),i,i,i,i,D.nW,i,i)],j)
 if(f){m=d.y
 k.push(B.Z("Variaci\xf3n "+B.o(m==null?"N/D":m),i,i,i,i,D.nW,i,i))}if(f)k.push(B.Z("Tendencia "+this.adX(d.z),i,i,i,i,D.nW,i,i))
 return B.aA(i,B.aH(B.b([o,A.ab,n,A.cv,B.bU(A.F,k,A.N,4,12)],j),A.q,A.l,A.o),A.k,i,i,new B.au(A.j,i,p,u,i,i,A.r),i,i,i,i,D.KQ,i,i,i)},
-Pv(d){var w=null
+Pu(d){var w=null
 return B.aA(w,w,A.k,w,w,new B.au(d,w,B.cs(A.j,1.5),w,w,w,A.bO),w,12,w,w,w,w,w,12)},
 adX(d){switch(A.b.au(d==null?"":d).toLowerCase()){case"divergiendo":case"aumentando":return"aumentando"
 case"convergiendo":case"disminuyendo":return"disminuyendo"
 case"estable":return"estable"
 default:return"N/D"}},
-Pu(d){var w=null
+Pt(d){var w=null
 return B.eG(new B.ax(A.d4,B.Z(d==null?"Hist\xf3rico insuficiente para intersecci\xf3n. Ejecuta github_etl.py -> reddit_etl.py -> sync_assets.py.":d,w,w,w,w,D.a_5,A.cw,w),w),w,w)},
-a9Z(){return this.Pu(null)},
+a9Z(){return this.Pt(null)},
 xI(d,e,f){var w=null,v=d.aO(0.1),u=B.aG(999),t=B.cs(d.aO(0.35),1)
 return B.aA(w,B.Z(e+": "+f,w,w,w,w,B.c3(w,w,d,w,w,w,w,w,w,w,w,12,w,w,A.z,w,w,!0,w,w,w,w,w,w,w,w),w,w),A.k,w,w,new B.au(v,w,t,u,w,w,A.r),w,w,w,w,A.en,w,w,w)},
-gaiV(){if(this.gSH()<=0)return"Intersecci\xf3n GitHub vs Reddit"
+gaiV(){if(this.gSG()<=0)return"Intersecci\xf3n GitHub vs Reddit"
 return"Top "+this.gaiX()+" tecnolog\xedas en intersecci\xf3n GitHub vs Reddit"},
 gaiU(){switch(this.go.a){case 0:var w="mayor brecha"
 break
@@ -519,11 +519,11 @@ w=v.tW(t==null?null:t.c)
 if(s!=null&&w!=null){if(s===w)return u+s+" (misma fecha, corrida previa)"
 return u+s+" -> "+w}if(w!=null)return u+w
 return"Comparado (UTC): no disponible"},
-gSH(){var w,v=this.at
+gSG(){var w,v=this.at
 if(v==null)return 0
 w=v.x
 return new B.a3(w,new C.aBX(),B.F(w).h("a3<1>")).gC(0)},
-gaiX(){var w,v=this.gSH()
+gaiX(){var w,v=this.gSG()
 if(v<=0)return 0
 w=this.fy
 if(w>0&&w<v)return w
@@ -796,7 +796,7 @@ u=n.ay?p:q
 t=n.aak()
 s=n.gH3()
 r=s>0?"top "+s:"sin datos disponibles"
-w.push(E.lm(u,t,400,D.Ha,"Grafico de barras apiladas. Muestra sentimiento por framework. Vista: "+r+". Orden: "+n.gV3()+".",v,m))
+w.push(E.lm(u,t,400,D.Ha,"Grafico de barras apiladas. Muestra sentimiento por framework. Vista: "+r+". Orden: "+n.gV2()+".",v,m))
 w.push(A.aM)
 m=n.gaoM()
 v=n.gaoL()
@@ -1098,7 +1098,7 @@ $1(d){return new B.ax(D.KF,this.a.a9Y(d,this.b,this.c),null)},
 $S:728}
 C.aBk.prototype={
 $2(d,e){var w=this,v=null,u=e.b,t=w.b*u,s=w.a
-return B.jc(A.bW,B.b([B.nM(v,B.aA(v,v,A.k,A.aN,v,v,v,2,v,v,v,v,v,v),v,v,0,0,13,v),B.nM(v,B.aA(v,v,A.k,v,v,new B.au(D.pS,v,v,B.aG(999),v,v,A.r),v,4,v,v,v,v,v,v),v,v,t,v,12,w.c*u-t),B.nM(v,s.Pv(A.as),v,v,w.d*u-6,v,8,v),B.nM(v,s.Pv(A.bH),v,v,w.e*u-6,v,8,v)],x.p),A.k,A.bA,v)},
+return B.jc(A.bW,B.b([B.nM(v,B.aA(v,v,A.k,A.aN,v,v,v,2,v,v,v,v,v,v),v,v,0,0,13,v),B.nM(v,B.aA(v,v,A.k,v,v,new B.au(D.pS,v,v,B.aG(999),v,v,A.r),v,4,v,v,v,v,v,v),v,v,t,v,12,w.c*u-t),B.nM(v,s.Pu(A.as),v,v,w.d*u-6,v,8,v),B.nM(v,s.Pu(A.bH),v,v,w.e*u-6,v,8,v)],x.p),A.k,A.bA,v)},
 $S:130}
 C.aBX.prototype={
 $1(d){return d.c!=null&&d.d!=null},
@@ -1176,7 +1176,7 @@ s=w.d
 if(s!=null)s=new B.ax(A.fL,B.nt(s,A.cX,q,q),q)
 else s=B.eg(w.e,v,q,26)
 r=x.p
-return B.cC(B.aH(B.b([B.ca(B.b([B.aA(q,s,A.k,q,q,new B.au(u,q,q,t,q,q,A.r),q,48,q,q,q,q,q,48),H.nD,B.cj(B.Z(w.a,q,q,q,q,B.c3(q,q,v,q,q,q,q,q,q,q,q,15,q,q,A.z,q,1.25,!0,q,q,q,q,q,q,q,q),q,q))],r),A.q,A.l,A.o,0),A.T,B.Z(w.b,q,q,q,q,G.k4,q,q)],r),A.q,A.l,A.o),q,p)}p=this.a
+return B.cD(B.aH(B.b([B.ca(B.b([B.aA(q,s,A.k,q,q,new B.au(u,q,q,t,q,q,A.r),q,48,q,q,q,q,q,48),H.nD,B.cj(B.Z(w.a,q,q,q,q,B.c3(q,q,v,q,q,q,q,q,q,q,q,15,q,q,A.z,q,1.25,!0,q,q,q,q,q,q,q,q),q,q))],r),A.q,A.l,A.o,0),A.T,B.Z(w.b,q,q,q,q,G.k4,q,q)],r),A.q,A.l,A.o),q,p)}p=this.a
 w=p.c
 v=w.aO(0.1)
 u=B.aG(10)
@@ -1199,21 +1199,21 @@ v(B.mt,[C.mC,C.my,C.ov,C.ou,C.mx,C.ot])})()
 B.r3(b.typeUniverse,JSON.parse('{"q7":{"a0":[],"e":[]},"JQ":{"ac":["q7"]}}'))
 var y={d:"framework,total_menciones,positivos,neutros,negativos,porcentaje_positivo,porcentaje_neutro,porcentaje_negativo\n",e:"tema,menciones,menciones_previas,variacion_menciones,variacion_pct,tendencia\n"}
 var x=(function rtii(){var w=B.a8
-return{G:w("cH<aW<fp>>"),s:w("bY"),X:w("bK<ot>"),P:w("bK<mx>"),Q:w("bK<ou>"),U:w("bK<ov>"),K:w("bK<my>"),v:w("bK<mC>"),A:w("bK<f>"),J:w("aW<fp>"),o:w("aD<ot>"),h:w("aD<mx>"),R:w("aD<ou>"),_:w("aD<ov>"),i:w("aD<my>"),T:w("aD<mC>"),L:w("n<mU>"),t:w("n<dw>"),V:w("n<b4>"),a:w("n<cI>"),F:w("n<ie>"),W:w("n<eP>"),e:w("n<e6>"),q:w("n<e9>"),H:w("n<o6>"),p:w("n<e>"),I:w("n<hi>"),D:w("d4<hi>"),w:w("h4"),M:w("ax"),k:w("eP"),u:w("e6"),N:w("k"),E:w("e9"),O:w("bb<k>"),Y:w("ow"),z:w("@"),S:w("f"),n:w("~")}})();(function constants(){var w=a.makeConstList
+return{G:w("cI<aW<fp>>"),s:w("bY"),X:w("bK<ot>"),P:w("bK<mx>"),Q:w("bK<ou>"),U:w("bK<ov>"),K:w("bK<my>"),v:w("bK<mC>"),A:w("bK<f>"),J:w("aW<fp>"),o:w("aD<ot>"),h:w("aD<mx>"),R:w("aD<ou>"),_:w("aD<ov>"),i:w("aD<my>"),T:w("aD<mC>"),L:w("n<mU>"),t:w("n<dw>"),V:w("n<b4>"),a:w("n<cJ>"),F:w("n<ie>"),W:w("n<eP>"),e:w("n<e6>"),q:w("n<e9>"),H:w("n<o6>"),p:w("n<e>"),I:w("n<hi>"),D:w("d4<hi>"),w:w("h4"),M:w("ax"),k:w("eP"),u:w("e6"),N:w("k"),E:w("e9"),O:w("bb<k>"),Y:w("ow"),z:w("@"),S:w("f"),n:w("~")}})();(function constants(){var w=a.makeConstList
 D.ED=new B.cf(A.x,A.x,A.cd,A.cd)
 D.Py=w([G.pf,K.pi,G.ph],x.a)
 D.H3=new E.iP(D.Py,null)
-D.GW=new E.cI("Reddit",A.bH,I.b_)
+D.GW=new E.cJ("Reddit",A.bH,I.b_)
 D.pS=new B.q(1,0.5764705882352941,0.7725490196078432,0.9921568627450981,A.f)
-D.GQ=new E.cI("Brecha",D.pS,I.kV)
+D.GQ=new E.cJ("Brecha",D.pS,I.kV)
 D.Pt=w([N.pg,D.GW,D.GQ],x.a)
 D.H4=new E.iP(D.Pt,null)
-D.GP=new E.cI("Valor actual",A.bH,I.ed)
+D.GP=new E.cJ("Valor actual",A.bH,I.ed)
 D.PC=w([D.GP],x.a)
 D.H9=new E.iP(D.PC,null)
-D.GZ=new E.cI("Negativo",I.bn,I.b_)
-D.GX=new E.cI("Neutro",A.bh,I.b_)
-D.GN=new E.cI("Positivo",A.bg,I.b_)
+D.GZ=new E.cJ("Negativo",I.bn,I.b_)
+D.GX=new E.cJ("Neutro",A.bh,I.b_)
+D.GN=new E.cJ("Positivo",A.bg,I.b_)
 D.Pi=w([D.GZ,D.GX,D.GN],x.a)
 D.Ha=new E.iP(D.Pi,null)
 D.Hd=new E.jx(450,!1,3,3,null)
@@ -1301,4 +1301,4 @@ D.a3M=new B.bb("temas-vista-filter",x.O)
 D.a4B=new C.hi("Temas de Reddit","A\xfan no hay suficientes menciones para resumir tendencias.",A.bH,null,D.ml)
 D.a4C=new C.hi("Cruce GitHub vs Reddit","No hay tecnolog\xedas con ranking completo en GitHub y Reddit.",A.as,null,A.ez)
 D.a4D=new C.hi("Sentimiento en Reddit","No hay suficientes registros para estimar polaridad en Reddit.",H.c_,null,A.iV)})()};
-(a=>{a["rDeJJFqV3DOlsx4Is3IOuksmaiM="]=a.current})($__dart_deferred_initializers__);
+(a=>{a["2oHZO/NRK12Y/jzso2i2LRHmaxc="]=a.current})($__dart_deferred_initializers__);

@@ -366,14 +366,14 @@ x.a.toString
 x.w!==$&&C.bk()
 x.w=new K.Hu()
 x.u1()},
-gW5(){var x=this,w=C.bR(x.x,!0,y.r)
+gW4(){var x=this,w=C.bR(x.x,!0,y.r)
 A.c.b6(w,new B.ays(x))
-return x.RX(w,x.CW)},
+return x.RW(w,x.CW)},
 u1(){var x=0,w=C.Q(y.H),v,u=2,t=[],s=this,r,q,p,o,n,m
 var $async$u1=C.R(function(d,e){if(d===1){t.push(e)
 x=u}for(;;)switch(x){case 0:u=4
 x=7
-return C.S(s.gff().iJ($.aJQ().gJJ(),y.x),$async$u1)
+return C.S(s.gff().iJ($.aJQ().gJI(),y.x),$async$u1)
 case 7:r=e
 if(s.c==null){x=1
 break}q=r.b
@@ -484,7 +484,7 @@ af1(d,e){var x=null,w=new C.bm(x,y.R),v=C.aG(8)
 return C.Hb(C.jL(A.bS,d,A.an,!1,x,x,x,x,x,x,x,x,x,x,x,x,x,x,new B.axP(w),x,x,x,x,x,x),new C.au(A.a8,x,x,v,x,x,A.r),w,e,M.qn,D.Ko,M.nT,A.ls)},
 a9N(d){var x=this.gkA()
 if(this.gxZ()===D.f3&&this.u4(x))return D.H8
-return G.a6p(C.b([new E.cI("Barras: valor actual",C.a_(d).ax.b,H.ed)],y.a))},
+return G.a6p(C.b([new E.cJ("Barras: valor actual",C.a_(d).ax.b,H.ed)],y.a))},
 a9M(){var x,w,v,u=this,t=u.gkA(),s=u.gxZ(),r=u.gtR(),q=s===D.f3?"variacion vs periodo anterior":"valor actual"
 switch(r.a){case 0:x="mayor valor"
 break
@@ -495,7 +495,7 @@ break
 default:x=null}w=u.cy
 v=w>0?"top "+w:"todos los frameworks"
 return"Grafico de barras por framework. Metrica: "+u.q3(t)+". Vista: "+q+". Orden: "+x+". "+v+"."},
-Up(d,e){var x=d==null?null:d.y
+Uo(d,e){var x=d==null?null:d.y
 if(x==null)x=0
 if(x>0)return x
 return A.c.dd(e,0,new B.ayq())},
@@ -509,15 +509,15 @@ x=x.length!==0?A.c.gR(x).a:"Tecnolog\xeda"}return x},
 gac_(){var x=this.gEW()
 if(x!=null&&A.b.au(x.d).length!==0)return x.d
 return"Correlaci\xf3n"},
-TB(){var x,w=this.x
+TA(){var x,w=this.x
 if(w.length===0)return D.OY
 x=C.bR(w,!0,y.r)
 A.c.b6(x,new B.aym())
 return x},
-gG3(){var x=this.TB()
+gG3(){var x=this.TA()
 if(x.length===0)return null
 return A.c.gR(x)},
-gaja(){var x=this.TB()
+gaja(){var x=this.TA()
 if(x.length<2)return null
 return x[1]},
 aeF(d){var x,w,v=this,u=" lidera los repositorios nuevos en GitHub",t=v.gG3()
@@ -545,22 +545,22 @@ w=A.d.K(q.c,1)+m
 if(v!=null){u=u?n:r.e
 u=(u==null?0:u)>0}else u=!1
 if(u){t=r.e
-return o.f3(q.b)+" repos nuevos, "+w+", +"+o.f3(t)+" vs "+o.mE(v.a)+"."}return o.f3(q.b)+" repos nuevos, "+w+"."}p=o.Up(d,o.x)
+return o.f3(q.b)+" repos nuevos, "+w+", +"+o.f3(t)+" vs "+o.mE(v.a)+"."}return o.f3(q.b)+" repos nuevos, "+w+"."}p=o.Uo(d,o.x)
 u=o.x
 if(u.length===0||p<=0)return"Sin base para resumir el liderazgo de lenguajes."
 u=A.c.gR(u).b
 return o.f3(u)+" repos nuevos, "+A.d.K(u/p*100,1)+"% del total del periodo."},
 amH(d,e){var x,w=d.c
 if(w>0)return w
-x=this.Up(e,this.x)
+x=this.Uo(e,this.x)
 if(x<=0)return 0
 return d.b/x*100},
 gaji(){switch(this.cx.a){case 0:return"Lenguajes ordenados por repositorios nuevos en el per\xedodo de an\xe1lisis establecido."
 case 1:return"Lenguajes ordenados por porcentaje de repositorios nuevos en el per\xedodo de an\xe1lisis establecido."}},
 af0(d,e){if(e<=0||e>=d.length)return d
-return C.cO(d,0,C.ep(e,"count",y.S),C.F(d).c).bY(0)},
-RX(d,e){return this.af0(d,e,y.bJ)},
-RY(d,e){var x,w
+return C.cP(d,0,C.ep(e,"count",y.S),C.F(d).c).bY(0)},
+RW(d,e){return this.af0(d,e,y.bJ)},
+RX(d,e){var x,w
 if(d<=1)return I.mt
 x=C.ct([0],y.S)
 x.O(0,e)
@@ -584,7 +584,7 @@ case 1:return"Contributors"
 case 2:return"PRs mergeados"
 case 3:return"Issues cerrados"
 case 4:return"Releases"}},
-Rp(d){switch(d.a){case 0:return"commits"
+Ro(d){switch(d.a){case 0:return"commits"
 case 1:return"contributors"
 case 2:return"PRs"
 case 3:return"issues"
@@ -648,22 +648,22 @@ case 4:return v==null?w:v.fr}},
 u4(d){return A.c.dE(this.z,new B.aye(this,d))},
 aiw(d){return A.c.dE(this.z,new B.ayg(this,d))},
 aiv(d){return A.c.dE(this.z,new B.ayf(this,d))},
-Ss(d){return A.c.dE(this.z,new B.ayd(this,d))},
-gRo(){var x=y.c,w=C.x(new C.a3(D.NZ,this.gaiu(),x),x.h("p.E"))
+Sr(d){return A.c.dE(this.z,new B.ayd(this,d))},
+gRn(){var x=y.c,w=C.x(new C.a3(D.NZ,this.gaiu(),x),x.h("p.E"))
 if(w.length===0)return D.OC
 return w},
-gkA(){var x=this.gRo()
+gkA(){var x=this.gRn()
 if(A.c.l(x,this.db))return this.db
 return A.c.gR(x)},
-gRr(){var x=this.gkA(),w=C.b([D.hw],y.E)
+gRq(){var x=this.gkA(),w=C.b([D.hw],y.E)
 if(this.u4(x))w.push(D.f3)
 return w},
-gRq(){var x=this,w=x.gkA(),v=C.b([D.kh],y.I)
+gRp(){var x=this,w=x.gkA(),v=C.b([D.kh],y.I)
 if(x.u4(w)){if(x.aiw(w))v.push(D.DK)
 if(x.aiv(w))v.push(D.a4s)}return v},
-gxZ(){if(A.c.l(this.gRr(),this.dx))return this.dx
+gxZ(){if(A.c.l(this.gRq(),this.dx))return this.dx
 return D.hw},
-gtR(){if(A.c.l(this.gRq(),this.dy))return this.dy
+gtR(){if(A.c.l(this.gRp(),this.dy))return this.dy
 return D.kh},
 aeb(d){var x=this.z
 return new C.a3(x,new B.aya(this,d),C.F(x).h("a3<1>")).gC(0)},
@@ -672,16 +672,16 @@ if(d==null||A.b.au(d).length===0)return null
 x=C.jD(A.b.au(d))
 if(x==null)return d
 return A.b.eG(A.e.k(C.q3(x)),2,"0")+"/"+A.b.eG(A.e.k(C.kM(x)),2,"0")+"/"+C.hB(x)},
-gae6(){var x,w=this,v=w.gkA(),u=w.z.length,t=w.Xd().length,s=w.q3(v)
+gae6(){var x,w=this,v=w.gkA(),u=w.z.length,t=w.Xc().length,s=w.q3(v)
 if(w.gxZ()===D.f3)return"Variaci\xf3n de "+s+" en repos oficiales frontend"
 x=w.cy
 return"Top "+(x>0&&x<u?x:t)+" frameworks frontend por "+s},
 tX(d,e,f){var x=f&&d>0?"+":""
 return x+A.d.aB(d)},
-Rj(d,e){return this.tX(d,e,!1)},
-Xd(){var x=this,w=x.gkA(),v=x.gtR(),u=C.bR(x.z,!0,y.f)
+Ri(d,e){return this.tX(d,e,!1)},
+Xc(){var x=this,w=x.gkA(),v=x.gtR(),u=C.bR(x.z,!0,y.f)
 A.c.b6(u,new B.ayx(x,v,w))
-return x.RX(u,x.cy)},
+return x.RW(u,x.cy)},
 uJ(d){var x=C.bR(this.at,!0,y.Y)
 switch(d.a){case 0:return x
 case 1:A.c.b6(x,new B.ayt())
@@ -691,14 +691,14 @@ break
 case 3:A.c.b6(x,new B.ayv())
 break
 case 4:A.c.b6(x,new B.ayw())
-break}return C.cO(x,0,C.ep(Math.min(30,x.length),"count",y.S),C.F(x).c).bY(0)},
+break}return C.cP(x,0,C.ep(Math.min(30,x.length),"count",y.S),C.F(x).c).bY(0)},
 gF8(){var x,w,v=this.as
 if(v!=null)return v.r
 x=this.at
 v=new B.ay1(x)
 w=new B.ay2(x)
 if(x.length!==0)A.c.gR(x)
-return new C.Dh(this.PF(),v.$1(new B.axZ()),v.$1(new B.ay_()),v.$1(new B.ay0()),w.$1(!0),w.$1(!1))},
+return new C.Dh(this.PE(),v.$1(new B.axZ()),v.$1(new B.ay_()),v.$1(new B.ay0()),w.$1(!0),w.$1(!1))},
 ab0(d){var x,w,v,u,t,s,r,q,p,o,n=d.length
 if(n<2)return 0
 for(x=0,w=0,v=0,u=0,t=0,s=0;s<n;++s){r=d[s]
@@ -718,7 +718,7 @@ w=new B.axW(d)
 v=this.as
 if((v==null?null:v.c)==null)A.c.gR(d)
 return new C.Dh(this.ab0(d),x.$1(new B.axS()),x.$1(new B.axT()),x.$1(new B.axU()),w.$1(!0),w.$1(!1))},
-Xc(d){var x=this,w=x.uJ(d)
+Xb(d){var x=this,w=x.uJ(d)
 if(w.length===0)return x.gF8()
 if(d===D.hy)return x.gF8()
 return x.acr(w)},
@@ -735,7 +735,7 @@ for(w=0;w<u;++w){v=d[w]
 if(v.a===x)return v}return A.c.gR(d)},
 am3(d){var x,w,v,u,t,s,r=null
 if(d===D.hy)return r
-x=this.Xc(d)
+x=this.Xb(d)
 w=r
 switch(d.a){case 0:break
 case 1:w=x.b
@@ -750,7 +750,7 @@ for(v=this.uJ(d),u=v.length,w=w.a,t=0;t<u;++t){s=v[t]
 if(s.a===w)return s}return r},
 ahh(d){var x=this
 x.X(new B.ayc(x,d,x.uJ(d),x.am3(d)))},
-aah(){var x=this,w="Mayor stars",v="Mayor contributors",u="Comunidad m\xe1s activa",t="Por encima de la tendencia",s="Por debajo de la tendencia",r=x.Xc(x.fr),q=C.b([x.Py(A.as,"Correlaci\xf3n",A.d.K(r.a,2))],y.p),p=new B.axO(x,q)
+aah(){var x=this,w="Mayor stars",v="Mayor contributors",u="Comunidad m\xe1s activa",t="Por encima de la tendencia",s="Por debajo de la tendencia",r=x.Xb(x.fr),q=C.b([x.Px(A.as,"Correlaci\xf3n",A.d.K(r.a,2))],y.p),p=new B.axO(x,q)
 switch(x.fr.a){case 0:p.$2$label$repo(w,r.b)
 p.$2$label$repo(v,r.c)
 p.$2$label$repo(u,r.d)
@@ -773,7 +773,7 @@ break
 case 4:p.$2$label$repo(t,r.e)
 p.$2$label$repo(s,r.f)
 break}return C.bU(A.F,q,A.N,8,8)},
-Py(d,e,f){var x=null,w=this.Un(d),v=d.aO(0.08),u=C.aG(999),t=C.cs(d.aO(0.24),1)
+Px(d,e,f){var x=null,w=this.Um(d),v=d.aO(0.08),u=C.aG(999),t=C.cs(d.aO(0.24),1)
 return C.aA(x,C.ca(C.b([C.aA(x,x,A.k,x,x,new C.au(d,x,x,x,x,x,A.bO),x,8,x,x,x,x,x,8),A.cu,C.Z(e+": "+f,x,x,x,x,C.c3(x,x,w,x,x,x,x,x,x,x,x,12.5,x,x,A.z,x,x,!0,x,x,x,x,x,x,x,x),x,x)],y.p),A.B,A.l,A.aL,0),A.k,x,x,new C.au(v,x,t,u,x,x,A.r),x,x,x,x,A.en,x,x,x)},
 a9F(d){var x,w,v,u,t,s,r,q,p=this,o=null
 if(d==null){x=C.aG(16)
@@ -783,13 +783,13 @@ v=p.f3(d.c)
 u=d.d
 if(A.b.au(u).length===0)u="No clasificado"
 t=y.u
-s=C.b([new B.hh("Stars",x),new B.hh("Contributors",v),new B.hh("Language",u),new B.hh("Actividad por stars",p.Rm(d.e,3,0.001)),new B.hh("Contributors / 1k stars",p.Rm(d.f,1,0.1)),new B.hh("Posicion frente a la tendencia",p.am_(d)),new B.hh("Estado frente a la tendencia",p.al7(d))],t)
+s=C.b([new B.hh("Stars",x),new B.hh("Contributors",v),new B.hh("Language",u),new B.hh("Actividad por stars",p.Rl(d.e,3,0.001)),new B.hh("Contributors / 1k stars",p.Rl(d.f,1,0.1)),new B.hh("Posicion frente a la tendencia",p.am_(d)),new B.hh("Estado frente a la tendencia",p.al7(d))],t)
 if(p.fx===D.DL){x=d.r
 x=x==null?"N/D":p.adY(x,1)
 v=d.w
-v=v==null?"N/D":p.Rl(v,1,!0)
+v=v==null?"N/D":p.Rk(v,1,!0)
 u=d.x
-u=u==null?"N/D":p.Rl(u,1,!0)
+u=u==null?"N/D":p.Rk(u,1,!0)
 A.c.O(s,C.b([new B.hh("Contributors esperados",x),new B.hh("Variaci\xf3n vs tendencia",v),new B.hh("Distancia a la tendencia",u)],t))}x=C.aG(18)
 v=C.cs(w.aO(0.22),1)
 u=C.b([new C.b4(0,A.C,w.aO(0.08),A.da,16)],y.V)
@@ -811,15 +811,15 @@ default:return"Sin clasificar"}},
 yZ(d){switch(d.y){case"above_trend":return F.c_
 case"below_trend":return A.bo
 case"near_trend":default:return D.pG}},
-UA(d,e){return Math.max(0,Math.log(Math.max(new C.y(d,new B.ayr(),C.F(d).h("y<1,m>")).c6(0,F.eb),1))/2.302585092994046-e)},
-Rk(d,e){var x=d-e,w=A.d.aB(x)
+Uz(d,e){return Math.max(0,Math.log(Math.max(new C.y(d,new B.ayr(),C.F(d).h("y<1,m>")).c6(0,F.eb),1))/2.302585092994046-e)},
+Rj(d,e){var x=d-e,w=A.d.aB(x)
 if(Math.abs(x-w)>0.04||w<0)return""
 return this.af3(Math.pow(10,w))},
 Fr(d,e,f,g){var x,w,v,u,t,s,r,q=g==null?1/Math.pow(10,e):g,p=Math.abs(d)
 if(p>0&&p<q){x=A.d.K(q,e)
 return A.d.gp0(d)?"-<"+x:"<"+x}w=f&&d>0?"+":""
 v=A.d.K(d,e)
-u=A.b.aW(v,"-")
+u=A.b.aU(v,"-")
 t=(u?A.b.bl(v,1):v).split(".")
 s=this.f3(C.dt(A.c.gR(t),null))
 if(t.length!==1)r=C.dt(A.c.ga5(t),null)===0&&e===0
@@ -827,9 +827,9 @@ else r=!0
 if(r)return(u?"-":w)+s
 r=u?"-":w
 return r+s+"."+A.c.ga5(t)},
-Rm(d,e,f){return this.Fr(d,e,!1,f)},
+Rl(d,e,f){return this.Fr(d,e,!1,f)},
 adY(d,e){return this.Fr(d,e,!1,null)},
-Rl(d,e,f){return this.Fr(d,e,f,null)},
+Rk(d,e,f){return this.Fr(d,e,f,null)},
 abZ(d,e){var x,w,v,u,t,s,r,q=null
 if(d==null)x=q
 else{w=d.a
@@ -842,9 +842,9 @@ for(q=x.length,t=0;t<x.length;x.length===q||(0,C.z)(x),++t){s=x[t].e
 if(s<0||s>=e.length)continue
 r=e[s]
 if(v.F(0,r.a))u.push(r)}return u},
-a9S(){var x,w,v,u,t,s,r,q,p,o,n,m=this,l={},k=m.gW5()
+a9S(){var x,w,v,u,t,s,r,q,p,o,n,m=this,l={},k=m.gW4()
 if(k.length===0)return F.ci
-x=m.RY(m.x.length,D.MV)
+x=m.RX(m.x.length,D.MV)
 w=A.c.l(x,m.CW)?m.CW:0
 v=m.cx===D.ki
 u=new B.axr(v)
@@ -862,15 +862,15 @@ p=m.cx
 o=p===D.ok?"M\xe1s repos":"Mayor %"
 n=y.p
 return C.aH(C.b([C.bU(A.F,C.b([new C.bK("Top",w,t,q,new B.axo(m),D.a3u,y.A),new C.bK("Orden",p,o,D.OA,new B.axp(m),null,y.F)],n),A.N,8,10),A.aV,C.cj(C.eh(new B.axq(l,m,k,u,v,r)))],n),A.q,A.l,A.o)},
-a9P(){var x,w,v,u,t,s,r,q,p,o,n,m,l,k=this,j=null,i=k.gRo(),h=k.gkA()
+a9P(){var x,w,v,u,t,s,r,q,p,o,n,m,l,k=this,j=null,i=k.gRn(),h=k.gkA()
 if(h!==k.db)$.a9.rx$.push(new B.ax_(k,h))
-x=k.Xd()
+x=k.Xc()
 if(x.length===0)return F.ci
-w=k.RY(k.z.length,D.NU)
+w=k.RX(k.z.length,D.NU)
 v=A.c.l(w,k.cy)?k.cy:0
-u=k.gRq()
+u=k.gRp()
 t=k.gtR()
-s=k.gRr()
+s=k.gRq()
 r=k.gxZ()
 q=k.aeb(h)
 p=v===0?"Ver todos":"Top "+v
@@ -893,7 +893,7 @@ m.push(new C.bK("Orden",t,p,o,new B.ax5(k),D.a3r,y.b))}if(s.length>1){p=r===D.hw
 o=C.F(s).h("y<1,aD<iy>>")
 o=C.x(new C.y(s,new B.ax6(),o),o.h("X.E"))
 m.push(new C.bK("Ver",r,p,o,new B.ax7(k),D.a3x,y.B))}p=C.b([C.bU(A.F,m,A.N,10,10),A.T,k.a9Q(x)],l)
-if(q>0)A.c.O(p,C.b([A.ab,C.Z("Cobertura parcial: "+q+" framework(s) sin datos completos para "+k.Rp(h)+".",j,j,j,j,D.ZV,j,j)],l))
+if(q>0)A.c.O(p,C.b([A.ab,C.Z("Cobertura parcial: "+q+" framework(s) sin datos completos para "+k.Ro(h)+".",j,j,j,j,D.ZV,j,j)],l))
 if(r===D.f3&&!k.u4(h))A.c.O(p,C.b([A.ab,D.a1Z],l))
 p.push(A.T)
 p.push(C.cj(k.a9O(x,r)))
@@ -901,7 +901,7 @@ return C.aH(p,A.q,A.l,A.o)},
 a9Q(d){var x,w,v,u,t,s,r,q,p,o,n,m=this,l=null
 if(d.length===0)return A.a3
 x=m.gkA()
-if(!m.Ss(x))return A.a3
+if(!m.Sr(x))return A.a3
 w=A.c.c6(d,new B.ax9(m,x))
 v=C.F(d).h("a3<1>")
 u=C.x(new C.a3(d,new B.axa(m,x),v),v.h("p.E"))
@@ -964,8 +964,8 @@ k=new C.y(a6,new B.axB(),m).c6(0,F.eb)
 j=new C.y(a6,new B.axC(),m).c6(0,A.dt)
 i=new C.e3(a6,new B.axF(),n.h("e3<1,m>")).c6(0,F.eb)
 m=y.D
-h=a3.UA(C.b([k],m),0.22)
-g=a3.UA(C.b([i,a5.$1(k),a5.$1(l)],m),0.16)
+h=a3.Uz(C.b([k],m),0.22)
+g=a3.Uz(C.b([i,a5.$1(k),a5.$1(l)],m),0.16)
 m=Math.max(l,1)
 f=Math.max(h+1.4,Math.log(m)/2.302585092994046+0.2)
 e=Math.max(g+1.15,Math.log(Math.max(j,1))/2.302585092994046+0.2)
@@ -1011,7 +1011,7 @@ if(x!=null)return this.ae_(x.a)+" destaca por contributors por cada 1k stars"
 return"La correlaci\xf3n stars-contributors se mantiene consistente"},
 aep(){var x=this,w=x.gEW()
 if(w!=null)return x.f3(w.c)+" contributors, "+x.f3(w.b)+" stars, "+A.d.K(w.f,1)+" contributors por cada 1k stars."
-return"Correlaci\xf3n Stars-Contributors: "+A.d.K(x.PF(),2)+"."},
+return"Correlaci\xf3n Stars-Contributors: "+A.d.K(x.PE(),2)+"."},
 gEW(){var x,w,v,u=this.amG()
 if(u!=null)return u
 x=this.as
@@ -1029,7 +1029,7 @@ return A.c.vK(x,new B.ayo(),new B.ayp(x))},
 ae_(d){var x=y.K,w=C.x(new C.a3(C.b(d.split("/"),y.s),new B.ay7(),x),x.h("p.E"))
 if(w.length===0)return d
 return A.b.au(A.c.ga5(w))},
-PF(){var x,w,v,u,t,s,r,q,p,o,n,m,l=this.as
+PE(){var x,w,v,u,t,s,r,q,p,o,n,m,l=this.as
 if(l!=null)return l.r.a
 l=this.at
 x=l.length
@@ -1050,7 +1050,7 @@ if(w.length===0)return null
 x=C.bR(w,!0,y.f)
 A.c.b6(x,new B.ayh())
 return A.c.gR(x)},
-RZ(d){var x,w=A.b.au(d).toLowerCase()
+RY(d){var x,w=A.b.au(d).toLowerCase()
 if(A.b.l(w,"python"))return"assets/images/python_logo.png"
 if(A.b.l(w,"react"))return"assets/images/React-logo.png"
 if(A.b.l(w,"vue"))return"assets/images/Vue-logo.png"
@@ -1125,7 +1125,7 @@ if(A.b.l(x,"vue"))return A.i1
 if(A.b.l(x,"svelte"))return A.lc
 if(A.b.l(x,"next"))return A.dA
 return A.as},
-Un(d){var x
+Um(d){var x
 if(d.Af()>=0.45){x=C.aQi(d)
 return new C.wY(x.a,x.b,x.c,A.d.cC(x.d*0.38,0.18,0.32)).a1E()}return d.aO(0.96)},
 f3(d){return C.a4i(A.e.k(d),C.bd("(\\d)(?=(\\d{3})+(?!\\d))",!0,!1,!1),new B.ay6(),null)},
@@ -1227,19 +1227,19 @@ s=C.b([new C.b4(0,A.C,A.m.aO(0.03),A.da,14)],y.V)
 r=a2.aeF(a5)
 q=a2.aeE(a5)
 p=a2.FB(a6)
-o=a2.RZ(a6)
+o=a2.RY(a6)
 o=a2.Ee(r,q,p,a2.FC(a6,A.c1),o)
 p=a2.aeA()
 q=a2.aez()
 r=a2.FB(x)
-n=a2.RZ(x)
+n=a2.RY(x)
 a3.push(C.aA(e,C.aH(C.b([I.Dg,A.by,o,A.T,a2.Ee(p,q,r,a2.FC(x,F.mn),n),A.T,a2.Ee(a2.aeq(),a2.aep(),a2.FB(w),a2.FC(w,D.LJ),e)],v),A.q,A.l,A.o),A.k,e,e,new C.au(A.j,e,t,u,s,e,A.r),e,e,e,e,A.cI,e,e,e))
 a3.push(A.aM)
-s=a2.gW5().length
+s=a2.gW4().length
 u=a2.gaji()
 t=a2.a9S()
 m=a2.cx===D.ki?"Barras: % de repos nuevos":"Barras: repos nuevos"
-v=G.a6p(C.b([new E.cI(m,C.a_(a7).ax.b,H.ed)],y.a))
+v=G.a6p(C.b([new E.cJ(m,C.a_(a7).ax.b,H.ed)],y.a))
 r=a2.cx===D.ki
 l=r?"porcentaje de repos nuevos":"repos nuevos"
 k=r?"ordenado por porcentaje":"ordenado por repos"
@@ -1282,7 +1282,7 @@ return C.ma(C.aH(a3,A.q,A.l,A.o),e,new C.ad(a1,20,a1,28),e,e,A.a6)},
 $S:100}
 B.axP.prototype={
 $0(){var x=this.a.gM()
-return x==null?null:x.Jv()},
+return x==null?null:x.Ju()},
 $S:0}
 B.ayq.prototype={
 $2(d,e){return d+e.b},
@@ -1428,7 +1428,7 @@ $2$label$repo(d,e){var x,w
 if(e==null)return
 x=this.a
 w=x.H5(e.a)
-this.b.push(x.Py(x.yZ(e),d,w))},
+this.b.push(x.Px(x.yZ(e),d,w))},
 $S:702}
 B.awF.prototype={
 $1(d){var x=null,w=C.aG(14),v=C.cs(this.b.aO(0.12),1)
@@ -1470,7 +1470,7 @@ $S:0}
 B.axq.prototype={
 $2(d,e){var x,w=this,v=w.c,u=w.b,t=C.F(v),s=t.h("y<1,ax>")
 s=C.x(new C.y(v,new B.axg(u),s),s.h("X.E"))
-s=C.cC(C.aH(s,A.dC,A.mU,A.o),null,116)
+s=C.cD(C.aH(s,A.dC,A.mU,A.o),null,116)
 x=w.e
 u=C.cj(C.aH(new C.d4(v,t.h("d4<1>")).gdF().e6(0,new B.axh(w.a,u,w.d,x,e),y.l).bY(0),A.q,A.mU,A.o))
 t=w.f
@@ -1583,7 +1583,7 @@ w=x.eN(e,w)
 return v<=(w==null?999999:w)?d:e},
 $S:135}
 B.ax8.prototype={
-$3$accent$label$value(d,e,f){var x=null,w=d.aO(0.12),v=this.a.Un(d),u=C.aG(999),t=C.cs(d.aO(0.45),1),s=C.b([new C.b4(0,A.C,d.aO(0.12),A.cb,6)],y.V)
+$3$accent$label$value(d,e,f){var x=null,w=d.aO(0.12),v=this.a.Um(d),u=C.aG(999),t=C.cs(d.aO(0.45),1),s=C.b([new C.b4(0,A.C,d.aO(0.12),A.cb,6)],y.V)
 return C.aA(x,C.ca(C.b([C.aA(x,x,A.k,x,x,new C.au(d,x,x,x,x,x,A.bO),x,8,x,x,x,x,x,8),A.cu,C.Z(e+": "+f,x,x,x,x,C.c3(x,x,v,x,x,x,x,x,x,x,x,12.5,x,x,A.z,x,x,!0,x,x,x,x,x,x,x,x),x,x)],y.p),A.B,A.l,A.aL,0),A.k,x,x,new C.au(w,x,t,u,s,x,A.r),x,x,x,x,A.em,x,x,x)},
 $S:710}
 B.awO.prototype={
@@ -1622,8 +1622,8 @@ r=w.ae9(x,v)
 q=w.q3(v)
 p=x.a+"\n"
 if(m.d){o=s==null?0:s
-p=o===0?p+"Cambio vs periodo anterior: sin variaci\xf3n\n":p+("Cambio vs periodo anterior: "+w.tX(o,v,!0)+" "+w.Rp(v)+"\n")}p+=q+" actual: "+w.Rj(u,v)+"\n"
-w=t!=null?p+(q+" previo: "+w.Rj(t,v)+"\n"):p
+p=o===0?p+"Cambio vs periodo anterior: sin variaci\xf3n\n":p+("Cambio vs periodo anterior: "+w.tX(o,v,!0)+" "+w.Ro(v)+"\n")}p+=q+" actual: "+w.Ri(u,v)+"\n"
+w=t!=null?p+(q+" previo: "+w.Ri(t,v)+"\n"):p
 if(r!=null){n=r>0?"+":""
 w+="Variaci\xf3n %: "+n+A.d.K(r,1)+"%"}return new K.fU(w.charCodeAt(0)==0?w:w,D.Yl,null)},
 $S:z+16}
@@ -1757,12 +1757,12 @@ $4(d,e,f,g){var x=this.a.yZ(this.b[this.c])
 return new G.nh(x,7,A.j,2.5)},
 $S:z+3}
 B.axE.prototype={
-$2(d,e){var x=null,w=this.a.Rk(d,this.b)
+$2(d,e){var x=null,w=this.a.Rj(d,this.b)
 if(w.length===0)return A.a3
 return new C.ax(Q.fJ,C.Z(w,x,x,x,x,I.hq,x,x),x)},
 $S:z+5}
 B.axD.prototype={
-$2(d,e){var x=null,w=this.a.Rk(d,this.b)
+$2(d,e){var x=null,w=this.a.Rj(d,this.b)
 if(w.length===0)return A.a3
 return new C.ax(I.ly,C.Z(w,x,x,x,x,I.hq,x,x),x)},
 $S:z+5}
@@ -1815,7 +1815,7 @@ v=w.aO(0.1)
 u=s.b
 u=u==null?C.eg(s.c,w,r,26):C.p2(C.aG(8),C.nt(u,A.cX,r,r),A.az)
 t=y.p
-return C.cC(C.aH(C.b([C.ca(C.b([C.aA(r,u,A.k,r,r,new C.au(v,r,r,x,r,r,A.r),r,48,r,r,r,r,r,48),F.nD,C.cj(C.Z(s.d,r,r,r,r,C.c3(r,r,w,r,r,r,r,r,r,r,r,15,r,r,A.z,r,1.25,!0,r,r,r,r,r,r,r,r),r,r))],t),A.q,A.l,A.o,0),A.T,C.Z(s.e,r,r,r,r,I.k4,r,r)],t),A.q,A.l,A.o),r,q)}q=C.aG(10)
+return C.cD(C.aH(C.b([C.ca(C.b([C.aA(r,u,A.k,r,r,new C.au(v,r,r,x,r,r,A.r),r,48,r,r,r,r,r,48),F.nD,C.cj(C.Z(s.d,r,r,r,r,C.c3(r,r,w,r,r,r,r,r,r,r,r,15,r,r,A.z,r,1.25,!0,r,r,r,r,r,r,r,r),r,r))],t),A.q,A.l,A.o,0),A.T,C.Z(s.e,r,r,r,r,I.k4,r,r)],t),A.q,A.l,A.o),r,q)}q=C.aG(10)
 x=s.a
 w=x.aO(0.1)
 v=s.b
@@ -1826,7 +1826,7 @@ $S:128};(function installTearOffs(){var x=a._instance_0u,w=a._instance_1u
 var v
 x(v=B.IJ.prototype,"gaf4","u1",1)
 x(v,"gaf2","yn",1)
-w(v,"gaiu","Ss",6)})();(function inheritance(){var x=a.inheritMany,w=a.inherit
+w(v,"gaiu","Sr",6)})();(function inheritance(){var x=a.inheritMany,w=a.inherit
 x(C.mt,[B.aua,B.oj,B.eR,B.iy,B.hP,B.kf,B.ok])
 w(B.rD,C.ak)
 w(B.aub,C.rC)
@@ -1838,15 +1838,15 @@ x(C.jy,[B.ayj,B.ayk,B.ayl,B.axP,B.ayc,B.axk,B.axj,B.awZ,B.awY,B.awX,B.awW,B.awV,
 w(B.hh,C.u)})()
 C.r3(b.typeUniverse,JSON.parse('{"rD":{"ak":[],"e":[]},"po":{"a0":[],"e":[]},"IJ":{"ac":["po"]}}'))
 var y=(function rtii(){var x=C.a8
-return{G:x("cH<aW<fp>>"),X:x("bY"),e:x("bK<eR>"),b:x("bK<hP>"),B:x("bK<iy>"),F:x("bK<oj>"),n:x("bK<ok>"),Z:x("bK<kf>"),A:x("bK<f>"),Y:x("c4"),J:x("aW<fp>"),k:x("aD<oj>"),j:x("aD<ok>"),g:x("aD<kf>"),f:x("dj"),x:x("a4<aW<iU>>"),m:x("lz"),L:x("n<mU>"),_:x("n<dw>"),V:x("n<b4>"),a:x("n<cI>"),d:x("n<q>"),h:x("n<c4>"),U:x("n<bS>"),o:x("n<dj>"),T:x("n<dO>"),y:x("n<cp>"),s:x("n<k>"),p:x("n<e>"),u:x("n<hh>"),C:x("n<eR>"),I:x("n<hP>"),E:x("n<iy>"),D:x("n<m>"),t:x("n<f>"),R:x("bm<kV>"),r:x("dO"),z:x("y<hh,e>"),w:x("h4"),N:x("k"),W:x("hg"),O:x("bb<k>"),K:x("a3<k>"),c:x("a3<eR>"),l:x("e"),M:x("eR"),P:x("hP"),Q:x("iy"),q:x("ow"),v:x("fQ<m>"),bc:x("bB<q?>"),i:x("m"),bJ:x("@"),S:x("f"),H:x("~")}})();(function constants(){var x=a.makeConstList
+return{G:x("cI<aW<fp>>"),X:x("bY"),e:x("bK<eR>"),b:x("bK<hP>"),B:x("bK<iy>"),F:x("bK<oj>"),n:x("bK<ok>"),Z:x("bK<kf>"),A:x("bK<f>"),Y:x("c4"),J:x("aW<fp>"),k:x("aD<oj>"),j:x("aD<ok>"),g:x("aD<kf>"),f:x("dj"),x:x("a4<aW<iU>>"),m:x("lz"),L:x("n<mU>"),_:x("n<dw>"),V:x("n<b4>"),a:x("n<cJ>"),d:x("n<q>"),h:x("n<c4>"),U:x("n<bS>"),o:x("n<dj>"),T:x("n<dO>"),y:x("n<cp>"),s:x("n<k>"),p:x("n<e>"),u:x("n<hh>"),C:x("n<eR>"),I:x("n<hP>"),E:x("n<iy>"),D:x("n<m>"),t:x("n<f>"),R:x("bm<kV>"),r:x("dO"),z:x("y<hh,e>"),w:x("h4"),N:x("k"),W:x("hg"),O:x("bb<k>"),K:x("a3<k>"),c:x("a3<eR>"),l:x("e"),M:x("eR"),P:x("hP"),Q:x("iy"),q:x("ow"),v:x("fQ<m>"),bc:x("bB<q?>"),i:x("m"),bJ:x("@"),S:x("f"),H:x("~")}})();(function constants(){var x=a.makeConstList
 D.Ev=new C.cf(A.x,A.cd,A.x,A.cd)
 D.EG=new C.bl(A.w,1,A.D,-1)
 D.EP=new C.a2(160,220,0,1/0)
-D.H1=new E.cI("Sobre tendencia",F.c_,H.b_)
+D.H1=new E.cJ("Sobre tendencia",F.c_,H.b_)
 D.pG=new C.q(1,0.30980392156862746,0.27450980392156865,0.8980392156862745,A.f)
-D.GU=new E.cI("Cerca de tendencia",D.pG,H.b_)
-D.H_=new E.cI("Bajo tendencia",A.bo,H.b_)
-D.H2=new E.cI("Linea de tendencia",H.bn,H.kV)
+D.GU=new E.cJ("Cerca de tendencia",D.pG,H.b_)
+D.H_=new E.cJ("Bajo tendencia",A.bo,H.b_)
+D.H2=new E.cJ("Linea de tendencia",H.bn,H.kV)
 D.NF=x([D.H1,D.GU,D.H_,D.H2],y.a)
 D.H7=new E.iP(D.NF,null)
 D.PI=x([I.pf,M.pj,I.ph],y.a)
@@ -1942,4 +1942,4 @@ D.DK=new B.hP(1,"growth")
 D.a4s=new B.hP(2,"drop")
 D.hw=new B.iy(0,"current")
 D.f3=new B.iy(1,"variation")})()};
-(a=>{a["siSuu53XQaxBc1gacRWoKvLPgOI="]=a.current})($__dart_deferred_initializers__);
+(a=>{a["O9RUouDPySubn8a1ttS1mehgvI0="]=a.current})($__dart_deferred_initializers__);
