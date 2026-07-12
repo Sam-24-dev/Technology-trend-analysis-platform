@@ -1,5 +1,7 @@
 import json
 
+import pytest
+
 from scripts.hydrate_aggregate_history_seed import hydrate_aggregate_history_seed
 
 
@@ -101,3 +103,38 @@ def test_hydrate_aggregate_history_seed_does_not_overwrite_existing_targets(tmp_
     assert summary["seeded_history_files"] == 0
     assert latest_target.read_text(encoding="utf-8") == "existing latest\n"
     assert history_target.read_text(encoding="utf-8") == "existing history\n"
+
+
+@pytest.mark.parametrize(
+    "destination", [
+        lambda project_root: str(project_root.parent / "escaped.csv"),
+        lambda project_root: "../../escaped.csv",
+    ],
+    ids=["absolute", "traversal"],
+)
+@pytest.mark.parametrize("path_kind", ["latest", "snapshot"])
+def test_hydrate_aggregate_history_seed_rejects_unsafe_artifact_destinations(
+    tmp_path, destination, path_kind
+):
+    project_root = tmp_path / "project"
+    (project_root / "datos").mkdir(parents=True)
+    (project_root / "datos" / "trend_score.csv").write_text(
+        "ranking,tecnologia,trend_score\n1,Python,80\n", encoding="utf-8"
+    )
+    destination_path = destination(project_root)
+    dataset_entry = {
+        "dataset": "trend_score",
+        "latest_path": destination_path if path_kind == "latest" else None,
+        "snapshots": ([{"path": destination_path}] if path_kind == "snapshot" else []),
+    }
+    _write_json(
+        project_root / "frontend" / "assets" / "data" / "history_index.json",
+        {
+            "datasets": [dataset_entry]
+        },
+    )
+
+    with pytest.raises(ValueError, match="unsafe artifact destination"):
+        hydrate_aggregate_history_seed(project_root)
+
+    assert not (project_root.parent / "escaped.csv").exists()
