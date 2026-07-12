@@ -73,8 +73,8 @@ class StackOverflowETL(BaseETL):
                     return response.json().get('total', 0)
 
                 self.logger.error(f"Error API {response.status_code}: {response.text}")
-            except requests.exceptions.RequestException as e:
-                self.logger.error(f"Error de conexion: {e}")
+            except requests.exceptions.RequestException:
+                self.logger.error("Error de conexion al consultar la API de StackOverflow")
 
             if intento < HTTP_MAX_RETRIES - 1:
                 time.sleep(HTTP_RETRY_BACKOFF_SECONDS * (intento + 1))
