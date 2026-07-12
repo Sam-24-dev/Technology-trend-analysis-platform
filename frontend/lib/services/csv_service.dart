@@ -311,18 +311,31 @@ class CsvService {
     );
   }
 
-  /// Carga un JSON por URL absoluta (http/https).
-  static Future<Map<String, dynamic>> loadJsonFromUrl(String url) async {
+  /// Carga un JSON remoto por URL HTTPS.
+  static const int _maxRemoteJsonBytes = 2 * 1024 * 1024;
+
+  static Future<Map<String, dynamic>> loadJsonFromUrl(
+    String url, {
+    http.Client? client,
+  }) async {
     final uri = Uri.parse(url);
-    if (!(uri.scheme == 'http' || uri.scheme == 'https')) {
-      throw Exception('URL no soportada para JSON remoto: $url');
+    if (uri.scheme != 'https') {
+      throw Exception('HTTPS requerido para JSON remoto: $url');
     }
 
-    final response = await http.get(uri).timeout(const Duration(seconds: 15));
+    final response = await (client?.get(uri) ?? http.get(uri))
+        .timeout(const Duration(seconds: 15));
     if (response.statusCode != 200) {
       throw Exception('HTTP ${response.statusCode} en $url');
     }
-    final body = utf8.decode(response.bodyBytes, allowMalformed: true);
+    if (response.bodyBytes.length > _maxRemoteJsonBytes) {
+      throw Exception('Remote JSON response is too large');
+    }
+    final contentType = response.headers['content-type']?.toLowerCase() ?? '';
+    if (!contentType.startsWith('application/json')) {
+      throw Exception('Remote JSON response must be application/json');
+    }
+    final body = utf8.decode(response.bodyBytes);
     return _coerceJsonMap(jsonDecode(body), url);
   }
 
