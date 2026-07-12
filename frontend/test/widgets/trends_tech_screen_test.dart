@@ -336,4 +336,18 @@ void main() {
 
     expect(find.text('C++'), findsWidgets);
   });
+
+  testWidgets('trends tech tolerates a malformed route parameter', (
+    WidgetTester tester,
+  ) async {
+    await _pumpTrendsTech(
+      tester,
+      profilesState: DataLoadState.data(
+        _profilesPayload(_profile(slug: 'python', displayName: 'Python')),
+      ),
+      technology: '%',
+    );
+
+    expect(tester.takeException(), isNull);
+  });
 }
