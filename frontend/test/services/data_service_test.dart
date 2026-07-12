@@ -1,5 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 import 'package:frontend/models/trend_history_models.dart';
+import 'package:frontend/services/csv_service.dart';
 import 'package:frontend/services/data_service.dart';
 
 void main() {
@@ -65,5 +68,33 @@ void main() {
     expect(view.source, isNotEmpty);
     expect(view.snapshotCount, greaterThanOrEqualTo(0));
     expect(view.items.length, lessThanOrEqualTo(5));
+  });
+
+  test('DataService rejects insecure remote JSON URLs', () async {
+    await expectLater(
+      service.loadJsonFromUrl('http://example.test/data.json'),
+      throwsA(
+        isA<Exception>().having(
+          (error) => error.toString(),
+          'message',
+          contains('HTTPS'),
+        ),
+      ),
+    );
+  });
+
+  test('CsvService rejects oversized remote JSON responses', () async {
+    final client = MockClient(
+      (_) async => http.Response.bytes(
+        List<int>.filled(2 * 1024 * 1024 + 1, 0),
+        200,
+        headers: const {'content-type': 'application/json'},
+      ),
+    );
+
+    await expectLater(
+      CsvService.loadJsonFromUrl('https://example.test/data.json', client: client),
+      throwsA(isA<Exception>().having((error) => error.toString(), 'message', contains('too large'))),
+    );
   });
 }
