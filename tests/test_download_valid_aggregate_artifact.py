@@ -5,6 +5,7 @@ import zipfile
 from pathlib import Path
 
 from scripts.download_valid_aggregate_artifact import (
+    _download_artifact_zip,
     _ensure_safe_output_dir,
     _extract_zip,
     _validate_history_seed,
@@ -353,6 +354,58 @@ def test_extract_zip_rejects_path_traversal(tmp_path):
         raise AssertionError("Expected path traversal zip to be rejected")
 
     assert not (tmp_path / "escape.txt").exists()
+
+
+def test_download_artifact_zip_rejects_oversized_response(monkeypatch):
+    class Response:
+        def raise_for_status(self):
+            pass
+
+        def iter_content(self, chunk_size):
+            assert chunk_size > 0
+            yield b"abc"
+            yield b"def"
+
+    class Session:
+        def get(self, *_args, **_kwargs):
+            return Response()
+
+    monkeypatch.setattr(
+        "scripts.download_valid_aggregate_artifact.MAX_ARTIFACT_DOWNLOAD_BYTES", 5
+    )
+
+    try:
+        _download_artifact_zip(Session(), "https://example.test/artifact")
+    except ValueError as exc:
+        assert "Artifact download exceeds 5 bytes" in str(exc)
+    else:
+        raise AssertionError("Expected oversized artifact download to be rejected")
+
+
+def test_extract_zip_rejects_excessive_member_count(tmp_path, monkeypatch):
+    monkeypatch.setattr(
+        "scripts.download_valid_aggregate_artifact.MAX_ARTIFACT_ZIP_MEMBERS", 2
+    )
+
+    try:
+        _extract_zip(_build_zip({"one.txt": "1", "two.txt": "2", "three.txt": "3"}), tmp_path / "out")
+    except ValueError as exc:
+        assert "Artifact archive exceeds 2 members" in str(exc)
+    else:
+        raise AssertionError("Expected archive with too many members to be rejected")
+
+
+def test_extract_zip_rejects_excessive_uncompressed_size(tmp_path, monkeypatch):
+    monkeypatch.setattr(
+        "scripts.download_valid_aggregate_artifact.MAX_ARTIFACT_UNCOMPRESSED_BYTES", 5
+    )
+
+    try:
+        _extract_zip(_build_zip({"large.txt": "abcdef"}), tmp_path / "out")
+    except ValueError as exc:
+        assert "Artifact archive exceeds 5 uncompressed bytes" in str(exc)
+    else:
+        raise AssertionError("Expected oversized archive to be rejected")
 
 
 def test_ensure_safe_output_dir_rejects_current_working_directory(
