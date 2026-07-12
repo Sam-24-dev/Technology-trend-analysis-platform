@@ -27,6 +27,11 @@ from scripts.hydrate_aggregate_history_seed import (  # noqa: E402
 from scripts.materialize_etl_artifacts import materialize_artifacts  # noqa: E402
 
 
+MAX_ARTIFACT_DOWNLOAD_BYTES = 100 * 1024 * 1024
+MAX_ARTIFACT_ZIP_MEMBERS = 10_000
+MAX_ARTIFACT_UNCOMPRESSED_BYTES = 512 * 1024 * 1024
+
+
 def _api_get_json(session: requests.Session, url: str) -> dict:
     response = session.get(url, timeout=60)
     response.raise_for_status()
@@ -39,9 +44,19 @@ def _download_artifact_zip(session: requests.Session, url: str) -> bytes:
         timeout=120,
         headers={"Accept": "application/vnd.github+json"},
         allow_redirects=True,
+        stream=True,
     )
     response.raise_for_status()
-    return response.content
+    chunks = []
+    downloaded_bytes = 0
+    for chunk in response.iter_content(chunk_size=64 * 1024):
+        downloaded_bytes += len(chunk)
+        if downloaded_bytes > MAX_ARTIFACT_DOWNLOAD_BYTES:
+            raise ValueError(
+                f"Artifact download exceeds {MAX_ARTIFACT_DOWNLOAD_BYTES} bytes"
+            )
+        chunks.append(chunk)
+    return b"".join(chunks)
 
 
 def _is_zip_symlink(member: zipfile.ZipInfo) -> bool:
@@ -61,7 +76,18 @@ def _resolve_member_path(destination: Path, member_name: str) -> Path:
 def _extract_zip(content: bytes, destination: Path) -> None:
     destination.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(io.BytesIO(content)) as archive:
-        for member in archive.infolist():
+        members = archive.infolist()
+        if len(members) > MAX_ARTIFACT_ZIP_MEMBERS:
+            raise ValueError(
+                f"Artifact archive exceeds {MAX_ARTIFACT_ZIP_MEMBERS} members"
+            )
+        uncompressed_bytes = sum(member.file_size for member in members)
+        if uncompressed_bytes > MAX_ARTIFACT_UNCOMPRESSED_BYTES:
+            raise ValueError(
+                "Artifact archive exceeds "
+                f"{MAX_ARTIFACT_UNCOMPRESSED_BYTES} uncompressed bytes"
+            )
+        for member in members:
             if not member.filename or member.filename.endswith("/"):
                 continue
             if _is_zip_symlink(member):
