@@ -6,10 +6,13 @@ Los tests cubren:
 - Formato y columnas del CSV de salida
 - Mocking de API
 """
+import io
 import json
+import logging
 import pytest
 import pandas as pd
 from unittest.mock import patch, MagicMock
+import requests
 from stackoverflow_etl import StackOverflowETL
 from config.settings import SO_TOP_LANGUAGES
 
@@ -72,6 +75,43 @@ class TestGetTotalCount:
             etl.get_total_count(params)
 
         assert params == original
+
+    def test_request_exception_does_not_log_key_to_console_or_file(self, tmp_path):
+        from exceptions import ETLExtractionError
+
+        sentinel = "SEC004_SENTINEL_KEY"
+        etl = StackOverflowETL()
+        console = io.StringIO()
+        file_path = tmp_path / "stackoverflow.log"
+        console_handler = logging.StreamHandler(console)
+        file_handler = logging.FileHandler(file_path, encoding="utf-8")
+        original_handlers = etl.logger.handlers
+        original_propagate = etl.logger.propagate
+        etl.logger.handlers = [console_handler, file_handler]
+        etl.logger.propagate = False
+
+        try:
+            with patch("stackoverflow_etl.HTTP_MAX_RETRIES", 1):
+                with patch(
+                    "stackoverflow_etl.requests.get",
+                    side_effect=requests.exceptions.ConnectionError(
+                        f"https://api.stackexchange.com?key={sentinel}"
+                    ),
+                ):
+                    with pytest.raises(ETLExtractionError):
+                        etl.get_total_count({"site": "stackoverflow", "tagged": "python"})
+        finally:
+            for handler in etl.logger.handlers:
+                handler.close()
+            etl.logger.handlers = original_handlers
+            etl.logger.propagate = original_propagate
+
+        console_output = console.getvalue()
+        file_output = file_path.read_text(encoding="utf-8")
+        assert sentinel not in console_output
+        assert sentinel not in file_output
+        assert "Error de conexion al consultar la API de StackOverflow" in console_output
+        assert "Error de conexion al consultar la API de StackOverflow" in file_output
 
 
 class TestTasaAceptacion:
