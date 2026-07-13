@@ -15,9 +15,9 @@ A.mt=y([0],B.a8("n<f>"))
 A.Df=new B.aX("B\xe1sico",null,null,null,null,null,null,null,null,null)
 A.Di=new B.aX("Avanzado",null,null,null,null,null,null,null,null,null)
 A.nG=new B.cO(null,32,null,null)
-A.nS=new B.r(!0,null,null,null,null,null,11,C.a2,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null)
+A.nS=new B.r(!0,null,null,null,null,null,11,C.a1,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null)
 A.hq=new B.r(!0,null,null,null,null,null,10,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null)
 A.k4=new B.r(!0,C.ai,null,null,null,null,13,null,null,null,null,null,1.35,null,null,null,null,null,null,null,null,null,null,null,null,null)
 A.a_e=new B.r(!0,C.a8,null,null,null,null,22,C.z,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null)
 A.Dg=new B.aX("Insights clave",null,A.a_e,null,null,null,null,null,null,null)})()};
-(a=>{a["c2jQFSjBmJiGLKQGA4zGUXRYhfs="]=a.current})($__dart_deferred_initializers__);
+(a=>{a["buvyftp5brLmrL0Plrws5aJzzF0="]=a.current})($__dart_deferred_initializers__);
