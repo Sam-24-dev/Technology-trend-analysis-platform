@@ -14,7 +14,7 @@ build/
 .packages
 build/
 .pub-cache/
-pubspec.lock
+# pubspec.lock is tracked for reproducible Flutter application builds.
 *.iml
 .tmp-gh/
 frontend/web/data/
