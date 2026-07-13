@@ -1,11 +1,11 @@
 tecnologia,tipo,ranking_github,ranking_reddit,diferencia
-Python,Lenguaje,1,2,1
-TypeScript,Lenguaje,2,3,1
+Python,Lenguaje,1,3,2
+TypeScript,Lenguaje,2,2,0
 Sin especificar,Lenguaje,3,No encontrado,-
 JavaScript,Lenguaje,4,10,6
 Rust,Lenguaje,5,No encontrado,-
 Next.js,Framework Frontend,1,No encontrado,-
 Angular,Framework Frontend,2,No encontrado,-
-Svelte,Framework Frontend,3,No encontrado,-
-Vue 3,Framework Frontend,4,No encontrado,-
-React,Framework Frontend,5,No encontrado,-
+React,Framework Frontend,3,No encontrado,-
+Svelte,Framework Frontend,4,No encontrado,-
+Vue 3,Framework Frontend,5,No encontrado,-
