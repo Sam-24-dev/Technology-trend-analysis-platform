@@ -1,9 +1,9 @@
 {
-  "generated_at_utc": "2026-07-13T03:39:42Z",
+  "generated_at_utc": "2026-07-13T11:30:55Z",
   "dataset": "reddit_sentimiento_frameworks",
   "source_mode": "latest",
   "source_path": "datos/latest/reddit_sentimiento_frameworks.csv",
-  "source_updated_at_utc": "2026-07-13T03:39:19Z",
+  "source_updated_at_utc": "2026-07-13T11:30:51Z",
   "framework_count": 5,
   "frameworks": [
     {

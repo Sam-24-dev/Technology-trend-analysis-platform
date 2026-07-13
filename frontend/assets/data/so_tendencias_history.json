@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-07-06T12:24:56Z",
+  "generated_at_utc": "2026-07-13T11:30:55Z",
   "dataset": "so_tendencias_mensuales",
   "source_mode": "history",
   "snapshot_count": 2,
@@ -25,20 +25,20 @@
         706,
         671,
         641,
-        633,
-        492,
-        456,
+        634,
+        493,
+        455,
         357,
         397,
         289,
-        263,
-        282
+        262,
+        266
       ],
       "start_value": 922,
-      "end_value": 282,
-      "abs_delta": -640,
-      "pct_delta": -69.41,
-      "retention_pct": 30.59,
+      "end_value": 266,
+      "abs_delta": -656,
+      "pct_delta": -71.15,
+      "retention_pct": 28.85,
       "peak_month": "2025-07",
       "peak_value": 922,
       "latest_rank": 1
@@ -46,7 +46,7 @@
     {
       "tecnologia": "JavaScript",
       "points": [
-        411,
+        409,
         283,
         283,
         261,
@@ -56,16 +56,16 @@
         123,
         152,
         158,
-        145,
-        115
+        144,
+        112
       ],
-      "start_value": 411,
-      "end_value": 115,
-      "abs_delta": -296,
-      "pct_delta": -72.02,
-      "retention_pct": 27.98,
+      "start_value": 409,
+      "end_value": 112,
+      "abs_delta": -297,
+      "pct_delta": -72.62,
+      "retention_pct": 27.38,
       "peak_month": "2025-07",
-      "peak_value": 411,
+      "peak_value": 409,
       "latest_rank": 2
     },
     {
@@ -82,13 +82,13 @@
         47,
         44,
         41,
-        23
+        22
       ],
       "start_value": 180,
-      "end_value": 23,
-      "abs_delta": -157,
-      "pct_delta": -87.22,
-      "retention_pct": 12.78,
+      "end_value": 22,
+      "abs_delta": -158,
+      "pct_delta": -87.78,
+      "retention_pct": 12.22,
       "peak_month": "2025-08",
       "peak_value": 183,
       "latest_rank": 3
@@ -98,10 +98,10 @@
     "current_leader": {
       "tecnologia": "Python",
       "start_value": 922,
-      "end_value": 282,
-      "abs_delta": -640,
-      "pct_delta": -69.41,
-      "retention_pct": 30.59,
+      "end_value": 266,
+      "abs_delta": -656,
+      "pct_delta": -71.15,
+      "retention_pct": 28.85,
       "peak_month": "2025-07",
       "peak_value": 922,
       "latest_rank": 1
@@ -109,10 +109,10 @@
     "best_retention": {
       "tecnologia": "Python",
       "start_value": 922,
-      "end_value": 282,
-      "abs_delta": -640,
-      "pct_delta": -69.41,
-      "retention_pct": 30.59,
+      "end_value": 266,
+      "abs_delta": -656,
+      "pct_delta": -71.15,
+      "retention_pct": 28.85,
       "peak_month": "2025-07",
       "peak_value": 922,
       "latest_rank": 1
@@ -120,10 +120,10 @@
     "largest_relative_drop": {
       "tecnologia": "TypeScript",
       "start_value": 180,
-      "end_value": 23,
-      "abs_delta": -157,
-      "pct_delta": -87.22,
-      "retention_pct": 12.78,
+      "end_value": 22,
+      "abs_delta": -158,
+      "pct_delta": -87.78,
+      "retention_pct": 12.22,
       "peak_month": "2025-08",
       "peak_value": 183,
       "latest_rank": 3
@@ -131,10 +131,10 @@
     "largest_absolute_drop": {
       "tecnologia": "Python",
       "start_value": 922,
-      "end_value": 282,
-      "abs_delta": -640,
-      "pct_delta": -69.41,
-      "retention_pct": 30.59,
+      "end_value": 266,
+      "abs_delta": -656,
+      "pct_delta": -71.15,
+      "retention_pct": 28.85,
       "peak_month": "2025-07",
       "peak_value": 922,
       "latest_rank": 1

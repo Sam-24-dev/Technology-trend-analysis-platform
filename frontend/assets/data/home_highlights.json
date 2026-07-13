@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-07-13T03:39:42Z",
+  "generated_at_utc": "2026-07-13T11:30:56Z",
   "dataset": "home_highlights",
   "source_mode": "bridges",
   "candidate_count": 9,
@@ -10,24 +10,24 @@
         "source": "github_lenguajes_public.summary.leader",
         "payload": {
           "lenguaje": "Python",
-          "repos_count": 893,
-          "share_pct": 34.94
+          "repos_count": 905,
+          "share_pct": 32.89
         },
         "summary": {
           "leader": {
             "lenguaje": "Python",
-            "repos_count": 893,
-            "share_pct": 34.94
+            "repos_count": 905,
+            "share_pct": 32.89
           },
           "runner_up": {
             "lenguaje": "TypeScript",
-            "repos_count": 508,
-            "share_pct": 19.87
+            "repos_count": 725,
+            "share_pct": 26.34
           },
           "language_count": 10,
-          "total_classifiable_repos": 2179,
-          "leader_gap_repos": 385,
-          "leader_gap_share_pct": 15.07
+          "total_classifiable_repos": 2512,
+          "leader_gap_repos": 180,
+          "leader_gap_share_pct": 6.55
         }
       },
       "graph_2": {
@@ -37,9 +37,9 @@
           "framework": "Next.js",
           "repo": "vercel/next.js",
           "ranking": 1,
-          "commits_2025": 4959,
-          "delta_commits": -41,
-          "growth_pct": -0.82,
+          "commits_2025": 4931,
+          "delta_commits": -28,
+          "growth_pct": -0.56,
           "trend_direction": "cayendo"
         },
         "summary": {
@@ -47,47 +47,47 @@
             "framework": "Next.js",
             "repo": "vercel/next.js",
             "ranking": 1,
-            "commits_2025": 4959,
-            "delta_commits": -41,
-            "growth_pct": -0.82,
+            "commits_2025": 4931,
+            "delta_commits": -28,
+            "growth_pct": -0.56,
             "trend_direction": "cayendo"
           },
           "runner_up": {
             "framework": "Angular",
             "repo": "angular/angular",
             "ranking": 2,
-            "commits_2025": 4053,
-            "delta_commits": -39,
-            "growth_pct": -0.95,
-            "trend_direction": "cayendo"
+            "commits_2025": 4110,
+            "delta_commits": 57,
+            "growth_pct": 1.41,
+            "trend_direction": "creciendo"
           },
-          "leader_share_pct": 43.84,
-          "leader_gap_commits": 906,
+          "leader_share_pct": 43.59,
+          "leader_gap_commits": 821,
           "highest_growth": {
-            "framework": "React",
-            "repo": "react/react",
-            "ranking": 3,
-            "commits_2025": 993,
-            "delta_commits": 993,
-            "growth_pct": null,
+            "framework": "Angular",
+            "repo": "angular/angular",
+            "ranking": 2,
+            "commits_2025": 4110,
+            "delta_commits": 57,
+            "growth_pct": 1.41,
             "trend_direction": "creciendo"
           },
           "largest_drop": {
             "framework": "Next.js",
             "repo": "vercel/next.js",
             "ranking": 1,
-            "commits_2025": 4959,
-            "delta_commits": -41,
-            "growth_pct": -0.82,
+            "commits_2025": 4931,
+            "delta_commits": -28,
+            "growth_pct": -0.56,
             "trend_direction": "cayendo"
           },
           "total_commits": 11311,
           "leader_framework": "Next.js",
-          "leader_commits": 4959,
-          "max_growth_framework": "React",
-          "max_growth_delta": 993,
+          "leader_commits": 4931,
+          "max_growth_framework": "Angular",
+          "max_growth_delta": 57,
           "max_drop_framework": "Next.js",
-          "max_drop_delta": -41,
+          "max_drop_delta": -28,
           "missing_metrics_frameworks": 0
         }
       },
@@ -96,69 +96,69 @@
         "source": "github_correlacion_history.summary.positive_outlier_repo",
         "payload": {
           "repo_name": "openclaw/openclaw",
-          "stars": 381911,
-          "contributors": 2791,
+          "stars": 382778,
+          "contributors": 2872,
           "language": "TypeScript",
-          "engagement_ratio": 0.007308,
-          "contributors_per_1k_stars": 7.308,
-          "outlier_score": 5.573507,
+          "engagement_ratio": 0.007503,
+          "contributors_per_1k_stars": 7.503,
+          "outlier_score": 5.637327,
           "trend_bucket": "above_trend"
         },
         "summary": {
-          "correlation_value": 0.6251,
+          "correlation_value": 0.6165,
           "top_stars_repo": {
             "repo_name": "openclaw/openclaw",
-            "stars": 381911,
-            "contributors": 2791,
+            "stars": 382778,
+            "contributors": 2872,
             "language": "TypeScript",
-            "engagement_ratio": 0.007308,
-            "contributors_per_1k_stars": 7.308,
-            "outlier_score": 5.573507,
+            "engagement_ratio": 0.007503,
+            "contributors_per_1k_stars": 7.503,
+            "outlier_score": 5.637327,
             "trend_bucket": "above_trend"
           },
           "top_contributors_repo": {
             "repo_name": "openclaw/openclaw",
-            "stars": 381911,
-            "contributors": 2791,
+            "stars": 382778,
+            "contributors": 2872,
             "language": "TypeScript",
-            "engagement_ratio": 0.007308,
-            "contributors_per_1k_stars": 7.308,
-            "outlier_score": 5.573507,
+            "engagement_ratio": 0.007503,
+            "contributors_per_1k_stars": 7.503,
+            "outlier_score": 5.637327,
             "trend_bucket": "above_trend"
           },
           "top_engagement_repo": {
             "repo_name": "zeroclaw-labs/zeroclaw",
-            "stars": 32165,
-            "contributors": 374,
+            "stars": 32243,
+            "contributors": 385,
             "language": "Rust",
-            "engagement_ratio": 0.011628,
-            "contributors_per_1k_stars": 11.628,
-            "outlier_score": 1.391956,
+            "engagement_ratio": 0.011941,
+            "contributors_per_1k_stars": 11.941,
+            "outlier_score": 1.381806,
             "trend_bucket": "above_trend"
           },
           "positive_outlier_repo": {
             "repo_name": "openclaw/openclaw",
-            "stars": 381911,
-            "contributors": 2791,
+            "stars": 382778,
+            "contributors": 2872,
             "language": "TypeScript",
-            "engagement_ratio": 0.007308,
-            "contributors_per_1k_stars": 7.308,
-            "outlier_score": 5.573507,
+            "engagement_ratio": 0.007503,
+            "contributors_per_1k_stars": 7.503,
+            "outlier_score": 5.637327,
             "trend_bucket": "above_trend"
           },
           "negative_outlier_repo": {
             "repo_name": "obra/superpowers",
-            "stars": 247427,
+            "stars": 253466,
             "contributors": 42,
             "language": "Shell",
-            "engagement_ratio": 0.00017,
-            "contributors_per_1k_stars": 0.17,
-            "outlier_score": -3.030063,
+            "engagement_ratio": 0.000166,
+            "contributors_per_1k_stars": 0.166,
+            "outlier_score": -3.004451,
             "trend_bucket": "below_trend"
           },
           "item_count": 100,
-          "latest_snapshot_date": "2026-07-06",
-          "previous_snapshot_date": "2026-06-30"
+          "latest_snapshot_date": "2026-07-13",
+          "previous_snapshot_date": "2026-07-06"
         }
       }
     },
@@ -303,137 +303,129 @@
         "source": "so_volumen_history.summary.leader",
         "payload": {
           "lenguaje": "python",
-          "preguntas": 5995,
-          "preguntas_prev": 6185,
-          "delta_preguntas": -190,
-          "growth_pct": -3.07,
+          "preguntas": 5796,
+          "preguntas_prev": 5995,
+          "delta_preguntas": -199,
+          "growth_pct": -3.32,
           "trend_direction": "cayendo",
-          "share_pct": 31.12
+          "share_pct": 30.99
         },
         "summary": {
           "leader": {
             "lenguaje": "python",
-            "preguntas": 5995,
-            "preguntas_prev": 6185,
-            "delta_preguntas": -190,
-            "growth_pct": -3.07,
+            "preguntas": 5796,
+            "preguntas_prev": 5995,
+            "delta_preguntas": -199,
+            "growth_pct": -3.32,
             "trend_direction": "cayendo",
-            "share_pct": 31.12
+            "share_pct": 30.99
           },
-          "highest_growth": {
-            "lenguaje": "ruby",
-            "preguntas": 99,
-            "preguntas_prev": 98,
-            "delta_preguntas": 1,
-            "growth_pct": 1.02,
-            "trend_direction": "creciendo",
-            "share_pct": 0.51
-          },
+          "highest_growth": null,
           "largest_drop": {
             "lenguaje": "python",
-            "preguntas": 5995,
-            "preguntas_prev": 6185,
-            "delta_preguntas": -190,
-            "growth_pct": -3.07,
+            "preguntas": 5796,
+            "preguntas_prev": 5995,
+            "delta_preguntas": -199,
+            "growth_pct": -3.32,
             "trend_direction": "cayendo",
-            "share_pct": 31.12
+            "share_pct": 30.99
           },
-          "total_questions": 19267
+          "total_questions": 18704
         }
       },
       "graph_2": {
         "signal": "confidence_leader",
         "source": "so_aceptacion_history.summary.confidence_leader",
         "payload": {
-          "tecnologia": "svelte",
-          "total_preguntas": 66,
-          "respuestas_aceptadas": 24,
-          "tasa_aceptacion_pct": 36.36,
-          "total_preguntas_prev": 65,
-          "respuestas_aceptadas_prev": 24,
-          "tasa_aceptacion_prev_pct": 36.92,
-          "delta_tasa_pct": -0.56,
-          "delta_preguntas": 1,
-          "sample_bucket": "baja",
-          "confidence_score": 0.258068,
-          "raw_rank": 1,
+          "tecnologia": "angular",
+          "total_preguntas": 756,
+          "respuestas_aceptadas": 220,
+          "tasa_aceptacion_pct": 29.1,
+          "total_preguntas_prev": 776,
+          "respuestas_aceptadas_prev": 223,
+          "tasa_aceptacion_prev_pct": 28.74,
+          "delta_tasa_pct": 0.36,
+          "delta_preguntas": -20,
+          "sample_bucket": "media",
+          "confidence_score": 0.259747,
+          "raw_rank": 2,
           "confidence_rank": 1
         },
         "summary": {
           "raw_leader": {
             "tecnologia": "svelte",
-            "total_preguntas": 66,
-            "respuestas_aceptadas": 24,
-            "tasa_aceptacion_pct": 36.36,
-            "total_preguntas_prev": 65,
+            "total_preguntas": 63,
+            "respuestas_aceptadas": 22,
+            "tasa_aceptacion_pct": 34.92,
+            "total_preguntas_prev": 66,
             "respuestas_aceptadas_prev": 24,
-            "tasa_aceptacion_prev_pct": 36.92,
-            "delta_tasa_pct": -0.56,
-            "delta_preguntas": 1,
+            "tasa_aceptacion_prev_pct": 36.36,
+            "delta_tasa_pct": -1.44,
+            "delta_preguntas": -3,
             "sample_bucket": "baja",
-            "confidence_score": 0.258068,
+            "confidence_score": 0.243258,
             "raw_rank": 1,
-            "confidence_rank": 1
+            "confidence_rank": 2
           },
           "confidence_leader": {
-            "tecnologia": "svelte",
-            "total_preguntas": 66,
-            "respuestas_aceptadas": 24,
-            "tasa_aceptacion_pct": 36.36,
-            "total_preguntas_prev": 65,
-            "respuestas_aceptadas_prev": 24,
-            "tasa_aceptacion_prev_pct": 36.92,
-            "delta_tasa_pct": -0.56,
-            "delta_preguntas": 1,
-            "sample_bucket": "baja",
-            "confidence_score": 0.258068,
-            "raw_rank": 1,
+            "tecnologia": "angular",
+            "total_preguntas": 756,
+            "respuestas_aceptadas": 220,
+            "tasa_aceptacion_pct": 29.1,
+            "total_preguntas_prev": 776,
+            "respuestas_aceptadas_prev": 223,
+            "tasa_aceptacion_prev_pct": 28.74,
+            "delta_tasa_pct": 0.36,
+            "delta_preguntas": -20,
+            "sample_bucket": "media",
+            "confidence_score": 0.259747,
+            "raw_rank": 2,
             "confidence_rank": 1
           },
           "highest_improvement": {
-            "tecnologia": "next.js",
-            "total_preguntas": 562,
-            "respuestas_aceptadas": 94,
-            "tasa_aceptacion_pct": 16.73,
-            "total_preguntas_prev": 588,
-            "respuestas_aceptadas_prev": 94,
-            "tasa_aceptacion_prev_pct": 15.99,
-            "delta_tasa_pct": 0.74,
-            "delta_preguntas": -26,
+            "tecnologia": "reactjs",
+            "total_preguntas": 846,
+            "respuestas_aceptadas": 203,
+            "tasa_aceptacion_pct": 24.0,
+            "total_preguntas_prev": 901,
+            "respuestas_aceptadas_prev": 212,
+            "tasa_aceptacion_prev_pct": 23.53,
+            "delta_tasa_pct": 0.47,
+            "delta_preguntas": -55,
             "sample_bucket": "media",
-            "confidence_score": 0.138685,
-            "raw_rank": 5,
-            "confidence_rank": 5
+            "confidence_score": 0.212392,
+            "raw_rank": 4,
+            "confidence_rank": 3
           },
           "largest_drop": {
-            "tecnologia": "reactjs",
-            "total_preguntas": 901,
-            "respuestas_aceptadas": 212,
-            "tasa_aceptacion_pct": 23.53,
-            "total_preguntas_prev": 936,
-            "respuestas_aceptadas_prev": 226,
-            "tasa_aceptacion_prev_pct": 24.15,
-            "delta_tasa_pct": -0.62,
-            "delta_preguntas": -35,
-            "sample_bucket": "media",
-            "confidence_score": 0.208756,
-            "raw_rank": 4,
-            "confidence_rank": 4
+            "tecnologia": "svelte",
+            "total_preguntas": 63,
+            "respuestas_aceptadas": 22,
+            "tasa_aceptacion_pct": 34.92,
+            "total_preguntas_prev": 66,
+            "respuestas_aceptadas_prev": 24,
+            "tasa_aceptacion_prev_pct": 36.36,
+            "delta_tasa_pct": -1.44,
+            "delta_preguntas": -3,
+            "sample_bucket": "baja",
+            "confidence_score": 0.243258,
+            "raw_rank": 1,
+            "confidence_rank": 2
           },
           "largest_sample": {
             "tecnologia": "reactjs",
-            "total_preguntas": 901,
-            "respuestas_aceptadas": 212,
-            "tasa_aceptacion_pct": 23.53,
-            "total_preguntas_prev": 936,
-            "respuestas_aceptadas_prev": 226,
-            "tasa_aceptacion_prev_pct": 24.15,
-            "delta_tasa_pct": -0.62,
-            "delta_preguntas": -35,
+            "total_preguntas": 846,
+            "respuestas_aceptadas": 203,
+            "tasa_aceptacion_pct": 24.0,
+            "total_preguntas_prev": 901,
+            "respuestas_aceptadas_prev": 212,
+            "tasa_aceptacion_prev_pct": 23.53,
+            "delta_tasa_pct": 0.47,
+            "delta_preguntas": -55,
             "sample_bucket": "media",
-            "confidence_score": 0.208756,
+            "confidence_score": 0.212392,
             "raw_rank": 4,
-            "confidence_rank": 4
+            "confidence_rank": 3
           }
         }
       },
@@ -443,10 +435,10 @@
         "payload": {
           "tecnologia": "TypeScript",
           "start_value": 180,
-          "end_value": 23,
-          "abs_delta": -157,
-          "pct_delta": -87.22,
-          "retention_pct": 12.78,
+          "end_value": 22,
+          "abs_delta": -158,
+          "pct_delta": -87.78,
+          "retention_pct": 12.22,
           "peak_month": "2025-08",
           "peak_value": 183,
           "latest_rank": 3
@@ -455,10 +447,10 @@
           "current_leader": {
             "tecnologia": "Python",
             "start_value": 922,
-            "end_value": 282,
-            "abs_delta": -640,
-            "pct_delta": -69.41,
-            "retention_pct": 30.59,
+            "end_value": 266,
+            "abs_delta": -656,
+            "pct_delta": -71.15,
+            "retention_pct": 28.85,
             "peak_month": "2025-07",
             "peak_value": 922,
             "latest_rank": 1
@@ -466,10 +458,10 @@
           "best_retention": {
             "tecnologia": "Python",
             "start_value": 922,
-            "end_value": 282,
-            "abs_delta": -640,
-            "pct_delta": -69.41,
-            "retention_pct": 30.59,
+            "end_value": 266,
+            "abs_delta": -656,
+            "pct_delta": -71.15,
+            "retention_pct": 28.85,
             "peak_month": "2025-07",
             "peak_value": 922,
             "latest_rank": 1
@@ -477,10 +469,10 @@
           "largest_relative_drop": {
             "tecnologia": "TypeScript",
             "start_value": 180,
-            "end_value": 23,
-            "abs_delta": -157,
-            "pct_delta": -87.22,
-            "retention_pct": 12.78,
+            "end_value": 22,
+            "abs_delta": -158,
+            "pct_delta": -87.78,
+            "retention_pct": 12.22,
             "peak_month": "2025-08",
             "peak_value": 183,
             "latest_rank": 3
@@ -488,10 +480,10 @@
           "largest_absolute_drop": {
             "tecnologia": "Python",
             "start_value": 922,
-            "end_value": 282,
-            "abs_delta": -640,
-            "pct_delta": -69.41,
-            "retention_pct": 30.59,
+            "end_value": 266,
+            "abs_delta": -656,
+            "pct_delta": -71.15,
+            "retention_pct": 28.85,
             "peak_month": "2025-07",
             "peak_value": 922,
             "latest_rank": 1
@@ -525,14 +517,14 @@
       "source": "github_frameworks_history.summary.leader",
       "entity": "Next.js",
       "entity_key": "nextjs",
-      "score": 270.25,
+      "score": 264.72,
       "payload": {
         "framework": "Next.js",
         "repo": "vercel/next.js",
         "ranking": 1,
-        "commits_2025": 4959,
-        "delta_commits": -41,
-        "growth_pct": -0.82,
+        "commits_2025": 4931,
+        "delta_commits": -28,
+        "growth_pct": -0.56,
         "trend_direction": "cayendo"
       }
     },
@@ -543,11 +535,11 @@
       "source": "github_lenguajes_public.summary.leader",
       "entity": "Python",
       "entity_key": "python",
-      "score": 258.26,
+      "score": 229.56,
       "payload": {
         "lenguaje": "Python",
-        "repos_count": 893,
-        "share_pct": 34.94
+        "repos_count": 905,
+        "share_pct": 32.89
       }
     }
   ]
