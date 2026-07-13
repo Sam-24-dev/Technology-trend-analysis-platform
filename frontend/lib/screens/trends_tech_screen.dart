@@ -55,7 +55,7 @@ class TrendsTechScreen extends ConsumerWidget {
         profilesAsync.asData?.value;
     final RunManifestPublic? manifest = manifestState?.data;
 
-    final String rawSlug = Uri.decodeComponent(technology);
+    final String rawSlug = technology;
     final String normalizedSlug = normalizeSlug(rawSlug);
     final TechnologyProfilesPayload? profilesPayload = profilesState?.data;
     final TechnologyProfile? profile =
