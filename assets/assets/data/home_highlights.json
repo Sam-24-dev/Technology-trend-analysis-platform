@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-07-13T11:30:56Z",
+  "generated_at_utc": "2026-07-20T03:42:03Z",
   "dataset": "home_highlights",
   "source_mode": "bridges",
   "candidate_count": 9,
@@ -10,24 +10,24 @@
         "source": "github_lenguajes_public.summary.leader",
         "payload": {
           "lenguaje": "Python",
-          "repos_count": 905,
-          "share_pct": 32.89
+          "repos_count": 893,
+          "share_pct": 34.94
         },
         "summary": {
           "leader": {
             "lenguaje": "Python",
-            "repos_count": 905,
-            "share_pct": 32.89
+            "repos_count": 893,
+            "share_pct": 34.94
           },
           "runner_up": {
             "lenguaje": "TypeScript",
-            "repos_count": 725,
-            "share_pct": 26.34
+            "repos_count": 508,
+            "share_pct": 19.87
           },
           "language_count": 10,
-          "total_classifiable_repos": 2512,
-          "leader_gap_repos": 180,
-          "leader_gap_share_pct": 6.55
+          "total_classifiable_repos": 2179,
+          "leader_gap_repos": 385,
+          "leader_gap_share_pct": 15.07
         }
       },
       "graph_2": {
@@ -168,47 +168,47 @@
         "source": "reddit_sentimiento_public.summary.positive_leader",
         "payload": {
           "framework": "FastAPI",
-          "total_menciones": 22,
+          "total_menciones": 21,
           "positivos": 20,
           "neutros": 0,
-          "negativos": 2,
-          "porcentaje_positivo": 90.91,
+          "negativos": 1,
+          "porcentaje_positivo": 95.24,
           "porcentaje_neutro": 0.0,
-          "porcentaje_negativo": 9.09
+          "porcentaje_negativo": 4.76
         },
         "summary": {
           "positive_leader": {
             "framework": "FastAPI",
-            "total_menciones": 22,
+            "total_menciones": 21,
             "positivos": 20,
             "neutros": 0,
-            "negativos": 2,
-            "porcentaje_positivo": 90.91,
+            "negativos": 1,
+            "porcentaje_positivo": 95.24,
             "porcentaje_neutro": 0.0,
-            "porcentaje_negativo": 9.09
+            "porcentaje_negativo": 4.76
           },
           "largest_sample": {
             "framework": "Express",
-            "total_menciones": 190,
+            "total_menciones": 178,
             "positivos": 128,
-            "neutros": 32,
-            "negativos": 30,
-            "porcentaje_positivo": 67.37,
-            "porcentaje_neutro": 16.84,
-            "porcentaje_negativo": 15.79
+            "neutros": 26,
+            "negativos": 24,
+            "porcentaje_positivo": 71.91,
+            "porcentaje_neutro": 14.61,
+            "porcentaje_negativo": 13.48
           },
           "negative_leader": {
             "framework": "Express",
-            "total_menciones": 190,
+            "total_menciones": 178,
             "positivos": 128,
-            "neutros": 32,
-            "negativos": 30,
-            "porcentaje_positivo": 67.37,
-            "porcentaje_neutro": 16.84,
-            "porcentaje_negativo": 15.79
+            "neutros": 26,
+            "negativos": 24,
+            "porcentaje_positivo": 71.91,
+            "porcentaje_neutro": 14.61,
+            "porcentaje_negativo": 13.48
           },
           "framework_count": 5,
-          "total_menciones": 269
+          "total_menciones": 259
         }
       },
       "graph_2": {
@@ -216,38 +216,38 @@
         "source": "reddit_temas_history.summary.leader_topic",
         "payload": {
           "tema": "IA/Machine Learning",
-          "menciones": 593,
-          "menciones_previas": 577,
-          "delta_menciones": 16,
-          "growth_pct": 2.77,
+          "menciones": 617,
+          "menciones_previas": 593,
+          "delta_menciones": 24,
+          "growth_pct": 4.05,
           "trend_direction": "creciendo"
         },
         "summary": {
           "leader_topic": {
             "tema": "IA/Machine Learning",
-            "menciones": 593,
-            "menciones_previas": 577,
-            "delta_menciones": 16,
-            "growth_pct": 2.77,
+            "menciones": 617,
+            "menciones_previas": 593,
+            "delta_menciones": 24,
+            "growth_pct": 4.05,
             "trend_direction": "creciendo"
           },
           "highest_growth_topic": {
             "tema": "IA/Machine Learning",
-            "menciones": 593,
-            "menciones_previas": 577,
-            "delta_menciones": 16,
-            "growth_pct": 2.77,
+            "menciones": 617,
+            "menciones_previas": 593,
+            "delta_menciones": 24,
+            "growth_pct": 4.05,
             "trend_direction": "creciendo"
           },
           "largest_drop_topic": {
             "tema": "DevOps",
-            "menciones": 232,
-            "menciones_previas": 248,
-            "delta_menciones": -16,
-            "growth_pct": -6.45,
+            "menciones": 227,
+            "menciones_previas": 232,
+            "delta_menciones": -5,
+            "growth_pct": -2.16,
             "trend_direction": "cayendo"
           },
-          "total_menciones": 2258,
+          "total_menciones": 2297,
           "topic_count": 10
         }
       },
@@ -262,8 +262,8 @@
           "brecha_abs": 0,
           "promedio_rank": 2.0,
           "direccion": "consenso",
-          "delta_gap": -1,
-          "trend_direction": "disminuyendo"
+          "delta_gap": 0,
+          "trend_direction": "estable"
         },
         "summary": {
           "consenso_count": 1,
@@ -278,8 +278,8 @@
             "brecha_abs": 0,
             "promedio_rank": 2.0,
             "direccion": "consenso",
-            "delta_gap": -1,
-            "trend_direction": "disminuyendo"
+            "delta_gap": 0,
+            "trend_direction": "estable"
           },
           "largest_gap_item": {
             "tecnologia": "JavaScript",
@@ -500,13 +500,13 @@
       "source": "reddit_temas_history.summary.leader_topic",
       "entity": "IA/Machine Learning",
       "entity_key": "iamachinelearning",
-      "score": 641.0,
+      "score": 689.0,
       "payload": {
         "tema": "IA/Machine Learning",
-        "menciones": 593,
-        "menciones_previas": 577,
-        "delta_menciones": 16,
-        "growth_pct": 2.77,
+        "menciones": 617,
+        "menciones_previas": 593,
+        "delta_menciones": 24,
+        "growth_pct": 4.05,
         "trend_direction": "creciendo"
       }
     },
@@ -535,11 +535,11 @@
       "source": "github_lenguajes_public.summary.leader",
       "entity": "Python",
       "entity_key": "python",
-      "score": 229.56,
+      "score": 258.26,
       "payload": {
         "lenguaje": "Python",
-        "repos_count": 905,
-        "share_pct": 32.89
+        "repos_count": 893,
+        "share_pct": 34.94
       }
     }
   ]
