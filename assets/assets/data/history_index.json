@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-07-20T03:42:02Z",
+  "generated_at_utc": "2026-07-20T11:12:47Z",
   "dataset_count": 23,
   "datasets": [
     {
@@ -9,17 +9,17 @@
       "history_snapshot_count": 2,
       "snapshots": [
         {
-          "date": "2026-07-06",
-          "path": "datos/history/github_ai_insights/year=2026/month=07/day=06/github_ai_repos_insights.csv",
-          "row_count": 1
-        },
-        {
           "date": "2026-07-13",
           "path": "datos/history/github_ai_insights/year=2026/month=07/day=13/github_ai_repos_insights.csv",
           "row_count": 1
+        },
+        {
+          "date": "2026-07-20",
+          "path": "datos/history/github_ai_insights/year=2026/month=07/day=20/github_ai_repos_insights.csv",
+          "row_count": 1
         }
       ],
-      "latest_snapshot_date": "2026-07-13"
+      "latest_snapshot_date": "2026-07-20"
     },
     {
       "dataset": "github_ai_repos_insights",
@@ -35,17 +35,17 @@
       "history_snapshot_count": 2,
       "snapshots": [
         {
-          "date": "2026-07-06",
-          "path": "datos/history/github_commits/year=2026/month=07/day=06/github_commits_frameworks.csv",
-          "row_count": 5
-        },
-        {
           "date": "2026-07-13",
           "path": "datos/history/github_commits/year=2026/month=07/day=13/github_commits_frameworks.csv",
           "row_count": 5
+        },
+        {
+          "date": "2026-07-20",
+          "path": "datos/history/github_commits/year=2026/month=07/day=20/github_commits_frameworks.csv",
+          "row_count": 5
         }
       ],
-      "latest_snapshot_date": "2026-07-13"
+      "latest_snapshot_date": "2026-07-20"
     },
     {
       "dataset": "github_commits_frameworks",
@@ -65,20 +65,15 @@
       "dataset": "github_commits_monthly",
       "latest_path": null,
       "latest_row_count": null,
-      "history_snapshot_count": 2,
+      "history_snapshot_count": 1,
       "snapshots": [
         {
           "date": "2026-03-13",
           "path": "datos/history/github_commits_monthly/year=2026/month=03/day=13/github_commits_frameworks_monthly.csv",
           "row_count": 65
-        },
-        {
-          "date": "2026-06-30",
-          "path": "datos/history/github_commits_monthly/year=2026/month=06/day=30/github_commits_frameworks_monthly.csv",
-          "row_count": 65
         }
       ],
-      "latest_snapshot_date": "2026-06-30"
+      "latest_snapshot_date": "2026-03-13"
     },
     {
       "dataset": "github_correlacion",
@@ -87,17 +82,17 @@
       "history_snapshot_count": 2,
       "snapshots": [
         {
-          "date": "2026-07-06",
-          "path": "datos/history/github_correlacion/year=2026/month=07/day=06/github_correlacion.csv",
-          "row_count": 100
-        },
-        {
           "date": "2026-07-13",
           "path": "datos/history/github_correlacion/year=2026/month=07/day=13/github_correlacion.csv",
           "row_count": 100
+        },
+        {
+          "date": "2026-07-20",
+          "path": "datos/history/github_correlacion/year=2026/month=07/day=20/github_correlacion.csv",
+          "row_count": 100
         }
       ],
-      "latest_snapshot_date": "2026-07-13"
+      "latest_snapshot_date": "2026-07-20"
     },
     {
       "dataset": "github_lenguajes",
@@ -106,17 +101,17 @@
       "history_snapshot_count": 2,
       "snapshots": [
         {
-          "date": "2026-07-06",
-          "path": "datos/history/github_lenguajes/year=2026/month=07/day=06/github_lenguajes.csv",
-          "row_count": 10
-        },
-        {
           "date": "2026-07-13",
           "path": "datos/history/github_lenguajes/year=2026/month=07/day=13/github_lenguajes.csv",
           "row_count": 10
+        },
+        {
+          "date": "2026-07-20",
+          "path": "datos/history/github_lenguajes/year=2026/month=07/day=20/github_lenguajes.csv",
+          "row_count": 10
         }
       ],
-      "latest_snapshot_date": "2026-07-13"
+      "latest_snapshot_date": "2026-07-20"
     },
     {
       "dataset": "github_repos",
@@ -125,22 +120,22 @@
       "history_snapshot_count": 2,
       "snapshots": [
         {
-          "date": "2026-07-06",
-          "path": "datos/history/github_repos/year=2026/month=07/day=06/github_repos_2025.csv",
-          "row_count": 3000
-        },
-        {
           "date": "2026-07-13",
           "path": "datos/history/github_repos/year=2026/month=07/day=13/github_repos_2025.csv",
           "row_count": 3000
+        },
+        {
+          "date": "2026-07-20",
+          "path": "datos/history/github_repos/year=2026/month=07/day=20/github_repos_2025.csv",
+          "row_count": 3000
         }
       ],
-      "latest_snapshot_date": "2026-07-13"
+      "latest_snapshot_date": "2026-07-20"
     },
     {
       "dataset": "github_repos_2025",
       "latest_path": "datos/latest/github_repos_2025.csv",
-      "latest_row_count": 2800,
+      "latest_row_count": 3000,
       "history_snapshot_count": 0,
       "snapshots": []
     },
@@ -229,17 +224,17 @@
       "history_snapshot_count": 2,
       "snapshots": [
         {
-          "date": "2026-07-06",
-          "path": "datos/history/so_aceptacion/year=2026/month=07/day=06/so_tasa_aceptacion.csv",
-          "row_count": 5
-        },
-        {
           "date": "2026-07-13",
           "path": "datos/history/so_aceptacion/year=2026/month=07/day=13/so_tasa_aceptacion.csv",
           "row_count": 5
+        },
+        {
+          "date": "2026-07-20",
+          "path": "datos/history/so_aceptacion/year=2026/month=07/day=20/so_tasa_aceptacion.csv",
+          "row_count": 5
         }
       ],
-      "latest_snapshot_date": "2026-07-13"
+      "latest_snapshot_date": "2026-07-20"
     },
     {
       "dataset": "so_tasa_aceptacion",
@@ -255,17 +250,17 @@
       "history_snapshot_count": 2,
       "snapshots": [
         {
-          "date": "2026-07-06",
-          "path": "datos/history/so_tendencias/year=2026/month=07/day=06/so_tendencias_mensuales.csv",
-          "row_count": 12
-        },
-        {
           "date": "2026-07-13",
           "path": "datos/history/so_tendencias/year=2026/month=07/day=13/so_tendencias_mensuales.csv",
           "row_count": 12
+        },
+        {
+          "date": "2026-07-20",
+          "path": "datos/history/so_tendencias/year=2026/month=07/day=20/so_tendencias_mensuales.csv",
+          "row_count": 12
         }
       ],
-      "latest_snapshot_date": "2026-07-13"
+      "latest_snapshot_date": "2026-07-20"
     },
     {
       "dataset": "so_tendencias_mensuales",
@@ -281,17 +276,17 @@
       "history_snapshot_count": 2,
       "snapshots": [
         {
-          "date": "2026-07-06",
-          "path": "datos/history/so_volumen/year=2026/month=07/day=06/so_volumen_preguntas.csv",
-          "row_count": 10
-        },
-        {
           "date": "2026-07-13",
           "path": "datos/history/so_volumen/year=2026/month=07/day=13/so_volumen_preguntas.csv",
           "row_count": 10
+        },
+        {
+          "date": "2026-07-20",
+          "path": "datos/history/so_volumen/year=2026/month=07/day=20/so_volumen_preguntas.csv",
+          "row_count": 10
         }
       ],
-      "latest_snapshot_date": "2026-07-13"
+      "latest_snapshot_date": "2026-07-20"
     },
     {
       "dataset": "so_volumen_preguntas",
