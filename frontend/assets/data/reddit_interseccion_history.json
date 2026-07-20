@@ -1,10 +1,10 @@
 {
-  "generated_at_utc": "2026-07-13T03:39:42Z",
+  "generated_at_utc": "2026-07-20T03:42:03Z",
   "dataset": "interseccion_github_reddit",
   "source_mode": "history",
   "snapshot_count": 2,
-  "latest_snapshot_date": "2026-07-13",
-  "previous_snapshot_date": "2026-07-06",
+  "latest_snapshot_date": "2026-07-20",
+  "previous_snapshot_date": "2026-07-13",
   "coverage_pct": 30.0,
   "comparable_count": 3,
   "item_count": 10,
@@ -18,9 +18,9 @@
       "promedio_rank": 2.0,
       "direccion": "github_favorece",
       "rank_github_prev": 1,
-      "rank_reddit_prev": 2,
-      "delta_gap": 1,
-      "trend_direction": "aumentando"
+      "rank_reddit_prev": 3,
+      "delta_gap": 0,
+      "trend_direction": "estable"
     },
     {
       "tecnologia": "TypeScript",
@@ -31,9 +31,9 @@
       "promedio_rank": 2.0,
       "direccion": "consenso",
       "rank_github_prev": 2,
-      "rank_reddit_prev": 3,
-      "delta_gap": -1,
-      "trend_direction": "disminuyendo"
+      "rank_reddit_prev": 2,
+      "delta_gap": 0,
+      "trend_direction": "estable"
     },
     {
       "tecnologia": "JavaScript",
@@ -82,7 +82,7 @@
       "brecha_abs": null,
       "promedio_rank": null,
       "direccion": "incompleto",
-      "rank_github_prev": 5,
+      "rank_github_prev": 3,
       "rank_reddit_prev": null,
       "delta_gap": null,
       "trend_direction": null
@@ -121,7 +121,7 @@
       "brecha_abs": null,
       "promedio_rank": null,
       "direccion": "incompleto",
-      "rank_github_prev": 3,
+      "rank_github_prev": 4,
       "rank_reddit_prev": null,
       "delta_gap": null,
       "trend_direction": null
@@ -134,7 +134,7 @@
       "brecha_abs": null,
       "promedio_rank": null,
       "direccion": "incompleto",
-      "rank_github_prev": 4,
+      "rank_github_prev": 5,
       "rank_reddit_prev": null,
       "delta_gap": null,
       "trend_direction": null
@@ -153,8 +153,8 @@
       "brecha_abs": 0,
       "promedio_rank": 2.0,
       "direccion": "consenso",
-      "delta_gap": -1,
-      "trend_direction": "disminuyendo"
+      "delta_gap": 0,
+      "trend_direction": "estable"
     },
     "largest_gap_item": {
       "tecnologia": "JavaScript",
@@ -172,8 +172,8 @@
   },
   "snapshots": [
     {
-      "date": "2026-07-06",
-      "path": "datos/history/interseccion/year=2026/month=07/day=06/interseccion_github_reddit.csv",
+      "date": "2026-07-13",
+      "path": "datos/history/interseccion/year=2026/month=07/day=13/interseccion_github_reddit.csv",
       "source_type": "history",
       "row_count": 10,
       "comparable_count": 3,
@@ -183,19 +183,19 @@
           "tecnologia": "Python",
           "tipo": "Lenguaje",
           "ranking_github": 1,
-          "ranking_reddit": 2,
-          "brecha_abs": 1,
-          "promedio_rank": 1.5,
+          "ranking_reddit": 3,
+          "brecha_abs": 2,
+          "promedio_rank": 2.0,
           "direccion": "github_favorece"
         },
         {
           "tecnologia": "TypeScript",
           "tipo": "Lenguaje",
           "ranking_github": 2,
-          "ranking_reddit": 3,
-          "brecha_abs": 1,
-          "promedio_rank": 2.5,
-          "direccion": "github_favorece"
+          "ranking_reddit": 2,
+          "brecha_abs": 0,
+          "promedio_rank": 2.0,
+          "direccion": "consenso"
         },
         {
           "tecnologia": "JavaScript",
@@ -227,7 +227,7 @@
         {
           "tecnologia": "React",
           "tipo": "Framework Frontend",
-          "ranking_github": 5,
+          "ranking_github": 3,
           "ranking_reddit": null,
           "brecha_abs": null,
           "promedio_rank": null,
@@ -254,7 +254,7 @@
         {
           "tecnologia": "Svelte",
           "tipo": "Framework Frontend",
-          "ranking_github": 3,
+          "ranking_github": 4,
           "ranking_reddit": null,
           "brecha_abs": null,
           "promedio_rank": null,
@@ -263,7 +263,7 @@
         {
           "tecnologia": "Vue 3",
           "tipo": "Framework Frontend",
-          "ranking_github": 4,
+          "ranking_github": 5,
           "ranking_reddit": null,
           "brecha_abs": null,
           "promedio_rank": null,
@@ -272,8 +272,8 @@
       ]
     },
     {
-      "date": "2026-07-13",
-      "path": "datos/history/interseccion/year=2026/month=07/day=13/interseccion_github_reddit.csv",
+      "date": "2026-07-20",
+      "path": "datos/history/interseccion/year=2026/month=07/day=20/interseccion_github_reddit.csv",
       "source_type": "history",
       "row_count": 10,
       "comparable_count": 3,
