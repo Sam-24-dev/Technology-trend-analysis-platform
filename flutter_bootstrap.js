@@ -39,7 +39,7 @@ _flutter.buildConfig = {"engineRevision":"78fc3012e45889657f72359b005af7beac47ba
 
 _flutter.loader.load({
   serviceWorkerSettings: {
-    serviceWorkerVersion: "4137560708",
+    serviceWorkerVersion: "2268641892",
     timeoutMillis: 1000,
   },
   onEntrypointLoaded: async function(engineInitializer) {
