@@ -1,2 +1,2 @@
 total_repos_analizados,repos_ai_detectados,porcentaje_ai,mes_pico_ai,repos_mes_pico_ai,top_keywords_ai,top_repos_ai
-3000,1540,51.33,2026-03,269,ai:1666 | claude:520 | llm:163 | prompt:102 | gpt:72,openclaw/openclaw | multica-ai/andrej-karpathy-skills | ultraworkers/claw-code | mattpocock/skills | anthropics/skills
+3000,1542,51.4,2026-03,271,ai:1668 | claude:512 | llm:163 | prompt:101 | gpt:72,openclaw/openclaw | mattpocock/skills | multica-ai/andrej-karpathy-skills | ultraworkers/claw-code | anthropics/skills
