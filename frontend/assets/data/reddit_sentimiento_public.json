@@ -1,94 +1,94 @@
 {
-  "generated_at_utc": "2026-08-10T09:44:59Z",
+  "generated_at_utc": "2026-08-17T03:41:09Z",
   "dataset": "reddit_sentimiento_frameworks",
   "source_mode": "latest",
   "source_path": "datos/latest/reddit_sentimiento_frameworks.csv",
-  "source_updated_at_utc": "2026-08-10T09:44:53Z",
+  "source_updated_at_utc": "2026-08-17T03:40:42Z",
   "framework_count": 5,
   "frameworks": [
     {
       "framework": "Django",
-      "total_menciones": 8,
-      "positivos": 8,
-      "neutros": 0,
-      "negativos": 0,
-      "porcentaje_positivo": 100.0,
-      "porcentaje_neutro": 0.0,
-      "porcentaje_negativo": 0.0
-    },
-    {
-      "framework": "FastAPI",
-      "total_menciones": 16,
-      "positivos": 15,
+      "total_menciones": 15,
+      "positivos": 14,
       "neutros": 1,
       "negativos": 0,
-      "porcentaje_positivo": 93.75,
-      "porcentaje_neutro": 6.25,
+      "porcentaje_positivo": 93.33,
+      "porcentaje_neutro": 6.67,
       "porcentaje_negativo": 0.0
     },
     {
       "framework": "Laravel",
-      "total_menciones": 32,
+      "total_menciones": 29,
       "positivos": 26,
-      "neutros": 1,
-      "negativos": 5,
-      "porcentaje_positivo": 81.25,
-      "porcentaje_neutro": 3.12,
-      "porcentaje_negativo": 15.62
+      "neutros": 0,
+      "negativos": 3,
+      "porcentaje_positivo": 89.66,
+      "porcentaje_neutro": 0.0,
+      "porcentaje_negativo": 10.34
+    },
+    {
+      "framework": "FastAPI",
+      "total_menciones": 21,
+      "positivos": 18,
+      "neutros": 2,
+      "negativos": 1,
+      "porcentaje_positivo": 85.71,
+      "porcentaje_neutro": 9.52,
+      "porcentaje_negativo": 4.76
     },
     {
       "framework": "Express",
-      "total_menciones": 181,
-      "positivos": 129,
-      "neutros": 24,
-      "negativos": 28,
-      "porcentaje_positivo": 71.27,
-      "porcentaje_neutro": 13.26,
-      "porcentaje_negativo": 15.47
+      "total_menciones": 179,
+      "positivos": 127,
+      "neutros": 27,
+      "negativos": 25,
+      "porcentaje_positivo": 70.95,
+      "porcentaje_neutro": 15.08,
+      "porcentaje_negativo": 13.97
     },
     {
       "framework": "Spring",
-      "total_menciones": 25,
-      "positivos": 14,
+      "total_menciones": 27,
+      "positivos": 18,
       "neutros": 6,
-      "negativos": 5,
-      "porcentaje_positivo": 56.0,
-      "porcentaje_neutro": 24.0,
-      "porcentaje_negativo": 20.0
+      "negativos": 3,
+      "porcentaje_positivo": 66.67,
+      "porcentaje_neutro": 22.22,
+      "porcentaje_negativo": 11.11
     }
   ],
   "summary": {
     "positive_leader": {
       "framework": "Django",
-      "total_menciones": 8,
-      "positivos": 8,
-      "neutros": 0,
+      "total_menciones": 15,
+      "positivos": 14,
+      "neutros": 1,
       "negativos": 0,
-      "porcentaje_positivo": 100.0,
-      "porcentaje_neutro": 0.0,
+      "porcentaje_positivo": 93.33,
+      "porcentaje_neutro": 6.67,
       "porcentaje_negativo": 0.0
     },
     "largest_sample": {
       "framework": "Express",
-      "total_menciones": 181,
-      "positivos": 129,
-      "neutros": 24,
-      "negativos": 28,
-      "porcentaje_positivo": 71.27,
-      "porcentaje_neutro": 13.26,
-      "porcentaje_negativo": 15.47
+      "total_menciones": 179,
+      "positivos": 127,
+      "neutros": 27,
+      "negativos": 25,
+      "porcentaje_positivo": 70.95,
+      "porcentaje_neutro": 15.08,
+      "porcentaje_negativo": 13.97
     },
     "negative_leader": {
-      "framework": "Spring",
-      "total_menciones": 25,
-      "positivos": 14,
-      "neutros": 6,
-      "negativos": 5,
-      "porcentaje_positivo": 56.0,
-      "porcentaje_neutro": 24.0,
-      "porcentaje_negativo": 20.0
+      "framework": "Express",
+      "total_menciones": 179,
+      "positivos": 127,
+      "neutros": 27,
+      "negativos": 25,
+      "porcentaje_positivo": 70.95,
+      "porcentaje_neutro": 15.08,
+      "porcentaje_negativo": 13.97
     },
     "framework_count": 5,
-    "total_menciones": 262
+    "total_menciones": 271
   }
 }
