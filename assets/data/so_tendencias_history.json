@@ -1,8 +1,8 @@
 {
-  "generated_at_utc": "2026-08-24T09:07:34Z",
+  "generated_at_utc": "2026-08-24T09:07:36Z",
   "dataset": "so_tendencias_mensuales",
   "source_mode": "history",
-  "snapshot_count": 2,
+  "snapshot_count": 25,
   "months": [
     "2025-08",
     "2025-09",
