@@ -254,7 +254,7 @@ class TrendsTechScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            buildLastUpdatedLabel(manifest),
+            buildSourceFreshnessLabels(manifest).join('\n'),
             style: textTheme.bodySmall?.copyWith(
               color: const Color(0xFF64748B),
             ),
@@ -409,7 +409,7 @@ class TrendsTechScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            buildLastUpdatedLabel(manifest),
+            buildSourceFreshnessLabels(manifest).join('\n'),
             style: textTheme.bodySmall?.copyWith(
               color: const Color(0xFF64748B),
             ),

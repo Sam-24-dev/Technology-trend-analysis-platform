@@ -65,7 +65,10 @@ void main() {
       'so_languages_count': 0,
     });
 
-    expect(buildAnalysisPeriodLabel(manifest), 'Per\u00edodo de an\u00e1lisis: 2025-2026');
+    expect(
+      buildAnalysisPeriodLabel(manifest),
+      'Per\u00edodo de an\u00e1lisis: 2025-2026',
+    );
   });
 
   test('buildAnalysisPeriodLabel falls back when window invalid', () {
@@ -86,87 +89,55 @@ void main() {
     expect(buildAnalysisPeriodLabel(manifest), kAnalysisPeriodFallbackLabel);
   });
 
-  test('buildLastUpdatedLabel returns latest dataset update date', () {
+  test('buildSourceFreshnessLabels uses only mapped dataset timestamps', () {
     final manifest = RunManifestPublic.fromMap({
-      'manifest_version': '1.0.0',
-      'generated_at_utc': '2026-02-28T05:11:00Z',
-      'source_window_start_utc': '2025-02-27T00:00:00Z',
-      'source_window_end_utc': '2026-02-28T00:00:00Z',
-      'quality_gate_status': 'pass',
-      'degraded_mode': false,
-      'available_sources': [],
+      'generated_at_utc': '2026-09-01T12:00:00Z',
       'dataset_summaries': [
         {
-          'dataset': 'trend_score',
-          'row_count': 23,
-          'quality_status': 'pass',
-          'updated_at_utc': '2026-02-27T23:59:59Z',
+          'dataset': 'github_lenguajes',
+          'updated_at_utc': '2026-08-24T09:00:00Z',
         },
-      ],
-      'total_repos_extraidos': 0,
-      'total_repos_clasificables': 0,
-      'so_languages_count': 0,
-    });
-
-    expect(
-      buildLastUpdatedLabel(manifest),
-      '\u00daltima actualizaci\u00f3n (UTC): 27/02/2026',
-    );
-  });
-
-  test('buildLastUpdatedLabel falls back when dataset timestamps are missing', () {
-    final manifest = RunManifestPublic.fromMap({
-      'manifest_version': '1.0.0',
-      'generated_at_utc': '2026-03-01T05:11:00Z',
-      'source_window_start_utc': '2025-03-01T00:00:00Z',
-      'source_window_end_utc': '',
-      'quality_gate_status': 'pass',
-      'degraded_mode': false,
-      'available_sources': [],
-      'dataset_summaries': [
         {
-          'dataset': 'trend_score',
-          'row_count': 23,
-          'quality_status': 'pass',
-          'updated_at_utc': '',
+          'dataset': 'github_repos_2025',
+          'updated_at_utc': '2026-08-23T09:00:00Z',
         },
-      ],
-      'total_repos_extraidos': 0,
-      'total_repos_clasificables': 0,
-      'so_languages_count': 0,
-    });
-
-    expect(
-      buildLastUpdatedLabel(manifest),
-      '\u00daltima actualizaci\u00f3n (UTC): 01/03/2026',
-    );
-  });
-
-  test('buildLastUpdatedLabel uses newer fallback timestamp when datasets are missing', () {
-    final manifest = RunManifestPublic.fromMap({
-      'manifest_version': '1.0.0',
-      'generated_at_utc': '2026-03-19T00:24:45Z',
-      'source_window_start_utc': '2025-03-19T00:00:00Z',
-      'source_window_end_utc': '2026-03-18T23:59:59Z',
-      'quality_gate_status': 'pass',
-      'degraded_mode': false,
-      'available_sources': [],
-      'dataset_summaries': [
         {
-          'dataset': 'trend_score',
-          'row_count': 23,
-          'quality_status': 'pass',
-          'updated_at_utc': '',
+          'dataset': 'so_volumen_preguntas',
+          'updated_at_utc': '2026-08-24T10:00:00Z',
+        },
+        {
+          'dataset': 'reddit_temas_emergentes',
+          'updated_at_utc': '2026-08-31T03:00:00Z',
+        },
+        {'dataset': 'trend_score', 'updated_at_utc': '2026-09-01T12:00:00Z'},
+        {
+          'dataset': 'interseccion_github_reddit',
+          'updated_at_utc': '2026-09-01T12:00:00Z',
         },
       ],
-      'total_repos_extraidos': 0,
-      'total_repos_clasificables': 0,
-      'so_languages_count': 0,
     });
 
-    expect(
-      buildLastUpdatedLabel(manifest),
-      '\u00daltima actualizaci\u00f3n (UTC): 19/03/2026',
-    );
+    expect(buildSourceFreshnessLabels(manifest), [
+      'GitHub: 24/08/2026 UTC',
+      'Stack Overflow: 24/08/2026 UTC',
+      'Reddit: 31/08/2026 UTC',
+    ]);
   });
+
+  test(
+    'buildSourceFreshnessLabel never falls back to manifest generation time',
+    () {
+      final manifest = RunManifestPublic.fromMap({
+        'generated_at_utc': '2026-09-01T12:00:00Z',
+        'dataset_summaries': [
+          {'dataset': 'github_lenguajes', 'updated_at_utc': 'not-a-timestamp'},
+        ],
+      });
+
+      expect(
+        buildSourceFreshnessLabel(manifest, 'github'),
+        'GitHub: no disponible',
+      );
+    },
+  );
 }

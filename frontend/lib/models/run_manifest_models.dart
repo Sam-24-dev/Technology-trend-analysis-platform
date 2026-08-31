@@ -13,42 +13,67 @@ String buildAnalysisPeriodLabel(RunManifestPublic? manifest) {
   return 'Per\u00EDodo de an\u00E1lisis: ${start.year}-${end.year}';
 }
 
-String buildLastUpdatedLabel(RunManifestPublic? manifest) {
-  final DateTime? reference = _resolveLastUpdatedReference(manifest);
-  if (reference == null) {
-    return '\u00DAltima actualizaci\u00F3n (UTC): no disponible';
+const List<String> kFreshnessSources = <String>[
+  'github',
+  'stackoverflow',
+  'reddit',
+];
+
+const Map<String, String> _sourceLabels = <String, String>{
+  'github': 'GitHub',
+  'stackoverflow': 'Stack Overflow',
+  'reddit': 'Reddit',
+};
+
+const Map<String, String> _sourceDatasetPrefixes = <String, String>{
+  'github': 'github_',
+  'stackoverflow': 'so_',
+  'reddit': 'reddit_',
+};
+
+String buildSourceFreshnessLabel(RunManifestPublic? manifest, String source) {
+  final String label = _sourceLabels[source] ?? source;
+  final DateTime? updatedAt = _resolveSourceFreshness(manifest, source);
+  if (updatedAt == null) {
+    return '$label: no disponible';
   }
-  final DateTime utc = reference.toUtc();
+  final DateTime utc = updatedAt.toUtc();
   final String day = utc.day.toString().padLeft(2, '0');
   final String month = utc.month.toString().padLeft(2, '0');
-  return '\u00DAltima actualizaci\u00F3n (UTC): $day/$month/${utc.year}';
+  return '$label: $day/$month/${utc.year} UTC';
 }
 
-DateTime? _resolveLastUpdatedReference(RunManifestPublic? manifest) {
-  if (manifest == null) {
+List<String> buildSourceFreshnessLabels(RunManifestPublic? manifest) {
+  return kFreshnessSources
+      .map((String source) => buildSourceFreshnessLabel(manifest, source))
+      .toList(growable: false);
+}
+
+DateTime? _resolveSourceFreshness(RunManifestPublic? manifest, String source) {
+  final String? prefix = _sourceDatasetPrefixes[source];
+  if (manifest == null || prefix == null) {
     return null;
   }
 
-  DateTime? latestDatasetUpdate;
+  DateTime? latestUpdate;
   for (final RunManifestDatasetSummary dataset in manifest.datasetSummaries) {
-    final DateTime? parsed = DateTime.tryParse(dataset.updatedAtUtc);
-    if (parsed == null) {
+    if (!dataset.dataset.startsWith(prefix)) {
       continue;
     }
-    if (latestDatasetUpdate == null || parsed.isAfter(latestDatasetUpdate)) {
-      latestDatasetUpdate = parsed;
+    final DateTime? parsed = _parseUtcTimestamp(dataset.updatedAtUtc);
+    if (parsed != null &&
+        (latestUpdate == null || parsed.isAfter(latestUpdate))) {
+      latestUpdate = parsed;
     }
   }
-  if (latestDatasetUpdate != null) {
-    return latestDatasetUpdate;
-  }
+  return latestUpdate;
+}
 
-  final DateTime? generatedAt = DateTime.tryParse(manifest.generatedAtUtc);
-  final DateTime? sourceEnd = DateTime.tryParse(manifest.sourceWindowEndUtc);
-  if (generatedAt != null && sourceEnd != null) {
-    return generatedAt.isAfter(sourceEnd) ? generatedAt : sourceEnd;
+DateTime? _parseUtcTimestamp(String value) {
+  if (!value.endsWith('Z')) {
+    return null;
   }
-  return generatedAt ?? sourceEnd;
+  return DateTime.tryParse(value)?.toUtc();
 }
 
 class RunManifestDatasetSummary {

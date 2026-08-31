@@ -179,7 +179,7 @@ class _RedditDashboardState extends ConsumerState<RedditDashboard> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          buildLastUpdatedLabel(manifest),
+                          buildSourceFreshnessLabel(manifest, 'reddit'),
                           style: const TextStyle(
                             fontSize: 13,
                             color: Color(0xFF64748B),

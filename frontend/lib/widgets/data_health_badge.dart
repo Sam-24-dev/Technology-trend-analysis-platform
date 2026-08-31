@@ -62,17 +62,17 @@ class DataHealthBadge extends ConsumerWidget {
 
     final FrontendHealthData health = healthState.data!;
     final RunManifestPublic? manifest = manifestState?.data;
-    final String generatedAt = manifest?.generatedAtUtc ?? '-';
+    final List<String> sourceFreshness = buildSourceFreshnessLabels(manifest);
     final int datasetCount = manifest?.datasetSummaries.length ?? 0;
     final String sources =
         manifest?.availableSources.join(', ') ?? 'sin fuentes';
 
-    return 'quality: ${health.status}\n'
-        'updated_at: $generatedAt\n'
-        'sources: $sources (${health.availableSourcesCount}/3)\n'
-        'datasets: $datasetCount\n'
-        'degraded_mode: ${health.degradedMode}\n'
-        'notes: ${health.message}';
+    return 'Estado: ${health.status}\n'
+        '${sourceFreshness.join('\n')}\n'
+        'Fuentes: $sources (${health.availableSourcesCount}/3)\n'
+        'Datasets: $datasetCount\n'
+        'Modo degradado: ${health.degradedMode}\n'
+        'Notas: ${health.message}';
   }
 
   @override
@@ -103,13 +103,18 @@ class DataHealthBadge extends ConsumerWidget {
         final String label = _statusLabel(status);
         final DataLoadState<RunManifestPublic>? manifestState =
             manifestAsync.asData?.value;
+        final RunManifestPublic? manifest = manifestState?.data;
+        final List<String> sourceFreshness = buildSourceFreshnessLabels(
+          manifest,
+        );
         final String tooltip = _buildTooltipText(healthState, manifestState);
 
         return Tooltip(
           message: tooltip,
           child: Semantics(
             label:
-                'Estado de datos $label, fuentes disponibles $sourcesCount de 3',
+                'Estado de datos $label, fuentes disponibles $sourcesCount de 3. '
+                '${sourceFreshness.join(', ')}',
             child: _buildChip(
               context,
               status: status,
