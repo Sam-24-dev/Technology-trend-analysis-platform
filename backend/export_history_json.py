@@ -3655,6 +3655,20 @@ def export_bridge_assets(project_root, output_dir=None, compact=False):
         project_root,
         history_index_payload,
     )
+    if compact:
+        history_index_payload = _build_compact_frontend_payload(history_index_payload)
+        trend_history_payload = _build_compact_frontend_payload(trend_history_payload)
+        reddit_sentiment_payload = _build_compact_frontend_payload(reddit_sentiment_payload)
+        reddit_topics_history_payload = _build_compact_frontend_payload(reddit_topics_history_payload)
+        reddit_intersection_history_payload = _build_compact_frontend_payload(reddit_intersection_history_payload)
+        github_languages_public_payload = _build_compact_frontend_payload(github_languages_public_payload)
+        github_frameworks_history_payload = _build_compact_frontend_payload(github_frameworks_history_payload)
+        github_correlation_history_payload = _build_compact_frontend_payload(github_correlation_history_payload)
+        so_volume_history_payload = _build_compact_frontend_payload(so_volume_history_payload)
+        so_acceptance_history_payload = _build_compact_frontend_payload(so_acceptance_history_payload)
+        so_trends_history_payload = _build_compact_frontend_payload(so_trends_history_payload)
+        technology_profiles_payload = _build_compact_frontend_payload(technology_profiles_payload)
+
     home_highlights_payload = build_home_highlights_payload(
         github_languages_payload=github_languages_public_payload,
         github_frameworks_payload=github_frameworks_history_payload,
@@ -3666,21 +3680,6 @@ def export_bridge_assets(project_root, output_dir=None, compact=False):
         so_acceptance_payload=so_acceptance_history_payload,
         so_trends_payload=so_trends_history_payload,
     )
-
-    if compact:
-        history_index_payload = _build_compact_frontend_payload(history_index_payload)
-        trend_history_payload = _build_compact_frontend_payload(trend_history_payload)
-        reddit_sentiment_payload = _build_compact_frontend_payload(reddit_sentiment_payload)
-        reddit_topics_history_payload = _build_compact_frontend_payload(reddit_topics_history_payload)
-        reddit_intersection_history_payload = _build_compact_frontend_payload(reddit_intersection_history_payload)
-        github_languages_public_payload = _build_compact_frontend_payload(github_languages_public_payload)
-        github_frameworks_history_payload = _build_compact_frontend_payload(github_frameworks_history_payload)
-        github_correlation_history_payload = _build_compact_frontend_payload(github_correlation_history_payload)
-        home_highlights_payload = _build_compact_frontend_payload(home_highlights_payload)
-        so_volume_history_payload = _build_compact_frontend_payload(so_volume_history_payload)
-        so_acceptance_history_payload = _build_compact_frontend_payload(so_acceptance_history_payload)
-        so_trends_history_payload = _build_compact_frontend_payload(so_trends_history_payload)
-        technology_profiles_payload = _build_compact_frontend_payload(technology_profiles_payload)
 
     history_index_path = output_dir / HISTORY_INDEX_FILENAME
     trend_history_path = output_dir / TREND_SCORE_HISTORY_FILENAME

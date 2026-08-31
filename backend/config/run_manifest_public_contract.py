@@ -20,6 +20,36 @@ QUALITY_GATE_STATUSES = {"pass", "pass_with_warnings", "fail"}
 DATASET_QUALITY_STATUSES = {"pass", "warning", "fail"}
 AVAILABLE_SOURCES = ("github", "stackoverflow", "reddit")
 
+_SOURCE_METADATA_BRIDGES = {
+    "github": ("github_lenguajes_public.json", "github_frameworks_history.json"),
+    "stackoverflow": ("so_volumen_history.json", "so_aceptacion_history.json"),
+    "reddit": ("reddit_sentimiento_public.json", "reddit_temas_history.json"),
+}
+
+_DATASET_BRIDGE_COUNTS = {
+    "github_lenguajes": ("github_lenguajes_public.json", ("language_count",)),
+    "github_commits_frameworks": ("github_frameworks_history.json", ("item_count",)),
+    "github_correlacion": ("github_correlacion_history.json", ("item_count",)),
+    "so_volumen_preguntas": ("so_volumen_history.json", ("item_count",)),
+    "so_tasa_aceptacion": ("so_aceptacion_history.json", ("item_count",)),
+    "reddit_sentimiento_frameworks": ("reddit_sentimiento_public.json", ("framework_count",)),
+    "reddit_temas_emergentes": ("reddit_temas_history.json", ("topic_count",)),
+    "interseccion_github_reddit": ("reddit_interseccion_history.json", ("item_count",)),
+}
+
+_DATASET_METADATA_BRIDGES = {
+    "github_lenguajes": "github_lenguajes_public.json",
+    "github_commits_frameworks": "github_frameworks_history.json",
+    "github_correlacion": "github_correlacion_history.json",
+    "interseccion_github_reddit": "reddit_interseccion_history.json",
+    "reddit_sentimiento_frameworks": "reddit_sentimiento_public.json",
+    "reddit_temas_emergentes": "reddit_temas_history.json",
+    "so_volumen_preguntas": "so_volumen_history.json",
+    "so_tasa_aceptacion": "so_aceptacion_history.json",
+    "so_tendencias_mensuales": "so_tendencias_history.json",
+    "trend_score": "trend_score_history.json",
+}
+
 RUN_MANIFEST_PUBLIC_REQUIRED_FIELDS = (
     "manifest_version",
     "generated_at_utc",
@@ -184,6 +214,10 @@ def _compute_github_repo_totals(project_root: Path, dataset_summaries: list[dict
     if total_extracted <= 0:
         total_extracted = _dataset_summary_row_count(dataset_summaries, "github_repos_2025")
 
+    canonical_classifiable = _canonical_github_classifiable_repos(project_root)
+    if canonical_classifiable > 0:
+        total_classifiable = canonical_classifiable
+
     if total_classifiable <= 0:
         languages_csv_path = _resolve_dataset_csv_path(project_root, "github_lenguajes")
         if languages_csv_path is not None:
@@ -228,6 +262,59 @@ def _read_json(path: Path) -> Mapping[str, Any] | None:
     if isinstance(payload, Mapping):
         return payload
     return None
+
+
+def _canonical_bridge_metadata(project_root: Path) -> tuple[dict[str, str], dict[str, int], dict[str, str]]:
+    """Read source freshness and dataset counts from committed bridge contracts."""
+    assets_dir = project_root / "frontend" / "assets" / "data"
+    source_updated_at: dict[str, str] = {}
+
+    for source, bridge_names in _SOURCE_METADATA_BRIDGES.items():
+        for bridge_name in bridge_names:
+            bridge = _read_json(assets_dir / bridge_name)
+            if bridge is None:
+                continue
+            for field in ("source_updated_at_utc", "generated_at_utc"):
+                timestamp = bridge.get(field)
+                if is_valid_iso_utc(timestamp):
+                    source_updated_at[source] = str(timestamp)
+                    break
+            if source in source_updated_at:
+                break
+
+    dataset_row_counts: dict[str, int] = {}
+    for dataset_name, (bridge_name, fields) in _DATASET_BRIDGE_COUNTS.items():
+        bridge = _read_json(assets_dir / bridge_name)
+        if bridge is None:
+            continue
+        for field in fields:
+            count = _coerce_int(bridge.get(field), default=0)
+            if count > 0:
+                dataset_row_counts[dataset_name] = count
+                break
+
+    dataset_updated_at: dict[str, str] = {}
+    for dataset_name, bridge_name in _DATASET_METADATA_BRIDGES.items():
+        bridge = _read_json(assets_dir / bridge_name)
+        if bridge is None:
+            continue
+        for field in ("source_updated_at_utc", "generated_at_utc"):
+            timestamp = bridge.get(field)
+            if is_valid_iso_utc(timestamp):
+                dataset_updated_at[dataset_name] = str(timestamp)
+                break
+
+    return source_updated_at, dataset_row_counts, dataset_updated_at
+
+
+def _canonical_github_classifiable_repos(project_root: Path) -> int:
+    bridge = _read_json(project_root / "frontend" / "assets" / "data" / "github_lenguajes_public.json")
+    if bridge is None:
+        return 0
+    summary = bridge.get("summary")
+    if not isinstance(summary, Mapping):
+        return 0
+    return _coerce_int(summary.get("total_classifiable_repos"), default=0)
 
 
 def load_public_manifest_schema(project_root: Path | None = None) -> dict[str, Any]:
@@ -379,19 +466,39 @@ def _build_dataset_summaries_from_internal(
     return sorted(summaries, key=lambda item: item["dataset"])
 
 
-def _build_dataset_summaries_from_filesystem(dataset_paths: list[Path]) -> list[dict[str, Any]]:
+def _build_dataset_summaries_from_filesystem(
+    dataset_paths: list[Path],
+    *,
+    source_updated_at: Mapping[str, str],
+    canonical_row_counts: Mapping[str, int],
+    canonical_updated_at: Mapping[str, str],
+) -> tuple[list[dict[str, Any]], list[str]]:
     summaries: list[dict[str, Any]] = []
+    missing_metadata_sources: set[str] = set()
     for csv_path in sorted(dataset_paths, key=lambda path: path.name):
-        row_count = _count_csv_rows(csv_path)
+        dataset_name = csv_path.stem
+        source = _dataset_to_source(dataset_name)
+        row_count = _coerce_int(canonical_row_counts.get(dataset_name), default=0)
+        if row_count <= 0:
+            row_count = _count_csv_rows(csv_path)
+
+        updated_at_utc = canonical_updated_at.get(dataset_name) or (source_updated_at.get(source) if source else None)
+        quality_status = "pass" if row_count > 0 else "warning"
+        if not is_valid_iso_utc(updated_at_utc):
+            updated_at_utc = _to_iso_utc_from_mtime(csv_path)
+            quality_status = "warning"
+            if source:
+                missing_metadata_sources.add(source)
+
         summaries.append(
             {
-                "dataset": csv_path.stem,
+                "dataset": dataset_name,
                 "row_count": row_count,
-                "quality_status": "pass" if row_count > 0 else "warning",
-                "updated_at_utc": _to_iso_utc_from_mtime(csv_path),
+                "quality_status": quality_status,
+                "updated_at_utc": str(updated_at_utc),
             }
         )
-    return summaries
+    return summaries, sorted(missing_metadata_sources)
 
 
 def _resolve_latest_dataset_paths(project_root: Path) -> list[Path]:
@@ -475,7 +582,13 @@ def build_public_run_manifest_from_internal(
 def build_public_run_manifest_from_filesystem(project_root: Path) -> dict[str, Any]:
     """Construye el run manifest público de frontend desde salidas CSV generadas."""
     dataset_paths = _resolve_latest_dataset_paths(project_root)
-    dataset_summaries = _build_dataset_summaries_from_filesystem(dataset_paths)
+    source_updated_at, canonical_row_counts, canonical_updated_at = _canonical_bridge_metadata(project_root)
+    dataset_summaries, missing_metadata_sources = _build_dataset_summaries_from_filesystem(
+        dataset_paths,
+        source_updated_at=source_updated_at,
+        canonical_row_counts=canonical_row_counts,
+        canonical_updated_at=canonical_updated_at,
+    )
     total_repos_extraidos, total_repos_clasificables = _compute_github_repo_totals(project_root, dataset_summaries)
     so_languages_count = _compute_so_languages_count(dataset_summaries)
     dataset_names = [item["dataset"] for item in dataset_summaries]
@@ -489,7 +602,11 @@ def build_public_run_manifest_from_filesystem(project_root: Path) -> dict[str, A
         datetime.now(timezone.utc).replace(microsecond=0) - timedelta(days=365)
     ).isoformat().replace("+00:00", "Z")
 
-    notes = "Public manifest generated from filesystem fallback."
+    notes = "Public manifest generated from filesystem fallback using canonical bridge metadata."
+    if missing_metadata_sources:
+        notes += " Filesystem timestamps used only for sources without canonical freshness metadata: " + ", ".join(
+            missing_metadata_sources
+        )
     if degradation["available_count"] < len(AVAILABLE_SOURCES):
         missing_sources = degradation.get("missing_sources", [])
         missing_label = ", ".join(str(source) for source in missing_sources) if missing_sources else "unknown"
