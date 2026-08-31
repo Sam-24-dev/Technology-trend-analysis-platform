@@ -2,7 +2,7 @@ name: ETL Weekly Data Refresh
 
 on:
   schedule:
-    - cron: "0 8 * * 1"
+    - cron: "17 8 * * 1"
   workflow_dispatch:
 
 permissions:
@@ -501,6 +501,9 @@ jobs:
           python scripts/check_bridge_integrity.py \
             --project-root . \
             --expect-previous-history "${{ steps.previous_history.outputs.expect_previous_history }}"
+
+      - name: Enforce canonical source freshness guard
+        run: python scripts/check_source_freshness.py --project-root . --max-source-age-hours 192
 
       - name: Upload aggregate artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

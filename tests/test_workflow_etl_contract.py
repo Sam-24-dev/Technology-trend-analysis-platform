@@ -89,6 +89,17 @@ def test_workflow_no_longer_downloads_nltk_data():
     assert "Download NLTK data" not in content
 
 
+def test_weekly_schedule_avoids_top_of_hour_and_keeps_publish_safeguards():
+    content = _load_workflow_text()
+
+    assert 'cron: "17 8 * * 1"' in content
+    assert "workflow_dispatch:" in content
+    assert "group: etl-pipeline" in content
+    assert "cancel-in-progress: false" in content
+    assert "Enforce canonical source freshness guard" in content
+    assert "python scripts/check_source_freshness.py --project-root ." in content
+
+
 def test_workflow_reddit_job_resets_stale_outputs_and_requires_fresh_latest_files():
     content = _load_workflow_text()
 
