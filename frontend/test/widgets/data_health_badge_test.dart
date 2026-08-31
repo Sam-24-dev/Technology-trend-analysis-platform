@@ -37,7 +37,26 @@ void main() {
                 qualityGateStatus: 'pass',
                 degradedMode: false,
                 availableSources: const ['github', 'stackoverflow', 'reddit'],
-                datasetSummaries: const [],
+                datasetSummaries: const <RunManifestDatasetSummary>[
+                  RunManifestDatasetSummary(
+                    dataset: 'github_lenguajes',
+                    rowCount: 10,
+                    qualityStatus: 'pass',
+                    updatedAtUtc: '2026-08-24T09:00:00Z',
+                  ),
+                  RunManifestDatasetSummary(
+                    dataset: 'so_volumen_preguntas',
+                    rowCount: 10,
+                    qualityStatus: 'pass',
+                    updatedAtUtc: '2026-08-24T10:00:00Z',
+                  ),
+                  RunManifestDatasetSummary(
+                    dataset: 'reddit_temas_emergentes',
+                    rowCount: 10,
+                    qualityStatus: 'pass',
+                    updatedAtUtc: '2026-08-31T03:00:00Z',
+                  ),
+                ],
                 totalReposExtraidos: 1000,
                 totalReposClasificables: 925,
                 soLanguagesCount: 10,
@@ -56,6 +75,14 @@ void main() {
     expect(find.byKey(const Key('data-health-badge')), findsOneWidget);
     expect(find.textContaining('pass'), findsOneWidget);
     expect(find.byType(Tooltip), findsOneWidget);
+    final Tooltip tooltip = tester.widget<Tooltip>(find.byType(Tooltip));
+    expect(tooltip.message, contains('GitHub: 24/08/2026 UTC'));
+    expect(tooltip.message, contains('Stack Overflow: 24/08/2026 UTC'));
+    expect(tooltip.message, contains('Reddit: 31/08/2026 UTC'));
+    expect(
+      find.bySemanticsLabel(RegExp('GitHub: 24/08/2026 UTC')),
+      findsOneWidget,
+    );
   });
 
   testWidgets('DataHealthBadge cae a unknown cuando no hay metadata', (

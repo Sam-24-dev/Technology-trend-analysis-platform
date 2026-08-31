@@ -319,7 +319,7 @@ class _GithubDashboardState extends ConsumerState<GithubDashboard> {
               ),
               const SizedBox(height: 4),
               Text(
-                buildLastUpdatedLabel(manifest),
+                buildSourceFreshnessLabel(manifest, 'github'),
                 style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
               ),
               if (isDegraded)

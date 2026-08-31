@@ -290,7 +290,7 @@ class _StackOverflowDashboardState
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          buildLastUpdatedLabel(manifest),
+                          buildSourceFreshnessLabel(manifest, 'stackoverflow'),
                           style: const TextStyle(
                             fontSize: 13,
                             color: Color(0xFF64748B),
