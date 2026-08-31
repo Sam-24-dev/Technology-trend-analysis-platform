@@ -9,10 +9,24 @@ from pathlib import Path
 
 
 DEFAULT_MAX_SOURCE_AGE_HOURS = 192
-SOURCE_DATASET_PREFIXES = {
-    "github": "github_",
-    "stackoverflow": "so_",
-    "reddit": "reddit_",
+REQUIRED_SOURCE_DATASETS = {
+    "github": (
+        "github_ai_repos_insights",
+        "github_commits_frameworks",
+        "github_commits_frameworks_monthly",
+        "github_correlacion",
+        "github_lenguajes",
+        "github_repos_2025",
+    ),
+    "stackoverflow": (
+        "so_volumen_preguntas",
+        "so_tasa_aceptacion",
+        "so_tendencias_mensuales",
+    ),
+    "reddit": (
+        "reddit_sentimiento_frameworks",
+        "reddit_temas_emergentes",
+    ),
 }
 
 
@@ -25,21 +39,45 @@ def _parse_utc_timestamp(value: object) -> datetime | None:
         return None
 
 
-def _latest_source_timestamp(dataset_summaries: object, prefix: str) -> tuple[str, datetime] | None:
+def _oldest_required_timestamp(
+    dataset_summaries: object,
+    required_datasets: tuple[str, ...],
+) -> tuple[str, datetime] | None:
     if not isinstance(dataset_summaries, list):
         return None
 
-    latest: tuple[str, datetime] | None = None
-    for summary in dataset_summaries:
-        if not isinstance(summary, dict) or not str(summary.get("dataset", "")).startswith(prefix):
-            continue
-        timestamp = _parse_utc_timestamp(summary.get("updated_at_utc"))
+    summaries = {
+        str(summary.get("dataset")): summary
+        for summary in dataset_summaries
+        if isinstance(summary, dict)
+    }
+    timestamps: list[tuple[str, datetime]] = []
+    for dataset in required_datasets:
+        summary = summaries.get(dataset)
+        timestamp = _parse_utc_timestamp(summary.get("updated_at_utc")) if summary else None
         if timestamp is None:
-            continue
-        raw_timestamp = str(summary["updated_at_utc"])
-        if latest is None or timestamp > latest[1]:
-            latest = (raw_timestamp, timestamp)
-    return latest
+            return None
+        timestamps.append((str(summary["updated_at_utc"]), timestamp))
+
+    return min(timestamps, key=lambda item: item[1])
+
+
+def _source_error(dataset_summaries: object, source: str, required_datasets: tuple[str, ...]) -> str | None:
+    if not isinstance(dataset_summaries, list):
+        return f"Source freshness unavailable: {source} has no canonical dataset summaries"
+
+    summaries = {
+        str(summary.get("dataset")): summary
+        for summary in dataset_summaries
+        if isinstance(summary, dict)
+    }
+    for dataset in required_datasets:
+        summary = summaries.get(dataset)
+        if summary is None:
+            return f"Source freshness unavailable: {source} is missing required dataset {dataset}"
+        if _parse_utc_timestamp(summary.get("updated_at_utc")) is None:
+            return f"Source freshness unavailable: {source} has invalid updated_at_utc for {dataset}"
+    return None
 
 
 def check_source_freshness(
@@ -59,13 +97,18 @@ def check_source_freshness(
 
     source_updated_at_utc: dict[str, str] = {}
     errors: list[str] = []
-    for source, prefix in SOURCE_DATASET_PREFIXES.items():
-        latest = _latest_source_timestamp(manifest.get("dataset_summaries"), prefix)
-        if latest is None:
-            errors.append(f"Source freshness unavailable: {source} has no valid canonical updated_at_utc")
+    dataset_summaries = manifest.get("dataset_summaries")
+    for source, required_datasets in REQUIRED_SOURCE_DATASETS.items():
+        source_error = _source_error(dataset_summaries, source, required_datasets)
+        if source_error is not None:
+            errors.append(source_error)
             continue
 
-        updated_at_raw, updated_at = latest
+        oldest = _oldest_required_timestamp(dataset_summaries, required_datasets)
+        if oldest is None:
+            errors.append(f"Source freshness unavailable: {source} has no valid canonical updated_at_utc")
+            continue
+        updated_at_raw, updated_at = oldest
         source_updated_at_utc[source] = updated_at_raw
         age_hours = (reference_at - updated_at).total_seconds() / 3600
         if age_hours > max_source_age_hours:
