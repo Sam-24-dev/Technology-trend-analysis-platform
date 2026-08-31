@@ -190,3 +190,37 @@ def test_bridge_integrity_requires_multiple_so_trend_months_when_previous_histor
 
     with pytest.raises(ValueError, match="so_tendencias_history.json months must contain at least 2 entries"):
         check_bridge_integrity(tmp_path, expect_previous_history=True)
+
+
+def test_bridge_integrity_rejects_home_signal_that_differs_from_canonical_summary(tmp_path):
+    _write_healthy_bridge_set(tmp_path)
+    assets_dir = tmp_path / "frontend" / "assets" / "data"
+    _write_json(
+        assets_dir / "github_lenguajes_public.json",
+        {
+            "summary": {
+                "leader": {"lenguaje": "Python", "repos_count": 887, "share_pct": 32.03}
+            }
+        },
+    )
+    _write_json(
+        assets_dir / "home_highlights.json",
+        {
+            "candidate_count": 3,
+            "highlights": [{}, {}, {}],
+            "dashboard_signals": {
+                "github": {
+                    "graph_1": {
+                        "source": "github_lenguajes_public.summary.leader",
+                        "payload": {"lenguaje": "Python", "repos_count": 893, "share_pct": 34.94},
+                        "summary": {
+                            "leader": {"lenguaje": "Python", "repos_count": 893, "share_pct": 34.94}
+                        },
+                    }
+                }
+            },
+        },
+    )
+
+    with pytest.raises(ValueError, match="home_highlights canonical payload mismatch"):
+        check_bridge_integrity(tmp_path, expect_previous_history=True)

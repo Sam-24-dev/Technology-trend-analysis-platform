@@ -33,6 +33,18 @@ BRIDGES_WITH_OPTIONAL_LATEST_DATE = {
     "so_tendencias_history.json",
 }
 
+HOME_HIGHLIGHT_SOURCE_FILES = {
+    "github_lenguajes_public": "github_lenguajes_public.json",
+    "github_frameworks_history": "github_frameworks_history.json",
+    "github_correlacion_history": "github_correlacion_history.json",
+    "reddit_sentimiento_public": "reddit_sentimiento_public.json",
+    "reddit_temas_history": "reddit_temas_history.json",
+    "reddit_interseccion_history": "reddit_interseccion_history.json",
+    "so_volumen_history": "so_volumen_history.json",
+    "so_aceptacion_history": "so_aceptacion_history.json",
+    "so_tendencias_history": "so_tendencias_history.json",
+}
+
 
 def _load_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
@@ -40,6 +52,55 @@ def _load_json(path: Path) -> dict:
 
 def _bridge_assets_root(project_root: Path) -> Path:
     return project_root / "frontend" / "assets" / "data"
+
+
+def _resolve_json_path(payload: dict, dotted_path: str):
+    current = payload
+    for segment in dotted_path.split("."):
+        if not isinstance(current, dict) or segment not in current:
+            return None
+        current = current[segment]
+    return current
+
+
+def _check_home_highlights_consistency(assets_root: Path, home_highlights: dict, errors: list[str]) -> None:
+    dashboard_signals = home_highlights.get("dashboard_signals")
+    if not isinstance(dashboard_signals, dict):
+        return
+
+    for dashboard in dashboard_signals.values():
+        if not isinstance(dashboard, dict):
+            continue
+        for graph in dashboard.values():
+            if not isinstance(graph, dict):
+                continue
+            source = graph.get("source")
+            if not isinstance(source, str) or ".summary." not in source:
+                continue
+            source_name, summary_path = source.split(".", 1)
+            bridge_name = HOME_HIGHLIGHT_SOURCE_FILES.get(source_name)
+            if bridge_name is None:
+                continue
+            bridge = _load_json(assets_root / bridge_name)
+            expected_payload = _resolve_json_path(bridge, summary_path)
+            if graph.get("payload") != expected_payload:
+                errors.append(f"home_highlights canonical payload mismatch: {source}")
+            if graph.get("summary") != bridge.get("summary"):
+                errors.append(f"home_highlights canonical summary mismatch: {source_name}")
+
+    for highlight in home_highlights.get("highlights", []):
+        if not isinstance(highlight, dict):
+            continue
+        source = highlight.get("source")
+        if not isinstance(source, str) or ".summary." not in source:
+            continue
+        source_name, summary_path = source.split(".", 1)
+        bridge_name = HOME_HIGHLIGHT_SOURCE_FILES.get(source_name)
+        if bridge_name is None:
+            continue
+        expected_payload = _resolve_json_path(_load_json(assets_root / bridge_name), summary_path)
+        if highlight.get("payload") != expected_payload:
+            errors.append(f"home_highlights canonical payload mismatch: {source}")
 
 
 def check_bridge_integrity(
@@ -86,6 +147,7 @@ def check_bridge_integrity(
         errors.append(
             f"home_highlights highlights={len(highlights)} < {minimum_highlights}"
         )
+    _check_home_highlights_consistency(assets_root, home_highlights, errors)
 
     for bridge_name in REQUIRED_HISTORY_BRIDGES:
         payload = _load_json(assets_root / bridge_name)
