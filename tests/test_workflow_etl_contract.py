@@ -48,6 +48,20 @@ def test_workflow_artifact_handoff_contract_is_defined():
     assert "artifact_payload/reddit" in content
 
 
+def test_workflow_handoffs_required_github_monthly_dataset():
+    content = _load_workflow_text()
+
+    for path in (
+        "datos/github_commits_frameworks_monthly.csv",
+        "datos/latest/github_commits_frameworks_monthly.csv",
+        "datos/history/**/github_commits_frameworks_monthly.csv",
+    ):
+        assert path in content
+
+    required_block = content.split("for required in \\", maxsplit=1)[1].split("; do", maxsplit=1)[0]
+    assert "github_commits_frameworks_monthly.csv" in required_block
+
+
 def test_workflow_publish_gate_and_bridge_asset_paths():
     content = _load_workflow_text()
 

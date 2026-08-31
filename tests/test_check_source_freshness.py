@@ -92,6 +92,16 @@ def test_rejects_missing_source_timestamp_without_manifest_fallback(tmp_path):
         check_source_freshness(tmp_path)
 
 
+def test_rejects_required_timestamp_later_than_manifest_generation(tmp_path):
+    _write_manifest(
+        tmp_path,
+        updated_at_by_dataset={"github_lenguajes": "2026-08-31T09:17:00Z"},
+    )
+
+    with pytest.raises(ValueError, match="Source freshness invalid: github"):
+        check_source_freshness(tmp_path)
+
+
 def test_rejects_stale_required_sibling_even_when_another_github_dataset_is_fresh(tmp_path):
     _write_manifest(
         tmp_path,

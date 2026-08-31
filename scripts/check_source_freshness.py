@@ -62,7 +62,12 @@ def _oldest_required_timestamp(
     return min(timestamps, key=lambda item: item[1])
 
 
-def _source_error(dataset_summaries: object, source: str, required_datasets: tuple[str, ...]) -> str | None:
+def _source_error(
+    dataset_summaries: object,
+    source: str,
+    required_datasets: tuple[str, ...],
+    reference_at: datetime,
+) -> str | None:
     if not isinstance(dataset_summaries, list):
         return f"Source freshness unavailable: {source} has no canonical dataset summaries"
 
@@ -75,8 +80,11 @@ def _source_error(dataset_summaries: object, source: str, required_datasets: tup
         summary = summaries.get(dataset)
         if summary is None:
             return f"Source freshness unavailable: {source} is missing required dataset {dataset}"
-        if _parse_utc_timestamp(summary.get("updated_at_utc")) is None:
+        timestamp = _parse_utc_timestamp(summary.get("updated_at_utc"))
+        if timestamp is None:
             return f"Source freshness unavailable: {source} has invalid updated_at_utc for {dataset}"
+        if timestamp > reference_at:
+            return f"Source freshness invalid: {source} has future updated_at_utc for {dataset}"
     return None
 
 
@@ -99,7 +107,7 @@ def check_source_freshness(
     errors: list[str] = []
     dataset_summaries = manifest.get("dataset_summaries")
     for source, required_datasets in REQUIRED_SOURCE_DATASETS.items():
-        source_error = _source_error(dataset_summaries, source, required_datasets)
+        source_error = _source_error(dataset_summaries, source, required_datasets, reference_at)
         if source_error is not None:
             errors.append(source_error)
             continue
