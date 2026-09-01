@@ -62,6 +62,13 @@ def test_workflow_handoffs_required_github_monthly_dataset():
     assert "github_commits_frameworks_monthly.csv" in required_block
 
 
+def test_workflow_handoffs_required_github_ai_insights_dataset():
+    content = _load_workflow_text()
+
+    required_block = content.split("for required in \\", maxsplit=1)[1].split("; do", maxsplit=1)[0]
+    assert "github_ai_repos_insights.csv" in required_block
+
+
 def test_workflow_publish_gate_and_bridge_asset_paths():
     content = _load_workflow_text()
 
