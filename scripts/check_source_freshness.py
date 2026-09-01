@@ -71,6 +71,18 @@ def _source_error(
     if not isinstance(dataset_summaries, list):
         return f"Source freshness unavailable: {source} has no canonical dataset summaries"
 
+    seen_datasets: set[str] = set()
+    required_names = set(required_datasets)
+    for summary in dataset_summaries:
+        if not isinstance(summary, dict):
+            continue
+        dataset = str(summary.get("dataset"))
+        if dataset not in required_names:
+            continue
+        if dataset in seen_datasets:
+            return f"Source freshness invalid: {source} has duplicate required dataset {dataset}"
+        seen_datasets.add(dataset)
+
     summaries = {
         str(summary.get("dataset")): summary
         for summary in dataset_summaries

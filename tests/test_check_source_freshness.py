@@ -26,7 +26,13 @@ CANONICAL_DATASETS = {
 }
 
 
-def _write_manifest(tmp_path, *, updated_at_by_dataset=None, missing_datasets=()):
+def _write_manifest(
+    tmp_path,
+    *,
+    updated_at_by_dataset=None,
+    missing_datasets=(),
+    prepended_summaries=(),
+):
     assets_root = tmp_path / "frontend" / "assets" / "data"
     assets_root.mkdir(parents=True)
     timestamps = {
@@ -37,7 +43,8 @@ def _write_manifest(tmp_path, *, updated_at_by_dataset=None, missing_datasets=()
     timestamps.update(updated_at_by_dataset or {})
     payload = {
         "generated_at_utc": "2026-08-31T08:17:00Z",
-        "dataset_summaries": [
+        "dataset_summaries": list(prepended_summaries)
+        + [
             {"dataset": dataset, "updated_at_utc": updated_at}
             for dataset, updated_at in timestamps.items()
             if dataset not in missing_datasets
@@ -96,6 +103,18 @@ def test_rejects_required_timestamp_later_than_manifest_generation(tmp_path):
     _write_manifest(
         tmp_path,
         updated_at_by_dataset={"github_lenguajes": "2026-08-31T09:17:00Z"},
+    )
+
+    with pytest.raises(ValueError, match="Source freshness invalid: github"):
+        check_source_freshness(tmp_path)
+
+
+def test_rejects_duplicate_required_dataset_even_when_later_entry_is_fresh(tmp_path):
+    _write_manifest(
+        tmp_path,
+        prepended_summaries=(
+            {"dataset": "github_lenguajes", "updated_at_utc": "2026-08-20T08:17:00Z"},
+        ),
     )
 
     with pytest.raises(ValueError, match="Source freshness invalid: github"):
