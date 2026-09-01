@@ -84,13 +84,17 @@ flutter run -d chrome
 ## Automation (GitHub Actions)
 
 1. **ETL Weekly Refresh** (`etl_semanal.yml`)
-   - Schedule: Monday `08:00 UTC`
+   - Schedule: Monday `08:17 UTC` (approximately 03:17 America/Guayaquil).
    - Runs all ETLs, Trend Score, syncs assets, validates contracts, and publishes data.
 2. **Dependency Security** (`dependency_security.yml`)
    - Schedule: Monday `09:00 UTC`
    - Runs `pip-audit` against `backend/requirements.txt`.
 3. **Deploy Frontend** (`deploy_frontend.yml`)
    - Publishes Flutter Web to GitHub Pages.
+
+### Delayed weekly run recovery
+
+GitHub Actions schedules can be delayed. First inspect **ETL Weekly Data Refresh** in the Actions tab and confirm that no run is in progress for the `etl-pipeline` concurrency group. If the scheduled run is absent or has failed, use **Run workflow** on `main` only after that check. Review the run summary and the source freshness guard before considering the published data healthy.
 
 ---
 

@@ -2,7 +2,7 @@ name: ETL Weekly Data Refresh
 
 on:
   schedule:
-    - cron: "0 8 * * 1"
+    - cron: "17 8 * * 1"
   workflow_dispatch:
 
 permissions:
@@ -65,16 +65,19 @@ jobs:
             datos/github_lenguajes.csv
             datos/github_ai_repos_insights.csv
             datos/github_commits_frameworks.csv
+            datos/github_commits_frameworks_monthly.csv
             datos/github_correlacion.csv
             datos/latest/github_repos_2025.csv
             datos/latest/github_lenguajes.csv
             datos/latest/github_ai_repos_insights.csv
             datos/latest/github_commits_frameworks.csv
+            datos/latest/github_commits_frameworks_monthly.csv
             datos/latest/github_correlacion.csv
             datos/history/**/github_repos_2025.csv
             datos/history/**/github_lenguajes.csv
             datos/history/**/github_ai_repos_insights.csv
             datos/history/**/github_commits_frameworks.csv
+            datos/history/**/github_commits_frameworks_monthly.csv
             datos/history/**/github_correlacion.csv
 
   job_stackoverflow:
@@ -392,7 +395,9 @@ jobs:
           for required in \
             github_repos_2025.csv \
             github_lenguajes.csv \
+            github_ai_repos_insights.csv \
             github_commits_frameworks.csv \
+            github_commits_frameworks_monthly.csv \
             github_correlacion.csv \
             so_volumen_preguntas.csv \
             so_tasa_aceptacion.csv \
@@ -501,6 +506,9 @@ jobs:
           python scripts/check_bridge_integrity.py \
             --project-root . \
             --expect-previous-history "${{ steps.previous_history.outputs.expect_previous_history }}"
+
+      - name: Enforce canonical source freshness guard
+        run: python scripts/check_source_freshness.py --project-root . --max-source-age-hours 192
 
       - name: Upload aggregate artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
