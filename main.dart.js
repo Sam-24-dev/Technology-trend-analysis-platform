@@ -28481,7 +28481,7 @@ aNl(a){if(!B.b.aU(a,"/"))return"/"+a
 return a},
 bdE(a){if(B.b.iz(a,"/"))return B.b.a6(a,0,a.length-1)
 return a},
-b1o(a){var s=B.b.au("")
+b1o(a){var s=B.b.au("https://sam-24-dev.github.io/Technology-trend-analysis-platform/assets/data/")
 if(s.length===0)return""
 if(B.b.iz(s,"/"))return s+a
 return s+"/"+a},
