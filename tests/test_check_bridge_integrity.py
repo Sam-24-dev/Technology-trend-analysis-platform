@@ -1,4 +1,5 @@
 import json
+import shutil
 
 import pytest
 
@@ -223,4 +224,39 @@ def test_bridge_integrity_rejects_home_signal_that_differs_from_canonical_summar
     )
 
     with pytest.raises(ValueError, match="home_highlights canonical payload mismatch"):
+        check_bridge_integrity(tmp_path, expect_previous_history=True)
+
+
+def test_bridge_integrity_checks_remote_assets_and_rejects_home_mismatch(tmp_path, monkeypatch):
+    _write_healthy_bridge_set(tmp_path)
+    frontend_root = tmp_path / "frontend" / "assets" / "data"
+    remote_root = tmp_path / "datos" / "metadata" / "remote_assets"
+    shutil.copytree(frontend_root, remote_root)
+    monkeypatch.setenv("FRONTEND_BRIDGE_REMOTE_DIR", "datos/metadata/remote_assets")
+
+    summary = check_bridge_integrity(tmp_path, expect_previous_history=True)
+    assert summary["asset_roots_checked"] == 2
+
+    _write_json(
+        remote_root / "github_lenguajes_public.json",
+        {"summary": {"leader": {"lenguaje": "Python", "repos_count": 883}}},
+    )
+    _write_json(
+        remote_root / "home_highlights.json",
+        {
+            "candidate_count": 3,
+            "highlights": [{}, {}, {}],
+            "dashboard_signals": {
+                "github": {
+                    "graph_1": {
+                        "source": "github_lenguajes_public.summary.leader",
+                        "payload": {"lenguaje": "Python", "repos_count": 893},
+                        "summary": {"leader": {"lenguaje": "Python", "repos_count": 893}},
+                    }
+                }
+            },
+        },
+    )
+
+    with pytest.raises(ValueError, match="remote_assets.*home_highlights canonical payload mismatch"):
         check_bridge_integrity(tmp_path, expect_previous_history=True)

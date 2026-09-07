@@ -1,4 +1,6 @@
 import json
+import shutil
+from pathlib import Path
 
 import export_history_json
 
@@ -1049,3 +1051,45 @@ def test_build_home_highlights_payload_selects_three_unique_highlights():
     assert "Next.js" in entities
     assert "IA/Machine Learning" in entities
     assert "python" in entities or "Python" in entities
+
+
+def test_rebuild_home_highlights_from_bridges_only_writes_home(tmp_path):
+    source_root = Path(__file__).resolve().parent.parent / "frontend" / "assets" / "data"
+    assets_root = tmp_path / "assets"
+    assets_root.mkdir()
+    bridge_names = (
+        "github_lenguajes_public.json",
+        "github_frameworks_history.json",
+        "github_correlacion_history.json",
+        "reddit_sentimiento_public.json",
+        "reddit_temas_history.json",
+        "reddit_interseccion_history.json",
+        "so_volumen_history.json",
+        "so_aceptacion_history.json",
+        "so_tendencias_history.json",
+    )
+    for name in bridge_names:
+        shutil.copy2(source_root / name, assets_root / name)
+    shutil.copy2(source_root / "home_highlights.json", assets_root / "home_highlights.json")
+
+    topics_path = assets_root / "reddit_temas_history.json"
+    topics = json.loads(topics_path.read_text(encoding="utf-8"))
+    topics["summary"]["leader_topic"] = {
+        "tema": "Recovered baseline",
+        "menciones": 2228,
+        "delta_menciones": 0,
+    }
+    topics_path.write_text(json.dumps(topics, ensure_ascii=False, indent=2), encoding="utf-8")
+    bridge_state = {
+        path: (path.read_bytes(), path.stat().st_mtime_ns)
+        for path in (assets_root / name for name in bridge_names)
+    }
+
+    summary = export_history_json.rebuild_home_highlights_from_bridges(assets_root)
+
+    home = json.loads((assets_root / "home_highlights.json").read_text(encoding="utf-8"))
+    assert summary["home_highlight_count"] == len(home["highlights"])
+    assert home["dashboard_signals"]["reddit"]["graph_2"]["payload"]["tema"] == "Recovered baseline"
+    for path, (content, modified_at) in bridge_state.items():
+        assert path.read_bytes() == content
+        assert path.stat().st_mtime_ns == modified_at

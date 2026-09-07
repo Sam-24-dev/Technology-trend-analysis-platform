@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 
 
@@ -50,8 +51,17 @@ def _load_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def _bridge_assets_root(project_root: Path) -> Path:
-    return project_root / "frontend" / "assets" / "data"
+def _bridge_assets_roots(project_root: Path) -> list[Path]:
+    frontend_root = project_root / "frontend" / "assets" / "data"
+    roots = [frontend_root]
+    remote_value = os.getenv("FRONTEND_BRIDGE_REMOTE_DIR", "").strip()
+    if remote_value:
+        remote_root = Path(remote_value)
+        if not remote_root.is_absolute():
+            remote_root = project_root / remote_root
+        if remote_root.exists() and remote_root.resolve() != frontend_root.resolve():
+            roots.append(remote_root)
+    return roots
 
 
 def _resolve_json_path(payload: dict, dotted_path: str):
@@ -103,13 +113,11 @@ def _check_home_highlights_consistency(assets_root: Path, home_highlights: dict,
             errors.append(f"home_highlights canonical payload mismatch: {source}")
 
 
-def check_bridge_integrity(
-    project_root: Path | str,
+def _check_bridge_root(
+    assets_root: Path,
     *,
     expect_previous_history: bool = False,
 ) -> dict[str, int | str]:
-    project_root = Path(project_root)
-    assets_root = _bridge_assets_root(project_root)
     errors: list[str] = []
 
     history_index = _load_json(assets_root / "history_index.json")
@@ -183,6 +191,33 @@ def check_bridge_integrity(
         "profile_count": int(technology_profiles.get("profile_count", 0) or 0),
         "home_highlight_count": len(highlights),
     }
+
+
+def check_bridge_integrity(
+    project_root: Path | str,
+    *,
+    expect_previous_history: bool = False,
+) -> dict[str, int | str]:
+    project_root = Path(project_root)
+    summaries = []
+    errors = []
+    for assets_root in _bridge_assets_roots(project_root):
+        try:
+            summaries.append(
+                _check_bridge_root(
+                    assets_root,
+                    expect_previous_history=expect_previous_history,
+                )
+            )
+        except ValueError as exc:
+            errors.append(f"{assets_root.name}: {exc}")
+
+    if errors:
+        raise ValueError("; ".join(errors))
+
+    summary = summaries[0]
+    summary["asset_roots_checked"] = len(summaries)
+    return summary
 
 
 def main() -> int:

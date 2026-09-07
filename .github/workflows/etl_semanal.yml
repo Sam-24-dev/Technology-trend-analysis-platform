@@ -452,6 +452,13 @@ jobs:
             --candidate-root prev_artifacts \
             --mode bridges
 
+      - name: Rebuild home highlights from final bridges
+        if: ${{ always() && (needs.job_reddit.outputs.status == 'failed' || steps.reddit_baseline_guard.outputs.use_repo_baseline == 'true') }}
+        run: |
+          python backend/export_history_json.py \
+            --rebuild-home-from frontend/assets/data \
+            --rebuild-home-from datos/metadata/remote_assets
+
       - name: Validate CSV contract headers
         run: python backend/validate_csv_contract.py
 

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import shutil
 from dataclasses import dataclass
 from datetime import date
@@ -106,6 +107,18 @@ def _replace_dir(source: Path, target: Path) -> None:
         shutil.copytree(source, target)
 
 
+def _bridge_target_roots(project_root: Path) -> list[Path]:
+    roots = [project_root / "frontend" / "assets" / "data"]
+    remote_value = os.getenv("FRONTEND_BRIDGE_REMOTE_DIR", "").strip()
+    if remote_value:
+        remote_root = Path(remote_value)
+        if not remote_root.is_absolute():
+            remote_root = project_root / remote_root
+        if remote_root.resolve() != roots[0].resolve():
+            roots.append(remote_root)
+    return roots
+
+
 def restore_reddit_source_baseline(
     project_root: Path,
     candidate_roots: list[Path],
@@ -152,15 +165,17 @@ def restore_reddit_bridges(
 ) -> dict[str, object]:
     candidate = _select_best_candidate(candidate_roots)
 
-    for bridge_file in BRIDGE_FILES:
-        source_bridge = candidate.root / "frontend" / "assets" / "data" / bridge_file
-        target_bridge = project_root / "frontend" / "assets" / "data" / bridge_file
-        _copy_file(source_bridge, target_bridge)
+    source_root = candidate.root / "frontend" / "assets" / "data"
+    target_roots = _bridge_target_roots(project_root)
+    for target_root in target_roots:
+        for bridge_file in BRIDGE_FILES:
+            _copy_file(source_root / bridge_file, target_root / bridge_file)
 
     return {
         "mode": "bridges",
         "selected_root": str(candidate.root),
         "latest_snapshot_date": candidate.latest_snapshot_date.isoformat(),
+        "asset_roots_updated": len(target_roots),
     }
 
 

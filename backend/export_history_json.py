@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 import json
 import logging
 import re
@@ -3619,6 +3620,32 @@ def _write_json(path, payload):
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
+def rebuild_home_highlights_from_bridges(assets_root):
+    """Rebuild only Home highlights from the bridge JSONs already in an asset root."""
+    assets_root = Path(assets_root)
+
+    def load(filename):
+        return json.loads((assets_root / filename).read_text(encoding="utf-8"))
+
+    payload = build_home_highlights_payload(
+        github_languages_payload=load(GITHUB_LANGUAGES_PUBLIC_FILENAME),
+        github_frameworks_payload=load(GITHUB_FRAMEWORKS_HISTORY_FILENAME),
+        github_correlation_payload=load(GITHUB_CORRELATION_HISTORY_FILENAME),
+        reddit_sentiment_payload=load(REDDIT_SENTIMENT_PUBLIC_FILENAME),
+        reddit_topics_payload=load(REDDIT_TOPICS_HISTORY_FILENAME),
+        reddit_intersection_payload=load(REDDIT_INTERSECTION_HISTORY_FILENAME),
+        so_volume_payload=load(SO_VOLUME_HISTORY_FILENAME),
+        so_acceptance_payload=load(SO_ACCEPTANCE_HISTORY_FILENAME),
+        so_trends_payload=load(SO_TRENDS_HISTORY_FILENAME),
+    )
+    output_path = assets_root / HOME_HIGHLIGHTS_FILENAME
+    _write_json(output_path, payload)
+    return {
+        "home_highlights_path": str(output_path),
+        "home_highlight_count": len(payload["highlights"]),
+    }
+
+
 def export_bridge_assets(project_root, output_dir=None, compact=False):
     """Exporta archivos JSON puente para acceso histórico del frontend."""
     project_root = Path(project_root)
@@ -3743,6 +3770,26 @@ def export_bridge_assets(project_root, output_dir=None, compact=False):
 
 def main():
     logging.basicConfig(level=logging.INFO, format="[%(asctime)s] [%(levelname)s] %(name)s - %(message)s")
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--rebuild-home-from",
+        action="append",
+        default=[],
+        metavar="ASSETS_ROOT",
+        help="Rebuild only home_highlights.json from the bridge JSONs in this root.",
+    )
+    args = parser.parse_args()
+
+    if args.rebuild_home_from:
+        for assets_root in args.rebuild_home_from:
+            summary = rebuild_home_highlights_from_bridges(assets_root)
+            logger.info(
+                "[STEP][END] action=rebuild_home_highlights status=success highlights=%d output=%s",
+                summary["home_highlight_count"],
+                summary["home_highlights_path"],
+            )
+        return
+
     project_root = Path(__file__).resolve().parent.parent
     summary = export_bridge_assets(project_root)
     logger.info(

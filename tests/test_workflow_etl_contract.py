@@ -137,3 +137,20 @@ def test_workflow_reddit_job_resets_stale_outputs_and_requires_fresh_latest_file
     assert "Restore previous Reddit bridges on source fallback" in content
     assert "reddit_temas_history.json" in content
     assert "reddit_interseccion_history.json" in content
+
+
+def test_workflow_rebuilds_home_from_final_bridges_only_on_reddit_fallback():
+    content = _load_workflow_text()
+    fallback_condition = (
+        "if: ${{ always() && (needs.job_reddit.outputs.status == 'failed' || "
+        "steps.reddit_baseline_guard.outputs.use_repo_baseline == 'true') }}"
+    )
+
+    restore_offset = content.index("Restore previous Reddit bridges on source fallback")
+    rebuild_offset = content.index("Rebuild home highlights from final bridges")
+    integrity_offset = content.index("Enforce bridge integrity gate")
+
+    assert restore_offset < rebuild_offset < integrity_offset
+    assert content.count(fallback_condition) >= 3
+    assert "--rebuild-home-from frontend/assets/data" in content
+    assert "--rebuild-home-from datos/metadata/remote_assets" in content
