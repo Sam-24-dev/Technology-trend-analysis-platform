@@ -1,50 +1,50 @@
 {
-  "generated_at_utc": "2026-09-07T23:05:47Z",
+  "generated_at_utc": "2026-09-14T15:19:33Z",
   "dataset": "github_lenguajes",
   "source_mode": "latest",
   "source_path": "datos/latest/github_lenguajes.csv",
-  "source_updated_at_utc": "2026-09-07T23:05:36Z",
+  "source_updated_at_utc": "2026-09-14T15:19:25Z",
   "language_count": 10,
   "languages": [
     {
       "lenguaje": "Python",
-      "repos_count": 887,
-      "share_pct": 31.88
+      "repos_count": 892,
+      "share_pct": 32.05
     },
     {
       "lenguaje": "TypeScript",
-      "repos_count": 742,
-      "share_pct": 26.67
+      "repos_count": 744,
+      "share_pct": 26.73
     },
     {
       "lenguaje": "JavaScript",
-      "repos_count": 226,
-      "share_pct": 8.12
+      "repos_count": 223,
+      "share_pct": 8.01
     },
     {
       "lenguaje": "Rust",
-      "repos_count": 214,
-      "share_pct": 7.69
+      "repos_count": 217,
+      "share_pct": 7.8
     },
     {
       "lenguaje": "Go",
-      "repos_count": 151,
-      "share_pct": 5.43
+      "repos_count": 152,
+      "share_pct": 5.46
     },
     {
       "lenguaje": "Swift",
-      "repos_count": 95,
-      "share_pct": 3.41
+      "repos_count": 97,
+      "share_pct": 3.49
     },
     {
       "lenguaje": "Shell",
-      "repos_count": 83,
-      "share_pct": 2.98
+      "repos_count": 82,
+      "share_pct": 2.95
     },
     {
       "lenguaje": "HTML",
-      "repos_count": 82,
-      "share_pct": 2.95
+      "repos_count": 80,
+      "share_pct": 2.87
     },
     {
       "lenguaje": "C",
@@ -60,17 +60,17 @@
   "summary": {
     "leader": {
       "lenguaje": "Python",
-      "repos_count": 887,
-      "share_pct": 31.88
+      "repos_count": 892,
+      "share_pct": 32.05
     },
     "runner_up": {
       "lenguaje": "TypeScript",
-      "repos_count": 742,
-      "share_pct": 26.67
+      "repos_count": 744,
+      "share_pct": 26.73
     },
     "language_count": 10,
-    "total_classifiable_repos": 2568,
-    "leader_gap_repos": 145,
-    "leader_gap_share_pct": 5.21
+    "total_classifiable_repos": 2575,
+    "leader_gap_repos": 148,
+    "leader_gap_share_pct": 5.32
   }
 }
