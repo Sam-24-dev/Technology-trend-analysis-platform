@@ -59,9 +59,9 @@ function Run-Step {
 }
 
 $knownIgnoredOutputRoots = @(
-  "datos\latest",
-  "datos\history",
-  "datos\metadata"
+  "datos/latest",
+  "datos/history",
+  "datos/metadata"
 )
 
 function Assert-CleanWorktree {
