@@ -58,52 +58,32 @@ function Run-Step {
   }
 }
 
+$knownIgnoredOutputRoots = @(
+  "datos\latest",
+  "datos\history",
+  "datos\metadata"
+)
+
 function Assert-CleanWorktree {
-  $status = git status --porcelain
+  $status = @(git status --porcelain)
   if ($LASTEXITCODE -ne 0) {
     throw "git status failed with exit code $LASTEXITCODE"
   }
-  if ($status) {
-    throw "El repo tiene cambios sin guardar. Limpia o guarda esos cambios antes de correr la automatizacion."
-  }
-}
 
-function Reset-TrackedRedditTargetFiles {
-  foreach ($target in $filesToStage) {
-    & git reset -- $target 2>$null
-    & git checkout -- $target 2>$null
-  }
-}
-
-function Assert-CleanOrResetRedditOnly {
-  $status = git status --porcelain
+  $ignoredOutputStatus = @(git status --porcelain --ignored --untracked-files=all -- $knownIgnoredOutputRoots)
   if ($LASTEXITCODE -ne 0) {
-    throw "git status failed with exit code $LASTEXITCODE"
+    throw "git status for ignored outputs failed with exit code $LASTEXITCODE"
   }
-  if (-not $status) {
-    return
-  }
-
-  $allowed = @{}
-  foreach ($target in $filesToStage) {
-    $allowed[$target.Replace("\", "/")] = $true
+  $ignoredOutputs = @($ignoredOutputStatus | Where-Object { $_.StartsWith("!! ") })
+  if ($status.Count -gt 0 -or $ignoredOutputs.Count -gt 0) {
+    $details = @($status) + $ignoredOutputs
+    throw "The repository has pre-existing changes or ignored outputs. Save or remove them before running the automation.`n$($details -join "`n")"
   }
 
-  $unexpected = @()
-  foreach ($line in $status) {
-    $path = $line.Substring(3).Trim().Replace("\", "/")
-    if (-not $allowed.ContainsKey($path)) {
-      $unexpected += $line
-    }
+  $currentBranch = (git branch --show-current).Trim()
+  if ($LASTEXITCODE -ne 0 -or $currentBranch -ne "main") {
+    throw "The automation requires a clean worktree on the main branch. Current branch: $currentBranch"
   }
-
-  if ($unexpected.Count -gt 0) {
-    throw "El repo tiene cambios no relacionados con Reddit. Limpia o guarda esos cambios antes de correr la automatizacion.`n$($unexpected -join "`n")"
-  }
-
-  Write-Output "RESET_STALE_REDDIT_CHANGES=1"
-  Reset-TrackedRedditTargetFiles
-  Assert-CleanWorktree
 }
 
 function Test-FreshRedditHistoryForDate {
@@ -467,13 +447,7 @@ function Assert-BridgeSnapshotPreserved {
 }
 
 Set-Location $repo
-
-Run-Step "git fetch" @("git", "fetch", "origin")
-Run-Step "git checkout main" @("git", "checkout", "main")
-Assert-CleanOrResetRedditOnly
-Run-Step "git pull" @("git", "pull", "--ff-only", "origin", "main")
-Assert-CleanOrResetRedditOnly
-Run-Step "sync python dependencies" @($py, "-m", "pip", "install", "--disable-pip-version-check", "-r", "backend\requirements.txt")
+Assert-CleanWorktree
 
 $seedDate = Get-RepoBaselineDate
 $outputPaths = Get-RedditRunOutputPaths -SeedDate $seedDate -SnapshotDate $utcDate
@@ -528,7 +502,14 @@ try {
 
   Run-Step "trend_score" @($py, "backend\trend_score.py")
   Run-Step "sync_assets" @($py, "backend\sync_assets.py")
-  Run-Step "restore non-reddit bridge assets" @("git", "checkout", "origin/main", "--", "frontend/assets/data/github_lenguajes_public.json", "frontend/assets/data/github_frameworks_history.json", "frontend/assets/data/github_correlacion_history.json", "frontend/assets/data/so_volumen_history.json", "frontend/assets/data/so_aceptacion_history.json", "frontend/assets/data/so_tendencias_history.json")
+  Restore-RedditOutputSnapshotPaths -Snapshot $outputSnapshot -RelativePaths @(
+    "frontend\assets\data\github_lenguajes_public.json",
+    "frontend\assets\data\github_frameworks_history.json",
+    "frontend\assets\data\github_correlacion_history.json",
+    "frontend\assets\data\so_volumen_history.json",
+    "frontend\assets\data\so_aceptacion_history.json",
+    "frontend\assets\data\so_tendencias_history.json"
+  )
   Run-Step "rebuild home highlights from final bridges" @($py, "backend\export_history_json.py", "--rebuild-home-from", "frontend\assets\data")
   Run-Step "validate_csv_contract" @($py, "backend\validate_csv_contract.py")
   Run-Step "check_frontend_assets" @($py, "scripts\check_frontend_assets.py", "--mode", "strict", "--root", ".")
@@ -551,7 +532,7 @@ catch {
 
 Remove-RedditOutputSnapshot -Snapshot $outputSnapshot
 
-Run-Step "git checkout branch" @("git", "checkout", "-B", $branch)
+Run-Step "git checkout branch" @("git", "checkout", "-b", $branch)
 
 $gitAddCommand = @("git", "add", "--") + $filesToStage
 Run-Step "git add target files" $gitAddCommand
@@ -587,4 +568,5 @@ if ($LASTEXITCODE -ne 0) {
   throw "gh pr create failed with exit code $LASTEXITCODE"
 }
 
+Run-Step "git checkout main after publication" @("git", "checkout", "main")
 Write-Output "PR_URL=$prUrl"
