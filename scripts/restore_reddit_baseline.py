@@ -27,6 +27,7 @@ CSV_SPECS = {
 }
 
 BRIDGE_FILES = (
+    "reddit_sentimiento_public.json",
     "reddit_temas_history.json",
     "reddit_interseccion_history.json",
 )
@@ -65,10 +66,15 @@ def _discover_candidate(root: Path) -> Candidate | None:
             return None
 
     try:
-        topics_payload = _load_json(topics_bridge)
-        intersection_payload = _load_json(intersection_bridge)
+        bridge_payloads = {
+            bridge_file: _load_json(root / "frontend" / "assets" / "data" / bridge_file)
+            for bridge_file in BRIDGE_FILES
+        }
     except (OSError, ValueError):
         return None
+
+    topics_payload = bridge_payloads["reddit_temas_history.json"]
+    intersection_payload = bridge_payloads["reddit_interseccion_history.json"]
 
     topics_date = _parse_snapshot_date(topics_payload.get("latest_snapshot_date"))
     intersection_date = _parse_snapshot_date(
@@ -169,7 +175,15 @@ def restore_reddit_bridges(
     target_roots = _bridge_target_roots(project_root)
     for target_root in target_roots:
         for bridge_file in BRIDGE_FILES:
-            _copy_file(source_root / bridge_file, target_root / bridge_file)
+            bridge_payload = _load_json(source_root / bridge_file)
+            bridge_payload["fallback_provenance"] = {
+                "source": "reddit",
+                "mode": "baseline",
+                "latest_snapshot_date": candidate.latest_snapshot_date.isoformat(),
+            }
+            target_path = target_root / bridge_file
+            target_path.parent.mkdir(parents=True, exist_ok=True)
+            target_path.write_text(json.dumps(bridge_payload, ensure_ascii=False, indent=2), encoding="utf-8")
 
     return {
         "mode": "bridges",

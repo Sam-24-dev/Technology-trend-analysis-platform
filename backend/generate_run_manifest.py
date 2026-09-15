@@ -7,7 +7,12 @@ import logging
 import os
 from pathlib import Path
 
-from config.run_manifest_public_contract import generate_public_run_manifest, write_public_run_manifest
+from config.run_manifest_public_contract import (
+    build_public_run_manifest_from_filesystem,
+    generate_public_run_manifest,
+    validate_public_run_manifest,
+    write_public_run_manifest,
+)
 
 
 logger = logging.getLogger("generate_run_manifest")
@@ -56,12 +61,41 @@ def generate_manifest_public(
     }
 
 
+def generate_manifest_from_final_bridges(
+    project_root: Path,
+    *,
+    output_dirs: list[Path],
+    require_metadata: bool,
+) -> dict[str, object]:
+    """Write manifests derived from the final canonical bridge payloads only."""
+    payload = build_public_run_manifest_from_filesystem(project_root)
+    is_valid, errors = validate_public_run_manifest(payload)
+    if not is_valid:
+        error_message = "; ".join(str(item) for item in errors) if errors else "unknown validation errors"
+        if require_metadata:
+            raise RuntimeError(f"final canonical run manifest is invalid (required mode): {error_message}")
+        return {"status": "warning", "valid": False, "errors": errors, "output_paths": []}
+
+    output_paths = [write_public_run_manifest(project_root, payload, output_dir=output_dir) for output_dir in output_dirs]
+    return {"status": "success", "valid": True, "errors": [], "output_paths": output_paths}
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Generate frontend public run_manifest.json")
     parser.add_argument(
         "--project-root",
         default=None,
         help="Ruta root del proyecto. Por defecto usa el root del repositorio.",
+    )
+    parser.add_argument(
+        "--from-final-bridges",
+        action="store_true",
+        help="Derive the manifest only from final canonical bridges.",
+    )
+    parser.add_argument(
+        "--output-dir",
+        action="append",
+        help="Asset directory to receive the final manifest (repeatable).",
     )
     parser.add_argument(
         "--require-metadata",
@@ -90,7 +124,17 @@ def main() -> int:
     require_metadata = bool(args.require_metadata or _is_required())
 
     try:
-        summary = generate_manifest_public(project_root, require_metadata=require_metadata)
+        if args.from_final_bridges:
+            output_dirs = [project_root / value for value in args.output_dir] if args.output_dir else [
+                project_root / "frontend" / "assets" / "data"
+            ]
+            summary = generate_manifest_from_final_bridges(
+                project_root,
+                output_dirs=output_dirs,
+                require_metadata=require_metadata,
+            )
+        else:
+            summary = generate_manifest_public(project_root, require_metadata=require_metadata)
     except Exception as exc:  # pylint: disable=broad-exception-caught
         logger.error("[RUN][SUMMARY] status=failed require_metadata=%s error=%s", require_metadata, exc)
         return 1
@@ -99,8 +143,8 @@ def main() -> int:
         "[RUN][SUMMARY] status=%s valid=%s source_mode=%s output=%s errors=%d",
         summary["status"],
         summary["valid"],
-        summary["source_mode"],
-        summary["output_path"],
+        "final_canonical_bridges" if args.from_final_bridges else summary["source_mode"],
+        ",".join(str(path) for path in summary.get("output_paths", [])) or summary.get("output_path"),
         len(summary["errors"]),
     )
     return 0

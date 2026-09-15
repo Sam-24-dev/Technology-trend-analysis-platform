@@ -26,7 +26,14 @@ REQUIRED_SOURCE_DATASETS = {
     "reddit": (
         "reddit_sentimiento_frameworks",
         "reddit_temas_emergentes",
+        "interseccion_github_reddit",
     ),
+}
+
+FINAL_REDDIT_BRIDGES = {
+    "reddit_sentimiento_frameworks": ("reddit_sentimiento_public.json", "source_updated_at_utc"),
+    "reddit_temas_emergentes": ("reddit_temas_history.json", "generated_at_utc"),
+    "interseccion_github_reddit": ("reddit_interseccion_history.json", "generated_at_utc"),
 }
 
 
@@ -100,6 +107,34 @@ def _source_error(
     return None
 
 
+def _final_reddit_lineage_error(project_root: Path, dataset_summaries: object) -> str | None:
+    if not isinstance(dataset_summaries, list):
+        return None
+    assets_root = project_root / "frontend" / "assets" / "data"
+    bridge_paths = {dataset: assets_root / filename for dataset, (filename, _) in FINAL_REDDIT_BRIDGES.items()}
+    if not any(path.exists() for path in bridge_paths.values()):
+        return None
+
+    summaries = {
+        str(summary.get("dataset")): summary
+        for summary in dataset_summaries
+        if isinstance(summary, dict)
+    }
+    for dataset, (filename, timestamp_field) in FINAL_REDDIT_BRIDGES.items():
+        bridge_path = assets_root / filename
+        if not bridge_path.exists():
+            return f"Source freshness unavailable: final canonical Reddit bridge missing for {dataset}"
+        try:
+            bridge = json.loads(bridge_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return f"Source freshness unavailable: final canonical Reddit bridge unreadable for {dataset}"
+        timestamp = _parse_utc_timestamp(bridge.get(timestamp_field)) if isinstance(bridge, dict) else None
+        summary = summaries.get(dataset)
+        if timestamp is None or summary is None or summary.get("updated_at_utc") != bridge.get(timestamp_field):
+            return f"Source freshness invalid: final canonical timestamp mismatch: reddit {dataset}"
+    return None
+
+
 def check_source_freshness(
     project_root: Path | str,
     *,
@@ -118,6 +153,9 @@ def check_source_freshness(
     source_updated_at_utc: dict[str, str] = {}
     errors: list[str] = []
     dataset_summaries = manifest.get("dataset_summaries")
+    lineage_error = _final_reddit_lineage_error(Path(project_root), dataset_summaries)
+    if lineage_error is not None:
+        errors.append(lineage_error)
     for source, required_datasets in REQUIRED_SOURCE_DATASETS.items():
         source_error = _source_error(dataset_summaries, source, required_datasets, reference_at)
         if source_error is not None:

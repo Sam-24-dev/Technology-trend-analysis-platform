@@ -50,6 +50,14 @@ _DATASET_METADATA_BRIDGES = {
     "trend_score": "trend_score_history.json",
 }
 
+_SOURCE_FALLBACK_PROVENANCE_BRIDGES = {
+    "reddit": (
+        "reddit_sentimiento_public.json",
+        "reddit_temas_history.json",
+        "reddit_interseccion_history.json",
+    ),
+}
+
 RUN_MANIFEST_PUBLIC_REQUIRED_FIELDS = (
     "manifest_version",
     "generated_at_utc",
@@ -305,6 +313,22 @@ def _canonical_bridge_metadata(project_root: Path) -> tuple[dict[str, str], dict
                 break
 
     return source_updated_at, dataset_row_counts, dataset_updated_at
+
+
+def _canonical_fallback_sources(project_root: Path) -> list[str]:
+    assets_dir = project_root / "frontend" / "assets" / "data"
+    fallback_sources: list[str] = []
+    for source, bridge_names in _SOURCE_FALLBACK_PROVENANCE_BRIDGES.items():
+        bridge_payloads = [_read_json(assets_dir / bridge_name) for bridge_name in bridge_names]
+        if all(
+            isinstance(payload.get("fallback_provenance"), Mapping)
+            and payload["fallback_provenance"].get("source") == source
+            and payload["fallback_provenance"].get("mode") == "baseline"
+            for payload in bridge_payloads
+            if payload is not None
+        ) and all(payload is not None for payload in bridge_payloads):
+            fallback_sources.append(source)
+    return fallback_sources
 
 
 def _canonical_github_classifiable_repos(project_root: Path) -> int:
@@ -595,6 +619,11 @@ def build_public_run_manifest_from_filesystem(project_root: Path) -> dict[str, A
     available_sources = _available_sources_from_dataset_names(dataset_names)
     source_status = {source: source in available_sources for source in AVAILABLE_SOURCES}
     degradation = evaluate_degradation_policy(source_status)
+    fallback_sources = _canonical_fallback_sources(project_root)
+    degraded_mode = bool(degradation["available_count"] < len(AVAILABLE_SOURCES) or fallback_sources)
+    quality_gate_status = str(degradation["quality_gate_status"])
+    if fallback_sources and quality_gate_status == "pass":
+        quality_gate_status = "pass_with_warnings"
 
     generated_at_utc = _utc_now_iso()
     source_window_end_utc = generated_at_utc
@@ -607,7 +636,9 @@ def build_public_run_manifest_from_filesystem(project_root: Path) -> dict[str, A
         notes += " Filesystem timestamps used only for sources without canonical freshness metadata: " + ", ".join(
             missing_metadata_sources
         )
-    if degradation["available_count"] < len(AVAILABLE_SOURCES):
+    if fallback_sources:
+        notes = "Sources restored from baseline: " + ", ".join(fallback_sources)
+    elif degradation["available_count"] < len(AVAILABLE_SOURCES):
         missing_sources = degradation.get("missing_sources", [])
         missing_label = ", ".join(str(source) for source in missing_sources) if missing_sources else "unknown"
         notes = f"Sources unavailable in this run: {missing_label}"
@@ -617,8 +648,8 @@ def build_public_run_manifest_from_filesystem(project_root: Path) -> dict[str, A
         "generated_at_utc": generated_at_utc,
         "source_window_start_utc": source_window_start_utc,
         "source_window_end_utc": source_window_end_utc,
-        "quality_gate_status": str(degradation["quality_gate_status"]),
-        "degraded_mode": bool(degradation["available_count"] < len(AVAILABLE_SOURCES)),
+        "quality_gate_status": quality_gate_status,
+        "degraded_mode": degraded_mode,
         "available_sources": available_sources,
         "dataset_summaries": dataset_summaries,
         "total_repos_extraidos": int(total_repos_extraidos),
@@ -685,10 +716,16 @@ def generate_public_run_manifest(project_root: Path | str) -> dict[str, Any]:
     }
 
 
-def write_public_run_manifest(project_root: Path | str, payload: Mapping[str, Any]) -> Path:
+def write_public_run_manifest(
+    project_root: Path | str,
+    payload: Mapping[str, Any],
+    *,
+    output_dir: Path | str | None = None,
+) -> Path:
     """Escribe el run manifest público en la ruta de assets del frontend."""
     root = Path(project_root)
-    output_path = root / "frontend" / "assets" / "data" / RUN_MANIFEST_PUBLIC_FILE_NAME
+    target_dir = Path(output_dir) if output_dir is not None else root / "frontend" / "assets" / "data"
+    output_path = target_dir / RUN_MANIFEST_PUBLIC_FILE_NAME
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
     return output_path
