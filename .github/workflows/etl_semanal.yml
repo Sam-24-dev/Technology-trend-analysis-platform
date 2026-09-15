@@ -459,6 +459,16 @@ jobs:
             --rebuild-home-from frontend/assets/data \
             --rebuild-home-from datos/metadata/remote_assets
 
+      - name: Regenerate final run manifest from canonical bridges
+        if: ${{ always() && (needs.job_reddit.outputs.status == 'failed' || steps.reddit_baseline_guard.outputs.use_repo_baseline == 'true') }}
+        run: |
+          python backend/generate_run_manifest.py \
+            --project-root . \
+            --require-metadata \
+            --from-final-bridges \
+            --output-dir frontend/assets/data \
+            --output-dir datos/metadata/remote_assets
+
       - name: Validate CSV contract headers
         run: python backend/validate_csv_contract.py
 
@@ -484,7 +494,12 @@ jobs:
             fi
           done
           if [ "${EXPORT_HISTORY_BRIDGE_JSON}" = "1" ]; then
-            for bridge_file in frontend/assets/data/history_index.json frontend/assets/data/trend_score_history.json; do
+            for bridge_file in \
+              frontend/assets/data/history_index.json \
+              frontend/assets/data/trend_score_history.json \
+              frontend/assets/data/reddit_sentimiento_public.json \
+              frontend/assets/data/reddit_temas_history.json \
+              frontend/assets/data/reddit_interseccion_history.json; do
               if [ ! -f "$bridge_file" ]; then
                 echo "::error::Missing bridge output $bridge_file"
                 missing=1

@@ -22,6 +22,7 @@ CANONICAL_DATASETS = {
     "reddit": (
         "reddit_sentimiento_frameworks",
         "reddit_temas_emergentes",
+        "interseccion_github_reddit",
     ),
 }
 
@@ -138,4 +139,58 @@ def test_rejects_missing_required_canonical_dataset(tmp_path):
     _write_manifest(tmp_path, missing_datasets=("github_lenguajes",))
 
     with pytest.raises(ValueError, match="Source freshness unavailable: github"):
+        check_source_freshness(tmp_path)
+
+
+def test_rejects_manifest_that_disagrees_with_final_reddit_bridges(tmp_path):
+    _write_manifest(tmp_path)
+    assets_root = tmp_path / "frontend" / "assets" / "data"
+    for filename, dataset, timestamp_field in (
+        ("reddit_sentimiento_public.json", "reddit_sentimiento_frameworks", "source_updated_at_utc"),
+        ("reddit_temas_history.json", "reddit_temas_emergentes", "generated_at_utc"),
+        ("reddit_interseccion_history.json", "interseccion_github_reddit", "generated_at_utc"),
+    ):
+        (assets_root / filename).write_text(
+            json.dumps({"dataset": dataset, timestamp_field: "2026-08-20T08:17:00Z"}),
+            encoding="utf-8",
+        )
+
+    with pytest.raises(ValueError, match="final canonical timestamp mismatch: reddit"):
+        check_source_freshness(tmp_path)
+
+
+def _write_final_reddit_bridges(assets_root, timestamp):
+    for filename, dataset, timestamp_field in (
+        ("reddit_sentimiento_public.json", "reddit_sentimiento_frameworks", "source_updated_at_utc"),
+        ("reddit_temas_history.json", "reddit_temas_emergentes", "generated_at_utc"),
+        ("reddit_interseccion_history.json", "interseccion_github_reddit", "generated_at_utc"),
+    ):
+        (assets_root / filename).write_text(
+            json.dumps({"dataset": dataset, timestamp_field: timestamp}),
+            encoding="utf-8",
+        )
+
+
+def test_allows_final_reddit_fallback_within_192_hours(tmp_path):
+    timestamp = "2026-08-24T08:17:00Z"
+    _write_manifest(
+        tmp_path,
+        updated_at_by_dataset={dataset: timestamp for dataset in CANONICAL_DATASETS["reddit"]},
+    )
+    _write_final_reddit_bridges(tmp_path / "frontend" / "assets" / "data", timestamp)
+
+    result = check_source_freshness(tmp_path)
+
+    assert result["source_updated_at_utc"]["reddit"] == timestamp
+
+
+def test_rejects_final_reddit_fallback_older_than_192_hours(tmp_path):
+    timestamp = "2026-08-23T08:16:59Z"
+    _write_manifest(
+        tmp_path,
+        updated_at_by_dataset={dataset: timestamp for dataset in CANONICAL_DATASETS["reddit"]},
+    )
+    _write_final_reddit_bridges(tmp_path / "frontend" / "assets" / "data", timestamp)
+
+    with pytest.raises(ValueError, match="Source freshness stale: reddit"):
         check_source_freshness(tmp_path)

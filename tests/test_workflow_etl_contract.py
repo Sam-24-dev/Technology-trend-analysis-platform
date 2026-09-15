@@ -96,12 +96,15 @@ def test_workflow_enables_dual_write_and_bridge_flags():
     assert 'TREND_SCORE_ENGINE: "duckdb"' in content
 
 
-def test_workflow_generates_public_run_manifest_via_sync_assets():
+def test_workflow_regenerates_manifest_after_final_reddit_fallback_bridges():
     content = _load_workflow_text()
 
     assert "Sync CSVs to frontend assets" in content
     assert "python backend/sync_assets.py" in content
-    assert "Generate/validate public run manifest" not in content
+    assert "Regenerate final run manifest from canonical bridges" in content
+    assert "--from-final-bridges" in content
+    assert "--output-dir frontend/assets/data" in content
+    assert "--output-dir datos/metadata/remote_assets" in content
 
 
 def test_workflow_no_longer_downloads_nltk_data():
@@ -137,6 +140,7 @@ def test_workflow_reddit_job_resets_stale_outputs_and_requires_fresh_latest_file
     assert "Restore previous Reddit bridges on source fallback" in content
     assert "reddit_temas_history.json" in content
     assert "reddit_interseccion_history.json" in content
+    assert "reddit_sentimiento_public.json" in content
 
 
 def test_workflow_rebuilds_home_from_final_bridges_only_on_reddit_fallback():
@@ -148,9 +152,10 @@ def test_workflow_rebuilds_home_from_final_bridges_only_on_reddit_fallback():
 
     restore_offset = content.index("Restore previous Reddit bridges on source fallback")
     rebuild_offset = content.index("Rebuild home highlights from final bridges")
+    manifest_offset = content.index("Regenerate final run manifest from canonical bridges")
     integrity_offset = content.index("Enforce bridge integrity gate")
 
-    assert restore_offset < rebuild_offset < integrity_offset
-    assert content.count(fallback_condition) >= 3
+    assert restore_offset < rebuild_offset < manifest_offset < integrity_offset
+    assert content.count(fallback_condition) >= 4
     assert "--rebuild-home-from frontend/assets/data" in content
     assert "--rebuild-home-from datos/metadata/remote_assets" in content

@@ -41,6 +41,18 @@ def _create_candidate(root: Path, latest_snapshot_date: str) -> None:
         ),
     )
     _write(
+        root / "frontend" / "assets" / "data" / "reddit_sentimiento_public.json",
+        json.dumps(
+            {
+                "generated_at_utc": "2026-03-24T08:17:00Z",
+                "source_updated_at_utc": "2026-03-24T08:00:00Z",
+                "dataset": "reddit_sentimiento_frameworks",
+                "source_mode": "latest",
+                "framework_count": 1,
+            }
+        ),
+    )
+    _write(
         root / "frontend" / "assets" / "data" / "reddit_interseccion_history.json",
         json.dumps(
             {
@@ -184,6 +196,32 @@ def test_restore_reddit_bridges_copies_selected_candidate(tmp_path):
     )
     assert summary["latest_snapshot_date"] == "2026-03-24"
     assert restored["latest_snapshot_date"] == "2026-03-24"
+
+
+def test_restore_reddit_bridges_preserves_canonical_provenance_in_every_asset_root(tmp_path, monkeypatch):
+    project_root = tmp_path / "project"
+    repo_baseline = tmp_path / "repo_baseline"
+    _create_candidate(repo_baseline, "2026-03-24")
+    monkeypatch.setenv("FRONTEND_BRIDGE_REMOTE_DIR", "datos/metadata/remote_assets")
+
+    restore_reddit_bridges(project_root, [repo_baseline])
+
+    for assets_root in (
+        project_root / "frontend" / "assets" / "data",
+        project_root / "datos" / "metadata" / "remote_assets",
+    ):
+        for filename, timestamp_field, timestamp in (
+            ("reddit_sentimiento_public.json", "source_updated_at_utc", "2026-03-24T08:00:00Z"),
+            ("reddit_temas_history.json", "generated_at_utc", "2026-03-24T08:17:00Z"),
+            ("reddit_interseccion_history.json", "generated_at_utc", "2026-03-24T08:17:00Z"),
+        ):
+            bridge = json.loads((assets_root / filename).read_text(encoding="utf-8"))
+            assert bridge[timestamp_field] == timestamp
+            assert bridge["fallback_provenance"] == {
+                "source": "reddit",
+                "mode": "baseline",
+                "latest_snapshot_date": "2026-03-24",
+            }
 
 
 def test_restore_reddit_bridges_rebuilds_home_in_frontend_and_remote_assets(
