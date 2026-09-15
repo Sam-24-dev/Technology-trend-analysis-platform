@@ -8,6 +8,8 @@ import uuid
 import pytest
 
 from backend import export_history_json
+from backend.generate_run_manifest import generate_manifest_from_final_bridges
+from scripts.check_source_freshness import REQUIRED_SOURCE_DATASETS, check_source_freshness
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -25,6 +27,41 @@ BRIDGE_NAMES = (
     "so_aceptacion_history.json",
     "so_tendencias_history.json",
 )
+
+FINAL_REDDIT_BRIDGES = (
+    ("reddit_sentimiento_public.json", "reddit_sentimiento_frameworks", "source_updated_at_utc"),
+    ("reddit_temas_history.json", "reddit_temas_emergentes", "generated_at_utc"),
+    ("reddit_interseccion_history.json", "interseccion_github_reddit", "generated_at_utc"),
+)
+
+
+def _write_final_reddit_bridges(assets_root, timestamp):
+    for filename, dataset, timestamp_field in FINAL_REDDIT_BRIDGES:
+        (assets_root / filename).write_text(
+            json.dumps(
+                {
+                    "dataset": dataset,
+                    timestamp_field: timestamp,
+                    "fallback_provenance": {"source": "reddit", "mode": "baseline"},
+                }
+            ),
+            encoding="utf-8",
+        )
+
+
+def _write_fresh_manifest(project_root, *, generated_at, reddit_timestamp):
+    assets_root = project_root / "frontend" / "assets" / "data"
+    assets_root.mkdir(parents=True)
+    summaries = [
+        {"dataset": dataset, "updated_at_utc": reddit_timestamp if source == "reddit" else generated_at}
+        for source, datasets in REQUIRED_SOURCE_DATASETS.items()
+        for dataset in datasets
+    ]
+    (assets_root / "run_manifest.json").write_text(
+        json.dumps({"generated_at_utc": generated_at, "dataset_summaries": summaries}),
+        encoding="utf-8",
+    )
+    return assets_root
 
 
 def test_runner_rebuilds_home_from_final_bridges_not_stale_latest(tmp_path):
@@ -131,8 +168,105 @@ def test_integrity_failure_rolls_back_before_any_publication_step():
     assert preflight < snapshot < seed
 
 
+def test_final_manifest_uses_restored_canonical_bridge_metadata(tmp_path):
+    latest_dir = tmp_path / "datos" / "latest"
+    assets_root = tmp_path / "frontend" / "assets" / "data"
+    latest_dir.mkdir(parents=True)
+    assets_root.mkdir(parents=True)
+    for filename, content in {
+        "github_lenguajes.csv": "lenguaje,total_repos\nPython,1\n",
+        "so_volumen_preguntas.csv": "lenguaje,preguntas_nuevas_2025\nPython,1\n",
+        "reddit_sentimiento_frameworks.csv": "framework,total_menciones\nPython,1\n",
+        "reddit_temas_emergentes.csv": "tema,menciones\nPython,1\n",
+        "interseccion_github_reddit.csv": "tecnologia,rank\nPython,1\n",
+    }.items():
+        (latest_dir / filename).write_text(content, encoding="utf-8")
+    github_timestamp = "2026-08-22T08:15:00Z"
+    stackoverflow_timestamp = "2026-08-23T08:16:00Z"
+    reddit_timestamp = "2026-08-24T08:17:00Z"
+    (assets_root / "github_lenguajes_public.json").write_text(
+        json.dumps({"source_updated_at_utc": github_timestamp}),
+        encoding="utf-8",
+    )
+    (assets_root / "so_volumen_history.json").write_text(
+        json.dumps({"generated_at_utc": stackoverflow_timestamp}),
+        encoding="utf-8",
+    )
+    _write_final_reddit_bridges(assets_root, reddit_timestamp)
+    metadata = tmp_path / "datos" / "metadata"
+    metadata.mkdir(parents=True)
+    (metadata / "run_manifest.json").write_text(
+        json.dumps(
+            {
+                "generated_at_utc": "2026-01-01T00:00:00Z",
+                "datasets": [
+                    {
+                        "dataset_logical_name": "github_lenguajes",
+                        "generated_at_utc": "2026-01-01T00:00:00Z",
+                    },
+                    {
+                        "dataset_logical_name": "so_volumen_preguntas",
+                        "generated_at_utc": "2026-01-01T00:00:00Z",
+                    },
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    generate_manifest_from_final_bridges(tmp_path, output_dirs=[assets_root], require_metadata=True)
+
+    manifest = json.loads((assets_root / "run_manifest.json").read_text(encoding="utf-8"))
+    timestamps = {item["dataset"]: item["updated_at_utc"] for item in manifest["dataset_summaries"]}
+    assert timestamps["github_lenguajes"] == github_timestamp
+    assert timestamps["so_volumen_preguntas"] == stackoverflow_timestamp
+    assert all(timestamps[dataset] == reddit_timestamp for _, dataset, _ in FINAL_REDDIT_BRIDGES)
+    assert manifest["notes"] == "Sources restored from baseline: reddit"
+
+
+def test_runner_regenerates_and_checks_final_manifest_before_publication(tmp_path):
+    runner = RUNNER_PATH.read_text(encoding="utf-8")
+    restore = runner.index("Restore-RedditOutputSnapshotPaths")
+    rebuild = runner.index('Run-Step "rebuild home highlights from final bridges"')
+    manifest = runner.index('Run-Step "regenerate final run manifest from final bridges"')
+    freshness = runner.index('Run-Step "check final canonical source freshness"')
+    integrity = runner.index('Run-Step "check_bridge_integrity"')
+    publication = runner.index('Run-Step "git checkout branch"')
+
+    assert restore < rebuild < manifest < freshness < integrity < publication
+    assert '"--from-final-bridges"' in runner
+    assert '"--output-dir", "frontend\\assets\\data"' in runner
+    assert '"--max-source-age-hours", "192"' in runner
+
+    normal_assets_root = _write_fresh_manifest(
+        tmp_path / "normal",
+        generated_at="2026-09-08T08:17:00Z",
+        reddit_timestamp="2026-09-08T08:17:00Z",
+    )
+    _write_final_reddit_bridges(normal_assets_root, "2026-09-08T08:17:00Z")
+    assert check_source_freshness(tmp_path / "normal")["source_updated_at_utc"]["reddit"] == "2026-09-08T08:17:00Z"
+
+    assets_root = _write_fresh_manifest(
+        tmp_path,
+        generated_at="2026-09-08T08:17:00Z",
+        reddit_timestamp="2026-08-30T08:16:59Z",
+    )
+    _write_final_reddit_bridges(assets_root, "2026-08-30T08:16:59Z")
+    with pytest.raises(ValueError, match="Source freshness stale: reddit"):
+        check_source_freshness(tmp_path)
+
+
 @pytest.mark.skipif(POWERSHELL is None, reason="PowerShell is required")
-def test_integrity_failure_executes_prepublication_rollback_without_publication(tmp_path):
+@pytest.mark.parametrize(
+    ("failing_step", "failure_message"),
+    [
+        ("check final canonical source freshness", "fixture final freshness failure"),
+        ("check_bridge_integrity", "fixture integrity failure"),
+    ],
+)
+def test_prepublication_failure_executes_rollback_without_publication(
+    tmp_path, failing_step, failure_message
+):
     automation = tmp_path / "automation"
     automation.mkdir()
     shutil.copy2(TRANSACTION_MODULE, automation / TRANSACTION_MODULE.name)
@@ -170,12 +304,12 @@ function Assert-BridgeDates {}
 function Assert-BridgeSnapshotPreserved {}
 function Run-Step {
   param([string]$Label, [string[]]$Command)
-  if ($Label -eq "check_bridge_integrity") { throw "fixture integrity failure" }
+  if ($Label -eq "__FAILING_STEP__") { throw "__FAILURE_MESSAGE__" }
   if ($Label -in @("git checkout branch", "git commit", "git push")) {
     Set-Content -LiteralPath (Join-Path $repo "publication-reached.txt") -Value $Label
   }
 }
-'''
+'''.replace("__FAILING_STEP__", failing_step).replace("__FAILURE_MESSAGE__", failure_message)
         + runner[prepublication_start:prepublication_end],
         encoding="utf-8",
     )
@@ -195,7 +329,7 @@ function Run-Step {
     )
 
     assert result.returncode != 0
-    assert "fixture integrity failure" in result.stderr
+    assert failure_message in result.stderr
     assert existing.read_text(encoding="utf-8") == "before"
     assert not created.exists()
     assert not (tmp_path / "publication-reached.txt").exists()

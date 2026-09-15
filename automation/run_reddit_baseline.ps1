@@ -511,6 +511,8 @@ try {
     "frontend\assets\data\so_tendencias_history.json"
   )
   Run-Step "rebuild home highlights from final bridges" @($py, "backend\export_history_json.py", "--rebuild-home-from", "frontend\assets\data")
+  Run-Step "regenerate final run manifest from final bridges" @($py, "backend\generate_run_manifest.py", "--project-root", ".", "--require-metadata", "--from-final-bridges", "--output-dir", "frontend\assets\data")
+  Run-Step "check final canonical source freshness" @($py, "scripts\check_source_freshness.py", "--project-root", ".", "--max-source-age-hours", "192")
   Run-Step "validate_csv_contract" @($py, "backend\validate_csv_contract.py")
   Run-Step "check_frontend_assets" @($py, "scripts\check_frontend_assets.py", "--mode", "strict", "--root", ".")
   Run-Step "check_bridge_integrity" @($py, "scripts\check_bridge_integrity.py", "--project-root", ".", "--expect-previous-history", "1")
