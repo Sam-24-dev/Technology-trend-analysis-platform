@@ -77,6 +77,7 @@ function New-RedditOutputSnapshot {
   }
 
   return [PSCustomObject]@{
+    ProjectRoot = [IO.Path]::GetFullPath($ProjectRoot)
     BackupRoot = $backupRoot
     Entries = $entries
   }
@@ -91,25 +92,48 @@ function Remove-RedditOutputSnapshot {
   }
 }
 
+function Restore-RedditOutputSnapshotEntry {
+  param([Parameter(Mandatory = $true)]$Entry)
+
+  if ($Entry.Existed) {
+    $parent = Split-Path -Parent $Entry.Target
+    New-Item -ItemType Directory -Force -Path $parent | Out-Null
+    Copy-Item -LiteralPath $Entry.Backup -Destination $Entry.Target -Force
+  }
+  elseif (Test-Path -LiteralPath $Entry.Target -PathType Leaf) {
+    Remove-Item -LiteralPath $Entry.Target -Force
+  }
+  elseif (Test-Path -LiteralPath $Entry.Target) {
+    throw "Cannot restore file output because another item type exists: $($Entry.Target)"
+  }
+}
+
+function Restore-RedditOutputSnapshotPaths {
+  param(
+    [Parameter(Mandatory = $true)]$Snapshot,
+    [Parameter(Mandatory = $true)][string[]]$RelativePaths
+  )
+
+  Assert-RedditSnapshotRoot -Snapshot $Snapshot | Out-Null
+  foreach ($relativePath in $RelativePaths) {
+    $target = Resolve-RedditOutputPath -ProjectRoot $Snapshot.ProjectRoot -RelativePath $relativePath
+    $entry = $Snapshot.Entries | Where-Object { $_.Target -eq $target } | Select-Object -First 1
+    if ($null -eq $entry) {
+      throw "Output path was not included in the snapshot: $relativePath"
+    }
+    Restore-RedditOutputSnapshotEntry -Entry $entry
+  }
+}
+
 function Restore-RedditOutputSnapshot {
   param([Parameter(Mandatory = $true)]$Snapshot)
 
   Assert-RedditSnapshotRoot -Snapshot $Snapshot | Out-Null
   foreach ($entry in $Snapshot.Entries) {
-    if ($entry.Existed) {
-      $parent = Split-Path -Parent $entry.Target
-      New-Item -ItemType Directory -Force -Path $parent | Out-Null
-      Copy-Item -LiteralPath $entry.Backup -Destination $entry.Target -Force
-    }
-    elseif (Test-Path -LiteralPath $entry.Target -PathType Leaf) {
-      Remove-Item -LiteralPath $entry.Target -Force
-    }
-    elseif (Test-Path -LiteralPath $entry.Target) {
-      throw "Cannot restore file output because another item type exists: $($entry.Target)"
-    }
+    Restore-RedditOutputSnapshotEntry -Entry $entry
   }
 
   Remove-RedditOutputSnapshot -Snapshot $Snapshot
 }
 
-Export-ModuleMember -Function New-RedditOutputSnapshot, Restore-RedditOutputSnapshot, Remove-RedditOutputSnapshot
+Export-ModuleMember -Function New-RedditOutputSnapshot, Restore-RedditOutputSnapshot, Restore-RedditOutputSnapshotPaths, Remove-RedditOutputSnapshot
