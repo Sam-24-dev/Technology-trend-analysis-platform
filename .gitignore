@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 venv/
+.venv311/
 .env
 *.egg-info/
 dist/
@@ -80,6 +81,7 @@ output/
 .github/copilot-instructions.md
 
 # Runtime ETL outputs (dual-write paths)
+automation/state/
 datos/latest/
 datos/history/
 datos/metadata/
