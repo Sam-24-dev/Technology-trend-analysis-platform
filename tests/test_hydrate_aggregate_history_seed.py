@@ -106,6 +106,76 @@ def test_hydrate_aggregate_history_seed_does_not_overwrite_existing_targets(tmp_
 
 
 @pytest.mark.parametrize(
+    ("dataset", "filename"),
+    [
+        ("reddit_temas", "reddit_temas_emergentes.csv"),
+        ("interseccion", "interseccion_github_reddit.csv"),
+        ("reddit_sentimiento", "reddit_sentimiento_frameworks.csv"),
+    ],
+)
+@pytest.mark.parametrize("indexed_date", ["2026-09-14", "2026-08-31"])
+def test_reddit_history_seed_requires_matching_canonical_date(
+    tmp_path, dataset, filename, indexed_date
+):
+    project_root = tmp_path
+    source = project_root / "datos" / filename
+    source.parent.mkdir(parents=True)
+    source.write_text("legacy reddit data\n", encoding="utf-8")
+    assets = project_root / "frontend" / "assets" / "data"
+    for bridge in ("reddit_temas_history.json", "reddit_interseccion_history.json"):
+        _write_json(assets / bridge, {"latest_snapshot_date": "2026-08-31"})
+
+    canonical_seed = (
+        project_root
+        / "datos"
+        / "history"
+        / dataset
+        / "year=2026"
+        / "month=08"
+        / "day=31"
+        / filename
+    )
+    if indexed_date != "2026-08-31":
+        canonical_seed.parent.mkdir(parents=True)
+        canonical_seed.write_text("canonical baseline\n", encoding="utf-8")
+    target = (
+        project_root
+        / "datos"
+        / "history"
+        / dataset
+        / "year=2026"
+        / "month=09"
+        / "day=14"
+        / filename
+        if indexed_date == "2026-09-14"
+        else canonical_seed
+    )
+    _write_json(
+        assets / "history_index.json",
+        {
+            "datasets": [
+                {
+                    "dataset": dataset,
+                    "snapshots": [
+                        {
+                            "date": indexed_date,
+                            "path": target.relative_to(project_root).as_posix(),
+                        }
+                    ],
+                }
+            ]
+        },
+    )
+
+    summary = hydrate_aggregate_history_seed(project_root)
+
+    assert target.exists() is (indexed_date == "2026-08-31")
+    assert summary["seeded_history_files"] == int(indexed_date == "2026-08-31")
+    if indexed_date != "2026-08-31":
+        assert canonical_seed.read_text(encoding="utf-8") == "canonical baseline\n"
+
+
+@pytest.mark.parametrize(
     "destination", [
         lambda project_root: str(project_root.parent / "escaped.csv"),
         lambda project_root: "../../escaped.csv",

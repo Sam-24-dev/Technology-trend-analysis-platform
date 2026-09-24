@@ -87,11 +87,31 @@ def hydrate_aggregate_history_seed(project_root: Path | str) -> dict[str, int]:
         if source_path is None:
             continue
 
+        if snapshot_target and dataset_entry.get("dataset") in (
+            "reddit_temas",
+            "interseccion",
+            "reddit_sentimiento",
+        ):
+            bridge_root = project_root / "frontend" / "assets" / "data"
+            canonical_dates = [
+                _load_json(bridge_root / name).get("latest_snapshot_date")
+                for name in (
+                    "reddit_temas_history.json",
+                    "reddit_interseccion_history.json",
+                )
+            ]
+            if (
+                not canonical_dates[0]
+                or canonical_dates[0] != canonical_dates[1]
+                or snapshots[-1].get("date") != canonical_dates[0]
+            ):
+                snapshot_target = None
+
         if latest_path_label:
             seeded_latest_files += int(
                 _copy_if_missing(source_path, latest_target)
             )
-        if snapshot_path_label:
+        if snapshot_target:
             seeded_history_files += int(
                 _copy_if_missing(source_path, snapshot_target)
             )

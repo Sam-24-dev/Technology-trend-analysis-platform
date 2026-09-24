@@ -1,8 +1,12 @@
 import io
+import json
+import shutil
 import subprocess
 import sys
 import zipfile
 from pathlib import Path
+
+import pytest
 
 from scripts.download_valid_aggregate_artifact import (
     _download_artifact_zip,
@@ -316,6 +320,77 @@ def test_validate_candidate_requires_hydrated_history_seed(tmp_path, monkeypatch
 
     assert is_valid is False
     assert "seed history missing datasets" in reason
+
+
+@pytest.mark.parametrize(
+    ("indexed_date", "is_expected_valid"),
+    [("2026-09-14", False), ("2026-08-31", True)],
+)
+def test_validate_candidate_requires_canonical_reddit_history_date(
+    tmp_path, monkeypatch, indexed_date, is_expected_valid
+):
+    candidate_root = tmp_path / "candidate"
+    assets = candidate_root / "frontend" / "assets" / "data"
+    assets.mkdir(parents=True)
+    for bridge in ("reddit_temas_history.json", "reddit_interseccion_history.json"):
+        (assets / bridge).write_text(
+            json.dumps({"latest_snapshot_date": "2026-08-31"}), encoding="utf-8"
+        )
+    datasets = []
+    for dataset, filename in (
+        ("reddit_temas", "reddit_temas_emergentes.csv"),
+        ("interseccion", "interseccion_github_reddit.csv"),
+    ):
+        source = candidate_root / "datos" / filename
+        source.parent.mkdir(parents=True, exist_ok=True)
+        source.write_text("legacy reddit data\n", encoding="utf-8")
+        datasets.append(
+            {
+                "dataset": dataset,
+                "snapshots": [
+                    {
+                        "date": indexed_date,
+                        "path": (
+                            f"datos/history/{dataset}/year=2026/"
+                            f"month={indexed_date[5:7]}/day={indexed_date[8:10]}/{filename}"
+                        ),
+                    }
+                ],
+            }
+        )
+    (assets / "history_index.json").write_text(
+        json.dumps({"datasets": datasets}), encoding="utf-8"
+    )
+    for dataset in (
+        "trend_score",
+        "github_commits",
+        "github_correlacion",
+        "so_volumen",
+        "so_aceptacion",
+        "so_tendencias",
+    ):
+        history = candidate_root / "datos" / "history" / dataset / "existing.csv"
+        history.parent.mkdir(parents=True)
+        history.write_text("existing\n", encoding="utf-8")
+
+    monkeypatch.setattr(
+        "scripts.download_valid_aggregate_artifact.materialize_artifacts",
+        lambda workspace_root, roots: shutil.copytree(candidate_root, workspace_root),
+    )
+    monkeypatch.setattr(
+        "scripts.download_valid_aggregate_artifact.check_bridge_integrity",
+        lambda workspace_root, expect_previous_history=False: {"status": "ok"},
+    )
+
+    is_valid, reason = _validate_candidate(candidate_root)
+
+    assert is_valid is is_expected_valid
+    if is_expected_valid:
+        assert reason is None
+    else:
+        assert "seed history missing datasets" in reason
+        assert "reddit_temas" in reason
+        assert "interseccion" in reason
 
 
 def test_validate_history_seed_allows_so_trends_metadata_fallback(tmp_path):
