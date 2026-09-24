@@ -113,17 +113,34 @@ def test_hydrate_aggregate_history_seed_does_not_overwrite_existing_targets(tmp_
         ("reddit_sentimiento", "reddit_sentimiento_frameworks.csv"),
     ],
 )
-@pytest.mark.parametrize("indexed_date", ["2026-09-14", "2026-08-31"])
+@pytest.mark.parametrize(
+    ("indexed_date", "topics_date", "intersection_date", "expected_seed"),
+    [
+        pytest.param("2026-09-14", "2026-08-31", "2026-08-31", False, id="stale-index"),
+        pytest.param("2026-08-31", "2026-08-31", "2026-08-31", True, id="matching-dates"),
+        pytest.param("2026-08-31", None, "2026-08-31", False, id="missing-topics-date"),
+        pytest.param("2026-08-31", "", "2026-08-31", False, id="empty-topics-date"),
+        pytest.param("2026-08-31", "2026-08-31", None, False, id="missing-intersection-date"),
+        pytest.param("2026-08-31", "2026-08-31", "", False, id="empty-intersection-date"),
+        pytest.param("2026-08-31", "2026-08-31", "2026-09-14", False, id="bridge-date-disagreement"),
+    ],
+)
 def test_reddit_history_seed_requires_matching_canonical_date(
-    tmp_path, dataset, filename, indexed_date
+    tmp_path, dataset, filename, indexed_date, topics_date, intersection_date, expected_seed
 ):
     project_root = tmp_path
     source = project_root / "datos" / filename
     source.parent.mkdir(parents=True)
     source.write_text("legacy reddit data\n", encoding="utf-8")
     assets = project_root / "frontend" / "assets" / "data"
-    for bridge in ("reddit_temas_history.json", "reddit_interseccion_history.json"):
-        _write_json(assets / bridge, {"latest_snapshot_date": "2026-08-31"})
+    for bridge, bridge_date in (
+        ("reddit_temas_history.json", topics_date),
+        ("reddit_interseccion_history.json", intersection_date),
+    ):
+        _write_json(
+            assets / bridge,
+            {} if bridge_date is None else {"latest_snapshot_date": bridge_date},
+        )
 
     canonical_seed = (
         project_root
@@ -169,8 +186,8 @@ def test_reddit_history_seed_requires_matching_canonical_date(
 
     summary = hydrate_aggregate_history_seed(project_root)
 
-    assert target.exists() is (indexed_date == "2026-08-31")
-    assert summary["seeded_history_files"] == int(indexed_date == "2026-08-31")
+    assert target.exists() is expected_seed
+    assert summary["seeded_history_files"] == int(expected_seed)
     if indexed_date != "2026-08-31":
         assert canonical_seed.read_text(encoding="utf-8") == "canonical baseline\n"
 
