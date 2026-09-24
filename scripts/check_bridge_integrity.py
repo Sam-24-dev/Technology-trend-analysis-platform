@@ -5,6 +5,8 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
+from datetime import date
 from pathlib import Path
 
 
@@ -45,6 +47,8 @@ HOME_HIGHLIGHT_SOURCE_FILES = {
     "so_aceptacion_history": "so_aceptacion_history.json",
     "so_tendencias_history": "so_tendencias_history.json",
 }
+
+REDDIT_HISTORY_DATASETS = ("reddit_sentimiento", "reddit_temas", "interseccion")
 
 
 def _load_json(path: Path) -> dict:
@@ -113,7 +117,64 @@ def _check_home_highlights_consistency(assets_root: Path, home_highlights: dict,
             errors.append(f"home_highlights canonical payload mismatch: {source}")
 
 
+def _strict_date(value: object) -> date | None:
+    if not isinstance(value, str) or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", value):
+        return None
+    try:
+        return date.fromisoformat(value)
+    except ValueError:
+        return None
+
+
+def _reddit_partition_date(path: object, dataset: str) -> date | None:
+    if not isinstance(path, str):
+        return None
+    match = re.fullmatch(
+        rf"datos/history/{dataset}/year=(\d{{4}})/month=(\d{{2}})/day=(\d{{2}})/[^/]+\.csv",
+        path,
+    )
+    return _strict_date("-".join(match.groups())) if match else None
+
+
+def _check_reddit_history_provenance(
+    project_root: Path, assets_root: Path, history_index: dict, errors: list[str]
+) -> None:
+    canonical_dates = [
+        _strict_date(_load_json(assets_root / name).get("latest_snapshot_date"))
+        for name in ("reddit_temas_history.json", "reddit_interseccion_history.json")
+    ]
+    if None in canonical_dates or canonical_dates[0] != canonical_dates[1]:
+        errors.append("reddit history provenance: canonical bridge dates are invalid or disagree")
+        return
+    canonical_date = canonical_dates[0]
+
+    for entry in history_index.get("datasets", []):
+        dataset = entry.get("dataset")
+        if dataset not in REDDIT_HISTORY_DATASETS:
+            continue
+        latest = entry.get("latest_snapshot_date")
+        if latest is not None and (
+            (latest_date := _strict_date(latest)) is None or latest_date > canonical_date
+        ):
+            errors.append(f"reddit history provenance: {dataset} index latest date {latest!r}")
+        for snapshot in entry.get("snapshots") or []:
+            indexed_date = _strict_date(snapshot.get("date"))
+            path = snapshot.get("path")
+            partition_date = _reddit_partition_date(path, dataset)
+            if indexed_date is None or partition_date != indexed_date or indexed_date > canonical_date:
+                errors.append(f"reddit history provenance: {dataset} index date/path {snapshot!r}")
+
+    for dataset in REDDIT_HISTORY_DATASETS:
+        history_root = project_root / "datos" / "history" / dataset
+        for csv_path in history_root.rglob("*.csv"):
+            path = csv_path.relative_to(project_root).as_posix()
+            partition_date = _reddit_partition_date(path, dataset)
+            if partition_date is None or partition_date > canonical_date:
+                errors.append(f"reddit history provenance: {path} exceeds or lacks canonical date")
+
+
 def _check_bridge_root(
+    project_root: Path,
     assets_root: Path,
     *,
     expect_previous_history: bool = False,
@@ -131,6 +192,7 @@ def _check_bridge_root(
         errors.append(
             "history_index missing datasets: " + ", ".join(missing_datasets)
         )
+    _check_reddit_history_provenance(project_root, assets_root, history_index, errors)
 
     trend_history = _load_json(assets_root / "trend_score_history.json")
     snapshot_count = int(trend_history.get("snapshot_count", 0) or 0)
@@ -205,6 +267,7 @@ def check_bridge_integrity(
         try:
             summaries.append(
                 _check_bridge_root(
+                    project_root,
                     assets_root,
                     expect_previous_history=expect_previous_history,
                 )
