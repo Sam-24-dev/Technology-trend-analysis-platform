@@ -114,19 +114,34 @@ def test_hydrate_aggregate_history_seed_does_not_overwrite_existing_targets(tmp_
     ],
 )
 @pytest.mark.parametrize(
-    ("indexed_date", "topics_date", "intersection_date", "expected_seed"),
+    ("indexed_date", "path_date", "topics_date", "intersection_date", "expected_seed"),
     [
-        pytest.param("2026-09-14", "2026-08-31", "2026-08-31", False, id="stale-index"),
-        pytest.param("2026-08-31", "2026-08-31", "2026-08-31", True, id="matching-dates"),
-        pytest.param("2026-08-31", None, "2026-08-31", False, id="missing-topics-date"),
-        pytest.param("2026-08-31", "", "2026-08-31", False, id="empty-topics-date"),
-        pytest.param("2026-08-31", "2026-08-31", None, False, id="missing-intersection-date"),
-        pytest.param("2026-08-31", "2026-08-31", "", False, id="empty-intersection-date"),
-        pytest.param("2026-08-31", "2026-08-31", "2026-09-14", False, id="bridge-date-disagreement"),
+        pytest.param("2026-09-14", "year=2026/month=09/day=14", "2026-08-31", "2026-08-31", False, id="stale-index"),
+        pytest.param("2026-08-31", "year=2026/month=08/day=31", "2026-08-31", "2026-08-31", True, id="matching-dates"),
+        pytest.param("2026-08-31", "year=2026/month=09/day=14", "2026-08-31", "2026-08-31", False, id="stale-path"),
+        pytest.param(None, "year=2026/month=08/day=31", "2026-08-31", "2026-08-31", False, id="missing-index-date"),
+        pytest.param("2026-8-31", "year=2026/month=08/day=31", "2026-08-31", "2026-08-31", False, id="malformed-index-date"),
+        pytest.param("2026-02-30", "year=2026/month=08/day=31", "2026-08-31", "2026-08-31", False, id="invalid-index-date"),
+        pytest.param("2026-08-31", "month=08/day=31", "2026-08-31", "2026-08-31", False, id="missing-path-year"),
+        pytest.param("2026-08-31", "year=2026/day=31", "2026-08-31", "2026-08-31", False, id="missing-path-month"),
+        pytest.param("2026-08-31", "year=2026/month=08", "2026-08-31", "2026-08-31", False, id="missing-path-day"),
+        pytest.param("2026-08-31", "year=26/month=08/day=31", "2026-08-31", "2026-08-31", False, id="malformed-path-year"),
+        pytest.param("2026-08-31", "year=2026/month=8/day=31", "2026-08-31", "2026-08-31", False, id="malformed-path-month"),
+        pytest.param("2026-08-31", "year=2026/month=08/day=1", "2026-08-31", "2026-08-31", False, id="malformed-path-day"),
+        pytest.param("2026-08-31", "year=2026/month=02/day=30", "2026-08-31", "2026-08-31", False, id="invalid-path-date"),
+        pytest.param("2026-08-31", "year=2026/month=08/day=31", None, "2026-08-31", False, id="missing-topics-date"),
+        pytest.param("2026-08-31", "year=2026/month=08/day=31", "", "2026-08-31", False, id="empty-topics-date"),
+        pytest.param("2026-08-31", "year=2026/month=08/day=31", "2026-8-31", "2026-08-31", False, id="malformed-topics-date"),
+        pytest.param("2026-08-31", "year=2026/month=08/day=31", "2026-02-30", "2026-08-31", False, id="invalid-topics-date"),
+        pytest.param("2026-08-31", "year=2026/month=08/day=31", "2026-08-31", None, False, id="missing-intersection-date"),
+        pytest.param("2026-08-31", "year=2026/month=08/day=31", "2026-08-31", "", False, id="empty-intersection-date"),
+        pytest.param("2026-08-31", "year=2026/month=08/day=31", "2026-08-31", "2026-8-31", False, id="malformed-intersection-date"),
+        pytest.param("2026-08-31", "year=2026/month=08/day=31", "2026-08-31", "2026-02-30", False, id="invalid-intersection-date"),
+        pytest.param("2026-08-31", "year=2026/month=08/day=31", "2026-08-31", "2026-09-14", False, id="bridge-date-disagreement"),
     ],
 )
 def test_reddit_history_seed_requires_matching_canonical_date(
-    tmp_path, dataset, filename, indexed_date, topics_date, intersection_date, expected_seed
+    tmp_path, dataset, filename, indexed_date, path_date, topics_date, intersection_date, expected_seed
 ):
     project_root = tmp_path
     source = project_root / "datos" / filename
@@ -152,7 +167,7 @@ def test_reddit_history_seed_requires_matching_canonical_date(
         / "day=31"
         / filename
     )
-    if indexed_date != "2026-08-31":
+    if indexed_date == "2026-09-14":
         canonical_seed.parent.mkdir(parents=True)
         canonical_seed.write_text("canonical baseline\n", encoding="utf-8")
     target = (
@@ -160,12 +175,8 @@ def test_reddit_history_seed_requires_matching_canonical_date(
         / "datos"
         / "history"
         / dataset
-        / "year=2026"
-        / "month=09"
-        / "day=14"
+        / path_date
         / filename
-        if indexed_date == "2026-09-14"
-        else canonical_seed
     )
     _write_json(
         assets / "history_index.json",
@@ -173,6 +184,7 @@ def test_reddit_history_seed_requires_matching_canonical_date(
             "datasets": [
                 {
                     "dataset": dataset,
+                    "latest_path": f"datos/latest/{filename}",
                     "snapshots": [
                         {
                             "date": indexed_date,
@@ -188,7 +200,9 @@ def test_reddit_history_seed_requires_matching_canonical_date(
 
     assert target.exists() is expected_seed
     assert summary["seeded_history_files"] == int(expected_seed)
-    if indexed_date != "2026-08-31":
+    assert summary["seeded_latest_files"] == 1
+    assert (project_root / "datos" / "latest" / filename).exists()
+    if indexed_date == "2026-09-14":
         assert canonical_seed.read_text(encoding="utf-8") == "canonical baseline\n"
 
 
