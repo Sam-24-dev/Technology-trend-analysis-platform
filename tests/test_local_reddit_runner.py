@@ -262,6 +262,7 @@ def test_runner_regenerates_and_checks_final_manifest_before_publication(tmp_pat
     [
         ("check final canonical source freshness", "fixture final freshness failure"),
         ("check_bridge_integrity", "fixture integrity failure"),
+        ("assert bridge dates", "fixture bridge date mismatch"),
     ],
 )
 def test_prepublication_failure_executes_rollback_without_publication(
@@ -300,7 +301,9 @@ function Seed-HistoryFromRepoBaseline {
 function Get-BridgeSnapshotJson { return "{}" }
 function Test-FreshRedditHistoryForDate { return $true }
 function Assert-RedditMentionCoverage { return $true }
-function Assert-BridgeDates {}
+function Assert-BridgeDates {
+  if ("__FAILING_STEP__" -eq "assert bridge dates") { throw "__FAILURE_MESSAGE__" }
+}
 function Assert-BridgeSnapshotPreserved {}
 function Run-Step {
   param([string]$Label, [string[]]$Command)

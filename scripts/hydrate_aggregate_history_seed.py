@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import shutil
+from datetime import date
 from pathlib import Path
 
 
@@ -22,6 +24,16 @@ REQUIRED_HISTORY_SEED_DATASETS = (
 
 def _load_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _valid_date(value: object) -> bool:
+    if not isinstance(value, str) or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", value):
+        return False
+    try:
+        date.fromisoformat(value)
+    except ValueError:
+        return False
+    return True
 
 
 def _copy_if_missing(source: Path, target: Path) -> bool:
@@ -87,11 +99,36 @@ def hydrate_aggregate_history_seed(project_root: Path | str) -> dict[str, int]:
         if source_path is None:
             continue
 
+        if snapshot_target and dataset_entry.get("dataset") in (
+            "reddit_temas",
+            "interseccion",
+            "reddit_sentimiento",
+        ):
+            bridge_root = project_root / "frontend" / "assets" / "data"
+            canonical_dates = [
+                _load_json(bridge_root / name).get("latest_snapshot_date")
+                for name in (
+                    "reddit_temas_history.json",
+                    "reddit_interseccion_history.json",
+                )
+            ]
+            partition = re.fullmatch(
+                r"datos/history/[^/]+/year=(\d{4})/month=(\d{2})/day=(\d{2})/[^/]+",
+                snapshot_target.relative_to(project_root).as_posix(),
+            )
+            dates = [
+                snapshots[-1].get("date"),
+                "-".join(partition.groups()) if partition else None,
+                *canonical_dates,
+            ]
+            if not all(_valid_date(value) for value in dates) or len(set(dates)) != 1:
+                snapshot_target = None
+
         if latest_path_label:
             seeded_latest_files += int(
                 _copy_if_missing(source_path, latest_target)
             )
-        if snapshot_path_label:
+        if snapshot_target:
             seeded_history_files += int(
                 _copy_if_missing(source_path, snapshot_target)
             )
