@@ -48,7 +48,14 @@ HOME_HIGHLIGHT_SOURCE_FILES = {
     "so_tendencias_history": "so_tendencias_history.json",
 }
 
-REDDIT_HISTORY_DATASETS = ("reddit_sentimiento", "reddit_temas", "interseccion")
+REDDIT_HISTORY_DATASETS = (
+    "reddit_sentimiento",
+    "reddit_sentimiento_frameworks",
+    "reddit_temas",
+    "reddit_temas_emergentes",
+    "interseccion",
+    "interseccion_github_reddit",
+)
 
 
 def _load_json(path: Path) -> dict:

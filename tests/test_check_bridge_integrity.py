@@ -8,6 +8,11 @@ from scripts.download_valid_aggregate_artifact import _validate_candidate
 from scripts.hydrate_aggregate_history_seed import hydrate_aggregate_history_seed
 from scripts.materialize_etl_artifacts import materialize_artifacts
 from scripts.restore_reddit_baseline import restore_reddit_source_baseline
+from export_history_json import (
+    build_history_index,
+    build_reddit_intersection_history,
+    build_reddit_topics_history,
+)
 
 
 def _write_json(path, payload):
@@ -279,13 +284,19 @@ def test_bridge_integrity_checks_remote_assets_and_rejects_home_mismatch(tmp_pat
 
 def _reddit_snapshot(root, dataset, indexed_date, path_date, *, write_csv=False):
     filename = {
+        "reddit_sentimiento_frameworks": "reddit_sentimiento_frameworks.csv",
         "reddit_temas": "reddit_temas_emergentes.csv",
+        "reddit_temas_emergentes": "reddit_temas_emergentes.csv",
         "interseccion": "interseccion_github_reddit.csv",
+        "interseccion_github_reddit": "interseccion_github_reddit.csv",
     }[dataset]
     path = f"datos/history/{dataset}/year={path_date[:4]}/month={path_date[5:7]}/day={path_date[8:10]}/{filename}"
     index_path = root / "frontend" / "assets" / "data" / "history_index.json"
     index = json.loads(index_path.read_text(encoding="utf-8"))
-    entry = next(item for item in index["datasets"] if item["dataset"] == dataset)
+    entry = next((item for item in index["datasets"] if item["dataset"] == dataset), None)
+    if entry is None:
+        entry = {"dataset": dataset}
+        index["datasets"].append(entry)
     entry["snapshots"] = [{"date": indexed_date, "path": path}]
     entry["latest_snapshot_date"] = indexed_date
     _write_json(index_path, index)
@@ -370,3 +381,60 @@ def test_unindexed_reddit_history_is_checked_but_non_reddit_history_is_unchanged
     unindexed.write_bytes(b"unindexed\n")
     with pytest.raises(ValueError, match="reddit history provenance"):
         check_bridge_integrity(tmp_path)
+
+
+@pytest.mark.parametrize(
+    ("alias", "filename", "csv_bytes", "exporter"),
+    [
+        ("reddit_temas_emergentes", "reddit_temas_emergentes.csv", b"tema,menciones\nPython,10\n", build_reddit_topics_history),
+        ("interseccion_github_reddit", "interseccion_github_reddit.csv", b"tecnologia,tipo,ranking_github,ranking_reddit\nPython,lenguaje,1,1\n", build_reddit_intersection_history),
+    ],
+)
+@pytest.mark.parametrize(("alias_date", "expected_valid"), [("2026-09-14", False), ("2026-08-24", True)])
+def test_exporter_alias_history_requires_canonical_date_before_candidate_acceptance(
+    tmp_path, alias, filename, csv_bytes, exporter, alias_date, expected_valid
+):
+    candidate = tmp_path / "candidate"
+    _write_healthy_bridge_set(candidate, latest_snapshot_date="2026-08-31")
+    for dataset, canonical_filename in (
+        ("reddit_temas", "reddit_temas_emergentes.csv"),
+        ("interseccion", "interseccion_github_reddit.csv"),
+    ):
+        path = _reddit_snapshot(candidate, dataset, "2026-08-24", "2026-08-24")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(csv_bytes if canonical_filename == filename else b"seed\n")
+        (candidate / "datos" / canonical_filename).write_bytes(path.read_bytes())
+    alias_path = _reddit_snapshot(candidate, alias, alias_date, alias_date)
+    alias_path.parent.mkdir(parents=True, exist_ok=True)
+    alias_path.write_bytes(csv_bytes)
+    for dataset in ("trend_score", "github_commits", "github_correlacion", "so_volumen", "so_aceptacion", "so_tendencias"):
+        path = candidate / "datos" / "history" / dataset / "seed.csv"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(b"seed\n")
+
+    exported = exporter(candidate, build_history_index(candidate))
+    assert exported["latest_snapshot_date"] == alias_date
+    valid, reason = _validate_candidate(candidate)
+    assert valid is expected_valid
+    assert reason is None if expected_valid else "reddit history provenance" in reason
+    assert alias_path.read_bytes() == csv_bytes
+
+
+@pytest.mark.parametrize(
+    "alias",
+    ("reddit_sentimiento_frameworks", "reddit_temas_emergentes", "interseccion_github_reddit"),
+)
+@pytest.mark.parametrize("indexed", (True, False))
+def test_alias_history_checks_index_and_physical_files_independently(tmp_path, alias, indexed):
+    _write_healthy_bridge_set(tmp_path, latest_snapshot_date="2026-08-31")
+    path = _reddit_snapshot(tmp_path, alias, "2026-09-14", "2026-09-14", write_csv=not indexed)
+    if not indexed:
+        index_path = tmp_path / "frontend/assets/data/history_index.json"
+        index = json.loads(index_path.read_text(encoding="utf-8"))
+        index["datasets"] = [entry for entry in index["datasets"] if entry["dataset"] != alias]
+        _write_json(index_path, index)
+        assert path.read_bytes() == b"original reddit bytes\n"
+    with pytest.raises(ValueError, match="reddit history provenance"):
+        check_bridge_integrity(tmp_path)
+    if not indexed:
+        assert path.read_bytes() == b"original reddit bytes\n"
