@@ -1,16 +1,10 @@
 name: Deploy Frontend
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'frontend/**'
-      - 'datos/**'
-      - '.github/workflows/deploy_frontend.yml'
   workflow_run:
     workflows: ["ETL Weekly Data Refresh"]
     types: [completed]
-  workflow_dispatch:
+    branches: [main]
 
 permissions:
   contents: write
@@ -18,7 +12,7 @@ permissions:
 
 jobs:
   deploy:
-    if: ${{ github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main') }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -37,26 +31,12 @@ jobs:
           cache: true
 
       - name: Download ETL artifact (workflow_run)
-        if: ${{ github.event_name == 'workflow_run' }}
-        continue-on-error: true
         uses: dawidd6/action-download-artifact@b6e2e70617bc3265edd6dab6c906732b2f1ae151 # v21
         with:
           run_id: ${{ github.event.workflow_run.id }}
           name: aggregate-data
           path: etl_artifacts
-          if_no_artifact_found: warn
-
-      - name: Download ETL artifact (latest main)
-        if: ${{ github.event_name != 'workflow_run' }}
-        continue-on-error: true
-        uses: dawidd6/action-download-artifact@b6e2e70617bc3265edd6dab6c906732b2f1ae151 # v21
-        with:
-          workflow: ETL Weekly Data Refresh
-          branch: main
-          name: aggregate-data
-          path: etl_artifacts
-          workflow_conclusion: success
-          if_no_artifact_found: warn
+          if_no_artifact_found: fail
 
       - name: Install dependencies
         run: |
@@ -81,27 +61,25 @@ jobs:
             "reddit_sentimiento_public.json"
             "reddit_temas_history.json"
             "reddit_interseccion_history.json"
+            "run_manifest.json"
           )
 
-          if [ -d "$REMOTE_DIR" ]; then
-            missing=0
-            for file in "${REQUIRED_FILES[@]}"; do
-              if [ ! -f "$REMOTE_DIR/$file" ]; then
-                echo "Missing remote asset: $file"
-                missing=1
-              fi
-            done
-            if [ "$missing" -eq 0 ]; then
-              echo "REMOTE_ASSETS_BASE_URL=https://sam-24-dev.github.io/Technology-trend-analysis-platform/assets/data/" >> $GITHUB_ENV
-              echo "Remote assets complete; enabling REMOTE_ASSETS_BASE_URL."
-            else
-              echo "REMOTE_ASSETS_BASE_URL=" >> $GITHUB_ENV
-              echo "Remote assets incomplete; using local bundled assets."
-            fi
-          else
-            echo "REMOTE_ASSETS_BASE_URL=" >> $GITHUB_ENV
-            echo "Remote assets not found; using local bundled assets."
+          if [ ! -d "$REMOTE_DIR" ]; then
+            echo "Missing remote assets directory: $REMOTE_DIR"
+            exit 1
           fi
+          missing=0
+          for file in "${REQUIRED_FILES[@]}"; do
+            if [ ! -f "$REMOTE_DIR/$file" ]; then
+              echo "Missing remote asset: $file"
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            exit 1
+          fi
+          echo "REMOTE_ASSETS_BASE_URL=https://sam-24-dev.github.io/Technology-trend-analysis-platform/assets/data/" >> "$GITHUB_ENV"
+          echo "Remote assets complete; enabling REMOTE_ASSETS_BASE_URL."
 
       - name: Build Flutter Web
         run: |
@@ -111,13 +89,10 @@ jobs:
       - name: Inject remote JSON assets
         shell: bash
         run: |
-          if [ -d "etl_artifacts/datos/metadata/remote_assets" ]; then
-            mkdir -p frontend/build/web/assets/data
-            cp -f etl_artifacts/datos/metadata/remote_assets/*.json frontend/build/web/assets/data/ 2>/dev/null || true
-            echo "Remote assets injected from ETL artifact."
-          else
-            echo "No remote assets found in ETL artifact; keeping local stubs."
-          fi
+          set -e
+          mkdir -p frontend/build/web/assets/data
+          cp -f etl_artifacts/datos/metadata/remote_assets/*.json frontend/build/web/assets/data/
+          echo "Remote assets injected from ETL artifact."
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453 # v4
