@@ -7,6 +7,9 @@ cross-platform con datos de GitHub.
 
 Autor: Mateo Mayorga
 """
+import argparse
+from pathlib import Path
+
 import pandas as pd
 from datetime import datetime
 import os
@@ -27,6 +30,7 @@ from config.settings import (
 )
 from exceptions import ETLExtractionError, ETLValidationError
 from base_etl import BaseETL
+import base_etl
 from tech_normalization import normalize_for_match
 
 warnings.filterwarnings("ignore")
@@ -729,10 +733,110 @@ class RedditETL(BaseETL):
         self.guardar_csv(df_coincidencias, "interseccion")
 
 
-def main():
-    """Punto de entrada para el pipeline ETL de Reddit."""
+def _checked_source_csv(project_root, artifact_root, dataset, filename, columns, source):
+    """Require one current downloaded snapshot and matching materialized copies."""
+    artifact_root = Path(artifact_root)
+    data_root = artifact_root / "datos" if (artifact_root / "datos").exists() else artifact_root
+    artifact_file = data_root / filename
+    paths = (
+        artifact_file,
+        data_root / "latest" / filename,
+        project_root / "datos" / filename,
+        project_root / "datos" / "latest" / filename,
+    )
+    if any(not path.is_file() or not path.stat().st_size for path in paths):
+        raise ValueError(f"{source} source missing or empty: {filename}")
+    contents = artifact_file.read_bytes()
+    if any(path.read_bytes() != contents for path in paths[1:]):
+        raise ValueError(f"{source} artifact/workspace mismatch: {filename}")
+    history_root = data_root / "history" / dataset
+    history_files = list(history_root.rglob(filename))
+    run_date = base_etl.FECHA_FIN
+    date_root = (
+        history_root
+        / f"year={run_date:%Y}"
+        / f"month={run_date:%m}"
+        / f"day={run_date:%d}"
+    )
+    if len(history_files) != 1 or not history_files[0].is_relative_to(date_root):
+        raise ValueError(f"{source} history must contain one current snapshot: {filename}")
+    materialized_history = project_root / "datos" / history_files[0].relative_to(data_root)
+    if not materialized_history.is_file() or history_files[0].read_bytes() != contents or materialized_history.read_bytes() != contents:
+        raise ValueError(f"{source} history artifact/workspace mismatch: {filename}")
+    try:
+        frame = pd.read_csv(artifact_file)
+    except (OSError, pd.errors.ParserError, pd.errors.EmptyDataError) as exc:
+        raise ValueError(f"{source} source unreadable: {filename}") from exc
+    if frame.empty or not set(columns).issubset(frame.columns):
+        raise ValueError(f"{source} source invalid: {filename}")
+    return frame
+
+
+def run_intersection_only(project_root, github_artifact_root, reddit_artifact_root):
+    """Derive only the accepted fresh intersection from downloaded source artifacts."""
+    project_root = Path(project_root).resolve()
+    for name in ("github_repos", "github_commits", "reddit_temas", "interseccion"):
+        if ARCHIVOS_SALIDA[name].resolve() != project_root / "datos" / ARCHIVOS_SALIDA[name].name:
+            raise ValueError(f"Configured {name} output is outside project root")
+
+    _checked_source_csv(
+        project_root, github_artifact_root, "github_repos", "github_repos_2025.csv", ("language",), "GitHub"
+    )
+    commits = _checked_source_csv(
+        project_root, github_artifact_root, "github_commits", "github_commits_frameworks.csv", ("framework", "ranking"), "GitHub"
+    )
+    ranks = pd.to_numeric(commits["ranking"], errors="coerce")
+    if ranks.isna().any() or (ranks <= 0).any() or commits["framework"].isna().any():
+        raise ValueError("GitHub commits ranking is invalid")
+    topics = _checked_source_csv(
+        project_root, reddit_artifact_root, "reddit_temas", "reddit_temas_emergentes.csv", ("tema", "menciones"), "Reddit"
+    )
+    mentions = pd.to_numeric(topics["menciones"], errors="coerce")
+    if mentions.isna().any() or (mentions <= 0).any() or topics["tema"].isna().any():
+        raise ValueError("Reddit topics are invalid")
+
     etl = RedditETL()
-    etl.ejecutar()
+    etl.df_temas = topics
+    etl.interseccion_tecnologias()
+
+
+def verify_intersection_outputs(project_root, *, fresh):
+    """Reject stale checkout assets or a falsely dated fresh history snapshot."""
+    project_root = Path(project_root)
+    filename = "interseccion_github_reddit.csv"
+    paths = [
+        project_root / "datos" / filename,
+        project_root / "datos" / "latest" / filename,
+        project_root / "frontend" / "assets" / "data" / filename,
+    ]
+    if fresh:
+        paths.append(base_etl.get_history_output_path("interseccion", fecha=base_etl.FECHA_FIN))
+    if any(not path.is_file() or not path.stat().st_size for path in paths):
+        raise ValueError("intersection output mismatch: missing or empty file")
+    expected = paths[0].read_bytes()
+    if any(path.read_bytes() != expected for path in paths[1:]):
+        raise ValueError("intersection output mismatch: root/latest/frontend/history differ")
+
+
+def main():
+    """Run the local Reddit ETL or the aggregate-only intersection gates."""
+    parser = argparse.ArgumentParser(description=__doc__)
+    actions = parser.add_mutually_exclusive_group()
+    actions.add_argument("--intersection-only", action="store_true")
+    actions.add_argument("--verify-intersection-outputs", action="store_true")
+    parser.add_argument("--project-root", type=Path, default=Path("."))
+    parser.add_argument("--github-artifact-root", type=Path)
+    parser.add_argument("--reddit-artifact-root", type=Path)
+    parser.add_argument("--fresh", action="store_true")
+    args = parser.parse_args()
+    if args.intersection_only:
+        if args.github_artifact_root is None or args.reddit_artifact_root is None:
+            parser.error("--intersection-only requires both source artifact roots")
+        run_intersection_only(args.project_root, args.github_artifact_root, args.reddit_artifact_root)
+    elif args.verify_intersection_outputs:
+        verify_intersection_outputs(args.project_root, fresh=args.fresh)
+    else:
+        RedditETL().ejecutar()
 
 
 if __name__ == "__main__":

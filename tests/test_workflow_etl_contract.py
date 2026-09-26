@@ -146,8 +146,8 @@ def test_workflow_reddit_job_resets_stale_outputs_and_requires_fresh_latest_file
 def test_workflow_rebuilds_home_from_final_bridges_only_on_reddit_fallback():
     content = _load_workflow_text()
     fallback_condition = (
-        "if: ${{ always() && (needs.job_reddit.outputs.status == 'failed' || "
-        "steps.reddit_baseline_guard.outputs.use_repo_baseline == 'true') }}"
+        "if: ${{ always() && (needs.job_reddit.outputs.status != 'ok' || "
+        "steps.reddit_baseline_guard.outputs.use_repo_baseline != 'false') }}"
     )
 
     restore_offset = content.index("Restore previous Reddit bridges on source fallback")
@@ -159,3 +159,36 @@ def test_workflow_rebuilds_home_from_final_bridges_only_on_reddit_fallback():
     assert content.count(fallback_condition) >= 4
     assert "--rebuild-home-from frontend/assets/data" in content
     assert "--rebuild-home-from datos/metadata/remote_assets" in content
+
+
+def test_intersection_is_derived_only_after_fresh_source_selection():
+    content = _load_workflow_text()
+    github_job = content.split("  job_github:", 1)[1].split("  job_stackoverflow:", 1)[0]
+    reddit_job = content.split("  job_reddit:", 1)[1].split("  job_aggregate:", 1)[0]
+    aggregate = content.split("  job_aggregate:", 1)[1].split("  job_publish:", 1)[0]
+
+    assert github_job.index("Reset intersection GitHub inputs") < github_job.index("Run GitHub ETL")
+    assert github_job.index("Verify fresh intersection GitHub inputs") < github_job.index("Upload GitHub artifacts")
+    assert "datos/github_repos_2025.csv" in github_job
+    assert "datos/github_commits_frameworks.csv" in github_job
+    status_block = reddit_job.split("if [ $code -ne 0 ]; then", 1)[1].split('echo "status=ok"', 1)[0]
+    stage_block = reddit_job.split("Stage Reddit artifact payload", 1)[1]
+    assert "interseccion_github_reddit.csv" not in status_block
+    assert "interseccion_github_reddit.csv" not in stage_block
+    assert "datos/history/interseccion" not in stage_block
+
+    assert aggregate.index("Materialize source outputs") < aggregate.index("Guard Reddit baseline coverage")
+    assert aggregate.index("Guard Reddit baseline coverage") < aggregate.index("Derive fresh Reddit intersection")
+    assert aggregate.index("Derive fresh Reddit intersection") < aggregate.index("Run Trend Score")
+    assert "--intersection-only" in aggregate
+    assert "--github-artifact-root artifacts/github" in aggregate
+    assert "--reddit-artifact-root artifacts/reddit" in aggregate
+    assert "needs.job_reddit.outputs.status == 'ok'" in aggregate
+    assert "steps.reddit_baseline_guard.outputs.use_repo_baseline == 'false'" in aggregate
+    assert aggregate.index("Sync CSVs to frontend assets") < aggregate.index("Verify final intersection outputs")
+    assert aggregate.index("Verify final intersection outputs") < aggregate.index("Upload aggregate artifacts")
+    assert aggregate.index("Verify final intersection outputs") < aggregate.index("Regenerate final run manifest")
+    assert aggregate.index("Regenerate final run manifest") < aggregate.index("Verify aggregate outputs")
+    assert aggregate.index("Verify aggregate outputs") < aggregate.index("Enforce bridge integrity gate")
+    assert aggregate.index("Enforce bridge integrity gate") < aggregate.index("Enforce canonical source freshness guard")
+    assert aggregate.index("Enforce canonical source freshness guard") < aggregate.index("Upload aggregate artifacts")
