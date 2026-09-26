@@ -49,17 +49,34 @@ jobs:
           pip install --upgrade pip
           pip install -r backend/requirements.lock
 
+      - name: Reset intersection GitHub inputs
+        shell: bash
+        run: |
+          rm -f datos/github_repos_2025.csv datos/github_commits_frameworks.csv \
+            datos/latest/github_repos_2025.csv datos/latest/github_commits_frameworks.csv
+          rm -rf datos/history/github_repos datos/history/github_commits
+
       - name: Run GitHub ETL
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
         run: python backend/github_etl.py
+
+      - name: Verify fresh intersection GitHub inputs
+        shell: bash
+        run: |
+          for name in github_repos_2025.csv github_commits_frameworks.csv; do
+            test -s "datos/$name"
+            test -s "datos/latest/$name"
+          done
+          test -n "$(find datos/history/github_repos -name github_repos_2025.csv -type f -print -quit)"
+          test -n "$(find datos/history/github_commits -name github_commits_frameworks.csv -type f -print -quit)"
 
       - name: Upload GitHub artifacts
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: github-data
-          if-no-files-found: warn
+          if-no-files-found: error
           path: |
             datos/github_repos_2025.csv
             datos/github_lenguajes.csv
@@ -183,8 +200,7 @@ jobs:
           missing=0
           for expected in \
             datos/latest/reddit_sentimiento_frameworks.csv \
-            datos/latest/reddit_temas_emergentes.csv \
-            datos/latest/interseccion_github_reddit.csv; do
+            datos/latest/reddit_temas_emergentes.csv; do
             if [ ! -f "$expected" ]; then
               missing=1
             fi
@@ -205,10 +221,8 @@ jobs:
           for file in \
             datos/reddit_sentimiento_frameworks.csv \
             datos/reddit_temas_emergentes.csv \
-            datos/interseccion_github_reddit.csv \
             datos/latest/reddit_sentimiento_frameworks.csv \
-            datos/latest/reddit_temas_emergentes.csv \
-            datos/latest/interseccion_github_reddit.csv; do
+            datos/latest/reddit_temas_emergentes.csv; do
             if [ -f "$file" ]; then
               mkdir -p "artifact_payload/reddit/$(dirname "$file")"
               cp "$file" "artifact_payload/reddit/$file"
@@ -216,8 +230,7 @@ jobs:
           done
           for dir in \
             datos/history/reddit_sentimiento \
-            datos/history/reddit_temas \
-            datos/history/interseccion; do
+            datos/history/reddit_temas; do
             if [ -d "$dir" ]; then
               mkdir -p "artifact_payload/reddit/$(dirname "$dir")"
               cp -R "$dir" "artifact_payload/reddit/$dir"
@@ -427,7 +440,7 @@ jobs:
           fi
 
       - name: Restore Reddit source baseline on fallback
-        if: ${{ always() && (needs.job_reddit.outputs.status == 'failed' || steps.reddit_baseline_guard.outputs.use_repo_baseline == 'true') }}
+        if: ${{ always() && (needs.job_reddit.outputs.status != 'ok' || steps.reddit_baseline_guard.outputs.use_repo_baseline != 'false') }}
         shell: bash
         run: |
           python scripts/restore_reddit_baseline.py \
@@ -436,14 +449,33 @@ jobs:
             --candidate-root prev_artifacts \
             --mode source
 
+      - name: Derive fresh Reddit intersection
+        if: ${{ needs.job_reddit.outputs.status == 'ok' && steps.reddit_baseline_guard.outputs.use_repo_baseline == 'false' }}
+        run: |
+          python backend/reddit_etl.py --intersection-only \
+            --project-root . \
+            --github-artifact-root artifacts/github \
+            --reddit-artifact-root artifacts/reddit
+
       - name: Run Trend Score
         run: python backend/trend_score.py
 
       - name: Sync CSVs to frontend assets
         run: python backend/sync_assets.py
 
+      - name: Verify final intersection outputs
+        env:
+          INTERSECTION_FRESH: ${{ needs.job_reddit.outputs.status == 'ok' && steps.reddit_baseline_guard.outputs.use_repo_baseline == 'false' }}
+        shell: bash
+        run: |
+          if [ "$INTERSECTION_FRESH" = "true" ]; then
+            python backend/reddit_etl.py --verify-intersection-outputs --project-root . --fresh
+          else
+            python backend/reddit_etl.py --verify-intersection-outputs --project-root .
+          fi
+
       - name: Restore previous Reddit bridges on source fallback
-        if: ${{ always() && (needs.job_reddit.outputs.status == 'failed' || steps.reddit_baseline_guard.outputs.use_repo_baseline == 'true') }}
+        if: ${{ always() && (needs.job_reddit.outputs.status != 'ok' || steps.reddit_baseline_guard.outputs.use_repo_baseline != 'false') }}
         shell: bash
         run: |
           python scripts/restore_reddit_baseline.py \
@@ -453,14 +485,14 @@ jobs:
             --mode bridges
 
       - name: Rebuild home highlights from final bridges
-        if: ${{ always() && (needs.job_reddit.outputs.status == 'failed' || steps.reddit_baseline_guard.outputs.use_repo_baseline == 'true') }}
+        if: ${{ always() && (needs.job_reddit.outputs.status != 'ok' || steps.reddit_baseline_guard.outputs.use_repo_baseline != 'false') }}
         run: |
           python backend/export_history_json.py \
             --rebuild-home-from frontend/assets/data \
             --rebuild-home-from datos/metadata/remote_assets
 
       - name: Regenerate final run manifest from canonical bridges
-        if: ${{ always() && (needs.job_reddit.outputs.status == 'failed' || steps.reddit_baseline_guard.outputs.use_repo_baseline == 'true') }}
+        if: ${{ always() && (needs.job_reddit.outputs.status != 'ok' || steps.reddit_baseline_guard.outputs.use_repo_baseline != 'false') }}
         run: |
           python backend/generate_run_manifest.py \
             --project-root . \
