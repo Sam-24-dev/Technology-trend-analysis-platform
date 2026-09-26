@@ -6,9 +6,9 @@ Import-Module (Join-Path $PSScriptRoot "reddit_output_transaction.psm1") -Force
 $utcDate = (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd")
 $branch = "reddit-source-$((Get-Date).ToUniversalTime().ToString('yyyyMMdd-HHmm'))"
 $filesToStage = @(
-  "datos\reddit_sentimiento_frameworks.csv",
-  "datos\reddit_temas_emergentes.csv",
-  "datos\source_packages\reddit\receipt.json"
+  "datos/reddit_sentimiento_frameworks.csv",
+  "datos/reddit_temas_emergentes.csv",
+  "datos/source_packages/reddit/receipt.json"
 )
 $parts = $utcDate.Split("-")
 $ignoredOutputs = @(

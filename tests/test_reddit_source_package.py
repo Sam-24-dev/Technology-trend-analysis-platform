@@ -174,9 +174,9 @@ def test_strict_rss_target_with_no_usable_feed_fails_closed(monkeypatch):
 def test_sunday_runner_stages_only_source_package_after_coverage_and_validation():
     runner = RUNNER.read_text(encoding="utf-8")
     assert '"backend\\reddit_etl.py", "--source-package"' in runner
-    assert '"datos\\source_packages\\reddit\\receipt.json"' in runner
-    assert '"datos\\reddit_sentimiento_frameworks.csv"' in runner
-    assert '"datos\\reddit_temas_emergentes.csv"' in runner
+    assert '"datos/source_packages/reddit/receipt.json"' in runner
+    assert '"datos/reddit_sentimiento_frameworks.csv"' in runner
+    assert '"datos/reddit_temas_emergentes.csv"' in runner
     assert "0.85" in runner
     assert runner.index("Assert-RedditSourcePackage") < runner.index('Run-Step "git checkout branch"')
     assert "trend_score" not in runner
@@ -285,8 +285,9 @@ finally { Remove-RedditOutputSnapshot -Snapshot $outputSnapshot }
     if failing_step == "restore":
         assert "REDDIT_SOURCE_LOCAL_FILE_RESTORE_FAILED=1" in result.stdout
         assert "REDDIT_SOURCE_LOCAL_FILES_RESTORED=1" not in result.stdout
-        assert "local file restore failed" in result.stderr
         assert tracked.read_bytes() == b"new"
+        assert ignored.read_bytes() == b"new"
+        assert receipt.read_bytes() == b"new"
     else:
         assert "REDDIT_SOURCE_LOCAL_FILES_RESTORED=1" in result.stdout
         assert "REDDIT_SOURCE_LOCAL_FILE_RESTORE_FAILED=1" not in result.stdout
@@ -332,7 +333,9 @@ def test_real_local_git_publication_failure_stops_next_run(tmp_path, failure):
     shutil.copy2(RUNNER.parent / "reddit_output_transaction.psm1", automation)
     hooks = repo / ".git" / "hooks"
     if failure in {"commit", "push"}:
-        (hooks / f"pre-{failure}").write_text("#!/bin/sh\nexit 1\n", encoding="utf-8")
+        hook = hooks / f"pre-{failure}"
+        hook.write_text("#!/bin/sh\nexit 1\n", encoding="utf-8")
+        os.chmod(hook, 0o700)
 
     runner = RUNNER.read_text(encoding="utf-8")
     preamble = runner[: runner.index("Set-Location $repo")]
@@ -372,6 +375,13 @@ Invoke-SourcePublication -Snapshot $outputSnapshot
         cwd=repo, capture_output=True, text=True, check=False,
     )
     assert result.returncode != 0, result.stdout
+    reached_steps = [line[4:] for line in result.stdout.splitlines() if line.startswith("==> ")]
+    expected_steps = ["git checkout branch", "git add target files"]
+    if failure != "add":
+        expected_steps.append("git commit")
+    if failure in {"push", "pr"}:
+        expected_steps.append("git push")
+    assert reached_steps == expected_steps
     assert "REDDIT_SOURCE_PUBLICATION_FAILED=1" in result.stdout
     assert "REDDIT_SOURCE_LOCAL_FILES_RESTORED=1" in result.stdout
     assert "Git state was not rolled back" in result.stdout
@@ -397,6 +407,14 @@ Invoke-SourcePublication -Snapshot $outputSnapshot
     )
     print(f"{failure}: branch={branch} index={index} worktree={worktree} "
           f"local_commit={head != baseline} remote_branch={remote_branch} next_run_blocked={preflight.returncode != 0}")
+    changed_paths = sorted([
+        "datos/reddit_sentimiento_frameworks.csv",
+        "datos/reddit_temas_emergentes.csv",
+        "datos/source_packages/reddit/receipt.json",
+    ])
+    assert branch == "reddit-source-fixture"
+    assert sorted(index) == (changed_paths if failure == "commit" else [])
+    assert sorted(worktree) == (changed_paths if failure != "add" else [])
     assert preflight.returncode != 0, "Next scheduled run must not silently retry after publication failure"
     assert (head != baseline) is (failure in {"push", "pr"})
     assert remote_branch is (failure == "pr")
