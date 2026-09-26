@@ -64,7 +64,7 @@ def _write_fresh_manifest(project_root, *, generated_at, reddit_timestamp):
     return assets_root
 
 
-def test_runner_rebuilds_home_from_final_bridges_not_stale_latest(tmp_path):
+def test_source_runner_leaves_home_rebuild_to_remote_final_bridges(tmp_path):
     source_root = PROJECT_ROOT / "frontend" / "assets" / "data"
     assets_root = tmp_path / "frontend" / "assets" / "data"
     assets_root.mkdir(parents=True)
@@ -93,13 +93,7 @@ def test_runner_rebuilds_home_from_final_bridges_not_stale_latest(tmp_path):
     assert home["dashboard_signals"]["github"]["graph_1"]["payload"]["lenguaje"] == "Canonical"
     assert "Stale,893,34.94" in stale_latest.read_text(encoding="utf-8")
 
-    runner = RUNNER_PATH.read_text(encoding="utf-8")
-    restore = runner.index("Restore-RedditOutputSnapshotPaths")
-    rebuild = runner.index('Run-Step "rebuild home highlights from final bridges"')
-    integrity = runner.index('Run-Step "check_bridge_integrity"')
-    assert restore < rebuild < integrity
-    assert "--rebuild-home-from" in runner
-    assert "frontend\\assets\\data" in runner
+    assert "frontend\\assets" not in RUNNER_PATH.read_text(encoding="utf-8")
 
 
 @pytest.mark.skipif(POWERSHELL is None, reason="PowerShell is required")
@@ -148,24 +142,26 @@ if (Test-Path -LiteralPath $snapshot.BackupRoot) {
     assert not created.exists()
 
 
-def test_integrity_failure_rolls_back_before_any_publication_step():
+def test_source_validation_failure_rolls_back_before_any_publication_step():
     runner = RUNNER_PATH.read_text(encoding="utf-8")
 
-    snapshot = runner.index("New-RedditOutputSnapshot")
-    integrity = runner.index('Run-Step "check_bridge_integrity"')
+    runtime = runner.index("Set-Location $repo")
+    snapshot = runner.index("New-RedditOutputSnapshot", runtime)
+    integrity = runner.index("Assert-RedditSourcePackage -BaselineMentions", runtime)
     rollback = runner.index("Restore-RedditOutputSnapshot", integrity)
+    publication = runner.index("Invoke-SourcePublication -Snapshot $outputSnapshot", rollback)
     branch = runner.index('Run-Step "git checkout branch"')
     commit = runner.index('Run-Step "git commit"')
     push = runner.index('Run-Step "git push"')
     pull_request = runner.index("gh pr create")
 
-    assert snapshot < integrity < rollback < branch < commit < push < pull_request
+    assert snapshot < integrity < rollback < publication
+    assert branch < commit < push < pull_request
     assert "git clean" not in runner
     assert "git reset --" not in runner
     assert 'git checkout --' not in runner
-    preflight = runner.index("Assert-CleanWorktree", runner.index("Set-Location $repo"))
-    seed = runner.index("Seed-HistoryFromRepoBaseline", snapshot)
-    assert preflight < snapshot < seed
+    preflight = runner.index("Assert-CleanWorktree", runtime)
+    assert preflight < snapshot < integrity
 
 
 def test_final_manifest_uses_restored_canonical_bridge_metadata(tmp_path):
@@ -224,19 +220,10 @@ def test_final_manifest_uses_restored_canonical_bridge_metadata(tmp_path):
     assert manifest["notes"] == "Sources restored from baseline: reddit"
 
 
-def test_runner_regenerates_and_checks_final_manifest_before_publication(tmp_path):
+def test_remote_freshness_contract_remains_independent_of_source_runner(tmp_path):
     runner = RUNNER_PATH.read_text(encoding="utf-8")
-    restore = runner.index("Restore-RedditOutputSnapshotPaths")
-    rebuild = runner.index('Run-Step "rebuild home highlights from final bridges"')
-    manifest = runner.index('Run-Step "regenerate final run manifest from final bridges"')
-    freshness = runner.index('Run-Step "check final canonical source freshness"')
-    integrity = runner.index('Run-Step "check_bridge_integrity"')
-    publication = runner.index('Run-Step "git checkout branch"')
-
-    assert restore < rebuild < manifest < freshness < integrity < publication
-    assert '"--from-final-bridges"' in runner
-    assert '"--output-dir", "frontend\\assets\\data"' in runner
-    assert '"--max-source-age-hours", "192"' in runner
+    assert "generate_run_manifest" not in runner
+    assert "check_source_freshness" not in runner
 
     normal_assets_root = _write_fresh_manifest(
         tmp_path / "normal",
@@ -257,62 +244,49 @@ def test_runner_regenerates_and_checks_final_manifest_before_publication(tmp_pat
 
 
 @pytest.mark.skipif(POWERSHELL is None, reason="PowerShell is required")
-@pytest.mark.parametrize(
-    ("failing_step", "failure_message"),
-    [
-        ("check final canonical source freshness", "fixture final freshness failure"),
-        ("check_bridge_integrity", "fixture integrity failure"),
-        ("assert bridge dates", "fixture bridge date mismatch"),
-    ],
-)
-def test_prepublication_failure_executes_rollback_without_publication(
-    tmp_path, failing_step, failure_message
-):
+def test_prepublication_failure_executes_rollback_without_publication(tmp_path):
     automation = tmp_path / "automation"
     automation.mkdir()
     shutil.copy2(TRANSACTION_MODULE, automation / TRANSACTION_MODULE.name)
-    existing = tmp_path / "existing.txt"
-    created = tmp_path / "created.txt"
-    existing.write_text("before", encoding="utf-8")
+    existing = tmp_path / "datos" / "reddit_temas_emergentes.csv"
+    created = tmp_path / "datos" / "source_packages" / "reddit" / "receipt.json"
+    ignored = tmp_path / "datos" / "latest" / "reddit_temas_emergentes.csv"
+    log = tmp_path / "logs" / "etl_fixture.log"
+    existing.parent.mkdir()
+    ignored.parent.mkdir(parents=True)
+    existing.write_bytes(b"tema,menciones\nPython,900\n")
+    ignored.write_bytes(b"ignored-before")
+    log.parent.mkdir()
+    log.write_bytes(b"log-before")
 
     runner = RUNNER_PATH.read_text(encoding="utf-8")
     preamble = runner[: runner.index("Set-Location $repo")]
     prepublication_start = runner.index("try {", runner.index("$outputSnapshot ="))
-    prepublication_end = runner.index("\nRemove-RedditOutputSnapshot -Snapshot $outputSnapshot")
+    prepublication_end = runner.index("\n$prUrl = Invoke-SourcePublication -Snapshot $outputSnapshot")
     harness = automation / "prepublication_fixture.ps1"
     harness.write_text(
         preamble
         + r'''
 Set-Location $repo
 $outputSnapshot = New-RedditOutputSnapshot -ProjectRoot $repo -RelativePaths @(
-  "existing.txt",
-  "created.txt",
-  "frontend/assets/data/github_lenguajes_public.json",
-  "frontend/assets/data/github_frameworks_history.json",
-  "frontend/assets/data/github_correlacion_history.json",
-  "frontend/assets/data/so_volumen_history.json",
-  "frontend/assets/data/so_aceptacion_history.json",
-  "frontend/assets/data/so_tendencias_history.json"
+  "datos/reddit_temas_emergentes.csv",
+  "datos/source_packages/reddit/receipt.json",
+  "datos/latest/reddit_temas_emergentes.csv",
+  "logs/etl_fixture.log"
 )
-function Seed-HistoryFromRepoBaseline {
-  Set-Content -LiteralPath (Join-Path $repo "existing.txt") -Value "mixed" -NoNewline
-  Set-Content -LiteralPath (Join-Path $repo "created.txt") -Value "created" -NoNewline
-}
-function Get-BridgeSnapshotJson { return "{}" }
-function Test-FreshRedditHistoryForDate { return $true }
-function Assert-RedditMentionCoverage { return $true }
-function Assert-BridgeDates {
-  if ("__FAILING_STEP__" -eq "assert bridge dates") { throw "__FAILURE_MESSAGE__" }
-}
-function Assert-BridgeSnapshotPreserved {}
+$ignoredOutputs = @("datos/latest/reddit_temas_emergentes.csv")
 function Run-Step {
   param([string]$Label, [string[]]$Command)
-  if ($Label -eq "__FAILING_STEP__") { throw "__FAILURE_MESSAGE__" }
-  if ($Label -in @("git checkout branch", "git commit", "git push")) {
-    Set-Content -LiteralPath (Join-Path $repo "publication-reached.txt") -Value $Label
-  }
+  Set-Content -LiteralPath (Join-Path $repo "datos/reddit_temas_emergentes.csv") -Value "bad" -NoNewline
+  Set-Content -LiteralPath (Join-Path $repo "datos/latest/reddit_temas_emergentes.csv") -Value "bad" -NoNewline
+  Set-Content -LiteralPath (Join-Path $repo "logs/etl_fixture.log") -Value "bad" -NoNewline
+  $receipt = Join-Path $repo "datos/source_packages/reddit/receipt.json"
+  New-Item -ItemType Directory -Force -Path (Split-Path -Parent $receipt) | Out-Null
+  Set-Content -LiteralPath $receipt -Value "bad" -NoNewline
 }
-'''.replace("__FAILING_STEP__", failing_step).replace("__FAILURE_MESSAGE__", failure_message)
+function Assert-RedditSourcePackage { throw "fixture validation failure" }
+function Assert-CleanWorktree {}
+'''
         + runner[prepublication_start:prepublication_end],
         encoding="utf-8",
     )
@@ -320,7 +294,8 @@ function Run-Step {
     subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
     subprocess.run(["git", "-C", str(tmp_path), "config", "user.email", "test@example.invalid"], check=True)
     subprocess.run(["git", "-C", str(tmp_path), "config", "user.name", "Test"], check=True)
-    subprocess.run(["git", "-C", str(tmp_path), "add", "existing.txt", "automation"], check=True)
+    (tmp_path / ".gitignore").write_text("datos/latest/\n", encoding="utf-8")
+    subprocess.run(["git", "-C", str(tmp_path), "add", ".gitignore", "datos/reddit_temas_emergentes.csv", "automation"], check=True)
     subprocess.run(["git", "-C", str(tmp_path), "commit", "-qm", "fixture"], check=True)
     subprocess.run(["git", "-C", str(tmp_path), "branch", "-M", "main"], check=True)
 
@@ -332,8 +307,10 @@ function Run-Step {
     )
 
     assert result.returncode != 0
-    assert failure_message in result.stderr
-    assert existing.read_text(encoding="utf-8") == "before"
+    assert "fixture validation failure" in result.stderr
+    assert existing.read_bytes() == b"tema,menciones\nPython,900\n"
+    assert ignored.read_bytes() == b"ignored-before"
+    assert log.read_bytes() == b"log-before"
     assert not created.exists()
     assert not (tmp_path / "publication-reached.txt").exists()
     subprocess.run(["git", "-C", str(tmp_path), "diff", "--quiet"], check=True)

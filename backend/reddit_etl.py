@@ -18,6 +18,11 @@ import warnings
 import time
 import re
 import html
+import csv
+import hashlib
+import json
+import logging
+from datetime import timezone
 from defusedxml import ElementTree as ET
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
@@ -84,6 +89,10 @@ class RedditETL(BaseETL):
         self.access_token = None
         self.api_base = "https://www.reddit.com"  # fallback: API publica
         self.headers = dict(REDDIT_HEADERS)
+        self.extraction_started_at_utc = None
+        self.extraction_finished_at_utc = None
+        self.extraction_scope = None
+        self._strict_source_package = False
 
     @staticmethod
     def _coincide_keyword(texto, keyword):
@@ -206,6 +215,7 @@ class RedditETL(BaseETL):
 
         after = None
         posts_obtenidos = 0
+        pages_succeeded = 0
 
         while posts_obtenidos < limit:
             params = {
@@ -224,14 +234,19 @@ class RedditETL(BaseETL):
                 )
             except requests.exceptions.RequestException as e:
                 self.logger.error(f"  Error de red: {e}")
+                if self._strict_source_package and pages_succeeded:
+                    raise ETLExtractionError("Partial Reddit JSON extraction", critical=True) from e
                 time.sleep(HTTP_RETRY_BACKOFF_SECONDS)
                 break
 
             if response.status_code != 200:
                 self.logger.error(f"  Error: {response.status_code}")
+                if self._strict_source_package and pages_succeeded:
+                    raise ETLExtractionError("Partial Reddit JSON extraction", critical=True)
                 break
 
             data = response.json()
+            pages_succeeded += 1
             children = data.get("data", {}).get("children", [])
 
             if not children:
@@ -404,16 +419,21 @@ class RedditETL(BaseETL):
         self.logger.info("Fallback RSS obtuvo %d posts", len(posts_data))
         return posts_data
 
-    def extraer_posts(self, subreddit_name=REDDIT_SUBREDDIT, limit=REDDIT_LIMIT):
+    def extraer_posts(self, subreddit_name=REDDIT_SUBREDDIT, limit=REDDIT_LIMIT, strict=False):
         """Extrae posts de un subreddit usando JSON API y RSS fallback.
 
         Raises:
             ETLExtractionError: Si no se pudieron extraer posts.
         """
         targets = _split_subreddit_targets(subreddit_name)
+        if strict:
+            self._strict_source_package = True
+            self.extraction_scope = targets
+            self.extraction_started_at_utc = datetime.now(timezone.utc)
         posts_by_id = {}
 
         if len(targets) > 1:
+            processed_targets = 0
             per_target_limit = _env_int(
                 "REDDIT_PER_SUBREDDIT_LIMIT",
                 max(100, min(500, limit)),
@@ -451,6 +471,9 @@ class RedditETL(BaseETL):
                 target_posts = self._extraer_posts_json(target, target_limit)
                 if not target_posts:
                     target_posts = self._extraer_posts_rss(target, target_limit)
+                if strict and not target_posts:
+                    raise ETLExtractionError("Incomplete Reddit target extraction", critical=True)
+                processed_targets += 1
 
                 for post in target_posts:
                     post_id = str(post.get("post_id") or "").strip()
@@ -463,6 +486,8 @@ class RedditETL(BaseETL):
                     len(posts_by_id),
                 )
 
+            if strict and processed_targets != len(targets):
+                raise ETLExtractionError("Not all Reddit targets were extracted", critical=True)
             posts_data = list(posts_by_id.values())[:limit]
         else:
             subreddit_name = targets[0]
@@ -492,6 +517,8 @@ class RedditETL(BaseETL):
                 )
 
         self.df_posts = pd.DataFrame(posts_data)
+        if strict:
+            self.extraction_finished_at_utc = datetime.now(timezone.utc)
 
     def analizar_sentimiento_frameworks(self):
         """Analiza sentimiento para frameworks backend mencionados en posts."""
@@ -818,12 +845,84 @@ def verify_intersection_outputs(project_root, *, fresh):
         raise ValueError("intersection output mismatch: root/latest/frontend/history differ")
 
 
+def write_source_package_receipt(project_root, started, finished, reference_date, scope, posts_count):
+    """Record only aggregate output identity and the actual extraction window."""
+    if (
+        not started or not finished or started.tzinfo is None or finished.tzinfo is None or reference_date.tzinfo is None
+        or started > finished
+        or started.astimezone(timezone.utc).date() != finished.astimezone(timezone.utc).date()
+        or started.astimezone(timezone.utc).date() != reference_date.astimezone(timezone.utc).date()
+        or not scope or posts_count <= 0
+    ):
+        raise ValueError("Reddit extraction window, date or scope is invalid")
+
+    outputs = {}
+    for filename, required in (
+        ("reddit_sentimiento_frameworks.csv", {
+            "framework", "total_menciones", "positivos", "neutros", "negativos",
+            "% positivo", "% neutro", "% negativo",
+        }),
+        ("reddit_temas_emergentes.csv", {"tema", "menciones"}),
+    ):
+        path = Path(project_root) / "datos" / filename
+        try:
+            data = path.read_bytes()
+        except OSError as exc:
+            raise ValueError(f"Missing Reddit output: {filename}") from exc
+        if not data:
+            raise ValueError(f"Empty Reddit output: {filename}")
+        with path.open(newline="", encoding="utf-8") as handle:
+            reader = csv.DictReader(handle, strict=True)
+            if not reader.fieldnames or not required.issubset(reader.fieldnames):
+                raise ValueError(f"Malformed Reddit output: {filename}")
+            rows = list(reader)
+        if not rows or any(None in row or any(value is None or not value.strip() for value in row.values()) for row in rows):
+            raise ValueError(f"Malformed Reddit output: {filename}")
+        count_field = "menciones" if filename.startswith("reddit_temas") else "total_menciones"
+        try:
+            total = sum(int(row[count_field]) for row in rows)
+        except ValueError as exc:
+            raise ValueError(f"Invalid Reddit counts: {filename}") from exc
+        if total <= 0 or any(int(row[count_field]) <= 0 for row in rows):
+            raise ValueError(f"Invalid Reddit counts: {filename}")
+        if count_field == "total_menciones":
+            try:
+                for row in rows:
+                    counts = [int(row[key]) for key in ("positivos", "neutros", "negativos")]
+                    percentages = [float(row[key]) for key in ("% positivo", "% neutro", "% negativo")]
+                    if any(value < 0 for value in counts) or sum(counts) != int(row[count_field]):
+                        raise ValueError("Invalid sentiment counts")
+                    if any(not 0 <= value <= 100 for value in percentages):
+                        raise ValueError("Invalid sentiment percentages")
+            except ValueError as exc:
+                raise ValueError(f"Invalid Reddit sentiment output: {filename}") from exc
+        outputs[filename] = {"rows": len(rows), "sha256": hashlib.sha256(data).hexdigest()}
+        if count_field == "menciones":
+            outputs[filename]["mentions_total"] = total
+
+    receipt = {
+        "source": "reddit",
+        "reference_date_utc": reference_date.astimezone(timezone.utc).strftime("%Y-%m-%d"),
+        "source_date_utc": started.astimezone(timezone.utc).strftime("%Y-%m-%d"),
+        "extraction_started_at_utc": started.astimezone(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z"),
+        "extraction_finished_at_utc": finished.astimezone(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z"),
+        "scope": scope,
+        "posts_count": posts_count,
+        "outputs": outputs,
+    }
+    path = Path(project_root) / "datos" / "source_packages" / "reddit" / "receipt.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(receipt, indent=2) + "\n", encoding="utf-8")
+    return path
+
+
 def main():
     """Run the local Reddit ETL or the aggregate-only intersection gates."""
     parser = argparse.ArgumentParser(description=__doc__)
     actions = parser.add_mutually_exclusive_group()
     actions.add_argument("--intersection-only", action="store_true")
     actions.add_argument("--verify-intersection-outputs", action="store_true")
+    actions.add_argument("--source-package", action="store_true")
     parser.add_argument("--project-root", type=Path, default=Path("."))
     parser.add_argument("--github-artifact-root", type=Path)
     parser.add_argument("--reddit-artifact-root", type=Path)
@@ -835,6 +934,18 @@ def main():
         run_intersection_only(args.project_root, args.github_artifact_root, args.reddit_artifact_root)
     elif args.verify_intersection_outputs:
         verify_intersection_outputs(args.project_root, fresh=args.fresh)
+    elif args.source_package:
+        etl = RedditETL()
+        logging.basicConfig(level=logging.INFO)
+        etl.validar_configuracion()
+        etl._obtener_token_oauth()
+        etl.extraer_posts(strict=True)
+        etl.analizar_sentimiento_frameworks()
+        etl.detectar_temas_emergentes()
+        write_source_package_receipt(
+            args.project_root, etl.extraction_started_at_utc, etl.extraction_finished_at_utc,
+            base_etl.FECHA_FIN, etl.extraction_scope, len(etl.df_posts),
+        )
     else:
         RedditETL().ejecutar()
 
