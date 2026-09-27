@@ -11,6 +11,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from reddit_source_package import validate_reddit_source_package
 from tech_normalization import normalize_technology_name
 
 
@@ -3646,9 +3647,13 @@ def rebuild_home_highlights_from_bridges(assets_root):
     }
 
 
-def export_bridge_assets(project_root, output_dir=None, compact=False):
+def export_bridge_assets(project_root, output_dir=None, compact=False, *, reddit_source_package_date_utc=None):
     """Exporta archivos JSON puente para acceso histórico del frontend."""
     project_root = Path(project_root)
+    package = (
+        validate_reddit_source_package(project_root, reddit_source_package_date_utc)
+        if reddit_source_package_date_utc is not None else None
+    )
     output_dir = Path(output_dir) if output_dir else project_root / "frontend" / "assets" / "data"
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -3657,6 +3662,23 @@ def export_bridge_assets(project_root, output_dir=None, compact=False):
     reddit_sentiment_payload = build_reddit_sentiment_public(project_root)
     reddit_topics_history_payload = build_reddit_topics_history(project_root, history_index_payload)
     reddit_intersection_history_payload = build_reddit_intersection_history(project_root, history_index_payload)
+    if package is not None:
+        sentiment_path = reddit_sentiment_payload.get("source_path")
+        topics = reddit_topics_history_payload.get("snapshots", [])
+        intersections = reddit_intersection_history_payload.get("snapshots", [])
+        if (
+            not sentiment_path or (project_root / sentiment_path).read_bytes()
+            != (project_root / "datos" / "reddit_sentimiento_frameworks.csv").read_bytes()
+            or not topics or topics[-1]["date"] != package["source_date_utc"]
+            or (project_root / topics[-1]["path"]).read_bytes()
+            != (project_root / "datos" / "reddit_temas_emergentes.csv").read_bytes()
+            or not intersections or intersections[-1]["date"] != package["source_date_utc"]
+        ):
+            raise ValueError("Exported Reddit bridges do not match selected Reddit source package")
+        provenance = {"source": "reddit", "mode": "source_package", "source_date_utc": package["source_date_utc"]}
+        for payload in (reddit_sentiment_payload, reddit_topics_history_payload, reddit_intersection_history_payload):
+            payload["source_updated_at_utc"] = package["extraction_finished_at_utc"]
+            payload["source_provenance"] = provenance
     github_languages_public_payload = build_github_languages_public(project_root)
     github_frameworks_history_payload = build_github_frameworks_history(
         project_root,
