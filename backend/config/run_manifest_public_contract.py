@@ -11,6 +11,7 @@ from typing import Any, Mapping
 
 from config.data_product_contract import is_valid_iso_utc
 from quality.degradation_policy import evaluate_degradation_policy
+from reddit_source_package import validate_reddit_source_package
 
 
 RUN_MANIFEST_PUBLIC_VERSION = "1.0.0"
@@ -603,7 +604,9 @@ def build_public_run_manifest_from_internal(
     }
 
 
-def build_public_run_manifest_from_filesystem(project_root: Path) -> dict[str, Any]:
+def build_public_run_manifest_from_filesystem(
+    project_root: Path, *, reddit_source_package_date_utc: str | None = None,
+) -> dict[str, Any]:
     """Construye el run manifest público de frontend desde salidas CSV generadas."""
     dataset_paths = _resolve_latest_dataset_paths(project_root)
     source_updated_at, canonical_row_counts, canonical_updated_at = _canonical_bridge_metadata(project_root)
@@ -620,9 +623,31 @@ def build_public_run_manifest_from_filesystem(project_root: Path) -> dict[str, A
     source_status = {source: source in available_sources for source in AVAILABLE_SOURCES}
     degradation = evaluate_degradation_policy(source_status)
     fallback_sources = _canonical_fallback_sources(project_root)
-    degraded_mode = bool(degradation["available_count"] < len(AVAILABLE_SOURCES) or fallback_sources)
+    reddit_bridges = [
+        _read_json(project_root / "frontend" / "assets" / "data" / name)
+        for name in _SOURCE_FALLBACK_PROVENANCE_BRIDGES["reddit"]
+    ]
+    package_markers = [
+        isinstance(bridge, Mapping)
+        and isinstance(bridge.get("source_provenance"), Mapping)
+        and bridge["source_provenance"].get("mode") == "source_package"
+        for bridge in reddit_bridges
+    ]
+    if any(package_markers) and reddit_source_package_date_utc is None:
+        raise ValueError("Reddit source-package bridges require explicit validated package context")
+    package_source = reddit_source_package_date_utc is not None
+    if package_source:
+        package = validate_reddit_source_package(project_root, reddit_source_package_date_utc)
+        if not all(package_markers) or any(
+            bridge["source_provenance"].get("source") != "reddit"
+            or bridge["source_provenance"].get("source_date_utc") != package["source_date_utc"]
+            or bridge.get("source_updated_at_utc") != package["extraction_finished_at_utc"]
+            for bridge in reddit_bridges
+        ):
+            raise ValueError("Reddit source-package bridge provenance does not match validated package context")
+    degraded_mode = bool(degradation["available_count"] < len(AVAILABLE_SOURCES) or fallback_sources or package_source)
     quality_gate_status = str(degradation["quality_gate_status"])
-    if fallback_sources and quality_gate_status == "pass":
+    if (fallback_sources or package_source) and quality_gate_status == "pass":
         quality_gate_status = "pass_with_warnings"
 
     generated_at_utc = _utc_now_iso()
@@ -638,6 +663,8 @@ def build_public_run_manifest_from_filesystem(project_root: Path) -> dict[str, A
         )
     if fallback_sources:
         notes = "Sources restored from baseline: " + ", ".join(fallback_sources)
+    elif package_source:
+        notes = "Reddit source package used; public source time is extraction time."
     elif degradation["available_count"] < len(AVAILABLE_SOURCES):
         missing_sources = degradation.get("missing_sources", [])
         missing_label = ", ".join(str(source) for source in missing_sources) if missing_sources else "unknown"

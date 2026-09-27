@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -107,12 +108,12 @@ def _source_error(
     return None
 
 
-def _final_reddit_lineage_error(project_root: Path, dataset_summaries: object) -> str | None:
+def _final_reddit_lineage_error(project_root: Path, dataset_summaries: object, package=None) -> str | None:
     if not isinstance(dataset_summaries, list):
         return None
     assets_root = project_root / "frontend" / "assets" / "data"
     bridge_paths = {dataset: assets_root / filename for dataset, (filename, _) in FINAL_REDDIT_BRIDGES.items()}
-    if not any(path.exists() for path in bridge_paths.values()):
+    if package is None and not any(path.exists() for path in bridge_paths.values()):
         return None
 
     summaries = {
@@ -128,6 +129,15 @@ def _final_reddit_lineage_error(project_root: Path, dataset_summaries: object) -
             bridge = json.loads(bridge_path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError):
             return f"Source freshness unavailable: final canonical Reddit bridge unreadable for {dataset}"
+        provenance = bridge.get("source_provenance") if isinstance(bridge, dict) else None
+        marked = isinstance(provenance, dict) and provenance.get("mode") == "source_package"
+        if marked != (package is not None):
+            return "Source freshness invalid: Reddit source-package bridges require explicit validated package context"
+        if marked:
+            if (provenance.get("source") != "reddit" or provenance.get("source_date_utc") != package["source_date_utc"]
+                    or bridge.get("source_updated_at_utc") != package["extraction_finished_at_utc"]):
+                return "Source freshness invalid: Reddit bridge does not match validated package context"
+            timestamp_field = "source_updated_at_utc"
         timestamp = _parse_utc_timestamp(bridge.get(timestamp_field)) if isinstance(bridge, dict) else None
         summary = summaries.get(dataset)
         if timestamp is None or summary is None or summary.get("updated_at_utc") != bridge.get(timestamp_field):
@@ -139,8 +149,14 @@ def check_source_freshness(
     project_root: Path | str,
     *,
     max_source_age_hours: int = DEFAULT_MAX_SOURCE_AGE_HOURS,
+    reddit_source_package_date_utc: str | None = None,
 ) -> dict[str, object]:
     """Validate source timestamps against the manifest generation time."""
+    package = None
+    if reddit_source_package_date_utc is not None:
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "backend"))
+        from reddit_source_package import validate_reddit_source_package
+        package = validate_reddit_source_package(project_root, reddit_source_package_date_utc)
     manifest_path = Path(project_root) / "frontend" / "assets" / "data" / "run_manifest.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     if not isinstance(manifest, dict):
@@ -153,7 +169,7 @@ def check_source_freshness(
     source_updated_at_utc: dict[str, str] = {}
     errors: list[str] = []
     dataset_summaries = manifest.get("dataset_summaries")
-    lineage_error = _final_reddit_lineage_error(Path(project_root), dataset_summaries)
+    lineage_error = _final_reddit_lineage_error(Path(project_root), dataset_summaries, package)
     if lineage_error is not None:
         errors.append(lineage_error)
     for source, required_datasets in REQUIRED_SOURCE_DATASETS.items():

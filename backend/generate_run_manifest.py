@@ -66,9 +66,12 @@ def generate_manifest_from_final_bridges(
     *,
     output_dirs: list[Path],
     require_metadata: bool,
+    reddit_source_package_date_utc: str | None = None,
 ) -> dict[str, object]:
     """Write manifests derived from the final canonical bridge payloads only."""
-    payload = build_public_run_manifest_from_filesystem(project_root)
+    payload = build_public_run_manifest_from_filesystem(
+        project_root, reddit_source_package_date_utc=reddit_source_package_date_utc,
+    )
     is_valid, errors = validate_public_run_manifest(payload)
     if not is_valid:
         error_message = "; ".join(str(item) for item in errors) if errors else "unknown validation errors"
