@@ -1,0 +1,31 @@
+{
+  "source": "reddit",
+  "reference_date_utc": "2026-09-28",
+  "source_date_utc": "2026-09-28",
+  "extraction_started_at_utc": "2026-09-28T02:00:11Z",
+  "extraction_finished_at_utc": "2026-09-28T03:38:39Z",
+  "scope": [
+    "webdev",
+    "programming",
+    "learnprogramming",
+    "Python",
+    "javascript",
+    "typescript",
+    "reactjs",
+    "node",
+    "devops",
+    "MachineLearning"
+  ],
+  "posts_count": 3000,
+  "outputs": {
+    "reddit_sentimiento_frameworks.csv": {
+      "rows": 5,
+      "sha256": "290d956ee016b800e056aed18c8adf8a7af6a4b6cddc8f2f9c5cb5a6c89dee55"
+    },
+    "reddit_temas_emergentes.csv": {
+      "rows": 10,
+      "sha256": "9c1ee357fd484f1ba923cea0284d33778e76c2f9631c6c0a5c34e0647c010235",
+      "mentions_total": 2198
+    }
+  }
+}
