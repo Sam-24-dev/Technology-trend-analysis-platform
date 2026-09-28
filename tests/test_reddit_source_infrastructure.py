@@ -110,3 +110,8 @@ def test_secret_scan_workflow_itself_remains_scannable():
                              str(ROOT / ".github" / "workflows" / "secret_scan.yml")],
                             capture_output=True, text=True)
     assert result.returncode == 0, result.stdout
+
+
+def test_secret_scan_baseline_has_no_stale_workflow_allowlist():
+    baseline = json.loads((ROOT / ".secrets.baseline").read_text(encoding="utf-8"))
+    assert ".github/workflows/secret_scan.yml" not in baseline["results"]
