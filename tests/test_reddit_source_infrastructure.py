@@ -21,6 +21,31 @@ def _git(repo, *args):
     return subprocess.run(["git", "-C", str(repo), *args], check=True, capture_output=True).stdout
 
 
+def test_cached_diff_check_accepts_crlf_but_rejects_trailing_space(tmp_path):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    _git(repo, "init", "-q")
+    _git(repo, "config", "core.autocrlf", "true")
+    shutil.copyfile(ROOT / ".gitattributes", repo / ".gitattributes")
+    _git(repo, "add", ".gitattributes")
+    data = repo / "datos"
+    data.mkdir()
+    csv = data / CSV_NAMES[0]
+    csv.write_bytes(b"header,value\r\nrow, value\r\n")
+    _git(repo, "add", f"datos/{CSV_NAMES[0]}")
+
+    valid = subprocess.run(["git", "-C", str(repo), "diff", "--cached", "--check"],
+                           capture_output=True, text=True)
+    assert valid.returncode == 0, valid.stdout + valid.stderr
+
+    csv.write_bytes(b"header,value\r\nrow, value \r\n")
+    _git(repo, "add", f"datos/{CSV_NAMES[0]}")
+    invalid = subprocess.run(["git", "-C", str(repo), "diff", "--cached", "--check"],
+                             capture_output=True, text=True)
+    assert invalid.returncode != 0
+    assert "trailing whitespace" in invalid.stdout + invalid.stderr
+
+
 def test_autocrlf_checkout_preserves_receipt_identity(tmp_path):
     producer = tmp_path / "producer"
     producer.mkdir()
