@@ -2,7 +2,10 @@
 
 import json
 import hashlib
+import shutil
+import subprocess
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
 import pytest
 
@@ -45,6 +48,42 @@ def test_valid_receipt_binds_exact_bytes_and_claims_only_posts_count(package):
     assert validate_reddit_source_package(root, date, now=finish + timedelta(hours=192))
     with pytest.raises(ValueError):
         validate_reddit_source_package(root, date, now=finish + timedelta(hours=192, seconds=1))
+
+
+@pytest.mark.parametrize("duplicate_key", ["source", "sha256"])
+def test_duplicate_receipt_keys_fail_closed(package, duplicate_key):
+    root, receipt, date, now = package
+    original = receipt.read_text(encoding="utf-8")
+    if duplicate_key == "source":
+        modified = original.replace('"source": "reddit",', '"source": "other",\n  "source": "reddit",', 1)
+    else:
+        digest = json.loads(original)["outputs"]["reddit_sentimiento_frameworks.csv"]["sha256"]
+        synthetic = hashlib.sha256(b"synthetic detectable value only").hexdigest()
+        modified = original.replace(
+            f'"sha256": "{digest}"',
+            f'"sha256": "{synthetic}",\n      "sha256": "{digest}"',
+            1,
+        )
+    assert modified != original
+    assert json.loads(modified) == json.loads(original)
+    receipt.write_text(modified, encoding="utf-8")
+
+    if duplicate_key == "sha256" and (hook := shutil.which("detect-secrets-hook")):
+        baseline = Path(__file__).resolve().parents[1] / ".secrets.baseline"
+        pattern = '^ *"sha256" ?[=:] "[0-9a-f]{64}",?$'
+        probe = receipt.with_name("synthetic_digest_probe.json")
+        probe.write_text(f'"sha256": "{synthetic}"\n', encoding="utf-8")
+        detectable = subprocess.run([hook, "--baseline", str(baseline), str(probe)], capture_output=True)
+        unfiltered = subprocess.run([hook, "--baseline", str(baseline), str(receipt)], capture_output=True)
+        filtered = subprocess.run(
+            [hook, "--baseline", str(baseline), "--exclude-lines", pattern, str(receipt)], capture_output=True,
+        )
+        assert detectable.returncode != 0
+        assert unfiltered.returncode != 0
+        assert filtered.returncode == 0
+
+    with pytest.raises(ValueError, match="Invalid Reddit source package"):
+        validate_reddit_source_package(root, date, now=now)
 
 
 @pytest.mark.parametrize("damage", [
