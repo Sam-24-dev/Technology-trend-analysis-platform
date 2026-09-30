@@ -20,12 +20,19 @@ SCHEMAS = {
 }
 
 
+def _unique_json_keys(pairs):
+    values = dict(pairs)
+    if len(values) != len(pairs):
+        raise ValueError("Duplicate Reddit receipt key")
+    return values
+
+
 def validate_reddit_source_package(project_root, aggregate_date_utc, *, now=None):
     """Return verified provenance; never copy, select, or publish package files."""
     root = Path(project_root) / "datos"
     receipt_path = root / "source_packages" / "reddit" / "receipt.json"
     try:
-        receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+        receipt = json.loads(receipt_path.read_text(encoding="utf-8"), object_pairs_hook=_unique_json_keys)
         if not isinstance(receipt, dict) or set(receipt) != {
             "source", "reference_date_utc", "source_date_utc", "extraction_started_at_utc",
             "extraction_finished_at_utc", "scope", "posts_count", "outputs",
