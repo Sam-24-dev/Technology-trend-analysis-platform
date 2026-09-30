@@ -93,4 +93,5 @@ def validate_reddit_source_package(project_root, aggregate_date_utc, *, now=None
         "source_date_utc": source_date,
         "extraction_finished_at_utc": receipt["extraction_finished_at_utc"],
         "posts_count": receipt["posts_count"],  # A positive claim; aggregates cannot prove raw post count.
+        "mentions_total": receipt["outputs"]["reddit_temas_emergentes.csv"]["mentions_total"],
     }

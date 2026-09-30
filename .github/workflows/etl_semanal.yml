@@ -272,6 +272,9 @@ jobs:
           pip install --upgrade pip
           pip install -r backend/requirements.lock
 
+      - name: Pin aggregate UTC reference date
+        run: echo "ETL_REFERENCE_DATE_UTC=$(date -u +%F)" >> "$GITHUB_ENV"
+
       - name: Download GitHub artifacts
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
@@ -297,6 +300,7 @@ jobs:
           for file in \
             datos/reddit_sentimiento_frameworks.csv \
             datos/reddit_temas_emergentes.csv \
+            datos/source_packages/reddit/receipt.json \
             datos/interseccion_github_reddit.csv \
             frontend/assets/data/reddit_temas_history.json \
             frontend/assets/data/reddit_interseccion_history.json; do
@@ -381,18 +385,20 @@ jobs:
           baseline_total = total_from_bridge(
               Path('repo_baseline/frontend/assets/data/reddit_temas_history.json')
           )
-          min_ratio = 0.85
+          min_percent = 85
+          minimum_mentions = (baseline_total * min_percent + 99) // 100 if baseline_total is not None and baseline_total >= 300 else 0
           use_baseline = (
               source_total is not None
               and baseline_total is not None
               and baseline_total >= 300
-              and source_total < int(baseline_total * min_ratio)
+              and source_total < minimum_mentions
           )
 
           with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as fh:
               fh.write(f'source_total={source_total if source_total is not None else ""}\n')
               fh.write(f'baseline_total={baseline_total if baseline_total is not None else ""}\n')
               fh.write(f'use_repo_baseline={str(use_baseline).lower()}\n')
+              fh.write(f'minimum_mentions={minimum_mentions}\n')
 
           with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as fh:
               fh.write('### Reddit baseline coverage guard\n')
@@ -439,8 +445,18 @@ jobs:
             exit 1
           fi
 
+      - name: Select reviewed Reddit package
+        id: package_selection
+        env:
+          REMOTE_ACCEPTED: ${{ needs.job_reddit.outputs.status == 'ok' && steps.reddit_baseline_guard.outputs.use_repo_baseline == 'false' }}
+        run: |
+          python scripts/reddit_source_package_consumer.py select \
+            --date "$ETL_REFERENCE_DATE_UTC" \
+            --remote-accepted "$REMOTE_ACCEPTED" \
+            --minimum-mentions "${{ steps.reddit_baseline_guard.outputs.minimum_mentions }}" >> "$GITHUB_OUTPUT"
+
       - name: Restore Reddit source baseline on fallback
-        if: ${{ always() && (needs.job_reddit.outputs.status != 'ok' || steps.reddit_baseline_guard.outputs.use_repo_baseline != 'false') }}
+        if: ${{ always() && steps.package_selection.outputs.selected != 'true' && (needs.job_reddit.outputs.status != 'ok' || steps.reddit_baseline_guard.outputs.use_repo_baseline != 'false') }}
         shell: bash
         run: |
           python scripts/restore_reddit_baseline.py \
@@ -457,6 +473,14 @@ jobs:
             --github-artifact-root artifacts/github \
             --reddit-artifact-root artifacts/reddit
 
+      - name: Derive package Reddit intersection
+        if: ${{ steps.package_selection.outputs.selected == 'true' }}
+        run: |
+          python backend/reddit_etl.py --intersection-only \
+            --project-root . \
+            --github-artifact-root artifacts/github \
+            --reddit-artifact-root artifacts/reddit-package
+
       - name: Run Trend Score
         run: python backend/trend_score.py
 
@@ -465,7 +489,7 @@ jobs:
 
       - name: Verify final intersection outputs
         env:
-          INTERSECTION_FRESH: ${{ needs.job_reddit.outputs.status == 'ok' && steps.reddit_baseline_guard.outputs.use_repo_baseline == 'false' }}
+          INTERSECTION_FRESH: ${{ steps.package_selection.outputs.selected == 'true' || (needs.job_reddit.outputs.status == 'ok' && steps.reddit_baseline_guard.outputs.use_repo_baseline == 'false') }}
         shell: bash
         run: |
           if [ "$INTERSECTION_FRESH" = "true" ]; then
@@ -475,7 +499,7 @@ jobs:
           fi
 
       - name: Restore previous Reddit bridges on source fallback
-        if: ${{ always() && (needs.job_reddit.outputs.status != 'ok' || steps.reddit_baseline_guard.outputs.use_repo_baseline != 'false') }}
+        if: ${{ always() && steps.package_selection.outputs.selected != 'true' && (needs.job_reddit.outputs.status != 'ok' || steps.reddit_baseline_guard.outputs.use_repo_baseline != 'false') }}
         shell: bash
         run: |
           python scripts/restore_reddit_baseline.py \
@@ -485,14 +509,14 @@ jobs:
             --mode bridges
 
       - name: Rebuild home highlights from final bridges
-        if: ${{ always() && (needs.job_reddit.outputs.status != 'ok' || steps.reddit_baseline_guard.outputs.use_repo_baseline != 'false') }}
+        if: ${{ always() && steps.package_selection.outputs.selected != 'true' && (needs.job_reddit.outputs.status != 'ok' || steps.reddit_baseline_guard.outputs.use_repo_baseline != 'false') }}
         run: |
           python backend/export_history_json.py \
             --rebuild-home-from frontend/assets/data \
             --rebuild-home-from datos/metadata/remote_assets
 
       - name: Regenerate final run manifest from canonical bridges
-        if: ${{ always() && (needs.job_reddit.outputs.status != 'ok' || steps.reddit_baseline_guard.outputs.use_repo_baseline != 'false') }}
+        if: ${{ always() && steps.package_selection.outputs.selected != 'true' && (needs.job_reddit.outputs.status != 'ok' || steps.reddit_baseline_guard.outputs.use_repo_baseline != 'false') }}
         run: |
           python backend/generate_run_manifest.py \
             --project-root . \
@@ -500,6 +524,10 @@ jobs:
             --from-final-bridges \
             --output-dir frontend/assets/data \
             --output-dir datos/metadata/remote_assets
+
+      - name: Finalize package provenance
+        if: ${{ steps.package_selection.outputs.selected == 'true' }}
+        run: python scripts/reddit_source_package_consumer.py finalize --date "$ETL_REFERENCE_DATE_UTC"
 
       - name: Validate CSV contract headers
         run: python backend/validate_csv_contract.py
@@ -562,7 +590,12 @@ jobs:
             --expect-previous-history "${{ steps.previous_history.outputs.expect_previous_history }}"
 
       - name: Enforce canonical source freshness guard
-        run: python scripts/check_source_freshness.py --project-root . --max-source-age-hours 192
+        run: |
+          if [ "${{ steps.package_selection.outputs.selected }}" = "true" ]; then
+            python scripts/reddit_source_package_consumer.py freshness --date "$ETL_REFERENCE_DATE_UTC"
+          else
+            python scripts/check_source_freshness.py --project-root . --max-source-age-hours 192
+          fi
 
       - name: Upload aggregate artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
