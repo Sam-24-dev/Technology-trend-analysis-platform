@@ -22,7 +22,7 @@ NAMES = ("reddit_sentimiento_frameworks.csv", "reddit_temas_emergentes.csv")
 
 
 @pytest.fixture
-def handoff(tmp_path):
+def handoff(tmp_path, request):
     candidate = tmp_path / "candidate"
     data = candidate / "datos"
     data.mkdir(parents=True)
@@ -30,7 +30,7 @@ def handoff(tmp_path):
         b"framework,total_menciones,positivos,neutros,negativos,% positivo,% neutro,% negativo\r\n"
         b"Python,3,2,1,0,66.67,33.33,0\r\n"
     )
-    (data / NAMES[1]).write_bytes(b"tema,menciones\r\nPython,3\r\n")
+    (data / NAMES[1]).write_bytes(f"tema,menciones\r\nPython,{getattr(request, 'param', 3)}\r\n".encode())
     start = NOW.replace(hour=0, minute=0, second=0)
     write_source_package_receipt(candidate, start, start, start, list(REDDIT_SCOPE), 5)
     workspace = tmp_path / "workspace"
@@ -50,6 +50,16 @@ def test_same_run_remote_priority_leaves_package_inert(handoff):
     assert not select_package(workspace, candidate, DATE, remote_accepted=True, minimum_mentions=2, now=NOW)
     assert before == [(workspace / "datos" / name).read_bytes() for name in NAMES]
     assert not (workspace / "artifacts/reddit-package").exists()
+
+
+@pytest.mark.parametrize(("handoff", "baseline", "accepted"), [(255, 301, False), (256, 301, True), (255, 300, True)], indirect=["handoff"])
+def test_coverage_ceiling_is_shared_by_remote_guard_and_package(handoff, baseline, accepted):
+    workflow = (Path(__file__).resolve().parents[1] / ".github/workflows/etl_semanal.yml").read_text(encoding="utf-8")
+    assert all(rule in workflow for rule in ("min_percent = 85",
+        "minimum_mentions = (baseline_total * min_percent + 99) // 100",
+        "source_total < minimum_mentions", "--minimum-mentions \"${{ steps.reddit_baseline_guard.outputs.minimum_mentions }}\""))
+    assert select_package(*handoff, DATE, remote_accepted=False,
+                          minimum_mentions=(baseline * 85 + 99) // 100, now=NOW) is accepted
 
 
 def test_same_date_package_installs_exact_source_bytes_and_current_history(handoff):

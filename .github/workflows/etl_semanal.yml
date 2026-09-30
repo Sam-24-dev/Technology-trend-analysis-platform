@@ -385,13 +385,13 @@ jobs:
           baseline_total = total_from_bridge(
               Path('repo_baseline/frontend/assets/data/reddit_temas_history.json')
           )
-          min_ratio = 0.85
-          minimum_mentions = int(baseline_total * min_ratio) if baseline_total is not None and baseline_total >= 300 else 0
+          min_percent = 85
+          minimum_mentions = (baseline_total * min_percent + 99) // 100 if baseline_total is not None and baseline_total >= 300 else 0
           use_baseline = (
               source_total is not None
               and baseline_total is not None
               and baseline_total >= 300
-              and source_total < int(baseline_total * min_ratio)
+              and source_total < minimum_mentions
           )
 
           with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as fh:
