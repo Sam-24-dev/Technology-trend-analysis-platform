@@ -146,7 +146,8 @@ def test_workflow_reddit_job_resets_stale_outputs_and_requires_fresh_latest_file
 def test_workflow_rebuilds_home_from_final_bridges_only_on_reddit_fallback():
     content = _load_workflow_text()
     fallback_condition = (
-        "if: ${{ always() && (needs.job_reddit.outputs.status != 'ok' || "
+        "if: ${{ always() && steps.package_selection.outputs.selected != 'true' && "
+        "(needs.job_reddit.outputs.status != 'ok' || "
         "steps.reddit_baseline_guard.outputs.use_repo_baseline != 'false') }}"
     )
 
