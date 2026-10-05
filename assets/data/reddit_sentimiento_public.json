@@ -1,94 +1,99 @@
 {
-  "generated_at_utc": "2026-09-14T15:19:33Z",
+  "generated_at_utc": "2026-10-05T17:26:04Z",
   "dataset": "reddit_sentimiento_frameworks",
   "source_mode": "latest",
   "source_path": "datos/latest/reddit_sentimiento_frameworks.csv",
-  "source_updated_at_utc": "2026-09-14T15:19:26Z",
+  "source_updated_at_utc": "2026-10-05T03:41:30Z",
   "framework_count": 5,
   "frameworks": [
     {
       "framework": "Django",
-      "total_menciones": 19,
-      "positivos": 17,
-      "neutros": 1,
-      "negativos": 1,
-      "porcentaje_positivo": 89.47,
-      "porcentaje_neutro": 5.26,
-      "porcentaje_negativo": 5.26
-    },
-    {
-      "framework": "Laravel",
-      "total_menciones": 36,
-      "positivos": 30,
-      "neutros": 2,
-      "negativos": 4,
-      "porcentaje_positivo": 83.33,
-      "porcentaje_neutro": 5.56,
-      "porcentaje_negativo": 11.11
+      "total_menciones": 16,
+      "positivos": 16,
+      "neutros": 0,
+      "negativos": 0,
+      "porcentaje_positivo": 100.0,
+      "porcentaje_neutro": 0.0,
+      "porcentaje_negativo": 0.0
     },
     {
       "framework": "FastAPI",
-      "total_menciones": 24,
-      "positivos": 20,
-      "neutros": 2,
+      "total_menciones": 26,
+      "positivos": 24,
+      "neutros": 0,
       "negativos": 2,
-      "porcentaje_positivo": 83.33,
-      "porcentaje_neutro": 8.33,
-      "porcentaje_negativo": 8.33
+      "porcentaje_positivo": 92.31,
+      "porcentaje_neutro": 0.0,
+      "porcentaje_negativo": 7.69
+    },
+    {
+      "framework": "Laravel",
+      "total_menciones": 30,
+      "positivos": 22,
+      "neutros": 0,
+      "negativos": 8,
+      "porcentaje_positivo": 73.33,
+      "porcentaje_neutro": 0.0,
+      "porcentaje_negativo": 26.67
     },
     {
       "framework": "Express",
-      "total_menciones": 170,
-      "positivos": 119,
-      "neutros": 28,
-      "negativos": 23,
-      "porcentaje_positivo": 70.0,
-      "porcentaje_neutro": 16.47,
-      "porcentaje_negativo": 13.53
+      "total_menciones": 157,
+      "positivos": 115,
+      "neutros": 22,
+      "negativos": 20,
+      "porcentaje_positivo": 73.25,
+      "porcentaje_neutro": 14.01,
+      "porcentaje_negativo": 12.74
     },
     {
       "framework": "Spring",
-      "total_menciones": 24,
+      "total_menciones": 27,
       "positivos": 16,
-      "neutros": 5,
-      "negativos": 3,
-      "porcentaje_positivo": 66.67,
-      "porcentaje_neutro": 20.83,
-      "porcentaje_negativo": 12.5
+      "neutros": 6,
+      "negativos": 5,
+      "porcentaje_positivo": 59.26,
+      "porcentaje_neutro": 22.22,
+      "porcentaje_negativo": 18.52
     }
   ],
   "summary": {
     "positive_leader": {
       "framework": "Django",
-      "total_menciones": 19,
-      "positivos": 17,
-      "neutros": 1,
-      "negativos": 1,
-      "porcentaje_positivo": 89.47,
-      "porcentaje_neutro": 5.26,
-      "porcentaje_negativo": 5.26
+      "total_menciones": 16,
+      "positivos": 16,
+      "neutros": 0,
+      "negativos": 0,
+      "porcentaje_positivo": 100.0,
+      "porcentaje_neutro": 0.0,
+      "porcentaje_negativo": 0.0
     },
     "largest_sample": {
       "framework": "Express",
-      "total_menciones": 170,
-      "positivos": 119,
-      "neutros": 28,
-      "negativos": 23,
-      "porcentaje_positivo": 70.0,
-      "porcentaje_neutro": 16.47,
-      "porcentaje_negativo": 13.53
+      "total_menciones": 157,
+      "positivos": 115,
+      "neutros": 22,
+      "negativos": 20,
+      "porcentaje_positivo": 73.25,
+      "porcentaje_neutro": 14.01,
+      "porcentaje_negativo": 12.74
     },
     "negative_leader": {
-      "framework": "Express",
-      "total_menciones": 170,
-      "positivos": 119,
-      "neutros": 28,
-      "negativos": 23,
-      "porcentaje_positivo": 70.0,
-      "porcentaje_neutro": 16.47,
-      "porcentaje_negativo": 13.53
+      "framework": "Laravel",
+      "total_menciones": 30,
+      "positivos": 22,
+      "neutros": 0,
+      "negativos": 8,
+      "porcentaje_positivo": 73.33,
+      "porcentaje_neutro": 0.0,
+      "porcentaje_negativo": 26.67
     },
     "framework_count": 5,
-    "total_menciones": 273
+    "total_menciones": 256
+  },
+  "source_provenance": {
+    "source": "reddit",
+    "mode": "source_package",
+    "source_date_utc": "2026-10-05"
   }
 }
