@@ -1,19 +1,18 @@
 framework,repo,month,commits
-Angular,angular/angular,2025-09,270
-Angular,angular/angular,2025-10,407
+Angular,angular/angular,2025-10,379
 Angular,angular/angular,2025-11,498
 Angular,angular/angular,2025-12,321
 Angular,angular/angular,2026-01,355
 Angular,angular/angular,2026-02,296
-Angular,angular/angular,2026-03,342
-Angular,angular/angular,2026-04,295
+Angular,angular/angular,2026-03,346
+Angular,angular/angular,2026-04,296
 Angular,angular/angular,2026-05,304
 Angular,angular/angular,2026-06,299
-Angular,angular/angular,2026-07,229
-Angular,angular/angular,2026-08,226
-Angular,angular/angular,2026-09,109
-Next.js,vercel/next.js,2025-09,297
-Next.js,vercel/next.js,2025-10,567
+Angular,angular/angular,2026-07,232
+Angular,angular/angular,2026-08,233
+Angular,angular/angular,2026-09,339
+Angular,angular/angular,2026-10,18
+Next.js,vercel/next.js,2025-10,506
 Next.js,vercel/next.js,2025-11,305
 Next.js,vercel/next.js,2025-12,253
 Next.js,vercel/next.js,2026-01,438
@@ -24,9 +23,9 @@ Next.js,vercel/next.js,2026-05,281
 Next.js,vercel/next.js,2026-06,403
 Next.js,vercel/next.js,2026-07,454
 Next.js,vercel/next.js,2026-08,490
-Next.js,vercel/next.js,2026-09,149
-React,react/react,2025-09,93
-React,react/react,2025-10,164
+Next.js,vercel/next.js,2026-09,478
+Next.js,vercel/next.js,2026-10,85
+React,react/react,2025-10,117
 React,react/react,2025-11,81
 React,react/react,2025-12,39
 React,react/react,2026-01,65
@@ -37,9 +36,9 @@ React,react/react,2026-05,22
 React,react/react,2026-06,51
 React,react/react,2026-07,69
 React,react/react,2026-08,45
-React,react/react,2026-09,37
-Svelte,sveltejs/svelte,2025-09,44
-Svelte,sveltejs/svelte,2025-10,97
+React,react/react,2026-09,48
+React,react/react,2026-10,1
+Svelte,sveltejs/svelte,2025-10,89
 Svelte,sveltejs/svelte,2025-11,63
 Svelte,sveltejs/svelte,2025-12,42
 Svelte,sveltejs/svelte,2026-01,96
@@ -50,9 +49,9 @@ Svelte,sveltejs/svelte,2026-05,83
 Svelte,sveltejs/svelte,2026-06,24
 Svelte,sveltejs/svelte,2026-07,27
 Svelte,sveltejs/svelte,2026-08,102
-Svelte,sveltejs/svelte,2026-09,12
-Vue 3,vuejs/core,2025-09,31
-Vue 3,vuejs/core,2025-10,4
+Svelte,sveltejs/svelte,2026-09,32
+Svelte,sveltejs/svelte,2026-10,2
+Vue 3,vuejs/core,2025-10,3
 Vue 3,vuejs/core,2025-11,42
 Vue 3,vuejs/core,2025-12,28
 Vue 3,vuejs/core,2026-01,28
@@ -63,4 +62,5 @@ Vue 3,vuejs/core,2026-05,39
 Vue 3,vuejs/core,2026-06,45
 Vue 3,vuejs/core,2026-07,25
 Vue 3,vuejs/core,2026-08,42
-Vue 3,vuejs/core,2026-09,7
+Vue 3,vuejs/core,2026-09,29
+Vue 3,vuejs/core,2026-10,0
