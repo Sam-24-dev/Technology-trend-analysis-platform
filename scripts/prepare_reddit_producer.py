@@ -7,13 +7,20 @@ from pathlib import Path
 import re
 import subprocess
 import sys
+import uuid
 
 ORIGIN = "https://github.com/Sam-24-dev/Technology-trend-analysis-platform"
 CONTROLS = ("automation/run_reddit_baseline_guarded.ps1", "automation/run_reddit_baseline.ps1",
             "automation/reddit_output_transaction.psm1", "scripts/prepare_reddit_producer.py")
+GIT_SELECTORS = (r"^GIT_(DIR|WORK_TREE|COMMON_DIR|INDEX_FILE|OBJECT_DIRECTORY|ALTERNATE_OBJECT_DIRECTORIES|"
+                 r"NAMESPACE|.*PREFIX|SHALLOW_FILE|GRAFT_FILE|CONFIG.*|CEILING_DIRECTORIES|"
+                 r"DISCOVERY_ACROSS_FILESYSTEM|IMPLICIT_WORK_TREE|REPLACE_REF_BASE)$")
 
 
 def git(root, *args):
+    rejected = sorted(name for name in os.environ if re.match(GIT_SELECTORS, name, re.IGNORECASE))
+    if rejected:
+        raise RuntimeError("Rejected Git environment: " + ", ".join(rejected))
     env = dict(os.environ, GIT_TERMINAL_PROMPT="0", GCM_INTERACTIVE="Never",
                GIT_SSH_COMMAND="ssh -oBatchMode=yes")
     result = subprocess.run(["git", "-C", str(root), *args],
@@ -74,9 +81,11 @@ def prepare(root, expected_origin=ORIGIN):
         if origin != expected_origin.removesuffix(".git"):
             raise RuntimeError("Unexpected origin")
         stage = "fetch"
-        git(root, "fetch", "--no-tags", "--no-recurse-submodules", "origin",
-            "refs/heads/main:refs/remotes/origin/main")
-        target = git(root, "rev-parse", "FETCH_HEAD^{commit}")
+        capture = f"refs/ttap/preparation/{uuid.uuid4().hex}"
+        git(root, "fetch", "--atomic", "--no-tags", "--no-recurse-submodules", "origin",
+            "refs/heads/main:refs/remotes/origin/main", f"refs/heads/main:{capture}")
+        target = git(root, "rev-parse", f"{capture}^{{commit}}")
+        git(root, "update-ref", "-d", capture, target)
         stage = "admission"
         git(root, "merge-base", "--is-ancestor", head, target)
         original = git(root, "ls-tree", head, "--", *CONTROLS)

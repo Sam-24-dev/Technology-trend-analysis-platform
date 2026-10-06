@@ -180,12 +180,17 @@ if (Test-Path $stateFile) {
 }
 
 $py = Join-Path $repo ".venv311\Scripts\python.exe"
+Import-Module (Join-Path $PSScriptRoot "reddit_output_transaction.psm1") -Force
 try {
+  Assert-RedditGitEnvironment
   $preparation = @(& $py -I -B (Join-Path $repo "scripts\prepare_reddit_producer.py") --root $repo 2>&1)
   $preparationExit = $LASTEXITCODE
 }
 catch {
   $preparation = @("Preparation invocation failed; HEAD and fetched refs require inspection.")
+  if ($_.Exception.Message.StartsWith("Rejected Git environment:")) {
+    $preparation = @("Preparation preflight failed: " + $_.Exception.Message)
+  }
   $preparationExit = 1
 }
 if ($preparationExit -ne 0 -or $preparation.Count -ne 1 -or [string]$preparation[0] -notmatch '^[0-9a-f]{40}$') {
@@ -210,6 +215,7 @@ if ($topicsLatest -eq $currentUtcDate -and $intersectionLatest -eq $currentUtcDa
 Write-Host "==> guarded run reason=$Reason window=$windowKey"
 Write-Log "guard executing main script for $windowKey"
 
+Assert-RedditGitEnvironment
 $commandLine = "powershell.exe -NoProfile -ExecutionPolicy Bypass -File `"$mainScript`" -PreparedMainSha $preparedSha 2>&1"
 $runOutput = New-Object System.Collections.Generic.List[string]
 & cmd.exe /d /c $commandLine | ForEach-Object {

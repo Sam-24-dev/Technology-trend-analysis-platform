@@ -1,5 +1,6 @@
 """Preparation acceptance uses temporary local Git and mocked guarded children only."""
 import os
+import hashlib
 from pathlib import Path
 import shutil
 import subprocess
@@ -22,6 +23,16 @@ def isolated_interpreter(monkeypatch):
 def git(root, *args):
     return subprocess.run(["git", "-C", str(root), *args], check=True,
                           capture_output=True, text=True).stdout.strip()
+
+
+def snapshot(root):
+    return {"HEAD": git(root, "rev-parse", "HEAD"), "refs": git(root, "show-ref"),
+            "symbolic": git(root, "symbolic-ref", "HEAD"), "status": git(root, "status", "--porcelain"),
+            "index": hashlib.sha256((root / ".git/index").read_bytes()).hexdigest(),
+            "FETCH_HEAD": ((root / ".git/FETCH_HEAD").read_bytes()
+                           if (root / ".git/FETCH_HEAD").exists() else None),
+            "files": {p.relative_to(root).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
+                      for p in root.rglob("*") if p.is_file() and ".git" not in p.parts}}
 
 
 @pytest.fixture
@@ -63,13 +74,17 @@ def test_prepares_exact_main_and_fresh_baseline(producer, monkeypatch, kind):
         (repo / prep.CONTROLS[0]).write_bytes(b"old\r\n")
         git(repo, "-c", "core.autocrlf=true", "add", "--", prep.CONTROLS[0])
     if kind == "tracking_ref":
+        injected = []
         original = prep.git
         def command(root, *args):
-            if args == ("rev-parse", "FETCH_HEAD^{commit}"):
+            if args[0] == "rev-parse" and args[1].startswith("refs/ttap/preparation/"):
                 git(repo, "update-ref", "refs/remotes/origin/main", baseline)
+                injected.append(True)
             return original(root, *args)
         monkeypatch.setattr(prep, "git", command)
     assert prep.prepare(repo, origin) == target
+    if kind == "tracking_ref":
+        assert injected == [True] and git(repo, "rev-parse", "origin/main") == baseline
     assert git(repo, "rev-parse", "HEAD") == target
     assert not git(repo, "status", "--porcelain")
     assert (repo / "datos/reddit_temas_emergentes.csv").read_bytes() == b"fresh\n"
@@ -185,7 +200,8 @@ def test_child_rejects_unprepared_revision_before_baseline(producer, kind):
     expected = "" if kind == "missing" else "invalid" if kind == "invalid" else target if kind == "drift" else baseline
     if kind == "branch":
         git(repo, "checkout", "-qb", "other")
-    code = assertion + '\nSet-Location -LiteralPath "' + str(repo) + '"\n$PreparedMainSha="' + expected + '"\n'
+    code = 'Import-Module "' + str(ROOT / "automation/reddit_output_transaction.psm1") + '" -Force\n' + assertion
+    code += '\nSet-Location -LiteralPath "' + str(repo) + '"\n$PreparedMainSha="' + expected + '"\n'
     result = subprocess.run([PS, "-NoProfile", "-NonInteractive", "-Command",
         '$ErrorActionPreference="Stop"\n' + code + 'Assert-PreparedMainSha\nWrite-Output "BASELINE_REACHED=1"'],
         capture_output=True, text=True, timeout=15)
@@ -194,10 +210,12 @@ def test_child_rejects_unprepared_revision_before_baseline(producer, kind):
 
 
 @pytest.mark.skipif(os.name != "nt" or PS is None, reason="Windows PowerShell runtime required")
-@pytest.mark.parametrize("kind", ["failure", "dependency", "missing_python", "stderr", "interruption", "child"])
+@pytest.mark.parametrize("kind", ["failure", "dependency", "missing_python", "stderr", "interruption", "child",
+                                  "selectors", "child_selectors"])
 def test_guard_holds_mutex_and_preparation_failure_cannot_mark_success(tmp_path, kind):
     automation = tmp_path / "automation"
     automation.mkdir()
+    shutil.copyfile(ROOT / "automation/reddit_output_transaction.psm1", automation / "reddit_output_transaction.psm1")
     marker = automation / "state/reddit_baseline_last_window.txt"
     marker.parent.mkdir()
     marker.write_bytes(b"2026-10-04")
@@ -228,14 +246,20 @@ def test_guard_holds_mutex_and_preparation_failure_cannot_mark_success(tmp_path,
         encoding="utf-8")
     if kind == "interruption":
         guard = guard.replace('$preparedSha = [string]$preparation[0]', 'throw "fixture interruption"')
+    if kind == "child_selectors":
+        guard = guard.replace('$preparedSha = [string]$preparation[0]',
+            '$preparedSha = [string]$preparation[0]\n$env:GIT_DIR="' + str(tmp_path / "B/.git") + '"')
     path = automation / "run_reddit_baseline_guarded.ps1"
     path.write_text(guard, encoding="utf-8")
+    env = dict(os.environ)
+    if kind == "selectors":
+        env["GIT_DIR"] = str(tmp_path / "B/.git")
     result = subprocess.run([PS, "-NoProfile", "-NonInteractive", "-File", str(path)],
-                            capture_output=True, text=True, timeout=30)
+                            env=env, capture_output=True, text=True, timeout=30)
     assert (result.returncode == 0) is (kind == "child"), result.stderr
     assert marker.read_text(encoding="ascii").strip() == ("2026-10-11" if kind == "child" else "2026-10-04")
     assert ("CHILD_COMPLETED=1" in result.stdout) is (kind == "child")
-    if kind in {"failure", "dependency", "missing_python", "stderr"}:
+    if kind in {"failure", "dependency", "missing_python", "stderr", "selectors"}:
         status = tmp_path / "automation/state/reddit_baseline_last_status.txt"
         assert "outcome=preparation_failed" in status.read_text(encoding="utf-8-sig")
     release = subprocess.run([PS, "-NoProfile", "-NonInteractive", "-Command",
@@ -250,3 +274,82 @@ def test_revision_assertions_precede_baseline_and_publication():
     assert runtime.index("Assert-PreparedMainSha") < runtime.index("$baselineMentions =")
     publication = runner.split("function Invoke-SourcePublication", 1)[1].split("Set-Location $repo", 1)[0]
     assert publication.index("Assert-PreparedMainSha") < publication.index('Run-Step "git checkout branch"')
+
+
+@pytest.mark.parametrize("selector", ["GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_COMMON_DIR",
+                                     "GIT_OBJECT_DIRECTORY", "GIT_CONFIG_COUNT", "combined"])
+def test_selector_child_cannot_inspect_or_mutate_other_repository(producer, selector):
+    repo, origin, baseline, target = producer
+    other = repo.parent / "B"
+    subprocess.run(["git", "clone", "-q", origin, str(other)], check=True, capture_output=True)
+    git(other, "checkout", "-qB", "main", baseline)
+    git(other, "remote", "set-url", "origin", origin)
+    before, other_before = snapshot(repo), snapshot(other)
+    values = {"GIT_DIR": other / ".git", "GIT_WORK_TREE": other, "GIT_INDEX_FILE": other / ".git/index",
+              "GIT_COMMON_DIR": other / ".git", "GIT_OBJECT_DIRECTORY": other / ".git/objects"}
+    env = dict(os.environ, **({selector: str(values.get(selector, 1))} if selector != "combined" else {}))
+    if selector == "combined":
+        env.update(GIT_DIR=str(other / ".git"), GIT_WORK_TREE=str(other), GIT_INDEX_FILE=str(other / ".git/index"))
+    if selector == "GIT_CONFIG_COUNT":
+        env.update(GIT_CONFIG_KEY_0="core.worktree", GIT_CONFIG_VALUE_0=str(other))
+    code = "import runpy,sys\nm=runpy.run_path(sys.argv[1])\nm['metadata'].version=lambda name:'1.0'\n"
+    code += "try: m['prepare'](sys.argv[2],sys.argv[3])\n"
+    code += "except RuntimeError as exc: print(exc); raise SystemExit(1)\n"
+    result = subprocess.run([sys.executable, "-I", "-B", "-c", code,
+        str(ROOT / "scripts/prepare_reddit_producer.py"), str(repo), origin], env=env,
+        capture_output=True, text=True, timeout=20)
+    assert result.returncode == 1 and "Preparation failed at preflight;" in result.stdout
+    expected_name = "GIT_DIR" if selector == "combined" else selector
+    assert "Rejected Git environment:" in result.stdout and expected_name in result.stdout
+    assert str(other) not in result.stdout + result.stderr
+    assert snapshot(repo) == before and snapshot(other) == other_before
+    assert prep.prepare(repo, origin) == target
+    assert snapshot(other) == other_before
+
+
+def test_real_other_branch_fetch_cannot_replace_frozen_main(producer, monkeypatch):
+    repo, origin, baseline, target = producer
+    git(repo, "checkout", "-qb", "other", target)
+    (repo / "datos/reddit_temas_emergentes.csv").write_bytes(b"other\n")
+    git(repo, "commit", "-qam", "test: create other data branch")
+    other = git(repo, "rev-parse", "HEAD")
+    git(repo, "push", "-q", "origin", "other")
+    git(repo, "checkout", "-q", "main")
+    git(repo, "update-ref", "refs/ttap/preparation/existing", baseline)
+    before, original, injected = snapshot(repo), prep.git, []
+    def command(root, *args):
+        if args[0] == "rev-parse" and args[1].startswith("refs/ttap/preparation/"):
+            original(root, "fetch", "--no-tags", "--no-recurse-submodules", "origin", "refs/heads/other")
+            injected.append(True)
+        return original(root, *args)
+    monkeypatch.setattr(prep, "git", command)
+    assert prep.prepare(repo, origin) == target and injected == [True]
+    assert git(repo, "rev-parse", "refs/remotes/origin/main") == target
+    assert git(repo, "rev-parse", "FETCH_HEAD^{commit}") == other
+    after = snapshot(repo)
+    assert after["HEAD"] == target and after["symbolic"] == before["symbolic"] and not after["status"]
+    assert after["refs"] == before["refs"].replace(baseline + " refs/heads/main", target + " refs/heads/main")
+    expected = dict(before["files"], **{"datos/reddit_temas_emergentes.csv": hashlib.sha256(b"fresh\n").hexdigest()})
+    assert after["files"] == expected
+
+
+@pytest.mark.skipif(PS is None, reason="PowerShell required")
+@pytest.mark.parametrize("actor", ["Assert-CleanWorktree", "Assert-PreparedMainSha"])
+def test_actual_child_assertions_reject_repository_selectors(producer, actor):
+    repo, origin, baseline, target = producer
+    other = repo.parent / "B"
+    subprocess.run(["git", "clone", "-q", origin, str(other)], check=True, capture_output=True)
+    git(other, "checkout", "-qB", "main", target)
+    git(other, "remote", "set-url", "origin", origin)
+    before, other_before = snapshot(repo), snapshot(other)
+    runner = (ROOT / "automation/run_reddit_baseline.ps1").read_text(encoding="utf-8")
+    checks = runner[runner.index("function Assert-CleanWorktree"):runner.index("function Get-TopicMentions")]
+    code = '$ErrorActionPreference="Stop"\nImport-Module "' + str(ROOT / "automation/reddit_output_transaction.psm1")
+    code += '" -Force\n' + checks + '\nSet-Location "' + str(repo) + '"\n$PreparedMainSha="' + target + '"\n'
+    env = dict(os.environ, GIT_DIR=str(other / ".git"), GIT_WORK_TREE=str(other),
+               GIT_INDEX_FILE=str(other / ".git/index"))
+    result = subprocess.run([PS, "-NoProfile", "-NonInteractive", "-Command", code + actor +
+        '\nWrite-Output "ACTOR_REACHED=1"'], env=env, capture_output=True, text=True, timeout=20)
+    assert result.returncode != 0 and "Rejected Git environment:" in result.stderr
+    assert "ACTOR_REACHED=1" not in result.stdout and str(other) not in result.stderr
+    assert snapshot(repo) == before and snapshot(other) == other_before
