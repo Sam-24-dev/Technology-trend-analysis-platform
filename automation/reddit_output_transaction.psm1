@@ -1,5 +1,13 @@
 Set-StrictMode -Version Latest
 
+function Assert-RedditGitEnvironment {
+  $pattern = '^GIT_(DIR|WORK_TREE|COMMON_DIR|INDEX_FILE|OBJECT_DIRECTORY|ALTERNATE_OBJECT_DIRECTORIES|' +
+    'NAMESPACE|.*PREFIX|SHALLOW_FILE|GRAFT_FILE|CONFIG.*|CEILING_DIRECTORIES|' +
+    'DISCOVERY_ACROSS_FILESYSTEM|IMPLICIT_WORK_TREE|REPLACE_REF_BASE)$'
+  $rejected = @(Get-ChildItem Env: | Where-Object { $_.Name -match $pattern } | Select-Object -ExpandProperty Name)
+  if ($rejected.Count -gt 0) { throw "Rejected Git environment: $($rejected -join ', ')" }
+}
+
 function Resolve-RedditOutputPath {
   param(
     [Parameter(Mandatory = $true)][string]$ProjectRoot,
@@ -136,4 +144,4 @@ function Restore-RedditOutputSnapshot {
   Remove-RedditOutputSnapshot -Snapshot $Snapshot
 }
 
-Export-ModuleMember -Function New-RedditOutputSnapshot, Restore-RedditOutputSnapshot, Restore-RedditOutputSnapshotPaths, Remove-RedditOutputSnapshot
+Export-ModuleMember -Function New-RedditOutputSnapshot, Restore-RedditOutputSnapshot, Restore-RedditOutputSnapshotPaths, Remove-RedditOutputSnapshot, Assert-RedditGitEnvironment

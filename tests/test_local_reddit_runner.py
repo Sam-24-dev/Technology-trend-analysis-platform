@@ -418,6 +418,7 @@ $runner = Get-Content -LiteralPath $env:RUNNER_PATH -Raw
 $preamble = $runner.Substring(0, $runner.IndexOf('Set-Location $repo'))
 $preamble = $preamble -replace 'Import-Module.*\r?\n', ''
 $preamble = $preamble.Replace('$repo = Split-Path -Parent $PSScriptRoot', '$repo = $env:TEST_ROOT')
+Import-Module $env:TRANSACTION_MODULE -Force
 Invoke-Expression $preamble
 $repo = $env:TEST_ROOT
 Set-Location $repo
@@ -425,6 +426,7 @@ Assert-CleanWorktree
 '''
     env = os.environ.copy()
     env["RUNNER_PATH"] = str(RUNNER_PATH)
+    env["TRANSACTION_MODULE"] = str(TRANSACTION_MODULE)
     env["TEST_ROOT"] = str(tmp_path)
     result = _run_powershell(script, env)
 
@@ -432,4 +434,5 @@ Assert-CleanWorktree
         assert result.returncode == 0, result.stderr
     else:
         assert result.returncode != 0
+        assert "Pre-existing changes or ignored outputs" in result.stderr
         assert target.read_bytes() == b"preexisting-bytes"
