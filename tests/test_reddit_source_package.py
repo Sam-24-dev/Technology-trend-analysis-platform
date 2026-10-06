@@ -263,6 +263,7 @@ function Run-Step {
   param([string]$Label, [string[]]$Command)
   if ($Label -eq "__FAILING_STEP__" -or "__FAILING_STEP__" -eq "restore") { throw "fixture publication failure" }
 }
+function Assert-PreparedMainSha {}
 function gh {
   if ("__FAILING_STEP__" -eq "gh pr create") { throw "fixture publication failure" }
   $global:LASTEXITCODE = 0
@@ -366,6 +367,7 @@ function gh {
   return "https://example.invalid/pr"
 }
 Set-Location $repo
+$PreparedMainSha = (git rev-parse HEAD).Trim()
 Invoke-SourcePublication -Snapshot $outputSnapshot
 '''.replace("__FAILURE__", failure),
         encoding="utf-8",

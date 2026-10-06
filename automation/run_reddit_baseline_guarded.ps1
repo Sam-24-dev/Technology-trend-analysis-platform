@@ -179,6 +179,21 @@ if (Test-Path $stateFile) {
   }
 }
 
+$py = Join-Path $repo ".venv311\Scripts\python.exe"
+try {
+  $preparation = @(& $py -I -B (Join-Path $repo "scripts\prepare_reddit_producer.py") --root $repo 2>&1)
+  $preparationExit = $LASTEXITCODE
+}
+catch {
+  $preparation = @("Preparation invocation failed; HEAD and fetched refs require inspection.")
+  $preparationExit = 1
+}
+if ($preparationExit -ne 0 -or $preparation.Count -ne 1 -or [string]$preparation[0] -notmatch '^[0-9a-f]{40}$') {
+  Write-Status -Outcome "preparation_failed" -Message "Producer preparation failed; preserve Git state for inspection." -WindowKey $windowKey
+  foreach ($line in $preparation) { Write-Log ([string]$line); Write-Output ([string]$line) }
+  exit 1
+}
+$preparedSha = [string]$preparation[0]
 $currentUtcDate = (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd")
 $topicsLatest = Get-BridgeLatestDate -Path $topicsBridgePath
 $intersectionLatest = Get-BridgeLatestDate -Path $intersectionBridgePath
@@ -195,7 +210,7 @@ if ($topicsLatest -eq $currentUtcDate -and $intersectionLatest -eq $currentUtcDa
 Write-Host "==> guarded run reason=$Reason window=$windowKey"
 Write-Log "guard executing main script for $windowKey"
 
-$commandLine = "powershell.exe -NoProfile -ExecutionPolicy Bypass -File `"$mainScript`" 2>&1"
+$commandLine = "powershell.exe -NoProfile -ExecutionPolicy Bypass -File `"$mainScript`" -PreparedMainSha $preparedSha 2>&1"
 $runOutput = New-Object System.Collections.Generic.List[string]
 & cmd.exe /d /c $commandLine | ForEach-Object {
   $line = [string]$_

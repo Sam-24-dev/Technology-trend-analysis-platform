@@ -1,3 +1,4 @@
+param([string]$PreparedMainSha = "")
 $ErrorActionPreference = "Stop"
 $repo = Split-Path -Parent $PSScriptRoot
 $py = Join-Path $repo ".venv311\Scripts\python.exe"
@@ -34,6 +35,14 @@ function Assert-CleanWorktree {
   if ($status.Count -gt 0 -or $ignored.Count -gt 0) { throw "Pre-existing changes or ignored outputs; refusing to touch them." }
   $currentBranch = (git branch --show-current).Trim()
   if ($LASTEXITCODE -ne 0 -or $currentBranch -ne "main") { throw "The automation requires clean main: $currentBranch" }
+}
+
+function Assert-PreparedMainSha {
+  if ($PreparedMainSha -notmatch '^[0-9a-f]{40}$') { throw "Missing or invalid prepared main SHA" }
+  $head = (git rev-parse HEAD).Trim()
+  if ($LASTEXITCODE -ne 0 -or $head -ne $PreparedMainSha) { throw "HEAD differs from prepared main SHA" }
+  $currentBranch = (git branch --show-current).Trim()
+  if ($LASTEXITCODE -ne 0 -or $currentBranch -ne "main") { throw "Prepared producer requires main" }
 }
 
 function Get-TopicMentions {
@@ -89,6 +98,7 @@ function Assert-RedditSourcePackage {
 function Invoke-SourcePublication {
   param([Parameter(Mandatory = $true)]$Snapshot)
   try {
+    Assert-PreparedMainSha
     Run-Step "git checkout branch" @("git", "checkout", "-b", $branch)
     Run-Step "git add target files" (@("git", "add", "--") + $filesToStage)
     Run-Step "git commit" @("git", "commit", "-m", "chore(data): refresh reddit source package $utcDate")
@@ -128,6 +138,7 @@ function Invoke-SourcePublication {
 
 Set-Location $repo
 Assert-CleanWorktree
+Assert-PreparedMainSha
 $baselineMentions = Get-TopicMentions -Path (Join-Path $repo $filesToStage[1])
 $outputSnapshot = New-RedditOutputSnapshot -ProjectRoot $repo -RelativePaths ($filesToStage + $ignoredOutputs)
 $env:ETL_REFERENCE_DATE_UTC = $utcDate
