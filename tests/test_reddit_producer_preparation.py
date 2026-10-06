@@ -31,7 +31,7 @@ def producer(tmp_path, monkeypatch):
     git(repo, "init", "-q")
     subprocess.run(["git", "init", "--bare", "-q", str(remote)], check=True)
     for key, value in (("user.name", "Fixture"), ("user.email", "fixture@example.invalid"),
-                       ("core.hooksPath", str(repo / ".git/hooks"))):
+                       ("core.autocrlf", "true"), ("core.hooksPath", str(repo / ".git/hooks"))):
         git(repo, "config", key, value)
     for name in (*prep.CONTROLS, "backend/requirements.lock", "datos/reddit_temas_emergentes.csv"):
         path = repo / name
@@ -61,6 +61,7 @@ def test_prepares_exact_main_and_fresh_baseline(producer, monkeypatch, kind):
         git(repo, "reset", "--hard", target)
     if kind == "crlf":
         (repo / prep.CONTROLS[0]).write_bytes(b"old\r\n")
+        git(repo, "-c", "core.autocrlf=true", "add", "--", prep.CONTROLS[0])
     if kind == "tracking_ref":
         original = prep.git
         def command(root, *args):
