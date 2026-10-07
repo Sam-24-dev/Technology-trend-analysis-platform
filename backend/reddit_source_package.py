@@ -27,12 +27,20 @@ def _unique_json_keys(pairs):
     return values
 
 
-def validate_reddit_source_package(project_root, aggregate_date_utc, *, now=None):
+def producer_minimum_mentions(baseline):
+    """Preserve the producer floor and exact integer 85-percent ceiling."""
+    if type(baseline) is not int or baseline <= 0:
+        raise ValueError("Invalid producer baseline")
+    return max(400, (baseline * 85 + 99) // 100)
+
+
+def validate_reddit_source_package(project_root, aggregate_date_utc, *, now=None, read_bytes=None):
     """Return verified provenance; never copy, select, or publish package files."""
     root = Path(project_root) / "datos"
     receipt_path = root / "source_packages" / "reddit" / "receipt.json"
+    read = read_bytes if read_bytes is not None else lambda path: path.read_bytes()
     try:
-        receipt = json.loads(receipt_path.read_text(encoding="utf-8"), object_pairs_hook=_unique_json_keys)
+        receipt = json.loads(read(receipt_path).decode("utf-8"), object_pairs_hook=_unique_json_keys)
         if not isinstance(receipt, dict) or set(receipt) != {
             "source", "reference_date_utc", "source_date_utc", "extraction_started_at_utc",
             "extraction_finished_at_utc", "scope", "posts_count", "outputs",
@@ -59,7 +67,7 @@ def validate_reddit_source_package(project_root, aggregate_date_utc, *, now=None
             raise ValueError("Reddit source package provenance is ineligible")
 
         for name, schema in SCHEMAS.items():
-            data = (root / name).read_bytes()
+            data = read(root / name)
             rows_reader = csv.DictReader(io.StringIO(data.decode("utf-8"), newline=""), strict=True)
             rows = list(rows_reader)
             if not rows or rows_reader.fieldnames != list(schema) or any(
