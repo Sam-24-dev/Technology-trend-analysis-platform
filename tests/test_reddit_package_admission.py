@@ -139,17 +139,21 @@ def test_floor_ceiling_and_verified_baseline(candidate):
         gate.admit(repo, base, save(repo), now=NOW)
 
 
-@pytest.mark.parametrize("total", [399, 400])
-def test_full_admission_preserves_absolute_floor(candidate, total):
+@pytest.mark.parametrize("baseline,total,minimum", [(300, 399, 400), (300, 400, 400), (501, 425, 426), (501, 426, 426)])
+def test_full_admission_preserves_absolute_floor(candidate, baseline, total, minimum):
     repo, _, _ = candidate
-    write_package(repo, 300, NOW - timedelta(days=9))
+    write_package(repo, baseline, NOW - timedelta(days=9))
     base = save(repo)
     write_package(repo, total)
-    if total == 399:
-        with pytest.raises(ValueError, match="coverage"):
-            gate.admit(repo, base, save(repo), now=NOW)
+    head = save(repo)
+    assert producer_minimum_mentions(baseline) == minimum
+    if total < minimum:
+        with pytest.raises(ValueError, match="^Package below producer coverage minimum$"):
+            gate.admit(repo, base, head, now=NOW)
     else:
-        assert gate.admit(repo, base, save(repo), now=NOW)["minimum_mentions"] == 400
+        result = gate.admit(repo, base, head, now=NOW)
+        assert result["baseline_mentions"] == baseline and result["minimum_mentions"] == minimum
+        assert result["mentions_total"] == total and result["coverage"] == "pass"
 
 
 def test_event_binding_never_uses_merge_sha():
@@ -159,6 +163,18 @@ def test_event_binding_never_uses_merge_sha():
     event["pull_request"]["base"]["ref"] = "other"
     with pytest.raises(ValueError):
         gate.event_binding(event, gate.REPOSITORY)
+
+
+
+def bind_cli_event(repo, base, head, monkeypatch, tmp_path, run_id="1"):
+    event = {"number": 12, "repository": {"full_name": gate.REPOSITORY}, "pull_request": {
+        "base": {"ref": "main", "sha": base}, "head": {"sha": head}}}
+    path = tmp_path / "event.json"
+    path.write_text(json.dumps(event))
+    for key, value in {"GITHUB_EVENT_PATH": str(path), "GITHUB_REPOSITORY": gate.REPOSITORY,
+                       "GITHUB_RUN_ID": run_id, "GITHUB_RUN_ATTEMPT": "1", "GITHUB_TOKEN": "fixture-token"}.items():
+        monkeypatch.setenv(key, value)
+    monkeypatch.setattr(gate, "ROOT", repo)
 
 
 @pytest.mark.parametrize("wrong_ref", [False, True])
@@ -171,14 +187,7 @@ def test_cli_real_fetch_binding_and_failed_gate_preserve_data(candidate, monkeyp
     gate.git(repo, "push", str(remote), (base if wrong_ref else head) + ":refs/pull/12/head")
     gate.git(repo, "remote", "add", "origin", "https://github.com/" + gate.REPOSITORY)
     gate.git(repo, "checkout", "--detach", base)
-    event = {"number": 12, "repository": {"full_name": gate.REPOSITORY}, "pull_request": {
-        "base": {"ref": "main", "sha": base}, "head": {"sha": head}}}
-    path = tmp_path / "event.json"
-    path.write_text(json.dumps(event))
-    for key, value in {"GITHUB_EVENT_PATH": str(path), "GITHUB_REPOSITORY": gate.REPOSITORY,
-                       "GITHUB_RUN_ID": "1", "GITHUB_RUN_ATTEMPT": "1", "GITHUB_TOKEN": "fixture-token"}.items():
-        monkeypatch.setenv(key, value)
-    monkeypatch.setattr(gate, "ROOT", repo)
+    bind_cli_event(repo, base, head, monkeypatch, tmp_path)
     original = gate.git
     def service(root, *args):
         if args[0] == "fetch":
@@ -220,3 +229,93 @@ def test_workflow_is_trusted_and_narrow():
     assert "persist-credentials: false" in workflow and "pip install" not in workflow
     assert "cache:" not in workflow and "secrets." not in workflow
     assert "--now" not in (gate.ROOT / "scripts/check_reddit_package_admission.py").read_text()
+
+
+def test_cli_success_real_clock_fetch_and_exact_head_publication(candidate, monkeypatch, tmp_path, capsys):
+    import os
+    import shutil
+    import sys
+
+    repo, base, _ = candidate
+    remote = tmp_path / "remote.git"
+    gate.git(tmp_path, "init", "--bare", "-q", str(remote))
+    origin = "https://github.com/" + gate.REPOSITORY
+    gate.git(repo, "remote", "add", "origin", origin)
+    finish = datetime.now(timezone.utc).replace(microsecond=0)
+    write_package(repo, finish=finish)
+    head = save(repo)
+    gate.git(repo, "push", str(remote), head + ":refs/pull/12/head")
+    gate.git(repo, "checkout", "--detach", base)
+    bind_cli_event(repo, base, head, monkeypatch, tmp_path, "success")
+    monkeypatch.setenv("GIT_ALLOW_PROTOCOL", "file")
+    real_git = shutil.which("git")
+    assert real_git
+    shim = tmp_path / "git.py"
+    routing = "url." + remote.as_posix() + ".insteadOf=" + origin
+    shim.write_text("import subprocess,sys\nargs=sys.argv[1:]\n"
+                    "if 'fetch' in args: args=['-c'," + repr(routing) + ",*args]\n"
+                    "sys.exit(subprocess.call([" + repr(real_git) + ",*args]))\n", encoding="utf-8")
+    launcher = tmp_path / ("git.exe" if os.name == "nt" else "git")
+    if os.name == "nt":
+        source = tmp_path / "git.cs"
+        source.write_text("""
+using System;
+using System.Diagnostics;
+public class GitShim
+{
+    public static int Main()
+    {
+        string command = Environment.CommandLine;
+        int end = command[0] == '"' ? command.IndexOf('"', 1) + 1 : command.IndexOf(' ');
+        string arguments = command.Substring(end);
+        if (arguments.Contains(" fetch "))
+            arguments = "-c \\"" + ROUTING + "\\" " + arguments;
+        var start = new ProcessStartInfo(NATIVE_GIT, arguments);
+        start.UseShellExecute = false;
+        using (var child = Process.Start(start))
+        {
+            child.WaitForExit();
+            return child.ExitCode;
+        }
+    }
+}
+""".replace("ROUTING", json.dumps(routing)).replace("NATIVE_GIT", json.dumps(real_git)), encoding="utf-8")
+        powershell = shutil.which("powershell.exe")
+        assert powershell
+        command = "Add-Type -Path $env:SHIM_SOURCE -OutputAssembly $env:SHIM_EXE -OutputType ConsoleApplication"
+        gate.subprocess.run([powershell, "-NoProfile", "-NonInteractive", "-Command", command], check=True,
+                            env=dict(os.environ, TEMP=str(tmp_path), TMP=str(tmp_path), SHIM_SOURCE=str(source), SHIM_EXE=str(launcher)))
+    else:
+        launcher.write_text("#!" + sys.executable + "\n" + shim.read_text(), encoding="utf-8")
+        launcher.chmod(0o755)
+    before = (gate.git(repo, "show-ref").decode().splitlines(), gate.git(repo, "rev-parse", "HEAD"),
+              (repo / ".git/index").read_bytes(), tuple((repo / p).read_bytes() for p in gate.PATHS))
+    trace = tmp_path / "git.trace"
+    monkeypatch.setenv("GIT_TRACE", str(trace))
+    monkeypatch.setenv("PATH", str(tmp_path) + os.pathsep + os.environ["PATH"])
+    seen = []
+    def api(request, timeout):
+        payload = json.loads(request.data)
+        seen.append(payload)
+        assert request.full_url == "https://api.github.com/repos/" + gate.REPOSITORY + "/check-runs"
+        assert request.method == "POST" and timeout == 30
+        return io.BytesIO(json.dumps({"id": 1, "head_sha": payload["head_sha"],
+                                     "conclusion": payload["conclusion"]}).encode())
+    monkeypatch.setattr(gate, "urlopen", api)
+    start = datetime.now(timezone.utc)
+    assert gate.main() == 0
+    end = datetime.now(timezone.utc)
+    summary = json.loads(capsys.readouterr().out.strip())
+    assert summary["baseline_sha"] == base and summary["aggregate_date_utc"] == finish.date().isoformat()
+    assert finish <= start <= end and start.date() == end.date() == finish.date()
+    assert summary["identity"] == summary["coverage"] == summary["freshness"] == summary["eligibility"] == "pass"
+    assert len(seen) == 1 and seen[0]["head_sha"] == head and seen[0]["conclusion"] == "success"
+    assert json.loads(seen[0]["output"]["summary"]) == summary
+    capture = "refs/ttap/admission/success-1"
+    assert gate.git(repo, "rev-parse", capture).decode().strip() == head
+    assert before[0] == [line for line in gate.git(repo, "show-ref").decode().splitlines() if not line.endswith(" " + capture)]
+    assert before[1:] == (gate.git(repo, "rev-parse", "HEAD"), (repo / ".git/index").read_bytes(),
+                           tuple((repo / p).read_bytes() for p in gate.PATHS))
+    commands = trace.read_text()
+    assert "fetch --no-tags --no-recurse-submodules origin refs/pull/12/head:" + capture in commands
+    assert str(remote).replace("\\", "/") in commands.replace("\\", "/") and "checkout" not in commands
