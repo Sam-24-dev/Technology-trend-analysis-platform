@@ -216,7 +216,7 @@ def test_check_publication_exact_head_and_api_failure(monkeypatch):
 def test_workflow_is_trusted_and_narrow():
     workflow = (gate.ROOT / ".github/workflows/reddit_package_admission.yml").read_text()
     assert "pull_request_target:" in workflow and "checks: write" in workflow
-    assert "ref: ${{ github.event.pull_request.base.sha }}" in workflow
+    assert "ref:" not in workflow and 'if git(ROOT, "rev-parse", "HEAD").decode().strip() != base:' in (gate.ROOT / "scripts/check_reddit_package_admission.py").read_text()
     assert "persist-credentials: false" in workflow and "pip install" not in workflow
     assert "cache:" not in workflow and "secrets." not in workflow
     assert "--now" not in (gate.ROOT / "scripts/check_reddit_package_admission.py").read_text()
