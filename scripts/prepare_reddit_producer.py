@@ -11,7 +11,8 @@ import uuid
 
 ORIGIN = "https://github.com/Sam-24-dev/Technology-trend-analysis-platform"
 CONTROLS = ("automation/run_reddit_baseline_guarded.ps1", "automation/run_reddit_baseline.ps1",
-            "automation/reddit_output_transaction.psm1", "scripts/prepare_reddit_producer.py")
+            "automation/reddit_output_transaction.psm1", "scripts/prepare_reddit_producer.py",
+            "scripts/check_reddit_package_admission.py", "backend/reddit_source_package.py")
 GIT_SELECTORS = (r"^GIT_(DIR|WORK_TREE|COMMON_DIR|INDEX_FILE|OBJECT_DIRECTORY|ALTERNATE_OBJECT_DIRECTORIES|"
                  r"NAMESPACE|.*PREFIX|SHALLOW_FILE|GRAFT_FILE|CONFIG.*|CEILING_DIRECTORIES|"
                  r"DISCOVERY_ACROSS_FILESYSTEM|IMPLICIT_WORK_TREE|REPLACE_REF_BASE)$")

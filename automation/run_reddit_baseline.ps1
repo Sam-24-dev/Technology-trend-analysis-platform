@@ -99,12 +99,14 @@ function Assert-RedditSourcePackage {
 }
 
 function Invoke-SourcePublication {
-  param([Parameter(Mandatory = $true)]$Snapshot)
+  param([Parameter(Mandatory = $true)]$Snapshot, [string]$ExpectedReceipt)
   try {
     Assert-PreparedMainSha
     Run-Step "git checkout branch" @("git", "checkout", "-b", $branch)
     Run-Step "git add target files" (@("git", "add", "--") + $filesToStage)
+    $admittedIndex = Assert-LocalRedditAdmission -Index -ExpectedReceipt $ExpectedReceipt
     Run-Step "git commit" @("git", "commit", "-m", "chore(data): refresh reddit source package $utcDate")
+    Assert-LocalRedditAdmission -ExpectedIndex $admittedIndex -ExpectedReceipt $ExpectedReceipt | Out-Null
     Run-Step "git push" @("git", "push", "-u", "origin", $branch)
     $body = @"
 ## Summary
@@ -139,6 +141,26 @@ function Invoke-SourcePublication {
   }
 }
 
+function Assert-LocalRedditAdmission {
+  param([switch]$Index, [switch]$Worktree, [string]$ExpectedIndex, [string]$ExpectedReceipt)
+  Assert-RedditGitEnvironment
+  $arguments = @("-I", "-B", (Join-Path $repo "scripts/check_reddit_package_admission.py"), "--root", $repo, "--base", $PreparedMainSha)
+  if ($Worktree) { $arguments += "--worktree" }
+  elseif ($Index) { $arguments += @("--index", "--expected-receipt", $ExpectedReceipt) }
+  else {
+    $head = (git rev-parse HEAD).Trim()
+    if ($LASTEXITCODE -ne 0) { throw "Cannot resolve committed package SHA" }
+    $arguments += @("--head", $head, "--expected-index", $ExpectedIndex, "--expected-receipt", $ExpectedReceipt)
+  }
+  $result = @(& $py @arguments)
+  if ($LASTEXITCODE -ne 0 -or $result.Count -ne 1) { throw "Local Reddit package admission failed" }
+  $admission = $result[0] | ConvertFrom-Json
+  $identity = if ($Worktree) { $admission.receipt_fingerprint } else { $admission.index_fingerprint }
+  if ($admission.classification -ne "source-package" -or $admission.eligibility -ne "pass" -or
+      $identity -notmatch '^[0-9a-f]{64}$') { throw "Local admission did not accept a package" }
+  return [string]$identity
+}
+
 Set-Location $repo
 Assert-CleanWorktree
 Assert-PreparedMainSha
@@ -162,6 +184,7 @@ $env:REDDIT_RSS_MAX_ATTEMPTS = "2"
 try {
   Run-Step "reddit source extraction" @($py, "backend\reddit_etl.py", "--source-package")
   Assert-RedditSourcePackage -BaselineMentions $baselineMentions
+  $sourceReceipt = Assert-LocalRedditAdmission -Worktree
   Restore-RedditOutputSnapshotPaths -Snapshot $outputSnapshot -RelativePaths $ignoredOutputs
 }
 catch {
@@ -172,5 +195,5 @@ catch {
   throw $failure
 }
 
-$prUrl = Invoke-SourcePublication -Snapshot $outputSnapshot
+$prUrl = Invoke-SourcePublication -Snapshot $outputSnapshot -ExpectedReceipt $sourceReceipt
 Write-Output "PR_URL=$prUrl"

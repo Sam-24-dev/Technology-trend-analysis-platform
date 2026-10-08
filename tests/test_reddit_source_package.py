@@ -14,6 +14,8 @@ from requests.exceptions import RequestException
 
 from reddit_etl import RedditETL, write_source_package_receipt
 from exceptions import ETLExtractionError
+from reddit_source_package import REDDIT_SCOPE
+from scripts import check_reddit_package_admission as gate
 
 RUNNER = Path(__file__).resolve().parent.parent / "automation" / "run_reddit_baseline.ps1"
 POWERSHELL = shutil.which("pwsh") or shutil.which("powershell.exe")
@@ -264,6 +266,7 @@ function Run-Step {
   if ($Label -eq "__FAILING_STEP__" -or "__FAILING_STEP__" -eq "restore") { throw "fixture publication failure" }
 }
 function Assert-PreparedMainSha {}
+function Assert-LocalRedditAdmission { return ('a' * 64) }
 function gh {
   if ("__FAILING_STEP__" -eq "gh pr create") { throw "fixture publication failure" }
   $global:LASTEXITCODE = 0
@@ -298,7 +301,7 @@ finally { Remove-RedditOutputSnapshot -Snapshot $outputSnapshot }
 
 
 @pytest.mark.skipif(POWERSHELL is None, reason="PowerShell is required")
-@pytest.mark.parametrize("failure", ["add", "commit", "push", "pr"])
+@pytest.mark.parametrize("failure", ["add", "commit", "push", "pr", "index", "coherent", "hook", "hook_index", "hook_package", "success"])
 def test_real_local_git_publication_failure_stops_next_run(tmp_path, failure):
     repo = tmp_path / "producer"
     remote = tmp_path / "remote.git"
@@ -317,29 +320,60 @@ def test_real_local_git_publication_failure_stops_next_run(tmp_path, failure):
     git("config", "core.hooksPath", str(repo / ".git" / "hooks"))
     git("remote", "add", "origin", str(remote))
     (repo / ".gitignore").write_text("datos/latest/\nautomation/\n", encoding="utf-8")
+    shutil.copy2(RUNNER.parent.parent / ".gitattributes", repo)
     data = repo / "datos"
     data.mkdir()
     sentiment = data / "reddit_sentimiento_frameworks.csv"
     topics = data / "reddit_temas_emergentes.csv"
     receipt = data / "source_packages" / "reddit" / "receipt.json"
     ignored = data / "latest" / "reddit_temas_emergentes.csv"
-    sentiment.write_bytes(b"sentiment-before\r\n")
+    sentiment.write_bytes(b"framework,total_menciones,positivos,neutros,negativos,% positivo,% neutro,% negativo\r\nPython,2,1,1,0,50,50,0\r\n")
+    sentiment_before = sentiment.read_bytes()
     topics.write_bytes(b"tema,menciones\nPython,900\n")
-    git("add", ".gitignore", "datos/reddit_sentimiento_frameworks.csv", "datos/reddit_temas_emergentes.csv")
+    git("add", ".gitignore", ".gitattributes", "datos/reddit_sentimiento_frameworks.csv", "datos/reddit_temas_emergentes.csv")
     git("commit", "-qm", "fixture baseline")
     git("branch", "-M", "main")
     baseline = git("rev-parse", "HEAD").stdout.strip()
     automation = repo / "automation"
     automation.mkdir()
     shutil.copy2(RUNNER.parent / "reddit_output_transaction.psm1", automation)
+    package = tmp_path / "package"
+    package.mkdir()
+    _csvs(package)
+    (package / "datos/reddit_sentimiento_frameworks.csv").write_bytes(sentiment_before)
+    (package / "datos/reddit_temas_emergentes.csv").write_bytes(b"tema,menciones\r\nPython,800\r\n")
+    finish = datetime.now(timezone.utc).replace(microsecond=0)
+    write_source_package_receipt(package, finish, finish, finish, list(REDDIT_SCOPE), 800)
+    replacement = tmp_path / "replacement"
+    shutil.copytree(package, replacement)
+    (replacement / "datos/reddit_temas_emergentes.csv").write_bytes(b"tema,menciones\r\nPython,801\r\n")
+    write_source_package_receipt(replacement, finish, finish, finish, list(REDDIT_SCOPE), 801)
     hooks = repo / ".git" / "hooks"
     if failure in {"commit", "push"}:
         hook = hooks / f"pre-{failure}"
         hook.write_text("#!/bin/sh\nexit 1\n", encoding="utf-8")
         os.chmod(hook, 0o700)
+    if failure in {"hook", "hook_index"}:
+        hook = hooks / ("pre-commit" if failure == "hook" else "post-commit")
+        hook.write_text('#!/bin/sh\nprintf "extra" > extra.txt\ngit add extra.txt\n', encoding="utf-8")
+        os.chmod(hook, 0o700)
+    if failure == "hook_package":
+        alternate = package / "alternate.json"
+        payload = json.loads((package / "datos/source_packages/reddit/receipt.json").read_bytes())
+        payload["posts_count"] += 1
+        alternate.write_text(json.dumps(payload))
+        hook = hooks / "pre-commit"
+        hook.write_text("#!/bin/sh\ncp '" + alternate.as_posix() + "' datos/source_packages/reddit/receipt.json\ngit add datos/source_packages/reddit/receipt.json\n")
+        os.chmod(hook, 0o700)
 
     runner = RUNNER.read_text(encoding="utf-8")
-    preamble = runner[: runner.index("Set-Location $repo")]
+    preamble = runner[: runner.index("Set-Location $repo")].replace(
+        '(Join-Path $repo "scripts/check_reddit_package_admission.py")',
+        '"' + str(RUNNER.parent.parent / "scripts/check_reddit_package_admission.py") + '"')
+    preamble = preamble.replace('    Run-Step "git commit"',
+                                '    Write-Output "ADMITTED_INDEX=$admittedIndex"\n'
+                                '    git ls-files --stage | ForEach-Object { Write-Output "ADMITTED_ENTRY=$_" }\n'
+                                '    Run-Step "git commit"')
     harness = automation / "publication_fixture.ps1"
     harness.write_text(
         preamble
@@ -351,35 +385,74 @@ $outputSnapshot = New-RedditOutputSnapshot -ProjectRoot $repo -RelativePaths @(
   "datos/source_packages/reddit/receipt.json",
   "datos/latest/reddit_temas_emergentes.csv"
 )
-Set-Content -LiteralPath (Join-Path $repo "datos/reddit_sentimiento_frameworks.csv") -Value "sentiment-new" -NoNewline
-Set-Content -LiteralPath (Join-Path $repo "datos/reddit_temas_emergentes.csv") -Value "topics-new" -NoNewline
+Copy-Item -LiteralPath "__PACKAGE__/datos/reddit_sentimiento_frameworks.csv" -Destination (Join-Path $repo "datos/reddit_sentimiento_frameworks.csv")
+Copy-Item -LiteralPath "__PACKAGE__/datos/reddit_temas_emergentes.csv" -Destination (Join-Path $repo "datos/reddit_temas_emergentes.csv")
 $latest = Join-Path $repo "datos/latest/reddit_temas_emergentes.csv"
 New-Item -ItemType Directory -Force -Path (Split-Path -Parent $latest) | Out-Null
 Set-Content -LiteralPath $latest -Value "ignored-new" -NoNewline
 if ("__FAILURE__" -ne "add") {
   $receipt = Join-Path $repo "datos/source_packages/reddit/receipt.json"
   New-Item -ItemType Directory -Force -Path (Split-Path -Parent $receipt) | Out-Null
-  Set-Content -LiteralPath $receipt -Value "receipt-new" -NoNewline
+  Copy-Item -LiteralPath "__PACKAGE__/datos/source_packages/reddit/receipt.json" -Destination $receipt
+}
+if ("__FAILURE__" -eq "index") {
+  Set-Content -LiteralPath (Join-Path $repo "extra.txt") -Value "extra"
+  git add extra.txt
 }
 function gh {
   if ("__FAILURE__" -eq "pr") { throw "fixture PR failure" }
+  Write-Host "ACCEPTED_COMMIT=$((git rev-parse HEAD).Trim())"
   $global:LASTEXITCODE = 0
   return "https://example.invalid/pr"
 }
 Set-Location $repo
 $PreparedMainSha = (git rev-parse HEAD).Trim()
-Invoke-SourcePublication -Snapshot $outputSnapshot
-'''.replace("__FAILURE__", failure),
+$py = "__PYTHON__"
+if ("__FAILURE__" -eq "add") { $sourceReceipt = ('a' * 64) }
+else { $sourceReceipt = Assert-LocalRedditAdmission -Worktree }
+if ("__FAILURE__" -eq "coherent") {
+  Copy-Item -LiteralPath "__REPLACEMENT__/datos/reddit_temas_emergentes.csv" -Destination (Join-Path $repo "datos/reddit_temas_emergentes.csv")
+  Copy-Item -LiteralPath "__REPLACEMENT__/datos/source_packages/reddit/receipt.json" -Destination (Join-Path $repo "datos/source_packages/reddit/receipt.json")
+}
+Invoke-SourcePublication -Snapshot $outputSnapshot -ExpectedReceipt $sourceReceipt
+'''.replace("__FAILURE__", failure).replace("__PACKAGE__", package.as_posix())
+        .replace("__PYTHON__", os.sys.executable).replace("__REPLACEMENT__", replacement.as_posix()),
         encoding="utf-8",
     )
     result = subprocess.run(
         [POWERSHELL, "-NoProfile", "-NonInteractive", "-File", str(harness)],
         cwd=repo, capture_output=True, text=True, check=False,
     )
-    assert result.returncode != 0, result.stdout
+    if failure == "success":
+        assert result.returncode == 0, result.stdout + result.stderr
+        assert git("branch", "--show-current").stdout.strip() == "main"
+        assert subprocess.run(["git", "--git-dir", str(remote), "show-ref", "--verify", "--quiet", "refs/heads/reddit-source-fixture"]).returncode == 0
+        accepted = next(line.split("=", 1)[1] for line in result.stdout.splitlines() if line.startswith("ACCEPTED_COMMIT="))
+        admitted = next(line.split("=", 1)[1] for line in result.stdout.splitlines() if line.startswith("ADMITTED_INDEX="))
+        entries = {}
+        for line in result.stdout.splitlines():
+            if line.startswith("ADMITTED_ENTRY="):
+                metadata, path = line.removeprefix("ADMITTED_ENTRY=").split("\t", 1)
+                mode, oid, stage = metadata.split()
+                assert stage == "0" and path.encode() not in entries
+                entries[path.encode()] = (mode.encode(), oid.encode())
+        assert gate.fingerprint(entries) == admitted
+        assert gate.manifest(repo, accepted) == entries
+        assert git("rev-parse", "refs/heads/reddit-source-fixture").stdout.strip() == accepted
+        remote_sha = subprocess.run(["git", "--git-dir", str(remote), "rev-parse", "refs/heads/reddit-source-fixture"],
+                                    capture_output=True, text=True, check=True).stdout.strip()
+        assert remote_sha == accepted
+        assert git("rev-list", "--parents", "-n", "1", accepted).stdout.split() == [accepted, baseline]
+        blobs = {path: gate.git(repo, "cat-file", "blob", accepted + ":" + path) for path in gate.PATHS}
+        assert [blobs[path] for path in gate.PATHS[:2]] == [(package / path).read_bytes() for path in gate.PATHS[:2]]
+        assert blobs[gate.PATHS[0]] == sentiment_before
+        assert gate.receipt_identity(blobs[gate.PATHS[2]]) == gate.receipt_identity((package / gate.PATHS[2]).read_bytes())
+        assert gate.admit_blobs(repo, baseline, blobs)["eligibility"] == "pass"
+        return
+    assert result.returncode != 0, result.stdout + result.stderr
     reached_steps = [line[4:] for line in result.stdout.splitlines() if line.startswith("==> ")]
     expected_steps = ["git checkout branch", "git add target files"]
-    if failure != "add":
+    if failure not in {"add", "index", "coherent"}:
         expected_steps.append("git commit")
     if failure in {"push", "pr"}:
         expected_steps.append("git push")
@@ -388,7 +461,7 @@ Invoke-SourcePublication -Snapshot $outputSnapshot
     assert "REDDIT_SOURCE_LOCAL_FILES_RESTORED=1" in result.stdout
     assert "Git state was not rolled back" in result.stdout
     assert "REDDIT_SOURCE_PUBLICATION_FAILED_ROLLBACK" not in result.stdout
-    assert sentiment.read_bytes() == b"sentiment-before\r\n"
+    assert sentiment.read_bytes() == sentiment_before
     assert topics.read_bytes() == b"tema,menciones\nPython,900\n"
     assert not receipt.exists()
     assert not ignored.exists()
@@ -415,8 +488,11 @@ Invoke-SourcePublication -Snapshot $outputSnapshot
         "datos/source_packages/reddit/receipt.json",
     ])
     assert branch == "reddit-source-fixture"
-    assert sorted(index) == (changed_paths if failure == "commit" else [])
-    assert sorted(worktree) == (changed_paths if failure != "add" else [])
+    expected_index = changed_paths[1:] if failure in {"commit", "index", "coherent"} else []
+    if failure in {"index", "hook_index"}:
+        expected_index = sorted([*expected_index, "extra.txt"])
+    assert sorted(index) == expected_index
+    assert sorted(worktree) == (changed_paths[1:] if failure != "add" else [])
     assert preflight.returncode != 0, "Next scheduled run must not silently retry after publication failure"
-    assert (head != baseline) is (failure in {"push", "pr"})
+    assert (head != baseline) is (failure in {"push", "pr", "hook", "hook_index", "hook_package"})
     assert remote_branch is (failure == "pr")

@@ -128,6 +128,130 @@ def test_code_only_skips_historical_package(candidate):
     assert gate.admit(repo, base, save(repo), now=NOW)["eligibility"] == "not-applicable"
 
 
+@pytest.mark.parametrize("newline", ["\n", "\r\n"])
+def test_local_exact_index_and_commit_without_ci(candidate, monkeypatch, newline, capsys):
+    repo, base, receipt = candidate
+    (repo / gate.PATHS[2]).write_bytes((json.dumps(receipt) + newline).encode())
+    original_receipt = gate.receipt_identity((repo / gate.PATHS[2]).read_bytes())
+    gate.git(repo, "add", "--all")
+    staged = gate.admit_local(repo, base, expected_receipt=original_receipt, now=NOW)
+    original = gate.git
+    def local_git(root, *args):
+        assert args[0] not in {"fetch", "push", "remote"}
+        return original(root, *args)
+    monkeypatch.setattr(gate, "git", local_git)
+    monkeypatch.setattr(gate, "publish_check", lambda *args: pytest.fail("Local check publication"))
+    assert original(repo, "rev-parse", base + ":" + gate.PATHS[0]) == original(repo, "rev-parse", ":" + gate.PATHS[0])
+    head = save(repo)
+    assert gate.admit_local(repo, base, head=head, expected_index=staged["index_fingerprint"], expected_receipt=original_receipt, now=NOW) == staged
+    finish = datetime.now(timezone.utc).replace(microsecond=0)
+    write_package(repo, finish=finish)
+    original_receipt = gate.receipt_identity((repo / gate.PATHS[2]).read_bytes())
+    gate.git(repo, "add", "--all")
+    valid_index = gate.admit_local(repo, head, expected_receipt=original_receipt, now=finish)
+    head = save(repo)
+    expected = valid_index["index_fingerprint"]
+    assert gate.fingerprint(gate.manifest(repo, head)) == expected
+    assert gate.admit(repo, base, head, now=finish)["eligibility"] == "pass"
+    assert gate.receipt_identity(gate.git(repo, "cat-file", "blob", head + ":" + gate.PATHS[2])) == original_receipt
+    assert gate.local_main(["--root", str(repo), "--base", base, "--head", head,
+                           "--expected-index", expected, "--expected-receipt", original_receipt]) == 1
+    assert capsys.readouterr().out.strip() == "Local admission failed: Committed package must have prepared main as its sole parent"
+
+
+@pytest.mark.parametrize("damage", ["empty", "code", "extra", "delete", "rename", "mode", "symlink", "unmerged", "tamper", "duplicate"])
+def test_local_bad_index_is_read_only(candidate, damage):
+    repo, base, _ = candidate
+    original_receipt = gate.receipt_identity((repo / gate.PATHS[2]).read_bytes())
+    if damage in {"empty", "code"}:
+        gate.git(repo, "restore", "--worktree", "--", *gate.PATHS)
+    if damage in {"code", "extra"}:
+        (repo / "unrelated.py").write_text("pass\n")
+    if damage == "delete":
+        (repo / gate.PATHS[0]).unlink()
+    if damage == "rename":
+        (repo / gate.PATHS[0]).rename(repo / "renamed.csv")
+    if damage == "tamper":
+        (repo / gate.PATHS[1]).write_bytes(b"altered")
+    if damage == "duplicate":
+        path = repo / gate.PATHS[2]
+        path.write_text(path.read_text().replace('"source":', '"source":"duplicate","source":'))
+    gate.git(repo, "add", "--all")
+    oid = gate.git(repo, "rev-parse", base + ":" + gate.PATHS[0]).decode().strip()
+    if damage in {"mode", "symlink"}:
+        gate.git(repo, "update-index", "--cacheinfo", "100755" if damage == "mode" else "120000", oid, gate.PATHS[0])
+    if damage == "unmerged":
+        gate.git(repo, "update-index", "--force-remove", "--", gate.PATHS[0])
+        gate.subprocess.run(["git", "-C", str(repo), "update-index", "--index-info"],
+                            input=f"100644 {oid} 1\t{gate.PATHS[0]}\n".encode(), check=True)
+    before = (gate.git(repo, "show-ref"), (repo / ".git/index").read_bytes())
+    with pytest.raises(ValueError):
+        gate.admit_local(repo, base, expected_receipt=original_receipt, now=NOW)
+    assert before == (gate.git(repo, "show-ref"), (repo / ".git/index").read_bytes())
+
+
+@pytest.mark.parametrize("baseline,total,finish", [(300, 399, NOW), (300, 400, NOW), (501, 425, NOW), (501, 426, NOW),
+                                                  (501, 500, NOW + timedelta(seconds=1)), (501, 500, NOW - timedelta(days=1)),
+                                                  (501, 500, NOW - timedelta(days=9))])
+def test_local_utc_and_integer_ceiling(candidate, baseline, total, finish):
+    repo, _, _ = candidate
+    write_package(repo, baseline, NOW - timedelta(days=9))
+    base = save(repo)
+    write_package(repo, total, finish)
+    original_receipt = gate.receipt_identity((repo / gate.PATHS[2]).read_bytes())
+    gate.git(repo, "add", "--all")
+    if total in {400, 426}:
+        assert gate.admit_local(repo, base, expected_receipt=original_receipt, now=NOW)["minimum_mentions"] == total
+    else:
+        with pytest.raises(ValueError):
+            gate.admit_local(repo, base, expected_receipt=original_receipt, now=NOW)
+
+
+@pytest.mark.parametrize("committed", [False, True])
+def test_local_valid_but_different_package_is_tampering(candidate, committed):
+    repo, base, _ = candidate
+    original_receipt = gate.receipt_identity((repo / gate.PATHS[2]).read_bytes())
+    gate.git(repo, "add", "--all")
+    admitted = gate.admit_local(repo, base, expected_receipt=original_receipt, now=NOW)["index_fingerprint"]
+    head = save(repo) if not committed else None
+    write_package(repo, 801)
+    gate.git(repo, "add", "--all")
+    head = save(repo) if committed else head
+    with pytest.raises(ValueError, match="differs"):
+        gate.admit_local(repo, base, head=head, expected_index=admitted, expected_receipt=original_receipt, now=NOW)
+
+
+def test_local_cli_real_clock_never_calls_ci(candidate, monkeypatch, capsys):
+    repo, base, _ = candidate
+    finish = datetime.now(timezone.utc).replace(microsecond=0)
+    write_package(repo, finish=finish)
+    gate.git(repo, "add", "--all")
+    monkeypatch.setattr(gate, "main", lambda: pytest.fail("CI entry"))
+    monkeypatch.setattr(gate, "urlopen", lambda *args, **kwargs: pytest.fail("Network"))
+    args = ["--root", str(repo), "--base", base]
+    assert gate.local_main([*args, "--worktree"]) == 0
+    original_receipt = json.loads(capsys.readouterr().out)["receipt_fingerprint"]
+    assert gate.local_main([*args, "--index"]) == 1
+    assert "initially validated source" in capsys.readouterr().out
+    args += ["--expected-receipt", original_receipt]
+    assert gate.local_main([*args, "--head", ""]) == 1
+    assert "exact commit SHA" in capsys.readouterr().out
+    assert gate.local_main([*args, "--index"]) == 0
+    staged = json.loads(capsys.readouterr().out)
+    head = save(repo)
+    assert gate.local_main([*args, "--head", head, "--expected-index", staged["index_fingerprint"]]) == 0
+    assert json.loads(capsys.readouterr().out) == staged
+
+
+def test_local_coherent_staged_replacement_rejects_original_source(candidate):
+    repo, base, _ = candidate
+    original = gate.admit_worktree(repo, base, now=NOW)["receipt_fingerprint"]
+    write_package(repo, 801)
+    gate.git(repo, "add", "--all")
+    with pytest.raises(ValueError, match="initially validated source"):
+        gate.admit_local(repo, base, expected_receipt=original, now=NOW)
+
+
 def test_floor_ceiling_and_verified_baseline(candidate):
     assert (301 * 85 + 99) // 100 == 256 and (300 * 85 + 99) // 100 == 255
     assert producer_minimum_mentions(301) == producer_minimum_mentions(300) == 400
