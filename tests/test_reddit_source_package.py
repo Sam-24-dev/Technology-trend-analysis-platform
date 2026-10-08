@@ -15,6 +15,7 @@ from requests.exceptions import RequestException
 from reddit_etl import RedditETL, write_source_package_receipt
 from exceptions import ETLExtractionError
 from reddit_source_package import REDDIT_SCOPE
+from scripts import check_reddit_package_admission as gate
 
 RUNNER = Path(__file__).resolve().parent.parent / "automation" / "run_reddit_baseline.ps1"
 POWERSHELL = shutil.which("pwsh") or shutil.which("powershell.exe")
@@ -369,6 +370,10 @@ def test_real_local_git_publication_failure_stops_next_run(tmp_path, failure):
     preamble = runner[: runner.index("Set-Location $repo")].replace(
         '(Join-Path $repo "scripts/check_reddit_package_admission.py")',
         '"' + str(RUNNER.parent.parent / "scripts/check_reddit_package_admission.py") + '"')
+    preamble = preamble.replace('    Run-Step "git commit"',
+                                '    Write-Output "ADMITTED_INDEX=$admittedIndex"\n'
+                                '    git ls-files --stage | ForEach-Object { Write-Output "ADMITTED_ENTRY=$_" }\n'
+                                '    Run-Step "git commit"')
     harness = automation / "publication_fixture.ps1"
     harness.write_text(
         preamble
@@ -396,6 +401,7 @@ if ("__FAILURE__" -eq "index") {
 }
 function gh {
   if ("__FAILURE__" -eq "pr") { throw "fixture PR failure" }
+  Write-Host "ACCEPTED_COMMIT=$((git rev-parse HEAD).Trim())"
   $global:LASTEXITCODE = 0
   return "https://example.invalid/pr"
 }
@@ -421,6 +427,27 @@ Invoke-SourcePublication -Snapshot $outputSnapshot -ExpectedReceipt $sourceRecei
         assert result.returncode == 0, result.stdout + result.stderr
         assert git("branch", "--show-current").stdout.strip() == "main"
         assert subprocess.run(["git", "--git-dir", str(remote), "show-ref", "--verify", "--quiet", "refs/heads/reddit-source-fixture"]).returncode == 0
+        accepted = next(line.split("=", 1)[1] for line in result.stdout.splitlines() if line.startswith("ACCEPTED_COMMIT="))
+        admitted = next(line.split("=", 1)[1] for line in result.stdout.splitlines() if line.startswith("ADMITTED_INDEX="))
+        entries = {}
+        for line in result.stdout.splitlines():
+            if line.startswith("ADMITTED_ENTRY="):
+                metadata, path = line.removeprefix("ADMITTED_ENTRY=").split("\t", 1)
+                mode, oid, stage = metadata.split()
+                assert stage == "0" and path.encode() not in entries
+                entries[path.encode()] = (mode.encode(), oid.encode())
+        assert gate.fingerprint(entries) == admitted
+        assert gate.manifest(repo, accepted) == entries
+        assert git("rev-parse", "refs/heads/reddit-source-fixture").stdout.strip() == accepted
+        remote_sha = subprocess.run(["git", "--git-dir", str(remote), "rev-parse", "refs/heads/reddit-source-fixture"],
+                                    capture_output=True, text=True, check=True).stdout.strip()
+        assert remote_sha == accepted
+        assert git("rev-list", "--parents", "-n", "1", accepted).stdout.split() == [accepted, baseline]
+        blobs = {path: gate.git(repo, "cat-file", "blob", accepted + ":" + path) for path in gate.PATHS}
+        assert [blobs[path] for path in gate.PATHS[:2]] == [(package / path).read_bytes() for path in gate.PATHS[:2]]
+        assert blobs[gate.PATHS[0]] == sentiment_before
+        assert gate.receipt_identity(blobs[gate.PATHS[2]]) == gate.receipt_identity((package / gate.PATHS[2]).read_bytes())
+        assert gate.admit_blobs(repo, baseline, blobs)["eligibility"] == "pass"
         return
     assert result.returncode != 0, result.stdout + result.stderr
     reached_steps = [line[4:] for line in result.stdout.splitlines() if line.startswith("==> ")]

@@ -129,7 +129,7 @@ def test_code_only_skips_historical_package(candidate):
 
 
 @pytest.mark.parametrize("newline", ["\n", "\r\n"])
-def test_local_exact_index_and_commit_without_ci(candidate, monkeypatch, newline):
+def test_local_exact_index_and_commit_without_ci(candidate, monkeypatch, newline, capsys):
     repo, base, receipt = candidate
     (repo / gate.PATHS[2]).write_bytes((json.dumps(receipt) + newline).encode())
     original_receipt = gate.receipt_identity((repo / gate.PATHS[2]).read_bytes())
@@ -144,10 +144,19 @@ def test_local_exact_index_and_commit_without_ci(candidate, monkeypatch, newline
     assert original(repo, "rev-parse", base + ":" + gate.PATHS[0]) == original(repo, "rev-parse", ":" + gate.PATHS[0])
     head = save(repo)
     assert gate.admit_local(repo, base, head=head, expected_index=staged["index_fingerprint"], expected_receipt=original_receipt, now=NOW) == staged
-    write_package(repo, finish=datetime.now(timezone.utc).replace(microsecond=0))
+    finish = datetime.now(timezone.utc).replace(microsecond=0)
+    write_package(repo, finish=finish)
+    original_receipt = gate.receipt_identity((repo / gate.PATHS[2]).read_bytes())
+    gate.git(repo, "add", "--all")
+    valid_index = gate.admit_local(repo, head, expected_receipt=original_receipt, now=finish)
     head = save(repo)
-    expected = gate.fingerprint(gate.manifest(repo))
-    assert gate.local_main(["--root", str(repo), "--base", base, "--head", head, "--expected-index", expected]) == 1  # wrong parent
+    expected = valid_index["index_fingerprint"]
+    assert gate.fingerprint(gate.manifest(repo, head)) == expected
+    assert gate.admit(repo, base, head, now=finish)["eligibility"] == "pass"
+    assert gate.receipt_identity(gate.git(repo, "cat-file", "blob", head + ":" + gate.PATHS[2])) == original_receipt
+    assert gate.local_main(["--root", str(repo), "--base", base, "--head", head,
+                           "--expected-index", expected, "--expected-receipt", original_receipt]) == 1
+    assert capsys.readouterr().out.strip() == "Local admission failed: Committed package must have prepared main as its sole parent"
 
 
 @pytest.mark.parametrize("damage", ["empty", "code", "extra", "delete", "rename", "mode", "symlink", "unmerged", "tamper", "duplicate"])
