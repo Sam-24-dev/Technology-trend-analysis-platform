@@ -276,6 +276,21 @@ def test_revision_assertions_precede_baseline_and_publication():
     assert publication.index("Assert-PreparedMainSha") < publication.index('Run-Step "git checkout branch"')
 
 
+@pytest.mark.parametrize("control", ["scripts/check_reddit_package_admission.py", "backend/reddit_source_package.py"])
+def test_preparation_rejects_changed_admission_controls(producer, control):
+    repo, origin, baseline, target = producer
+    assert control in prep.CONTROLS
+    git(repo, "reset", "--hard", target)
+    (repo / control).write_text("changed\n")
+    git(repo, "commit", "-qam", "test: change admission control")
+    git(repo, "push", "-q", "origin", "main")
+    git(repo, "reset", "--hard", baseline)
+    before = (git(repo, "rev-parse", "HEAD"), (repo / ".git/index").read_bytes(), (repo / control).read_bytes())
+    with pytest.raises(RuntimeError, match="Bootstrap blobs or modes changed"):
+        prep.prepare(repo, origin)
+    assert before == (git(repo, "rev-parse", "HEAD"), (repo / ".git/index").read_bytes(), (repo / control).read_bytes())
+
+
 @pytest.mark.parametrize("selector", ["GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_COMMON_DIR",
                                      "GIT_OBJECT_DIRECTORY", "GIT_CONFIG_COUNT", "combined"])
 def test_selector_child_cannot_inspect_or_mutate_other_repository(producer, selector):
