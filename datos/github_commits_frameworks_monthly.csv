@@ -1,18 +1,18 @@
 framework,repo,month,commits
-Angular,angular/angular,2025-10,379
+Angular,angular/angular,2025-10,316
 Angular,angular/angular,2025-11,498
 Angular,angular/angular,2025-12,321
 Angular,angular/angular,2026-01,355
 Angular,angular/angular,2026-02,296
 Angular,angular/angular,2026-03,346
 Angular,angular/angular,2026-04,296
-Angular,angular/angular,2026-05,304
+Angular,angular/angular,2026-05,306
 Angular,angular/angular,2026-06,299
 Angular,angular/angular,2026-07,232
-Angular,angular/angular,2026-08,233
-Angular,angular/angular,2026-09,339
-Angular,angular/angular,2026-10,18
-Next.js,vercel/next.js,2025-10,506
+Angular,angular/angular,2026-08,235
+Angular,angular/angular,2026-09,346
+Angular,angular/angular,2026-10,66
+Next.js,vercel/next.js,2025-10,360
 Next.js,vercel/next.js,2025-11,305
 Next.js,vercel/next.js,2025-12,253
 Next.js,vercel/next.js,2026-01,438
@@ -24,8 +24,8 @@ Next.js,vercel/next.js,2026-06,403
 Next.js,vercel/next.js,2026-07,454
 Next.js,vercel/next.js,2026-08,490
 Next.js,vercel/next.js,2026-09,478
-Next.js,vercel/next.js,2026-10,85
-React,react/react,2025-10,117
+Next.js,vercel/next.js,2026-10,226
+React,react/react,2025-10,94
 React,react/react,2025-11,81
 React,react/react,2025-12,39
 React,react/react,2026-01,65
@@ -37,8 +37,8 @@ React,react/react,2026-06,51
 React,react/react,2026-07,69
 React,react/react,2026-08,45
 React,react/react,2026-09,48
-React,react/react,2026-10,1
-Svelte,sveltejs/svelte,2025-10,89
+React,react/react,2026-10,17
+Svelte,sveltejs/svelte,2025-10,74
 Svelte,sveltejs/svelte,2025-11,63
 Svelte,sveltejs/svelte,2025-12,42
 Svelte,sveltejs/svelte,2026-01,96
@@ -50,8 +50,8 @@ Svelte,sveltejs/svelte,2026-06,24
 Svelte,sveltejs/svelte,2026-07,27
 Svelte,sveltejs/svelte,2026-08,102
 Svelte,sveltejs/svelte,2026-09,32
-Svelte,sveltejs/svelte,2026-10,2
-Vue 3,vuejs/core,2025-10,3
+Svelte,sveltejs/svelte,2026-10,15
+Vue 3,vuejs/core,2025-10,1
 Vue 3,vuejs/core,2025-11,42
 Vue 3,vuejs/core,2025-12,28
 Vue 3,vuejs/core,2026-01,28
@@ -63,4 +63,4 @@ Vue 3,vuejs/core,2026-06,45
 Vue 3,vuejs/core,2026-07,25
 Vue 3,vuejs/core,2026-08,42
 Vue 3,vuejs/core,2026-09,29
-Vue 3,vuejs/core,2026-10,0
+Vue 3,vuejs/core,2026-10,19
