@@ -1,9 +1,9 @@
 {
   "source": "reddit",
-  "reference_date_utc": "2026-10-05",
-  "source_date_utc": "2026-10-05",
-  "extraction_started_at_utc": "2026-10-05T02:00:10Z",
-  "extraction_finished_at_utc": "2026-10-05T03:41:30Z",
+  "reference_date_utc": "2026-10-12",
+  "source_date_utc": "2026-10-12",
+  "extraction_started_at_utc": "2026-10-12T02:00:25Z",
+  "extraction_finished_at_utc": "2026-10-12T03:42:23Z",
   "scope": [
     "webdev",
     "programming",
@@ -20,12 +20,12 @@
   "outputs": {
     "reddit_sentimiento_frameworks.csv": {
       "rows": 5,
-      "sha256": "137d82155d553cc821491101ecee5f899b0caab2a8371dde6b936515585debf7"
+      "sha256": "f4fc61dca39dccc2aa6aa28c1c793677f433353e6cb591e0746bcc9216830223"
     },
     "reddit_temas_emergentes.csv": {
       "rows": 10,
-      "sha256": "e66ae05f41cae4a41766a182903a21e4f744f2850ce298d5d474963ba2a99899",
-      "mentions_total": 2239
+      "sha256": "a1300ab3e3bab04ddaedc76d8cf1595f45ed179ea3e2616b67f74039970dc5b6",
+      "mentions_total": 2223
     }
   }
 }
